@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Magnit maydon — Eng oddiy elektromagnitni yig'ish</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap');
+:root{--bg:#07090f;--panel:#0e1420;--border:#1b2840;--accent:#facc15;--green:#6fff5c;--blue:#60a5fa;--red:#f87171;--text:#dde6f5;--muted:#4a6080;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;height:100vh;overflow:hidden;display:flex;flex-direction:column;}
+header{display:flex;align-items:center;gap:12px;padding:8px 20px;border-bottom:1px solid var(--border);background:linear-gradient(90deg,#07090f,#1a1400,#07090f);flex-shrink:0;}
+.badge{background:var(--accent);color:#000;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:3px 9px;letter-spacing:2px;border-radius:2px;}
+.htitle{font-size:14px;font-weight:800;}.htitle span{color:var(--accent);}
+.hsub{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-left:auto;}
+.brand{display:flex;align-items:center;gap:6px;background:linear-gradient(135deg,rgba(250,204,21,.12),rgba(111,255,92,.08));border:1px solid rgba(250,204,21,.3);border-radius:20px;padding:4px 14px;margin-left:10px;flex-shrink:0;}
+.brand-txt{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;background:linear-gradient(90deg,#facc15,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;}
+.statusbar{background:#0a0f1c;border-bottom:1px solid var(--border);padding:5px 20px;display:flex;align-items:center;gap:14px;font-family:'Space Mono',monospace;font-size:11px;flex-shrink:0;}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:bl 1s infinite;flex-shrink:0;}
+.dot.off{background:var(--muted);animation:none;}
+@keyframes bl{0%,100%{opacity:1}50%{opacity:.2}}
+#statusTxt{color:var(--accent);}
+.chips{display:flex;gap:6px;margin-left:auto;flex-wrap:wrap;}
+.chip{background:rgba(250,204,21,.08);border:1px solid rgba(250,204,21,.2);border-radius:10px;padding:2px 9px;font-size:10px;color:var(--muted);}
+.chip span{color:var(--accent);}
+.body{display:grid;grid-template-columns:190px 1fr 235px;flex:1;overflow:hidden;}
+.left{background:var(--panel);border-right:1px solid var(--border);overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:9px;}
+.stitle{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--accent);text-transform:uppercase;margin-bottom:3px;}
+.card{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:8px;padding:10px;}
+.card label{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:7px;}
+.vb{font-family:'Space Mono',monospace;font-size:11px;color:var(--accent);background:rgba(250,204,21,.12);padding:2px 7px;border-radius:3px;}
+input[type=range]{width:100%;-webkit-appearance:none;height:4px;background:var(--border);border-radius:2px;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;background:var(--accent);border-radius:50%;cursor:pointer;box-shadow:0 0 8px rgba(250,204,21,.7);}
+.modesw{display:flex;gap:4px;}
+.modebtn{flex:1;padding:8px 4px;border-radius:7px;border:1px solid var(--border);background:rgba(255,255,255,.03);color:var(--muted);font-family:'Syne',sans-serif;font-weight:700;font-size:11px;cursor:pointer;transition:all .2s;}
+.modebtn.active{background:rgba(250,204,21,.15);border-color:rgba(250,204,21,.5);color:var(--accent);}
+.fbox{background:rgba(250,204,21,.04);border:1px solid rgba(250,204,21,.15);border-radius:7px;padding:9px;}
+.frow{display:flex;gap:6px;margin-bottom:4px;font-family:'Space Mono',monospace;font-size:9px;}
+.fl{color:var(--muted);min-width:22px;}.fe{color:var(--accent);}
+.steps{display:flex;flex-direction:column;gap:3px;}
+.step{display:flex;align-items:center;gap:7px;padding:5px 8px;border-radius:5px;font-size:10px;color:var(--muted);border:1px solid transparent;transition:all .3s;}
+.step.active{background:rgba(250,204,21,.07);border-color:rgba(250,204,21,.2);color:var(--accent);}
+.step.done{color:var(--green);}
+.snum{font-family:'Space Mono',monospace;font-size:9px;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.05);flex-shrink:0;}
+.step.active .snum{background:rgba(250,204,21,.2);}
+.step.done .snum{background:rgba(111,255,92,.12);color:var(--green);}
+.btn{width:100%;padding:9px;border:none;border-radius:7px;font-family:'Syne',sans-serif;font-weight:700;font-size:12px;cursor:pointer;transition:all .2s;margin-top:4px;}
+.btn-p{background:linear-gradient(135deg,#facc15,#ca8a04);color:#000;}
+.btn-p:hover{transform:translateY(-1px);box-shadow:0 5px 18px rgba(250,204,21,.4);}
+.btn-p:disabled{opacity:.35;cursor:not-allowed;}
+.btn-stop{background:linear-gradient(135deg,#f87171,#b91c1c);color:#fff;}
+.btn-g{background:linear-gradient(135deg,#6fff5c,#33cc22);color:#000;}
+.btn-g:disabled{opacity:.35;}
+.btn-r{background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--border);font-size:11px;}
+.center{position:relative;overflow:hidden;background:#040810;}
+#simCanvas{display:block;width:100%;height:100%;}
+.instr-bar{position:absolute;bottom:0;left:0;right:0;background:rgba(4,8,16,.92);border-top:1px solid var(--border);padding:5px 18px;font-size:10px;color:var(--muted);text-align:center;}
+.right{background:var(--panel);border-left:1px solid var(--border);overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:9px;}
+.rc{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:8px;padding:10px;}
+.rc.hi{border-color:rgba(250,204,21,.3);background:rgba(250,204,21,.05);}
+.rc.hi2{border-color:rgba(96,165,250,.25);background:rgba(96,165,250,.04);}
+.rc.hi3{border-color:rgba(111,255,92,.2);background:rgba(111,255,92,.04);}
+.rl{font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:3px;}
+.rv{font-size:20px;font-weight:800;line-height:1;color:#fff;}
+.ru{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-top:2px;}
+.three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+table{width:100%;border-collapse:collapse;font-family:'Space Mono',monospace;font-size:9px;}
+th{color:var(--accent);font-size:7px;letter-spacing:1px;border-bottom:1px solid var(--border);padding:4px 2px;text-align:center;}
+td{padding:3px 2px;border-bottom:1px solid rgba(255,255,255,.03);text-align:center;}
+#graphCanvas{display:block;width:100%;border-radius:8px;border:1px solid var(--border);}
+.final-card{background:rgba(250,204,21,.05);border:1px solid rgba(250,204,21,.2);border-radius:8px;padding:12px;display:none;}
+.err-row{display:flex;justify-content:space-between;margin-top:5px;font-family:'Space Mono',monospace;font-size:10px;}
+.err-row span:first-child{color:var(--muted);}
+.err-row span:last-child{color:var(--green);}
+.langsw{display:flex;gap:3px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;padding:3px;margin-left:10px;}
+.langbtn{background:transparent;border:none;color:var(--muted);font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:4px 9px;border-radius:5px;cursor:pointer;letter-spacing:1px;}
+.langbtn.active{background:var(--accent);color:#000;}
+</style>
+</head>
+<body>
+
+<!-- START SCREEN -->
+<div id="startScreen" style="position:fixed;inset:0;z-index:9999;background:radial-gradient(ellipse at 50% 40%,#1a1400 0%,#07090f 70%);display:flex;align-items:center;justify-content:center;">
+  <canvas id="bgCanvas" style="position:absolute;inset:0;width:100%;height:100%;opacity:.45;pointer-events:none"></canvas>
+  <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:18px;max-width:600px;padding:20px;text-align:center;">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div style="background:#facc15;color:#000;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:4px 14px;letter-spacing:2px;border-radius:2px;">MAGNIT MAYDON · LAB 58</div>
+      <div style="font-family:'Space Mono',monospace;font-size:10px;color:#4a6080;letter-spacing:2px;">58-§</div>
+    </div>
+    <div style="width:100px;height:100px;border-radius:50%;background:radial-gradient(circle,rgba(250,204,21,.2),rgba(250,204,21,.02));border:2px solid rgba(250,204,21,.5);display:flex;align-items:center;justify-content:center;box-shadow:0 0 60px rgba(250,204,21,.35);animation:pulseOmm 2.5s ease-in-out infinite;"><span style="font-size:44px;">🧲</span></div>
+    <h1 style="font-size:20px;font-weight:800;color:#fff;" id="tStartTitle">Eng oddiy elektromagnitni — <span style="color:#facc15;">yig'ish va ishlashini o'rganish</span></h1>
+    <p style="font-size:11px;color:#4a6080;font-family:'Space Mono',monospace;" id="tStartSub">I — tok kuchi (A) · d — kompasgacha masofa (sm) · B — magnit maydon nisbiy kuchi</p>
+    <div style="background:rgba(250,204,21,.05);border:1px solid rgba(250,204,21,.15);border-radius:12px;padding:15px;width:100%;text-align:left;">
+      <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;color:#facc15;margin-bottom:10px;" id="tProcedure">BAJARISH TARTIBI</div>
+      <div style="display:flex;flex-direction:column;gap:7px;">
+        <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#c5d3e8;"><span style="width:20px;height:20px;border-radius:50%;background:rgba(250,204,21,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#facc15;flex-shrink:0;">1</span><span id="tS1">Tok kuchini sozlang va kalitni ulang</span></div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#c5d3e8;"><span style="width:20px;height:20px;border-radius:50%;background:rgba(250,204,21,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#facc15;flex-shrink:0;">2</span><span id="tS2">Kompas yordamida g'altak qutblarini aniqlang</span></div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#c5d3e8;"><span style="width:20px;height:20px;border-radius:50%;background:rgba(250,204,21,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#facc15;flex-shrink:0;">3</span><span id="tS3">Kompasni goltakdan uzoqlashtirib, ta'sir qanday susayishini kuzating</span></div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#c5d3e8;"><span style="width:20px;height:20px;border-radius:50%;background:rgba(250,204,21,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#facc15;flex-shrink:0;">4</span><span id="tS4">Temir o'zak qo'yib, ta'sir qanday kuchayishini solishtiring</span></div>
+      </div>
+    </div>
+    <button onclick="startLab()" style="background:linear-gradient(135deg,#facc15,#ca8a04);color:#000;border:none;border-radius:12px;padding:15px 60px;font-size:16px;font-weight:800;font-family:'Syne',sans-serif;cursor:pointer;box-shadow:0 8px 30px rgba(250,204,21,.4);width:100%;"><span id="tStartBtn">▶ Laboratoriyani boshlash</span></button>
+    <div style="display:flex;align-items:center;gap:6px;opacity:.6;"><span>🔬</span><span style="font-family:'Space Mono',monospace;font-size:10px;font-weight:700;background:linear-gradient(90deg,#facc15,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;">Xosiyat Virtual Lab</span></div>
+  </div>
+</div>
+<style>
+@keyframes pulseOmm{0%,100%{box-shadow:0 0 60px rgba(250,204,21,.25)}50%{box-shadow:0 0 90px rgba(250,204,21,.6)}}
+@keyframes fadeOut{0%{opacity:1}100%{opacity:0;transform:scale(1.04)}}
+</style>
+<script>
+(function(){var c=document.getElementById('bgCanvas');var x=c.getContext('2d');var pts=[];function rs(){c.width=window.innerWidth;c.height=window.innerHeight;}rs();window.addEventListener('resize',rs);
+for(var i=0;i<60;i++)pts.push({x:Math.random()*1600,y:Math.random()*900,r:Math.random()*1.5+.5,vx:(Math.random()-.5)*.35,vy:(Math.random()-.5)*.35,a:Math.random()});
+function fr(){x.clearRect(0,0,c.width,c.height);pts.forEach(function(p){p.x+=p.vx;p.y+=p.vy;p.a+=.005;if(p.x<0)p.x=c.width;if(p.x>c.width)p.x=0;if(p.y<0)p.y=c.height;if(p.y>c.height)p.y=0;x.fillStyle='rgba(250,204,21,'+(0.15+Math.sin(p.a)*0.12)+')';x.beginPath();x.arc(p.x%c.width,p.y%c.height,p.r,0,Math.PI*2);x.fill();});requestAnimationFrame(fr);}fr();})();
+function startLab(){var s=document.getElementById('startScreen');s.style.animation='fadeOut .5s ease forwards';setTimeout(function(){s.style.display='none';},480);}
+</script>
+
+<header>
+  <div class="badge" id="tBadge">MAGNIT MAYDON · LAB 58</div>
+  <h1 class="htitle" id="tTitle">Eng oddiy elektromagnit — <span>yig'ish va ishlashini o'rganish</span></h1>
+  <div class="hsub" id="tHsub">V BOB · MAGNIT MAYDON · FIZPRAKTIKUM · 58-§</div>
+  <div class="langsw">
+    <button class="langbtn active" id="langUZ" onclick="setLang('uz')">UZ</button>
+    <button class="langbtn" id="langRU" onclick="setLang('ru')">RU</button>
+    <button class="langbtn" id="langEN" onclick="setLang('en')">EN</button>
+  </div>
+  <div class="brand"><span>🔬</span><span class="brand-txt">Xosiyat Virtual Lab</span></div>
+</header>
+
+<div class="statusbar">
+  <div class="dot off" id="dot"></div>
+  <span id="statusTxt">Tok kuchini sozlang → kalitni ulang → kompasni kuzating</span>
+  <div class="chips">
+    <div class="chip">I=<span id="cI">0.8</span>A</div>
+    <div class="chip">d=<span id="cD">8</span>sm</div>
+    <div class="chip">O'zak=<span id="cCore">Yo'q</span></div>
+    <div class="chip">θ=<span id="cTheta">—</span>°</div>
+    <div class="chip"><span id="tMeasLbl">O'lchov:</span><span id="chipCnt">0</span></div>
+  </div>
+</div>
+
+<div class="body">
+<div class="left">
+  <div class="stitle" id="tIlabel">Tok kuchi (reostat orqali)</div>
+  <div class="card">
+    <label>I (A) <span class="vb" id="dI">0.8 A</span></label>
+    <input type="range" id="sI" min="0.2" max="2.0" step="0.1" value="0.8" oninput="setIv(this.value)">
+  </div>
+
+  <div class="stitle" id="tDlabel">Kompas masofasi</div>
+  <div class="card">
+    <label>d (sm) <span class="vb" id="dD">8 sm</span></label>
+    <input type="range" id="sD" min="2" max="25" step="1" value="8" oninput="setDv(this.value)">
+  </div>
+
+  <div class="stitle" id="tCoreLabel">Temir o'zak</div>
+  <div class="modesw">
+    <button class="modebtn active" id="coreOffBtn" onclick="setCore(false)"><span id="tCoreOff">Yo'q</span></button>
+    <button class="modebtn" id="coreOnBtn" onclick="setCore(true)"><span id="tCoreOn">Bor</span></button>
+  </div>
+
+  <div class="fbox">
+    <div class="frow"><span class="fl">B</span><span class="fe">~ n·I / d² (havoda)</span></div>
+    <div class="frow"><span class="fl">B'</span><span class="fe">~ μ·B (o'zak bilan)</span></div>
+    <div class="frow"><span class="fl">θ</span><span class="fe">= arctan(B/B_yer)</span></div>
+    <div class="frow"><span class="fl">μ</span><span class="fe">≈ 6 (temir o'zak)</span></div>
+  </div>
+
+  <div class="steps">
+    <div class="step active" id="st1"><div class="snum">1</div><span id="tStep1">I ni sozlang, kalitni ulang</span></div>
+    <div class="step" id="st2"><div class="snum">2</div><span id="tStep2">Qutblarni aniqlang</span></div>
+    <div class="step" id="st3"><div class="snum">3</div><span id="tStep3">Masofani o'zgartiring</span></div>
+    <div class="step" id="st4"><div class="snum">4</div><span id="tStep4">O'zak bilan solishtiring</span></div>
+    <div class="step" id="st5"><div class="snum">5</div><span id="tStep5">Tahlil</span></div>
+  </div>
+
+  <button class="btn btn-p" id="runBtn" onclick="toggleSwitch()">⚡ <span id="tRunBtn">Kalitni ulash</span></button>
+  <button class="btn btn-g" onclick="addMeas()" id="addBtn" disabled>+ <span id="tAddBtn">Natijani yozish</span></button>
+  <button class="btn btn-r" onclick="resetAll()">↺ <span id="tResetBtn">Qayta boshlash</span></button>
+</div>
+
+<div class="center">
+  <canvas id="simCanvas"></canvas>
+  <div class="instr-bar" id="tInstrBar">🧲 Kompas g'altak o'qi bo'ylab og'adi · Masofa ortsa ta'sir susayadi · Temir o'zak maydonni kuchaytiradi</div>
+</div>
+
+<div class="right">
+  <div class="stitle" id="tResults" style="display:none">O'lchov natijalari</div>
+  <div class="three" style="display:none">
+    <div class="rc hi"><div class="rl">I (A)</div><div class="rv" id="rI">—</div></div>
+    <div class="rc hi2"><div class="rl">d (sm)</div><div class="rv" style="color:var(--blue)" id="rD">—</div></div>
+    <div class="rc hi3"><div class="rl">θ (°)</div><div class="rv" style="color:var(--green);font-size:15px" id="rTheta">—</div></div>
+  </div>
+  <div class="two" style="display:none">
+    <div class="rc"><div class="rl" id="tExpLbl">O'zak</div><div class="rv" style="font-size:14px;color:var(--accent)" id="rCore">—</div><div class="ru" id="tExpSub">bor / yo'q</div></div>
+    <div class="rc"><div class="rl" id="tEpsLbl">B nisbiy</div><div class="rv" style="font-size:14px;color:var(--red)" id="rB">—</div><div class="ru">birlik</div></div>
+  </div>
+
+  <div class="stitle" id="tTableTitle" style="display:none">Jadval: o'lchov natijalari</div>
+  <table style="display:none">
+    <thead><tr><th>№</th><th>I(A)</th><th>d(sm)</th><th id="thCore">O'zak</th><th>θ(°)</th><th>B(bl)</th></tr></thead>
+    <tbody id="tbody"></tbody>
+  </table>
+
+  <div class="stitle" id="tGraphTitle" style="display:none">Grafik: θ = f(d)</div>
+  <canvas id="graphCanvas" height="110"></canvas>
+
+  <div class="final-card" id="finalCard" style="display:none">
+    <div class="rl" id="tFinalTitle">Yakuniy natija</div>
+    <div style="display:flex;gap:8px;margin-top:8px;">
+      <div style="flex:1;text-align:center;">
+        <div style="font-size:9px;color:var(--muted);font-family:monospace;" id="tAvgA">Ta'sir radiusi</div>
+        <div style="font-size:20px;font-weight:800;color:var(--blue);" id="resA">—</div>
+        <div style="font-size:8px;color:var(--muted);">sm</div>
+      </div>
+      <div style="flex:1;text-align:center;">
+        <div style="font-size:9px;color:var(--muted);font-family:monospace;" id="tAstar">Kuchayish koef.</div>
+        <div style="font-size:20px;font-weight:800;color:var(--accent);" id="resAstar">—</div>
+        <div style="font-size:8px;color:var(--muted);">× (o'zak bilan)</div>
+      </div>
+    </div>
+    <div class="err-row"><span id="tGivenA">Eng katta θ</span><span id="resAset">—</span></div>
+    <div class="err-row"><span id="tAvgEps">O'zaksiz o'rt. θ</span><span id="resEps">—</span></div>
+    <div class="err-row"><span id="tMeasCnt">O'lchashlar</span><span id="resCnt">—</span></div>
+  </div>
+</div>
+</div>
+
+<div style="position:fixed;bottom:14px;right:18px;display:flex;align-items:center;gap:7px;background:rgba(7,9,15,.75);border:1px solid rgba(250,204,21,.2);border-radius:30px;padding:5px 16px;backdrop-filter:blur(10px);z-index:9999;pointer-events:none;">
+  <span>🔬</span><span style="font-family:'Space Mono',monospace;font-size:11px;font-weight:700;background:linear-gradient(90deg,#facc15,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;">Xosiyat Virtual Lab</span>
+</div>
+
+<script>
+var LANG='uz';
+var I18N={
+ uz:{badge:'MAGNIT MAYDON · LAB 58',title:"Eng oddiy elektromagnit — <span>yig'ish va ishlashini o'rganish</span>",hsub:"V BOB · MAGNIT MAYDON · FIZPRAKTIKUM · 58-§",
+   statusDefault:"Tok kuchini sozlang → kalitni ulang → kompasni kuzating",measLbl:"O'lchov:",
+   iLabel:'Tok kuchi (reostat orqali)',dLabel:'Kompas masofasi',coreLabel:"Temir o'zak",coreOff:"Yo'q",coreOn:'Bor',
+   step1:'I ni sozlang, kalitni ulang',step2:'Qutblarni aniqlang',step3:'Masofani o\'zgartiring',step4:"O'zak bilan solishtiring",step5:'Tahlil',
+   runBtn:'Kalitni ulash',stopBtn:'Kalitni uzish',addBtn:'Natijani yozish',resetBtn:'Qayta boshlash',
+   instrBar:"🧲 Kompas g'altak o'qi bo'ylab og'adi · Masofa ortsa ta'sir susayadi · Temir o'zak maydonni kuchaytiradi",
+   results:"O'lchov natijalari",expLbl:"O'zak",expSub:'bor / yo\'q',epsLbl:'B nisbiy',tableTitle:"Jadval: o'lchov natijalari",graphTitle:'Grafik: θ = f(d)',
+   thCore:"O'zak",finalTitle:'Yakuniy natija',avgA:"Ta'sir radiusi",astar:'Kuchayish koef.',
+   givenA:'Eng katta θ',avgEps:"O'zaksiz o'rt. θ",measCnt:"O'lchashlar",
+   startTitle:"Eng oddiy elektromagnitni — <span style=\"color:#facc15;\">yig'ish va ishlashini o'rganish</span>",startSub:"I — tok kuchi (A) · d — kompasgacha masofa (sm) · B — magnit maydon nisbiy kuchi",
+   procedure:'BAJARISH TARTIBI',s1:'Tok kuchini sozlang va kalitni ulang',s2:"Kompas yordamida g'altak qutblarini aniqlang",
+   s3:"Kompasni goltakdan uzoqlashtirib, ta'sir qanday susayishini kuzating",s4:"Temir o'zak qo'yib, ta'sir qanday kuchayishini solishtiring",
+   startBtn:'▶ Laboratoriyani boshlash',
+   statusRunning:'⚡ Kalit ulandi! Kompas og\'moqda...',
+   statusStopped:'✓ ',unit:'ta'
+ },
+ ru:{badge:'МАГНИТНОЕ ПОЛЕ · ЛАБ 58',title:'Простейший электромагнит — <span>сборка и изучение работы</span>',hsub:'V ГЛАВА · МАГНИТНОЕ ПОЛЕ · ФИЗПРАКТИКУМ · §58',
+   statusDefault:'Настройте ток → замкните ключ → наблюдайте за компасом',measLbl:'Измерений:',
+   iLabel:'Сила тока (через реостат)',dLabel:'Расстояние до компаса',coreLabel:'Железный сердечник',coreOff:'Нет',coreOn:'Есть',
+   step1:'Настройте I, замкните ключ',step2:'Определите полюсы',step3:'Измените расстояние',step4:'Сравните с сердечником',step5:'Анализ',
+   runBtn:'Замкнуть ключ',stopBtn:'Разомкнуть ключ',addBtn:'Записать результат',resetBtn:'Начать заново',
+   instrBar:'🧲 Компас отклоняется вдоль оси катушки · С расстоянием эффект слабеет · Сердечник усиливает поле',
+   results:'Результаты измерений',expLbl:'Сердечник',expSub:'есть / нет',epsLbl:'B относит.',tableTitle:'Таблица результатов',graphTitle:'График: θ = f(d)',
+   thCore:'Сердечник',finalTitle:'Итоговый результат',avgA:'Радиус действия',astar:'Коэфф. усиления',
+   givenA:'Макс. θ',avgEps:'Средн. θ без сердечника',measCnt:'Измерения',
+   startTitle:'Изучение простейшего электромагнита',startSub:'I — сила тока (А) · d — расстояние до компаса (см) · B — относительная сила поля',
+   procedure:'ПОРЯДОК ВЫПОЛНЕНИЯ',s1:'Настройте силу тока и замкните ключ',s2:'С помощью компаса определите полюсы катушки',
+   s3:'Отодвигая компас от катушки, наблюдайте ослабление эффекта',s4:'Вставьте сердечник и сравните усиление эффекта',
+   startBtn:'▶ Начать лабораторную',
+   statusRunning:'⚡ Ключ замкнут! Компас отклоняется...',
+   statusStopped:'✓ ',unit:'шт.'
+ },
+ en:{badge:'MAGNETIC FIELD · LAB 58',title:'The Simplest Electromagnet — <span>assembly and operation</span>',hsub:'CH. V · MAGNETIC FIELD · PHYSICS LAB · §58',
+   statusDefault:'Set the current → close the switch → watch the compass',measLbl:'Measurements:',
+   iLabel:'Current (via rheostat)',dLabel:'Distance to compass',coreLabel:'Iron core',coreOff:'None',coreOn:'Present',
+   step1:'Set I, close the switch',step2:'Identify the poles',step3:'Change the distance',step4:'Compare with the core',step5:'Analysis',
+   runBtn:'Close the switch',stopBtn:'Open the switch',addBtn:'Record result',resetBtn:'Restart',
+   instrBar:"🧲 The compass deflects along the coil's axis · The effect weakens with distance · An iron core strengthens the field",
+   results:'Measurement results',expLbl:'Core',expSub:'present / none',epsLbl:'Relative B',tableTitle:'Results table',graphTitle:'Graph: θ = f(d)',
+   thCore:'Core',finalTitle:'Final result',avgA:'Effect radius',astar:'Amplification factor',
+   givenA:'Max θ',avgEps:'Avg θ without core',measCnt:'Measurements',
+   startTitle:'Studying the Simplest Electromagnet',startSub:'I — current (A) · d — distance to compass (cm) · B — relative field strength',
+   procedure:'PROCEDURE',s1:'Set the current and close the switch',s2:"Use the compass to identify the coil's poles",
+   s3:'Move the compass away from the coil and observe the effect weaken',s4:'Insert the iron core and compare the amplified effect',
+   startBtn:'▶ Start the lab',
+   statusRunning:'⚡ Switch closed! Compass deflecting...',
+   statusStopped:'✓ ',unit:''
+ }
+};
+function t(k){return I18N[LANG][k];}
+function setLang(l){
+  LANG=l;
+  document.getElementById('langUZ').className='langbtn'+(l==='uz'?' active':'');
+  document.getElementById('langRU').className='langbtn'+(l==='ru'?' active':'');
+  document.getElementById('langEN').className='langbtn'+(l==='en'?' active':'');
+  document.getElementById('tBadge').textContent=t('badge');
+  document.getElementById('tTitle').innerHTML=t('title');
+  document.getElementById('tHsub').textContent=t('hsub');
+  document.getElementById('tMeasLbl').textContent=t('measLbl');
+  document.getElementById('tIlabel').textContent=t('iLabel');
+  document.getElementById('tDlabel').textContent=t('dLabel');
+  document.getElementById('tCoreLabel').textContent=t('coreLabel');
+  document.getElementById('tCoreOff').textContent=t('coreOff');
+  document.getElementById('tCoreOn').textContent=t('coreOn');
+  document.getElementById('tStep1').textContent=t('step1');
+  document.getElementById('tStep2').textContent=t('step2');
+  document.getElementById('tStep3').textContent=t('step3');
+  document.getElementById('tStep4').textContent=t('step4');
+  document.getElementById('tStep5').textContent=t('step5');
+  document.getElementById('tRunBtn').textContent=running?t('stopBtn'):t('runBtn');
+  document.getElementById('tAddBtn').textContent=t('addBtn');
+  document.getElementById('tResetBtn').textContent=t('resetBtn');
+  document.getElementById('tInstrBar').textContent=t('instrBar');
+  document.getElementById('tResults').textContent=t('results');
+  document.getElementById('tExpLbl').textContent=t('expLbl');
+  document.getElementById('tExpSub').textContent=t('expSub');
+  document.getElementById('tEpsLbl').textContent=t('epsLbl');
+  document.getElementById('tTableTitle').textContent=t('tableTitle');
+  document.getElementById('tGraphTitle').textContent=t('graphTitle');
+  document.getElementById('thCore').textContent=t('thCore');
+  document.getElementById('tFinalTitle').textContent=t('finalTitle');
+  document.getElementById('tAvgA').textContent=t('avgA');
+  document.getElementById('tAstar').textContent=t('astar');
+  document.getElementById('tGivenA').textContent=t('givenA');
+  document.getElementById('tAvgEps').textContent=t('avgEps');
+  document.getElementById('tMeasCnt').textContent=t('measCnt');
+  document.getElementById('tStartTitle').innerHTML=t('startTitle');
+  document.getElementById('tStartSub').textContent=t('startSub');
+  document.getElementById('tProcedure').textContent=t('procedure');
+  document.getElementById('tS1').textContent=t('s1');
+  document.getElementById('tS2').textContent=t('s2');
+  document.getElementById('tS3').textContent=t('s3');
+  document.getElementById('tS4').textContent=t('s4');
+  document.getElementById('tStartBtn').textContent=t('startBtn');
+  document.getElementById('cCore').textContent=core?t('coreOn'):t('coreOff');
+  if(!running && cnt===0){document.getElementById('statusTxt').textContent=t('statusDefault');}
+  drawGraph();
+}
+
+var Iv=0.8,Dv=8,core=false,measList=[],cnt=0,animT=0;
+var running=false;
+var Bearth=1.0, kField=180, muCore=6;
+var sc=document.getElementById('simCanvas'),ctx=sc.getContext('2d');
+var gc=document.getElementById('graphCanvas'),gctx=gc.getContext('2d');
+
+function setIv(v){Iv=parseFloat(v);document.getElementById('dI').textContent=parseFloat(v).toFixed(1)+' A';document.getElementById('cI').textContent=v;}
+function setDv(v){Dv=parseFloat(v);document.getElementById('dD').textContent=v+' sm';document.getElementById('cD').textContent=v;}
+function setCore(c){
+  core=c;
+  document.getElementById('coreOffBtn').className='modebtn'+(!c?' active':'');
+  document.getElementById('coreOnBtn').className='modebtn'+(c?' active':'');
+  document.getElementById('cCore').textContent=c?t('coreOn'):t('coreOff');
+}
+
+function computeB(){
+  var base=kField*Iv/(Dv*Dv);
+  return core?base*muCore:base;
+}
+function computeTheta(B){
+  var deg=Math.atan(B/Bearth)*180/Math.PI;
+  return Math.min(89,deg);
+}
+
+function toggleSwitch(){
+  if(!running){
+    running=true;
+    document.getElementById('addBtn').disabled=false;
+    document.getElementById('dot').classList.remove('off');
+    document.getElementById('runBtn').className='btn btn-stop';
+    document.getElementById('tRunBtn').textContent=t('stopBtn');
+    setStep(2);
+    document.getElementById('statusTxt').textContent=t('statusRunning');
+  } else {
+    running=false;
+    document.getElementById('runBtn').className='btn btn-p';
+    document.getElementById('tRunBtn').textContent=t('runBtn');
+    document.getElementById('dot').classList.add('off');
+    document.getElementById('addBtn').disabled=true;
+    document.getElementById('statusTxt').textContent=t('statusDefault');
+  }
+}
+
+function addMeas(){
+  if(!running)return;
+  cnt++;
+  var B=computeB(),theta=computeTheta(B);
+  document.getElementById('rI').textContent=Iv.toFixed(1);
+  document.getElementById('rD').textContent=Dv;
+  document.getElementById('rTheta').textContent=theta.toFixed(1);
+  document.getElementById('rCore').textContent=core?t('coreOn'):t('coreOff');
+  document.getElementById('rB').textContent=B.toFixed(1);
+  document.getElementById('cTheta').textContent=theta.toFixed(1);
+  measList.push({I:Iv,d:Dv,core:core,theta:theta,B:B});
+  document.getElementById('chipCnt').textContent=cnt;
+  var tr=document.createElement('tr');
+  tr.innerHTML='<td>'+cnt+'</td><td>'+Iv.toFixed(1)+'</td><td>'+Dv+'</td><td>'+(core?t('coreOn'):t('coreOff'))+'</td><td>'+theta.toFixed(1)+'</td><td>'+B.toFixed(1)+'</td>';
+  document.getElementById('tbody').appendChild(tr);
+  setStep(3);
+  if(measList.length>=3){
+    var withCore=measList.filter(function(m){return m.core;});
+    var withoutCore=measList.filter(function(m){return !m.core;});
+    var maxTheta=Math.max.apply(null,measList.map(function(m){return m.theta;}));
+    var thresholdIdx=measList.filter(function(m){return m.theta>3;});
+    var maxRadius=thresholdIdx.length?Math.max.apply(null,thresholdIdx.map(function(m){return m.d;})):Dv;
+    var avgWithout=withoutCore.length?withoutCore.reduce(function(a,b){return a+b.theta;},0)/withoutCore.length:0;
+    var avgWith=withCore.length?withCore.reduce(function(a,b){return a+b.theta;},0)/withCore.length:0;
+    var ratio=avgWithout>0?(avgWith>0?(avgWith/avgWithout):muCore):muCore;
+    document.getElementById('finalCard').style.display='block';
+    document.getElementById('resA').textContent=maxRadius;
+    document.getElementById('resAstar').textContent=(withCore.length&&withoutCore.length)?ratio.toFixed(1):muCore.toFixed(1);
+    document.getElementById('resAset').textContent=maxTheta.toFixed(1)+'°';
+    document.getElementById('resEps').textContent=avgWithout.toFixed(1)+'°';
+    document.getElementById('resCnt').textContent=measList.length+' '+t('unit');
+    setStep(5);
+  }
+  drawGraph();
+}
+
+function resetAll(){
+  measList=[];cnt=0;running=false;
+  document.getElementById('tbody').innerHTML='';
+  document.getElementById('finalCard').style.display='none';
+  document.getElementById('addBtn').disabled=true;
+  document.getElementById('runBtn').className='btn btn-p';
+  document.getElementById('tRunBtn').textContent=t('runBtn');
+  document.getElementById('dot').classList.add('off');
+  document.getElementById('chipCnt').textContent=0;
+  ['rI','rD','rTheta','rCore','rB'].forEach(function(id){document.getElementById(id).textContent='—';});
+  document.getElementById('cTheta').textContent='—';
+  document.getElementById('statusTxt').textContent=t('statusDefault');
+  setStep(1);drawGraph();
+}
+function setStep(n){for(var i=1;i<=5;i++){var el=document.getElementById('st'+i);el.className='step'+(i<n?' done':i===n?' active':'');el.querySelector('.snum').textContent=i<n?'✓':i;}}
+function resize(){sc.width=sc.offsetWidth;sc.height=sc.offsetHeight;}
+window.addEventListener('resize',resize);setTimeout(resize,80);
+
+(function loop(){
+  animT+=0.016;
+  drawSim();
+  requestAnimationFrame(loop);
+})();
+
+function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.lineTo(x+w-r,y);c.quadraticCurveTo(x+w,y,x+w,y+r);c.lineTo(x+w,y+h-r);c.quadraticCurveTo(x+w,y+h,x+w-r,y+h);c.lineTo(x+r,y+h);c.quadraticCurveTo(x,y+h,x,y+h-r);c.lineTo(x,y+r);c.quadraticCurveTo(x,y,x+r,y);c.closePath();}
+
+function drawSim(){
+  var W=sc.width,H=sc.height;if(!W||!H)return;
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#040810';ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle='rgba(250,204,21,.02)';ctx.lineWidth=1;
+  for(var xi=0;xi<W;xi+=60){ctx.beginPath();ctx.moveTo(xi,0);ctx.lineTo(xi,H);ctx.stroke();}
+  for(var yi=0;yi<H;yi+=60){ctx.beginPath();ctx.moveTo(0,yi);ctx.lineTo(W,yi);ctx.stroke();}
+
+  var active=running;
+  var cy=H*0.42;
+  var coilX=W*0.32,coilLen=Math.min(W*0.22,150),coilR=34;
+  var coilLeft=coilX-coilLen/2,coilRight=coilX+coilLen/2;
+
+  // circuit wires: source(right side) -> switch -> rheostat -> coil -> back
+  var wireCol=active?'rgba(250,204,21,.85)':'rgba(140,150,165,.55)';
+  ctx.lineWidth=4;ctx.strokeStyle=wireCol;ctx.lineJoin='round';
+  if(active){ctx.shadowColor='rgba(250,204,21,.35)';ctx.shadowBlur=10;}
+  var srcX=W*0.75,srcY=cy;
+  ctx.beginPath();
+  ctx.moveTo(coilRight,cy-coilR);ctx.lineTo(coilRight+30,cy-coilR);ctx.lineTo(coilRight+30,cy-90);ctx.lineTo(srcX-60,cy-90);
+  // switch
+  ctx.moveTo(srcX-60,cy-90);ctx.lineTo(srcX-30,cy-90);
+  ctx.moveTo(srcX+30,cy-90);ctx.lineTo(srcX+70,cy-90);ctx.lineTo(srcX+70,cy-20);
+  // battery symbol area
+  ctx.moveTo(srcX+70,cy+20);ctx.lineTo(srcX+70,cy+90);ctx.lineTo(coilRight+50,cy+90);ctx.lineTo(coilRight+50,cy+coilR);ctx.lineTo(coilRight,cy+coilR);
+  ctx.stroke();ctx.shadowBlur=0;
+
+  // switch marker
+  var swx1=srcX-30,swx2=srcX+30,swy=cy-90;
+  ctx.fillStyle=active?'rgba(111,255,92,.9)':'rgba(248,113,113,.7)';
+  ctx.beginPath();ctx.arc(swx1,swy,4,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.arc(swx2,swy,4,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle=active?'rgba(111,255,92,.9)':'rgba(248,113,113,.7)';ctx.lineWidth=4;
+  ctx.beginPath();ctx.moveTo(swx1,swy);
+  if(active){ctx.lineTo(swx2,swy);}else{ctx.lineTo(swx1+40,swy-16);}
+  ctx.stroke();
+  ctx.fillStyle='rgba(150,160,175,.6)';ctx.font='10px monospace';ctx.textAlign='center';
+  ctx.fillText('K',(swx1+swx2)/2,swy-14);
+
+  // battery
+  ctx.strokeStyle=wireCol;ctx.lineWidth=5;
+  ctx.beginPath();ctx.moveTo(srcX+58,cy-14);ctx.lineTo(srcX+82,cy-14);ctx.moveTo(srcX+64,cy+14);ctx.lineTo(srcX+76,cy+14);ctx.stroke();
+  ctx.fillStyle='rgba(150,160,175,.7)';ctx.font='10px monospace';ctx.fillText('EYuK',srcX+70,cy-30);
+
+  // rheostat box (top wire, between switch and coil)
+  var rhx=(coilRight+30+srcX-60)/2,rhy=cy-90;
+  ctx.strokeStyle=active?'rgba(96,165,250,.85)':'rgba(140,150,165,.4)';ctx.lineWidth=2;
+  rr(ctx,rhx-35,rhy-11,70,22,5);ctx.fillStyle='rgba(14,20,32,.95)';ctx.fill();ctx.stroke();
+  ctx.fillStyle='rgba(150,160,175,.7)';ctx.font='9px monospace';ctx.fillText('Reostat',rhx,rhy+3);
+  ctx.beginPath();ctx.moveTo(rhx-20,rhy-15);ctx.lineTo(rhx+20,rhy-24);ctx.strokeStyle=active?'rgba(250,204,21,.7)':'rgba(140,150,165,.4)';ctx.lineWidth=2;ctx.stroke();
+  ctx.beginPath();ctx.arc(rhx+20,rhy-24,2.5,0,Math.PI*2);ctx.fillStyle=active?'rgba(250,204,21,.9)':'rgba(140,150,165,.5)';ctx.fill();
+
+  // COIL (solenoid) drawn as loops around a tube; iron core inside if active
+  var nLoops=12;
+  if(core){
+    ctx.fillStyle=active?'rgba(180,150,90,.9)':'rgba(120,110,100,.7)';
+    rr(ctx,coilLeft+6,cy-14,coilLen-12,28,5);ctx.fill();
+    ctx.strokeStyle='rgba(80,70,60,.9)';ctx.lineWidth=1;
+    rr(ctx,coilLeft+6,cy-14,coilLen-12,28,5);ctx.stroke();
+  } else {
+    ctx.fillStyle='rgba(40,45,60,.6)';
+    rr(ctx,coilLeft+6,cy-10,coilLen-12,20,4);ctx.fill();
+  }
+  for(var li=0;li<nLoops;li++){
+    var lx=coilLeft+(coilLen)*(li+0.5)/nLoops;
+    ctx.strokeStyle=active?'rgba(250,204,21,.9)':'rgba(150,120,60,.6)';
+    ctx.lineWidth=3;
+    ctx.beginPath();ctx.ellipse(lx,cy,7,coilR,0,0,Math.PI*2);ctx.stroke();
+  }
+  ctx.fillStyle='rgba(150,160,175,.7)';ctx.font='10px monospace';ctx.textAlign='center';
+  ctx.fillText("G'altak (n o'ram)",coilX,cy+coilR+18);
+  if(core){
+    ctx.fillStyle='rgba(250,204,21,.7)';ctx.font='9px monospace';
+    ctx.fillText("Temir o'zak bilan",coilX,cy+coilR+32);
+  }
+
+  // Magnetic field lines (arcs) when active, intensity scales with current field strength
+  var B=computeB();
+  if(active && B>0.5){
+    var nArcs=Math.min(5,Math.max(1,Math.round(B/40)));
+    ctx.strokeStyle='rgba(96,165,250,.35)';
+    for(var a=1;a<=nArcs;a++){
+      var rad=coilR+a*14;
+      ctx.lineWidth=1.4;
+      ctx.beginPath();ctx.ellipse(coilX,cy,coilLen*0.5+a*10,rad,0,0,Math.PI*2);ctx.stroke();
+    }
+  }
+
+  // COMPASS placed along axis at distance Dv (scaled) to the right of coil
+  var pxPerCm=6;
+  var compassX=coilRight+40+Dv*pxPerCm;
+  if(compassX>W-60)compassX=W-60;
+  var compassY=cy;
+  var theta=active?computeTheta(B):0;
+  drawCompass(compassX,compassY,theta,active);
+
+  // distance line marker
+  ctx.strokeStyle='rgba(150,160,175,.3)';ctx.setLineDash([3,3]);ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(coilRight+40,cy+70);ctx.lineTo(compassX,cy+70);ctx.stroke();ctx.setLineDash([]);
+  ctx.fillStyle='rgba(150,160,175,.6)';ctx.font='9px monospace';ctx.textAlign='center';
+  ctx.fillText('d = '+Dv+' sm',(coilRight+40+compassX)/2,cy+84);
+
+  // digital readout panel
+  // readout panel removed per request
+
+  // flow dots in wire when active
+  if(active){
+    var speedFactor=Math.max(0.6,Math.min(4,Iv*3));
+    var pathPoints=[[coilRight,cy-coilR],[coilRight+30,cy-coilR],[coilRight+30,cy-90],[swx1,cy-90],[swx2,cy-90],[srcX+70,cy-90],[srcX+70,cy-20],[srcX+70,cy+20],[srcX+70,cy+90],[coilRight+50,cy+90],[coilRight+50,cy+coilR],[coilRight,cy+coilR]];
+    var totalLen=0,segLens=[];
+    for(var p=0;p<pathPoints.length-1;p++){var dx=pathPoints[p+1][0]-pathPoints[p][0],dy=pathPoints[p+1][1]-pathPoints[p][1];var len=Math.sqrt(dx*dx+dy*dy);segLens.push(len);totalLen+=len;}
+    var dotCount=8;
+    ctx.fillStyle='rgba(250,204,21,.95)';ctx.shadowColor='rgba(250,204,21,.6)';ctx.shadowBlur=6;
+    for(var d=0;d<dotCount;d++){
+      var dist=(animT*60*speedFactor+d*(totalLen/dotCount))%totalLen;
+      var segIdx=0;
+      while(dist>segLens[segIdx]){dist-=segLens[segIdx];segIdx++;if(segIdx>=segLens.length)break;}
+      if(segIdx>=pathPoints.length-1)continue;
+      var x1=pathPoints[segIdx][0],y1=pathPoints[segIdx][1],x2=pathPoints[segIdx+1][0],y2=pathPoints[segIdx+1][1];
+      var frac=segLens[segIdx]===0?0:dist/segLens[segIdx];
+      var px=x1+(x2-x1)*frac,py=y1+(y2-y1)*frac;
+      ctx.beginPath();ctx.arc(px,py,3,0,Math.PI*2);ctx.fill();
+    }
+    ctx.shadowBlur=0;
+  }
+}
+
+function drawCompass(x,y,thetaDeg,active){
+  var rad=26;
+  ctx.save();
+  ctx.fillStyle='rgba(14,20,32,.95)';
+  ctx.strokeStyle='rgba(250,204,21,.4)';ctx.lineWidth=2;
+  ctx.beginPath();ctx.arc(x,y,rad,0,Math.PI*2);ctx.fill();ctx.stroke();
+  // cardinal ticks
+  ctx.strokeStyle='rgba(150,160,175,.3)';ctx.lineWidth=1;
+  for(var ang=0;ang<360;ang+=45){
+    var rr2=ang%90===0?rad-2:rad-5;
+    var a1=ang*Math.PI/180;
+    ctx.beginPath();ctx.moveTo(x+Math.cos(a1)*rr2,y+Math.sin(a1)*rr2);ctx.lineTo(x+Math.cos(a1)*rad,y+Math.sin(a1)*rad);ctx.stroke();
+  }
+  // needle: baseline points up (north, -90deg); deflect by thetaDeg toward coil axis (assume axis horizontal, so deflect toward 0deg/180deg)
+  var baseAngle=-90; // pointing up = geographic north
+  var deflect=active?thetaDeg:0;
+  // deflect needle toward horizontal (toward coil) - direction depends on side; assume coil is to the left, so deflect toward 180 side (left) diminished by thetaDeg mapped
+  var needleAngleDeg=baseAngle-deflect; // rotate counter-clockwise toward left/up
+  var a=needleAngleDeg*Math.PI/180;
+  ctx.strokeStyle='#f87171';ctx.lineWidth=3;ctx.lineCap='round';
+  ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+Math.cos(a)*(rad-6),y+Math.sin(a)*(rad-6));ctx.stroke();
+  var aOpp=a+Math.PI;
+  ctx.strokeStyle='rgba(220,225,235,.8)';ctx.lineWidth=3;
+  ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+Math.cos(aOpp)*(rad-6),y+Math.sin(aOpp)*(rad-6));ctx.stroke();
+  ctx.fillStyle='rgba(250,204,21,.9)';ctx.beginPath();ctx.arc(x,y,3,0,Math.PI*2);ctx.fill();
+  ctx.restore();
+  ctx.fillStyle='rgba(150,160,175,.7)';ctx.font='10px monospace';ctx.textAlign='center';
+  ctx.fillText('Kompas',x,y+rad+16);
+}
+
+function drawReadoutPanel(x,y,lines){
+  var w=280,h=90;
+  ctx.fillStyle='rgba(14,20,32,.9)';rr(ctx,x,y,w,h,10);ctx.fill();
+  ctx.strokeStyle='rgba(250,204,21,.2)';ctx.lineWidth=1;rr(ctx,x,y,w,h,10);ctx.stroke();
+  ctx.textAlign='left';
+  ctx.fillStyle='rgba(250,204,21,.85)';ctx.font="bold 12px 'Space Mono'";
+  ctx.fillText(lines[0],x+12,y+22);
+  ctx.fillStyle='rgba(96,165,250,.8)';ctx.font="12px monospace";
+  ctx.fillText(lines[1],x+12,y+46);
+  ctx.fillStyle='rgba(111,255,92,.75)';ctx.font="12px monospace";
+  ctx.fillText(lines[2],x+12,y+68);
+}
+
+function drawGraph(){
+  var W2=gc.offsetWidth||250;gc.width=W2;var GH=110;
+  gctx.clearRect(0,0,W2,GH);gctx.fillStyle='#070c17';gctx.fillRect(0,0,W2,GH);
+  var pad=32,gW=W2-pad*2,gHH=GH-pad-8;
+  gctx.strokeStyle='rgba(250,204,21,.3)';gctx.lineWidth=1;
+  gctx.beginPath();gctx.moveTo(pad,8);gctx.lineTo(pad,GH-pad);gctx.lineTo(W2-pad+6,GH-pad);gctx.stroke();
+  gctx.fillStyle='rgba(250,204,21,.5)';gctx.font='7px monospace';gctx.textAlign='center';gctx.fillText('d(sm)',W2-pad+8,GH-pad+3);
+  gctx.textAlign='right';gctx.fillText('θ(°)',pad-3,12);
+  if(!measList.length)return;
+  var dvals=measList.map(function(m){return m.d;}),tvals=measList.map(function(m){return m.theta;});
+  var maxD=Math.max.apply(null,dvals)*1.2,maxT=Math.max.apply(null,tvals)*1.3||10;
+  measList.forEach(function(m){
+    var px=pad+(m.d/maxD)*gW,py=GH-pad-(m.theta/maxT)*gHH;
+    gctx.shadowColor=m.core?'rgba(250,204,21,.6)':'rgba(96,165,250,.6)';gctx.shadowBlur=6;
+    gctx.fillStyle=m.core?'rgba(250,204,21,.9)':'rgba(96,165,250,.9)';gctx.beginPath();gctx.arc(px,py,5,0,Math.PI*2);gctx.fill();
+    gctx.shadowBlur=0;
+  });
+  gctx.fillStyle='rgba(96,165,250,.7)';gctx.font='7px monospace';gctx.textAlign='left';gctx.fillText('● havoda',pad+2,GH-pad-gHH+12);
+  gctx.fillStyle='rgba(250,204,21,.7)';gctx.fillText('● o\'zak bilan',pad+2,GH-pad-gHH+22);
+}
+
+window.addEventListener('load',function(){setTimeout(function(){resize();drawGraph();},100);});
+</script>
+</body>
+</html>

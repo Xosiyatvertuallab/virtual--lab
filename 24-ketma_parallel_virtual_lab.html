@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Elektr toki — O'tkazgichlarni ketma-ket va parallel ulash</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap');
+:root{--bg:#07090f;--panel:#0e1420;--border:#1b2840;--accent:#facc15;--green:#6fff5c;--blue:#60a5fa;--red:#f87171;--text:#dde6f5;--muted:#4a6080;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;height:100vh;overflow:hidden;display:flex;flex-direction:column;}
+header{display:flex;align-items:center;gap:12px;padding:8px 20px;border-bottom:1px solid var(--border);background:linear-gradient(90deg,#07090f,#1a1400,#07090f);flex-shrink:0;}
+.badge{background:var(--accent);color:#000;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:3px 9px;letter-spacing:2px;border-radius:2px;}
+.htitle{font-size:14px;font-weight:800;}.htitle span{color:var(--accent);}
+.hsub{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-left:auto;}
+.brand{display:flex;align-items:center;gap:6px;background:linear-gradient(135deg,rgba(250,204,21,.12),rgba(111,255,92,.08));border:1px solid rgba(250,204,21,.3);border-radius:20px;padding:4px 14px;margin-left:10px;flex-shrink:0;}
+.brand-txt{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;background:linear-gradient(90deg,#facc15,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;}
+.statusbar{background:#0a0f1c;border-bottom:1px solid var(--border);padding:5px 20px;display:flex;align-items:center;gap:14px;font-family:'Space Mono',monospace;font-size:11px;flex-shrink:0;}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:bl 1s infinite;flex-shrink:0;}
+.dot.off{background:var(--muted);animation:none;}
+@keyframes bl{0%,100%{opacity:1}50%{opacity:.2}}
+#statusTxt{color:var(--accent);}
+.chips{display:flex;gap:6px;margin-left:auto;flex-wrap:wrap;}
+.chip{background:rgba(250,204,21,.08);border:1px solid rgba(250,204,21,.2);border-radius:10px;padding:2px 9px;font-size:10px;color:var(--muted);}
+.chip span{color:var(--accent);}
+.body{display:grid;grid-template-columns:185px 1fr 200px;flex:1;overflow:hidden;}
+.left{background:var(--panel);border-right:1px solid var(--border);overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:9px;}
+.stitle{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--accent);text-transform:uppercase;margin-bottom:3px;}
+.card{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:8px;padding:10px;}
+.card label{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:7px;}
+.vb{font-family:'Space Mono',monospace;font-size:11px;color:var(--accent);background:rgba(250,204,21,.12);padding:2px 7px;border-radius:3px;}
+input[type=range]{width:100%;-webkit-appearance:none;height:4px;background:var(--border);border-radius:2px;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;background:var(--accent);border-radius:50%;cursor:pointer;box-shadow:0 0 8px rgba(250,204,21,.7);}
+.modesw{display:flex;gap:4px;}
+.modebtn{flex:1;padding:8px 4px;border-radius:7px;border:1px solid var(--border);background:rgba(255,255,255,.03);color:var(--muted);font-family:'Syne',sans-serif;font-weight:700;font-size:11px;cursor:pointer;transition:all .2s;}
+.modebtn.active{background:rgba(250,204,21,.15);border-color:rgba(250,204,21,.5);color:var(--accent);}
+.fbox{background:rgba(250,204,21,.04);border:1px solid rgba(250,204,21,.15);border-radius:7px;padding:9px;}
+.frow{display:flex;gap:6px;margin-bottom:4px;font-family:'Space Mono',monospace;font-size:9px;}
+.fl{color:var(--muted);min-width:22px;}.fe{color:var(--accent);}
+.steps{display:flex;flex-direction:column;gap:3px;}
+.step{display:flex;align-items:center;gap:7px;padding:5px 8px;border-radius:5px;font-size:10px;color:var(--muted);border:1px solid transparent;transition:all .3s;}
+.step.active{background:rgba(250,204,21,.07);border-color:rgba(250,204,21,.2);color:var(--accent);}
+.step.done{color:var(--green);}
+.snum{font-family:'Space Mono',monospace;font-size:9px;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.05);flex-shrink:0;}
+.step.active .snum{background:rgba(250,204,21,.2);}
+.step.done .snum{background:rgba(111,255,92,.12);color:var(--green);}
+.btn{width:100%;padding:9px;border:none;border-radius:7px;font-family:'Syne',sans-serif;font-weight:700;font-size:12px;cursor:pointer;transition:all .2s;margin-top:4px;}
+.btn-p{background:linear-gradient(135deg,#facc15,#ca8a04);color:#000;}
+.btn-p:hover{transform:translateY(-1px);box-shadow:0 5px 18px rgba(250,204,21,.4);}
+.btn-p:disabled{opacity:.35;cursor:not-allowed;}
+.btn-g{background:linear-gradient(135deg,#6fff5c,#33cc22);color:#000;}
+.btn-g:disabled{opacity:.35;}
+.btn-r{background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--border);font-size:11px;}
+.center{position:relative;overflow:hidden;background:#040810;}
+#simCanvas{display:block;width:100%;height:100%;}
+.instr-bar{position:absolute;bottom:0;left:0;right:0;background:rgba(4,8,16,.92);border-top:1px solid var(--border);padding:5px 18px;font-size:10px;color:var(--muted);text-align:center;}
+.right{background:var(--panel);border-left:1px solid var(--border);overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:9px;}
+.rc{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:8px;padding:10px;}
+.rc.hi{border-color:rgba(250,204,21,.3);background:rgba(250,204,21,.05);}
+.rc.hi2{border-color:rgba(96,165,250,.25);background:rgba(96,165,250,.04);}
+.rc.hi3{border-color:rgba(111,255,92,.2);background:rgba(111,255,92,.04);}
+.rl{font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:3px;}
+.rv{font-size:19px;font-weight:800;line-height:1;color:#fff;}
+.ru{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-top:2px;}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.four{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:5px;}
+table{width:100%;border-collapse:collapse;font-family:'Space Mono',monospace;font-size:8.5px;}
+th{color:var(--accent);font-size:6.5px;letter-spacing:.5px;border-bottom:1px solid var(--border);padding:4px 1px;text-align:center;}
+td{padding:3px 1px;border-bottom:1px solid rgba(255,255,255,.03);text-align:center;}
+#graphCanvas{display:block;width:100%;border-radius:8px;border:1px solid var(--border);}
+.final-card{background:rgba(250,204,21,.05);border:1px solid rgba(250,204,21,.2);border-radius:8px;padding:12px;display:none!important;}
+.err-row{display:flex;justify-content:space-between;margin-top:5px;font-family:'Space Mono',monospace;font-size:10px;}
+.err-row span:first-child{color:var(--muted);}
+.err-row span:last-child{color:var(--green);}
+.langsw{display:flex;gap:3px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;padding:3px;margin-left:10px;}
+.langbtn{background:transparent;border:none;color:var(--muted);font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:4px 9px;border-radius:5px;cursor:pointer;letter-spacing:1px;}
+.langbtn.active{background:var(--accent);color:#000;}
+</style>
+</head>
+<body>
+
+<!-- START SCREEN -->
+<div id="startScreen" style="position:fixed;inset:0;z-index:9999;background:radial-gradient(ellipse at 50% 40%,#1a1400 0%,#07090f 70%);display:flex;align-items:center;justify-content:center;">
+  <canvas id="bgCanvas" style="position:absolute;inset:0;width:100%;height:100%;opacity:.45;pointer-events:none"></canvas>
+  <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:18px;max-width:600px;padding:20px;text-align:center;">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div style="background:#facc15;color:#000;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:4px 14px;letter-spacing:2px;border-radius:2px;">ELEKTR TOKI · LAB 24</div>
+      <div style="font-family:'Space Mono',monospace;font-size:10px;color:#4a6080;letter-spacing:2px;">24-§</div>
+    </div>
+    <div style="width:100px;height:100px;border-radius:50%;background:radial-gradient(circle,rgba(250,204,21,.2),rgba(250,204,21,.02));border:2px solid rgba(250,204,21,.5);display:flex;align-items:center;justify-content:center;box-shadow:0 0 60px rgba(250,204,21,.35);animation:pulseOmm 2.5s ease-in-out infinite;"><span style="font-size:44px;">🔀</span></div>
+    <h1 style="font-size:20px;font-weight:800;color:#fff;" id="tStartTitle">O'tkazgichlarni ketma-ket va parallel ulashni — <span style="color:#facc15;">o'rganish</span></h1>
+    <p style="font-size:11px;color:#4a6080;font-family:'Space Mono',monospace;" id="tStartSub">U — kuchlanish (V) · I — tok kuchi (A) · R₁,R₂ — rezistorlar qarshiligi (Ω)</p>
+    <div style="background:rgba(250,204,21,.05);border:1px solid rgba(250,204,21,.15);border-radius:12px;padding:15px;width:100%;text-align:left;">
+      <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;color:#facc15;margin-bottom:10px;" id="tProcedure">BAJARISH TARTIBI</div>
+      <div style="display:flex;flex-direction:column;gap:7px;">
+        <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#c5d3e8;"><span style="width:20px;height:20px;border-radius:50%;background:rgba(250,204,21,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#facc15;flex-shrink:0;">1</span><span id="tS1">Ketma-ket yoki parallel ulanish rejimini tanlang</span></div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#c5d3e8;"><span style="width:20px;height:20px;border-radius:50%;background:rgba(250,204,21,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#facc15;flex-shrink:0;">2</span><span id="tS2">R₁, R₂ va manba kuchlanishi U ni sozlang</span></div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#c5d3e8;"><span style="width:20px;height:20px;border-radius:50%;background:rgba(250,204,21,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#facc15;flex-shrink:0;">3</span><span id="tS3">Kalitni ulang → milliampermetr va voltmetr ko'rsatkichlarini yozing</span></div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#c5d3e8;"><span style="width:20px;height:20px;border-radius:50%;background:rgba(250,204,21,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#facc15;flex-shrink:0;">4</span><span id="tS4">Ikkala rejimda R_umumiy qanday hisoblanishini solishtiring</span></div>
+      </div>
+    </div>
+    <button onclick="startLab()" style="background:linear-gradient(135deg,#facc15,#ca8a04);color:#000;border:none;border-radius:12px;padding:15px 60px;font-size:16px;font-weight:800;font-family:'Syne',sans-serif;cursor:pointer;box-shadow:0 8px 30px rgba(250,204,21,.4);width:100%;"><span id="tStartBtn">▶ Laboratoriyani boshlash</span></button>
+    <div style="display:flex;align-items:center;gap:6px;opacity:.6;"><span>🔬</span><span style="font-family:'Space Mono',monospace;font-size:10px;font-weight:700;background:linear-gradient(90deg,#facc15,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;">Xosiyat Virtual Lab</span></div>
+  </div>
+</div>
+<style>
+@keyframes pulseOmm{0%,100%{box-shadow:0 0 60px rgba(250,204,21,.25)}50%{box-shadow:0 0 90px rgba(250,204,21,.6)}}
+@keyframes fadeOut{0%{opacity:1}100%{opacity:0;transform:scale(1.04)}}
+</style>
+<script>
+(function(){var c=document.getElementById('bgCanvas');var x=c.getContext('2d');var pts=[];function rs(){c.width=window.innerWidth;c.height=window.innerHeight;}rs();window.addEventListener('resize',rs);
+for(var i=0;i<60;i++)pts.push({x:Math.random()*1600,y:Math.random()*900,r:Math.random()*1.5+.5,vx:(Math.random()-.5)*.35,vy:(Math.random()-.5)*.35,a:Math.random()});
+function fr(){x.clearRect(0,0,c.width,c.height);pts.forEach(function(p){p.x+=p.vx;p.y+=p.vy;p.a+=.005;if(p.x<0)p.x=c.width;if(p.x>c.width)p.x=0;if(p.y<0)p.y=c.height;if(p.y>c.height)p.y=0;x.fillStyle='rgba(250,204,21,'+(0.15+Math.sin(p.a)*0.12)+')';x.beginPath();x.arc(p.x%c.width,p.y%c.height,p.r,0,Math.PI*2);x.fill();});requestAnimationFrame(fr);}fr();})();
+function startLab(){var s=document.getElementById('startScreen');s.style.animation='fadeOut .5s ease forwards';setTimeout(function(){s.style.display='none';},480);}
+</script>
+
+<header>
+  <div class="badge" id="tBadge">ELEKTR TOKI · LAB 24</div>
+  <h1 class="htitle" id="tTitle">Ketma-ket va parallel ulash — <span>o'tkazgichlarni ulash usullari</span></h1>
+  <div class="hsub" id="tHsub">II BOB · ELEKTR TOKI · FIZPRAKTIKUM · 24-§</div>
+  <div class="langsw">
+    <button class="langbtn active" id="langUZ" onclick="setLang('uz')">UZ</button>
+    <button class="langbtn" id="langRU" onclick="setLang('ru')">RU</button>
+    <button class="langbtn" id="langEN" onclick="setLang('en')">EN</button>
+  </div>
+  <div class="brand"><span>🔬</span><span class="brand-txt">Xosiyat Virtual Lab</span></div>
+</header>
+
+<div class="statusbar">
+  <div class="dot off" id="dot"></div>
+  <span id="statusTxt">Rejimni tanlang → R₁, R₂, U ni sozlang → kalitni ulang</span>
+  <div class="chips">
+    <div class="chip">Rejim=<span id="cMode">Ketma-ket</span></div>
+    <div class="chip">U=<span id="cU">4</span>V</div>
+    <div class="chip">I=<span id="cI">—</span>mA</div>
+    <div class="chip">R_um=<span id="cRum">—</span>Ω</div>
+    <div class="chip"><span id="tMeasLbl">O'lchov:</span><span id="chipCnt">0</span></div>
+  </div>
+</div>
+
+<div class="body">
+<div class="left">
+  <div class="stitle" id="tModeLabel">Ulanish rejimi</div>
+  <div class="modesw">
+    <button class="modebtn active" id="modeSeriesBtn" onclick="setMode('series')"><span id="tModeSeries">Ketma-ket</span></button>
+    <button class="modebtn" id="modeParallelBtn" onclick="setMode('parallel')"><span id="tModeParallel">Parallel</span></button>
+  </div>
+
+  <div class="stitle" id="tUlabel">Manba kuchlanishi (U)</div>
+  <div class="card">
+    <label>U (V) <span class="vb" id="dU">4.0 V</span></label>
+    <input type="range" id="sU" min="1" max="12" step="0.5" value="4" oninput="setUv(this.value)">
+  </div>
+
+  <div class="stitle" id="tR1label">Rezistor R₁</div>
+  <div class="card">
+    <label>R₁ (Ω) <span class="vb" id="dR1">100 Ω</span></label>
+    <input type="range" id="sR1" min="100" max="150" step="5" value="100" oninput="setR1(this.value)">
+  </div>
+
+  <div class="stitle" id="tR2label">Rezistor R₂</div>
+  <div class="card">
+    <label>R₂ (Ω) <span class="vb" id="dR2">150 Ω</span></label>
+    <input type="range" id="sR2" min="100" max="150" step="5" value="150" oninput="setR2(this.value)">
+  </div>
+
+  <div class="fbox" id="fboxSeries">
+    <div class="frow"><span class="fl">I</span><span class="fe">= U / (R₁+R₂)</span></div>
+    <div class="frow"><span class="fl">U₁</span><span class="fe">= I · R₁</span></div>
+    <div class="frow"><span class="fl">U₂</span><span class="fe">= I · R₂</span></div>
+    <div class="frow"><span class="fl">R</span><span class="fe">= R₁ + R₂</span></div>
+  </div>
+  <div class="fbox" id="fboxParallel" style="display:none;">
+    <div class="frow"><span class="fl">I₁</span><span class="fe">= U / R₁</span></div>
+    <div class="frow"><span class="fl">I₂</span><span class="fe">= U / R₂</span></div>
+    <div class="frow"><span class="fl">I</span><span class="fe">= I₁ + I₂</span></div>
+    <div class="frow"><span class="fl">R</span><span class="fe">= R₁R₂ /(R₁+R₂)</span></div>
+  </div>
+
+  <div class="steps">
+    <div class="step active" id="st1"><div class="snum">1</div><span id="tStep1">Rejim, R₁, R₂, U tanlang</span></div>
+    <div class="step" id="st2"><div class="snum">2</div><span id="tStep2">Kalit ulandi</span></div>
+    <div class="step" id="st3"><div class="snum">3</div><span id="tStep3">O'lchanmoqda</span></div>
+    <div class="step" id="st4"><div class="snum">4</div><span id="tStep4">Natijani yozing</span></div>
+    <div class="step" id="st5"><div class="snum">5</div><span id="tStep5">Tahlil</span></div>
+  </div>
+
+  <button class="btn btn-p" id="runBtn" onclick="runExp()">⚡ <span id="tRunBtn">Kalitni ulash</span></button>
+  <button class="btn btn-g" onclick="addMeas()" id="addBtn" disabled>+ <span id="tAddBtn">Natijani yozish</span></button>
+  <button class="btn btn-r" onclick="resetAll()">↺ <span id="tResetBtn">Qayta boshlash</span></button>
+</div>
+
+<div class="center">
+  <canvas id="simCanvas"></canvas>
+  <div class="instr-bar" id="tInstrBar">⚡ Ketma-ket: I bir xil, U = U₁+U₂ · Parallel: U bir xil, I = I₁+I₂</div>
+</div>
+
+<div class="right">
+  <div style="display:none">
+  <div class="stitle" id="tResults">O'lchov natijalari</div>
+  <div class="four">
+    <div class="rc hi"><div class="rl" id="rLbl1">U (V)</div><div class="rv" id="r1">—</div></div>
+    <div class="rc hi2"><div class="rl" id="rLbl2">I₁ (mA)</div><div class="rv" style="color:var(--blue)" id="r2">—</div></div>
+    <div class="rc hi2"><div class="rl" id="rLbl3">I₂ (mA)</div><div class="rv" style="color:var(--blue)" id="r3">—</div></div>
+    <div class="rc hi3"><div class="rl" id="rLbl4">R_um (Ω)</div><div class="rv" style="color:var(--green);font-size:14px" id="r4">—</div></div>
+  </div>
+  <div class="two">
+    <div class="rc"><div class="rl" id="tExpLbl">R_um nazariy (Ω)</div><div class="rv" style="font-size:14px;color:var(--accent)" id="rNaz">—</div><div class="ru" id="tExpSub">hisoblangan</div></div>
+    <div class="rc"><div class="rl" id="tEpsLbl">ε xatolik</div><div class="rv" style="font-size:14px;color:var(--red)" id="rEps">—</div><div class="ru">%</div></div>
+  </div>
+
+  <div class="stitle" id="tTableTitle">Jadval: o'lchov natijalari</div>
+  <table>
+    <thead><tr><th>№</th><th id="thMode">Rejim</th><th>R₁</th><th>R₂</th><th>U</th><th>I(mA)</th><th>R_um</th><th>ε%</th></tr></thead>
+    <tbody id="tbody"></tbody>
+  </table>
+  </div>
+
+  <div class="stitle" id="tGraphTitle">Grafik: U = f(I)</div>
+  <canvas id="graphCanvas" height="110"></canvas>
+
+  <div class="final-card" id="finalCard">
+    <div class="rl" id="tFinalTitle">Yakuniy natija</div>
+    <div style="display:flex;gap:8px;margin-top:8px;">
+      <div style="flex:1;text-align:center;">
+        <div style="font-size:9px;color:var(--muted);font-family:monospace;" id="tAvgA">O'rt. R_um</div>
+        <div style="font-size:20px;font-weight:800;color:var(--blue);" id="resA">—</div>
+        <div style="font-size:8px;color:var(--muted);">Ω</div>
+      </div>
+      <div style="flex:1;text-align:center;">
+        <div style="font-size:9px;color:var(--muted);font-family:monospace;" id="tAstar">R* grafik</div>
+        <div style="font-size:20px;font-weight:800;color:var(--accent);" id="resAstar">—</div>
+        <div style="font-size:8px;color:var(--muted);">Ω</div>
+      </div>
+    </div>
+    <div class="err-row"><span id="tGivenA">Nazariy R_um</span><span id="resAset">—</span></div>
+    <div class="err-row"><span id="tAvgEps">O'rt. xatolik ε</span><span id="resEps">—</span></div>
+    <div class="err-row"><span id="tMeasCnt">O'lchashlar</span><span id="resCnt">—</span></div>
+  </div>
+</div>
+</div>
+
+<div style="position:fixed;bottom:14px;right:18px;display:flex;align-items:center;gap:7px;background:rgba(7,9,15,.75);border:1px solid rgba(250,204,21,.2);border-radius:30px;padding:5px 16px;backdrop-filter:blur(10px);z-index:9999;pointer-events:none;">
+  <span>🔬</span><span style="font-family:'Space Mono',monospace;font-size:11px;font-weight:700;background:linear-gradient(90deg,#facc15,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;">Xosiyat Virtual Lab</span>
+</div>
+
+<script>
+var LANG='uz';
+var I18N={
+ uz:{badge:'ELEKTR TOKI · LAB 24',title:"Ketma-ket va parallel ulash — <span>o'tkazgichlarni ulash usullari</span>",hsub:"II BOB · ELEKTR TOKI · FIZPRAKTIKUM · 24-§",
+   statusDefault:"Rejimni tanlang → R₁, R₂, U ni sozlang → kalitni ulang",measLbl:"O'lchov:",
+   uLabel:'Manba kuchlanishi (U)',r1Label:'Rezistor R₁',r2Label:'Rezistor R₂',modeLabel:'Ulanish rejimi',modeSeries:'Ketma-ket',modeParallel:'Parallel',
+   step1:'Rejim, R₁, R₂, U tanlang',step2:'Kalit ulandi',step3:"O'lchanmoqda",step4:'Natijani yozing',step5:'Tahlil',
+   runBtn:'Kalitni ulash',addBtn:'Natijani yozish',resetBtn:'Qayta boshlash',
+   instrBar:"⚡ Ketma-ket: I bir xil, U = U₁+U₂ · Parallel: U bir xil, I = I₁+I₂",
+   results:"O'lchov natijalari",expLbl:'R_um nazariy (Ω)',expSub:'hisoblangan',epsLbl:'ε xatolik',tableTitle:"Jadval: o'lchov natijalari",graphTitle:'Grafik: U = f(I)',
+   thMode:'Rejim',finalTitle:'Yakuniy natija',avgA:"O'rt. R_um",astar:'R* grafik',
+   givenA:'Nazariy R_um',avgEps:"O'rt. xatolik ε",measCnt:"O'lchashlar",
+   lblU:'U (V)',lblI1series:'I (mA)',lblI2series:'—',lblI1par:'I₁ (mA)',lblI2par:'I₂ (mA)',lblRum:'R_um (Ω)',
+   startTitle:"O'tkazgichlarni ketma-ket va parallel ulashni — <span style=\"color:#facc15;\">o'rganish</span>",startSub:'U — kuchlanish (V) · I — tok kuchi (A) · R₁,R₂ — rezistorlar qarshiligi (Ω)',
+   procedure:'BAJARISH TARTIBI',s1:'Ketma-ket yoki parallel ulanish rejimini tanlang',s2:'R₁, R₂ va manba kuchlanishi U ni sozlang',
+   s3:"Kalitni ulang → milliampermetr va voltmetr ko'rsatkichlarini yozing",s4:"Ikkala rejimda R_umumiy qanday hisoblanishini solishtiring",
+   startBtn:'▶ Laboratoriyani boshlash',
+   statusRun:"⚡ Kalit ulandi! Ko'rsatkichlar barqarorlashmoqda...",
+   statusDone:'✓ ',unit:'ta'
+ },
+ ru:{badge:'ЭЛЕКТРОТОК · ЛАБ 24',title:'Последовательное и параллельное соединение',hsub:'II ГЛАВА · ЭЛЕКТРОТОК · ФИЗПРАКТИКУМ · §24',
+   statusDefault:'Выберите режим → настройте R₁, R₂, U → замкните ключ',measLbl:'Измерений:',
+   uLabel:'Напряжение источника (U)',r1Label:'Резистор R₁',r2Label:'Резистор R₂',modeLabel:'Тип соединения',modeSeries:'Последовательное',modeParallel:'Параллельное',
+   step1:'Выберите режим, R₁, R₂, U',step2:'Ключ замкнут',step3:'Измеряется',step4:'Запишите результат',step5:'Анализ',
+   runBtn:'Замкнуть ключ',addBtn:'Записать результат',resetBtn:'Начать заново',
+   instrBar:'⚡ Последовательно: I одинаков, U = U₁+U₂ · Параллельно: U одинаков, I = I₁+I₂',
+   results:'Результаты измерений',expLbl:'R_общ теор. (Ω)',expSub:'расчёт',epsLbl:'ε погрешность',tableTitle:'Таблица результатов',graphTitle:'График: U = f(I)',
+   thMode:'Режим',finalTitle:'Итоговый результат',avgA:'Средн. R_общ',astar:'R* график',
+   givenA:'Теор. R_общ',avgEps:'Средняя погрешность ε',measCnt:'Измерения',
+   lblU:'U (В)',lblI1series:'I (мА)',lblI2series:'—',lblI1par:'I₁ (мА)',lblI2par:'I₂ (мА)',lblRum:'R_общ (Ω)',
+   startTitle:'Изучение последовательного и параллельного соединения',startSub:'U — напряжение (В) · I — сила тока (А) · R₁,R₂ — сопротивления (Ω)',
+   procedure:'ПОРЯДОК ВЫПОЛНЕНИЯ',s1:'Выберите режим соединения (последовательное/параллельное)',s2:'Настройте R₁, R₂ и напряжение источника U',
+   s3:'Замкните ключ → запишите показания миллиамперметра и вольтметра',s4:'Сравните как рассчитывается R_общ в обоих режимах',
+   startBtn:'▶ Начать лабораторную',
+   statusRun:'⚡ Ключ замкнут! Показания стабилизируются...',
+   statusDone:'✓ ',unit:'шт.'
+ },
+ en:{badge:'ELECTRIC CURRENT · LAB 24',title:'Series and Parallel Connection',hsub:'CH. II · ELECTRIC CURRENT · PHYSICS LAB · §24',
+   statusDefault:'Choose a mode → set R₁, R₂, U → close the switch',measLbl:'Measurements:',
+   uLabel:'Source voltage (U)',r1Label:'Resistor R₁',r2Label:'Resistor R₂',modeLabel:'Connection mode',modeSeries:'Series',modeParallel:'Parallel',
+   step1:'Choose mode, R₁, R₂, U',step2:'Switch closed',step3:'Measuring',step4:'Record result',step5:'Analysis',
+   runBtn:'Close the switch',addBtn:'Record result',resetBtn:'Restart',
+   instrBar:"⚡ Series: I is the same, U = U₁+U₂ · Parallel: U is the same, I = I₁+I₂",
+   results:'Measurement results',expLbl:'Theoretical R_total (Ω)',expSub:'calculated',epsLbl:'ε error',tableTitle:'Results table',graphTitle:'Graph: U = f(I)',
+   thMode:'Mode',finalTitle:'Final result',avgA:'Avg. R_total',astar:'R* graph',
+   givenA:'Theoretical R_total',avgEps:'Avg. error ε',measCnt:'Measurements',
+   lblU:'U (V)',lblI1series:'I (mA)',lblI2series:'—',lblI1par:'I₁ (mA)',lblI2par:'I₂ (mA)',lblRum:'R_total (Ω)',
+   startTitle:'Studying Series and Parallel Connection',startSub:'U — voltage (V) · I — current (A) · R₁,R₂ — resistances (Ω)',
+   procedure:'PROCEDURE',s1:'Choose series or parallel connection mode',s2:'Set R₁, R₂ and the source voltage U',
+   s3:'Close the switch → record the milliammeter and voltmeter readings',s4:'Compare how R_total is calculated in each mode',
+   startBtn:'▶ Start the lab',
+   statusRun:'⚡ Switch closed! Readings stabilizing...',
+   statusDone:'✓ ',unit:''
+ }
+};
+function t(k){return I18N[LANG][k];}
+function setLang(l){
+  LANG=l;
+  document.getElementById('langUZ').className='langbtn'+(l==='uz'?' active':'');
+  document.getElementById('langRU').className='langbtn'+(l==='ru'?' active':'');
+  document.getElementById('langEN').className='langbtn'+(l==='en'?' active':'');
+  document.getElementById('tBadge').textContent=t('badge');
+  document.getElementById('tTitle').innerHTML=t('title');
+  document.getElementById('tHsub').textContent=t('hsub');
+  document.getElementById('tMeasLbl').textContent=t('measLbl');
+  document.getElementById('tUlabel').textContent=t('uLabel');
+  document.getElementById('tR1label').textContent=t('r1Label');
+  document.getElementById('tR2label').textContent=t('r2Label');
+  document.getElementById('tModeLabel').textContent=t('modeLabel');
+  document.getElementById('tModeSeries').textContent=t('modeSeries');
+  document.getElementById('tModeParallel').textContent=t('modeParallel');
+  document.getElementById('tStep1').textContent=t('step1');
+  document.getElementById('tStep2').textContent=t('step2');
+  document.getElementById('tStep3').textContent=t('step3');
+  document.getElementById('tStep4').textContent=t('step4');
+  document.getElementById('tStep5').textContent=t('step5');
+  document.getElementById('tRunBtn').textContent=t('runBtn');
+  document.getElementById('tAddBtn').textContent=t('addBtn');
+  document.getElementById('tResetBtn').textContent=t('resetBtn');
+  document.getElementById('tInstrBar').textContent=t('instrBar');
+  document.getElementById('tResults').textContent=t('results');
+  document.getElementById('tExpLbl').textContent=t('expLbl');
+  document.getElementById('tExpSub').textContent=t('expSub');
+  document.getElementById('tEpsLbl').textContent=t('epsLbl');
+  document.getElementById('tTableTitle').textContent=t('tableTitle');
+  document.getElementById('tGraphTitle').textContent=t('graphTitle');
+  document.getElementById('thMode').textContent=t('thMode');
+  document.getElementById('tFinalTitle').textContent=t('finalTitle');
+  document.getElementById('tAvgA').textContent=t('avgA');
+  document.getElementById('tAstar').textContent=t('astar');
+  document.getElementById('tGivenA').textContent=t('givenA');
+  document.getElementById('tAvgEps').textContent=t('avgEps');
+  document.getElementById('tMeasCnt').textContent=t('measCnt');
+  document.getElementById('tStartTitle').innerHTML=t('startTitle');
+  document.getElementById('tStartSub').textContent=t('startSub');
+  document.getElementById('tProcedure').textContent=t('procedure');
+  document.getElementById('tS1').textContent=t('s1');
+  document.getElementById('tS2').textContent=t('s2');
+  document.getElementById('tS3').textContent=t('s3');
+  document.getElementById('tS4').textContent=t('s4');
+  document.getElementById('tStartBtn').textContent=t('startBtn');
+  updateResultLabels();
+  if(!running && lastI===0){document.getElementById('statusTxt').textContent=t('statusDefault');}
+  drawGraph();
+}
+
+var mode='series',Uv=4,R1=100,R2=150,measList=[],cnt=0,animT=0;
+var running=false,lastI=0,readFrac=0,finished=false,runStartTime=0;
+var iTajCurrent=0,i1TajCurrent=0,i2TajCurrent=0,rNazCurrent=0,rTajCurrent=0;
+var sc=document.getElementById('simCanvas'),ctx=sc.getContext('2d');
+var gc=document.getElementById('graphCanvas'),gctx=gc.getContext('2d');
+var RUN_DURATION=1.3;
+
+function setMode(m){
+  mode=m;
+  document.getElementById('modeSeriesBtn').className='modebtn'+(m==='series'?' active':'');
+  document.getElementById('modeParallelBtn').className='modebtn'+(m==='parallel'?' active':'');
+  document.getElementById('fboxSeries').style.display=(m==='series')?'block':'none';
+  document.getElementById('fboxParallel').style.display=(m==='parallel')?'block':'none';
+  document.getElementById('cMode').textContent=(m==='series')?t('modeSeries'):t('modeParallel');
+  updateResultLabels();
+  resetAll();
+}
+function updateResultLabels(){
+  if(mode==='series'){
+    document.getElementById('rLbl1').textContent=t('lblU');
+    document.getElementById('rLbl2').textContent=t('lblI1series');
+    document.getElementById('rLbl3').textContent='—';
+    document.getElementById('rLbl4').textContent=t('lblRum');
+  } else {
+    document.getElementById('rLbl1').textContent=t('lblU');
+    document.getElementById('rLbl2').textContent=t('lblI1par');
+    document.getElementById('rLbl3').textContent=t('lblI2par');
+    document.getElementById('rLbl4').textContent=t('lblRum');
+  }
+}
+
+function setUv(v){Uv=parseFloat(v);document.getElementById('dU').textContent=parseFloat(v).toFixed(1)+' V';document.getElementById('cU').textContent=v;}
+function setR1(v){R1=parseFloat(v);document.getElementById('dR1').textContent=v+' Ω';}
+function setR2(v){R2=parseFloat(v);document.getElementById('dR2').textContent=v+' Ω';}
+
+function theoreticalR(){
+  if(mode==='series')return R1+R2;
+  return (R1*R2)/(R1+R2);
+}
+
+function runExp(){
+  if(running)return;
+  running=true;finished=false;
+  document.getElementById('runBtn').disabled=true;
+  document.getElementById('addBtn').disabled=true;
+  document.getElementById('dot').classList.remove('off');
+  setStep(2);
+  document.getElementById('statusTxt').textContent=t('statusRun');
+
+  var noise=function(){return (Math.random()-0.5)*0.05;};
+  if(mode==='series'){
+    var Inaz=(Uv/(R1+R2))*1000;
+    iTajCurrent=Math.max(0.01,Math.round(Inaz*(1+noise())*100)/100);
+    i1TajCurrent=iTajCurrent;i2TajCurrent=iTajCurrent;
+  } else {
+    var I1n=(Uv/R1)*1000,I2n=(Uv/R2)*1000;
+    i1TajCurrent=Math.max(0.01,Math.round(I1n*(1+noise())*100)/100);
+    i2TajCurrent=Math.max(0.01,Math.round(I2n*(1+noise())*100)/100);
+    iTajCurrent=i1TajCurrent+i2TajCurrent;
+  }
+  rNazCurrent=theoreticalR();
+  rTajCurrent=Uv/(iTajCurrent/1000);
+  runStartTime=performance.now();
+  readFrac=0;
+  setTimeout(function(){setStep(3);},150);
+}
+
+function finishRun(){
+  running=false;finished=true;
+  lastI=iTajCurrent;
+  var eps=Math.abs(rTajCurrent-rNazCurrent)/rNazCurrent*100;
+  document.getElementById('r1').textContent=Uv.toFixed(1);
+  document.getElementById('r2').textContent=i1TajCurrent.toFixed(2);
+  document.getElementById('r3').textContent=(mode==='parallel')?i2TajCurrent.toFixed(2):'—';
+  document.getElementById('r4').textContent=rTajCurrent.toFixed(1);
+  document.getElementById('rNaz').textContent=rNazCurrent.toFixed(1);
+  document.getElementById('rEps').textContent=eps.toFixed(2);
+  document.getElementById('cI').textContent=iTajCurrent.toFixed(2);
+  document.getElementById('cRum').textContent=rTajCurrent.toFixed(1);
+  document.getElementById('runBtn').disabled=false;
+  document.getElementById('addBtn').disabled=false;
+  document.getElementById('dot').classList.add('off');
+  setStep(4);
+  document.getElementById('statusTxt').textContent=t('statusDone')+'U='+Uv.toFixed(1)+'V | I='+iTajCurrent.toFixed(2)+'mA | R_um='+rTajCurrent.toFixed(1)+'Ω | ε='+eps.toFixed(2)+'%';
+}
+
+function addMeas(){
+  if(!finished)return;
+  cnt++;
+  var eps=Math.abs(rTajCurrent-rNazCurrent)/rNazCurrent*100;
+  measList.push({mode:mode,R1:R1,R2:R2,U:Uv,I:iTajCurrent,Rum:rTajCurrent,eps:eps});
+  document.getElementById('chipCnt').textContent=cnt;
+  var tr=document.createElement('tr');
+  var modeShort=(mode==='series')?t('modeSeries'):t('modeParallel');
+  tr.innerHTML='<td>'+cnt+'</td><td>'+modeShort+'</td><td>'+R1+'</td><td>'+R2+'</td><td>'+Uv.toFixed(1)+'</td><td>'+iTajCurrent.toFixed(2)+'</td><td>'+rTajCurrent.toFixed(1)+'</td><td>'+eps.toFixed(2)+'</td>';
+  document.getElementById('tbody').appendChild(tr);
+  document.getElementById('addBtn').disabled=true;
+  if(measList.length>=2){
+    var sR=measList.reduce(function(a,b){return a+b.Rum;},0)/measList.length;
+    var sE=measList.reduce(function(a,b){return a+b.eps;},0)/measList.length;
+    var sumI2=0,sumIU=0;
+    measList.forEach(function(m){var iA=m.I/1000;sumI2+=iA*iA;sumIU+=iA*m.U;});
+    var slope=sumI2===0?0:sumIU/sumI2,rStar=slope;
+    document.getElementById('finalCard').style.display='block';
+    document.getElementById('resA').textContent=sR.toFixed(1);
+    document.getElementById('resAstar').textContent=rStar.toFixed(1);
+    document.getElementById('resAset').textContent=rNazCurrent.toFixed(1)+' Ω';
+    document.getElementById('resEps').textContent=sE.toFixed(2)+'%';
+    document.getElementById('resCnt').textContent=measList.length+' '+t('unit');
+    setStep(5);
+  }
+  drawGraph();
+}
+
+function resetAll(){
+  measList=[];cnt=0;running=false;finished=false;lastI=0;readFrac=0;
+  document.getElementById('tbody').innerHTML='';
+  document.getElementById('finalCard').style.display='none';
+  document.getElementById('addBtn').disabled=true;
+  document.getElementById('runBtn').disabled=false;
+  document.getElementById('dot').classList.add('off');
+  document.getElementById('chipCnt').textContent=0;
+  ['r1','r2','r3','r4','rNaz','rEps'].forEach(function(id){document.getElementById(id).textContent='—';});
+  document.getElementById('cI').textContent='—';document.getElementById('cRum').textContent='—';
+  document.getElementById('statusTxt').textContent=t('statusDefault');
+  setStep(1);drawGraph();
+}
+function setStep(n){for(var i=1;i<=5;i++){var el=document.getElementById('st'+i);el.className='step'+(i<n?' done':i===n?' active':'');el.querySelector('.snum').textContent=i<n?'✓':i;}}
+function resize(){sc.width=sc.offsetWidth;sc.height=sc.offsetHeight;}
+window.addEventListener('resize',resize);setTimeout(resize,80);
+
+(function loop(){
+  animT+=0.016;
+  if(running){
+    var tauMs=performance.now()-runStartTime;
+    var tau=tauMs/1000;
+    if(tau>=RUN_DURATION){readFrac=1;finishRun();}else{readFrac=tau/RUN_DURATION;}
+  }
+  drawSim();
+  requestAnimationFrame(loop);
+})();
+
+function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.lineTo(x+w-r,y);c.quadraticCurveTo(x+w,y,x+w,y+r);c.lineTo(x+w,y+h-r);c.quadraticCurveTo(x+w,y+h,x+w-r,y+h);c.lineTo(x+r,y+h);c.quadraticCurveTo(x,y+h,x,y+h-r);c.lineTo(x,y+r);c.quadraticCurveTo(x,y,x+r,y);c.closePath();}
+
+function drawResistorBox(x,y,label,active,rot){
+  ctx.save();ctx.translate(x,y);if(rot)ctx.rotate(Math.PI/2);
+  ctx.strokeStyle=active?'rgba(250,204,21,.9)':'rgba(140,150,165,.5)';ctx.lineWidth=3;
+  ctx.fillStyle='rgba(14,20,32,.95)';
+  rr(ctx,-40,-14,80,28,6);ctx.fill();ctx.stroke();
+  ctx.beginPath();
+  var zStart=-32,zEnd=32,zigH=7,segs=6;
+  ctx.moveTo(zStart,0);
+  for(var i=0;i<segs;i++){var xA=zStart+(zEnd-zStart)*(i+0.5)/segs;ctx.lineTo(xA,(i%2===0?-zigH:zigH));}
+  ctx.lineTo(zEnd,0);ctx.stroke();
+  ctx.restore();
+  ctx.fillStyle='rgba(150,160,175,.7)';ctx.font='10px monospace';ctx.textAlign='center';
+  ctx.fillText(label,x,y+(rot?52:32));
+}
+
+function drawSim(){
+  var W=sc.width,H=sc.height;if(!W||!H)return;
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#040810';ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle='rgba(250,204,21,.02)';ctx.lineWidth=1;
+  for(var xi=0;xi<W;xi+=60){ctx.beginPath();ctx.moveTo(xi,0);ctx.lineTo(xi,H);ctx.stroke();}
+  for(var yi=0;yi<H;yi+=60){ctx.beginPath();ctx.moveTo(0,yi);ctx.lineTo(W,yi);ctx.stroke();}
+
+  var active=running||finished;
+  var wireCol=active?'rgba(250,204,21,.85)':'rgba(140,150,165,.55)';
+  ctx.lineWidth=4;ctx.strokeStyle=wireCol;ctx.lineJoin='round';
+
+  if(mode==='series'){
+    var cx=W*0.5,cy=H*0.5,loopW=Math.min(W*0.6,600),loopH=Math.min(H*0.4,220);
+    var left=cx-loopW/2,right=cx+loopW/2,top=cy-loopH/2,bottom=cy+loopH/2;
+    var r1x=left+loopW*0.35,r2x=left+loopW*0.65;
+    if(active){ctx.shadowColor='rgba(250,204,21,.35)';ctx.shadowBlur=10;}
+    ctx.beginPath();
+    ctx.moveTo(left,top);ctx.lineTo(r1x-40,top);
+    ctx.moveTo(r1x+40,top);ctx.lineTo(r2x-40,top);
+    ctx.moveTo(r2x+40,top);ctx.lineTo(right,top);
+    ctx.lineTo(right,bottom);
+    ctx.lineTo(cx+40,bottom);
+    ctx.moveTo(cx-40,bottom);ctx.lineTo(left,bottom);
+    ctx.lineTo(left,cy+28);
+    ctx.moveTo(left,cy-28);ctx.lineTo(left,top);
+    ctx.stroke();ctx.shadowBlur=0;
+
+    // battery
+    ctx.save();ctx.translate(left,(top+bottom)/2-60);
+    ctx.strokeStyle=wireCol;ctx.lineWidth=5;
+    ctx.beginPath();ctx.moveTo(-14,-10);ctx.lineTo(14,-10);ctx.moveTo(-8,10);ctx.lineTo(8,10);ctx.stroke();
+    ctx.restore();
+    ctx.fillStyle='rgba(150,160,175,.7)';ctx.font='11px monospace';ctx.textAlign='center';
+    ctx.fillText('U = '+Uv.toFixed(1)+' V',left,(top+bottom)/2-78);
+
+    // switch
+    var swY1=cy-28,swY2=cy+28;
+    ctx.fillStyle=active?'rgba(111,255,92,.9)':'rgba(248,113,113,.7)';
+    ctx.beginPath();ctx.arc(left,swY1,4,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(left,swY2,4,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle=active?'rgba(111,255,92,.9)':'rgba(248,113,113,.7)';ctx.lineWidth=4;
+    ctx.beginPath();ctx.moveTo(left,swY1);
+    if(active){ctx.lineTo(left,swY2);}else{ctx.lineTo(left+26,swY1+(swY2-swY1)*0.55);}
+    ctx.stroke();
+
+    // ammeter
+    var ay=bottom;
+    ctx.beginPath();ctx.fillStyle='rgba(14,20,32,.95)';
+    ctx.strokeStyle=active?'rgba(96,165,250,.85)':'rgba(140,150,165,.4)';ctx.lineWidth=3;
+    ctx.arc(cx,ay,22,0,Math.PI*2);ctx.fill();ctx.stroke();
+    ctx.fillStyle=active?'rgba(96,165,250,.95)':'rgba(150,160,175,.6)';
+    ctx.font="bold 12px 'Space Mono'";ctx.textAlign='center';
+    ctx.fillText('mA',cx,ay-2);
+    var showI=finished?iTajCurrent:(running?((Uv/(R1+R2))*1000*readFrac):0);
+    ctx.font="bold 10px 'Space Mono'";
+    ctx.fillText((finished?iTajCurrent.toFixed(1):(running?showI.toFixed(1):'0.0')),cx,ay+12);
+
+    drawResistorBox(r1x,top,'R₁ '+R1+'Ω',active,false);
+    drawResistorBox(r2x,top,'R₂ '+R2+'Ω',active,false);
+
+    if(active){
+      var speedFactor=Math.max(0.6,Math.min(4,(finished?iTajCurrent:(Uv/(R1+R2))*1000*readFrac)/12));
+      var pathPoints=[[left,top],[r1x-40,top],[r1x+40,top],[r2x-40,top],[r2x+40,top],[right,top],[right,bottom],[cx+40,bottom],[cx-40,bottom],[left,bottom],[left,cy+28],[left,cy-28],[left,top]];
+      drawFlow(pathPoints,speedFactor);
+    }
+  } else {
+    // PARALLEL
+    var cx=W*0.5,cy=H*0.5,busL=cx-Math.min(W*0.28,260),busR=cx+Math.min(W*0.28,260);
+    var top=cy-Math.min(H*0.28,140),bottom=cy+Math.min(H*0.28,140);
+    var branch1Y=cy-50,branch2Y=cy+50;
+    if(active){ctx.shadowColor='rgba(250,204,21,.35)';ctx.shadowBlur=10;}
+    ctx.beginPath();
+    // top bus
+    ctx.moveTo(busL,top);ctx.lineTo(busR,top);
+    // bottom bus
+    ctx.moveTo(busL,bottom);ctx.lineTo(busR,bottom);
+    // left vertical (source side, with switch)
+    ctx.moveTo(busL,top);ctx.lineTo(busL,cy-28);
+    ctx.moveTo(busL,cy+28);ctx.lineTo(busL,bottom);
+    // right vertical
+    ctx.moveTo(busR,top);ctx.lineTo(busR,bottom);
+    // branch 1 (R1)
+    ctx.moveTo(busL,branch1Y);ctx.lineTo(cx-40,branch1Y);
+    ctx.moveTo(cx+40,branch1Y);ctx.lineTo(busR,branch1Y);
+    // branch 2 (R2)
+    ctx.moveTo(busL,branch2Y);ctx.lineTo(cx-40,branch2Y);
+    ctx.moveTo(cx+40,branch2Y);ctx.lineTo(busR,branch2Y);
+    // connectors from bus to branches
+    ctx.moveTo(busL,top);ctx.lineTo(busL,branch1Y);
+    ctx.moveTo(busL,branch1Y);ctx.lineTo(busL,branch2Y);
+    ctx.moveTo(busL,branch2Y);ctx.lineTo(busL,bottom);
+    ctx.moveTo(busR,top);ctx.lineTo(busR,branch1Y);
+    ctx.moveTo(busR,branch1Y);ctx.lineTo(busR,branch2Y);
+    ctx.moveTo(busR,branch2Y);ctx.lineTo(busR,bottom);
+    ctx.stroke();ctx.shadowBlur=0;
+
+    // battery (bottom bus mid)
+    ctx.save();ctx.translate(cx,bottom+30);
+    ctx.strokeStyle=wireCol;ctx.lineWidth=5;
+    ctx.beginPath();ctx.moveTo(-14,-10);ctx.lineTo(14,-10);ctx.moveTo(-8,10);ctx.lineTo(8,10);ctx.stroke();
+    ctx.restore();
+    ctx.beginPath();ctx.moveTo(cx,bottom);ctx.lineTo(cx,bottom+20);ctx.moveTo(cx,bottom+40);ctx.lineTo(cx,bottom+50);ctx.stroke();
+    ctx.fillStyle='rgba(150,160,175,.7)';ctx.font='11px monospace';ctx.textAlign='center';
+    ctx.fillText('U = '+Uv.toFixed(1)+' V',cx,bottom+66);
+
+    // switch on left vertical
+    var swY1=cy-28,swY2=cy+28;
+    ctx.fillStyle=active?'rgba(111,255,92,.9)':'rgba(248,113,113,.7)';
+    ctx.beginPath();ctx.arc(busL,swY1,4,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(busL,swY2,4,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle=active?'rgba(111,255,92,.9)':'rgba(248,113,113,.7)';ctx.lineWidth=4;
+    ctx.beginPath();ctx.moveTo(busL,swY1);
+    if(active){ctx.lineTo(busL,swY2);}else{ctx.lineTo(busL+22,swY1+(swY2-swY1)*0.55);}
+    ctx.stroke();
+
+    // ammeter for total current (top bus, left of branches)
+    var amx=(busL+cx)/2-30,amy=top;
+    ctx.beginPath();ctx.fillStyle='rgba(14,20,32,.95)';
+    ctx.strokeStyle=active?'rgba(96,165,250,.85)':'rgba(140,150,165,.4)';ctx.lineWidth=3;
+    ctx.arc(amx,amy,18,0,Math.PI*2);ctx.fill();ctx.stroke();
+    ctx.fillStyle=active?'rgba(96,165,250,.95)':'rgba(150,160,175,.6)';
+    ctx.font="bold 10px 'Space Mono'";ctx.textAlign='center';ctx.fillText('mA',amx,amy+3);
+
+    var i1now=finished?i1TajCurrent:(running?((Uv/R1)*1000*readFrac):0);
+    var i2now=finished?i2TajCurrent:(running?((Uv/R2)*1000*readFrac):0);
+    var itotnow=i1now+i2now;
+
+    drawResistorBox(cx,branch1Y,'R₁ '+R1+'Ω',active,false);
+    drawResistorBox(cx,branch2Y,'R₂ '+R2+'Ω',active,false);
+
+    if(active){
+      var speedFactor1=Math.max(0.6,Math.min(4,i1now/8));
+      var speedFactor2=Math.max(0.6,Math.min(4,i2now/8));
+      var path1=[[busL,top],[cx-40,branch1Y],[cx+40,branch1Y],[busR,top]];
+      var path2=[[busL,bottom],[cx-40,branch2Y],[cx+40,branch2Y],[busR,bottom]];
+      drawFlow(path1,speedFactor1);
+      drawFlow(path2,speedFactor2);
+    }
+  }
+}
+
+function drawFlow(pathPoints,speedFactor){
+  var totalLen=0,segLens=[];
+  for(var p=0;p<pathPoints.length-1;p++){
+    var dx=pathPoints[p+1][0]-pathPoints[p][0],dy=pathPoints[p+1][1]-pathPoints[p][1];
+    var len=Math.sqrt(dx*dx+dy*dy);segLens.push(len);totalLen+=len;
+  }
+  var dotCount=8;
+  ctx.fillStyle='rgba(250,204,21,.95)';
+  ctx.shadowColor='rgba(250,204,21,.6)';ctx.shadowBlur=6;
+  for(var d=0;d<dotCount;d++){
+    var dist=(animT*60*speedFactor+d*(totalLen/dotCount))%totalLen;
+    var segIdx=0;
+    while(dist>segLens[segIdx]){dist-=segLens[segIdx];segIdx++;if(segIdx>=segLens.length)break;}
+    if(segIdx>=pathPoints.length-1)continue;
+    var x1=pathPoints[segIdx][0],y1=pathPoints[segIdx][1];
+    var x2=pathPoints[segIdx+1][0],y2=pathPoints[segIdx+1][1];
+    var frac=segLens[segIdx]===0?0:dist/segLens[segIdx];
+    var px=x1+(x2-x1)*frac,py=y1+(y2-y1)*frac;
+    ctx.beginPath();ctx.arc(px,py,3,0,Math.PI*2);ctx.fill();
+  }
+  ctx.shadowBlur=0;
+}
+
+function drawGraph(){
+  var W2=gc.offsetWidth||250;gc.width=W2;var GH=110;
+  gctx.clearRect(0,0,W2,GH);gctx.fillStyle='#070c17';gctx.fillRect(0,0,W2,GH);
+  var pad=32,gW=W2-pad*2,gHH=GH-pad-8;
+  gctx.strokeStyle='rgba(250,204,21,.3)';gctx.lineWidth=1;
+  gctx.beginPath();gctx.moveTo(pad,8);gctx.lineTo(pad,GH-pad);gctx.lineTo(W2-pad+6,GH-pad);gctx.stroke();
+  gctx.fillStyle='rgba(250,204,21,.5)';gctx.font='7px monospace';gctx.textAlign='center';gctx.fillText('I(mA)',W2-pad+8,GH-pad+3);
+  gctx.textAlign='right';gctx.fillText('U(V)',pad-3,12);
+  if(!measList.length)return;
+  var ivals=measList.map(function(m){return m.I;}),uvals=measList.map(function(m){return m.U;});
+  var maxI=Math.max.apply(null,ivals)*1.3,maxU=Math.max.apply(null,uvals)*1.3;
+  measList.forEach(function(m){
+    var px=pad+(m.I/maxI)*gW,py=GH-pad-(m.U/maxU)*gHH;
+    gctx.shadowColor='rgba(96,165,250,.6)';gctx.shadowBlur=6;
+    gctx.fillStyle='rgba(96,165,250,.9)';gctx.beginPath();gctx.arc(px,py,5,0,Math.PI*2);gctx.fill();
+    gctx.shadowBlur=0;
+  });
+  gctx.fillStyle='rgba(96,165,250,.7)';gctx.font='7px monospace';gctx.textAlign='left';gctx.fillText('● o\'lchov',pad+2,GH-pad-gHH+12);
+}
+
+window.addEventListener('load',function(){setTimeout(function(){resize();updateResultLabels();drawGraph();},100);});
+</script>
+</body>
+</html>

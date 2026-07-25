@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Elektr — Diod xarakteristikasi</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap');
+:root{--bg:#07090f;--panel:#0e1420;--border:#1b2840;--accent:#facc15;--green:#6fff5c;--blue:#60a5fa;--red:#f87171;--text:#dde6f5;--muted:#4a6080;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;height:100vh;overflow:hidden;display:flex;flex-direction:column;}
+header{display:flex;align-items:center;gap:12px;padding:8px 20px;border-bottom:1px solid var(--border);background:linear-gradient(90deg,#07090f,#1a1400,#07090f);flex-shrink:0;}
+.badge{background:var(--accent);color:#000;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:3px 9px;letter-spacing:2px;border-radius:2px;}
+.htitle{font-size:14px;font-weight:800;}.htitle span{color:var(--accent);}
+.hsub{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-left:auto;}
+.brand{display:flex;align-items:center;gap:6px;background:linear-gradient(135deg,rgba(250,204,21,.12),rgba(111,255,92,.08));border:1px solid rgba(250,204,21,.3);border-radius:20px;padding:4px 14px;margin-left:10px;flex-shrink:0;}
+.brand-txt{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;background:linear-gradient(90deg,#facc15,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;}
+.statusbar{background:#0a0f1c;border-bottom:1px solid var(--border);padding:5px 20px;display:flex;align-items:center;gap:14px;font-family:'Space Mono',monospace;font-size:11px;flex-shrink:0;}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:bl 1s infinite;flex-shrink:0;}
+.dot.off{background:var(--muted);animation:none;}
+@keyframes bl{0%,100%{opacity:1}50%{opacity:.2}}
+#statusTxt{color:var(--accent);}
+.chips{display:flex;gap:6px;margin-left:auto;flex-wrap:wrap;}
+.chip{background:rgba(250,204,21,.08);border:1px solid rgba(250,204,21,.2);border-radius:10px;padding:2px 9px;font-size:10px;color:var(--muted);}
+.chip span{color:var(--accent);}
+.body{display:grid;grid-template-columns:215px 1fr 275px;flex:1;overflow:hidden;}
+.left{background:var(--panel);border-right:1px solid var(--border);overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:9px;}
+.stitle{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--accent);text-transform:uppercase;margin-bottom:3px;}
+.card{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:8px;padding:10px;}
+.card label{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:7px;}
+.vb{font-family:'Space Mono',monospace;font-size:11px;color:var(--accent);background:rgba(250,204,21,.12);padding:2px 7px;border-radius:3px;}
+input[type=range]{width:100%;-webkit-appearance:none;height:4px;background:var(--border);border-radius:2px;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;background:var(--accent);border-radius:50%;cursor:pointer;box-shadow:0 0 8px rgba(250,204,21,.7);}
+.fbox{background:rgba(250,204,21,.04);border:1px solid rgba(250,204,21,.15);border-radius:7px;padding:9px;}
+.frow{display:flex;gap:6px;margin-bottom:4px;font-family:'Space Mono',monospace;font-size:9px;}
+.fl{color:var(--muted);min-width:22px;}.fe{color:var(--accent);}
+.steps{display:flex;flex-direction:column;gap:3px;}
+.step{display:flex;align-items:center;gap:7px;padding:5px 8px;border-radius:5px;font-size:10px;color:var(--muted);border:1px solid transparent;transition:all .3s;}
+.step.active{background:rgba(250,204,21,.07);border-color:rgba(250,204,21,.2);color:var(--accent);}
+.step.done{color:var(--green);}
+.snum{font-family:'Space Mono',monospace;font-size:9px;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.05);flex-shrink:0;}
+.step.active .snum{background:rgba(250,204,21,.2);}
+.step.done .snum{background:rgba(111,255,92,.12);color:var(--green);}
+.btn{width:100%;padding:9px;border:none;border-radius:7px;font-family:'Syne',sans-serif;font-weight:700;font-size:12px;cursor:pointer;transition:all .2s;margin-top:4px;}
+.btn-p{background:linear-gradient(135deg,#facc15,#ca8a04);color:#000;}
+.btn-p:hover{transform:translateY(-1px);box-shadow:0 5px 18px rgba(250,204,21,.4);}
+.btn-p:disabled{opacity:.35;cursor:not-allowed;}
+.btn-g{background:linear-gradient(135deg,#6fff5c,#33cc22);color:#000;}
+.btn-g:disabled{opacity:.35;}
+.btn-r{background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--border);font-size:11px;}
+.pillrow{display:flex;gap:5px;}
+.pill{flex:1;padding:8px 4px;border-radius:7px;border:1px solid var(--border);background:rgba(255,255,255,.03);color:var(--muted);font-family:'Space Mono',monospace;font-size:10px;font-weight:700;cursor:pointer;text-align:center;}
+.pill.active{border-color:rgba(250,204,21,.5);background:rgba(250,204,21,.1);color:var(--accent);}
+.center{position:relative;overflow:hidden;background:#040810;}
+#simCanvas{display:block;width:100%;height:100%;}
+.instr-bar{position:absolute;bottom:0;left:0;right:0;background:rgba(4,8,16,.92);border-top:1px solid var(--border);padding:5px 18px;font-size:10px;color:var(--muted);text-align:center;}
+.right{background:var(--panel);border-left:1px solid var(--border);overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:9px;}
+.rc{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:8px;padding:10px;}
+.rc.hi{border-color:rgba(250,204,21,.3);background:rgba(250,204,21,.05);}
+.rc.hi2{border-color:rgba(96,165,250,.25);background:rgba(96,165,250,.04);}
+.rl{font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:3px;}
+.rv{font-size:16px;font-weight:800;line-height:1;color:#fff;}
+.ru{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-top:2px;}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+table{width:100%;border-collapse:collapse;font-family:'Space Mono',monospace;font-size:8.5px;}
+th{color:var(--accent);font-size:6.5px;letter-spacing:.5px;border-bottom:1px solid var(--border);padding:4px 1px;text-align:center;}
+td{padding:3px 1px;border-bottom:1px solid rgba(255,255,255,.03);text-align:center;}
+#graphCanvas{display:block;width:100%;border-radius:8px;border:1px solid var(--border);}
+.final-card{background:rgba(250,204,21,.05);border:1px solid rgba(250,204,21,.2);border-radius:8px;padding:12px;display:none;}
+.err-row{display:flex;justify-content:space-between;margin-top:5px;font-family:'Space Mono',monospace;font-size:10px;}
+.err-row span:first-child{color:var(--muted);}
+.err-row span:last-child{color:var(--green);}
+.langsw{display:flex;gap:3px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;padding:3px;margin-left:10px;}
+.langbtn{background:transparent;border:none;color:var(--muted);font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:4px 9px;border-radius:5px;cursor:pointer;letter-spacing:1px;}
+.langbtn.active{background:var(--accent);color:#000;}
+</style>
+</head>
+<body>
+
+<!-- START SCREEN -->
+<div id="startScreen" style="position:fixed;inset:0;z-index:9999;background:radial-gradient(ellipse at 50% 40%,#1a1400 0%,#07090f 70%);display:flex;align-items:center;justify-content:center;">
+  <canvas id="bgCanvas" style="position:absolute;inset:0;width:100%;height:100%;opacity:.45;pointer-events:none"></canvas>
+  <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:18px;max-width:620px;padding:20px;text-align:center;">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div style="background:#facc15;color:#000;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:4px 14px;letter-spacing:2px;border-radius:2px;">ELEKTR · LAB 04</div>
+      <div style="font-family:'Space Mono',monospace;font-size:10px;color:#4a6080;letter-spacing:2px;">45-mavzu · I = f(U)</div>
+    </div>
+    <div style="width:100px;height:100px;border-radius:50%;background:radial-gradient(circle,rgba(250,204,21,.2),rgba(250,204,21,.02));border:2px solid rgba(250,204,21,.5);display:flex;align-items:center;justify-content:center;box-shadow:0 0 60px rgba(250,204,21,.35);animation:pulseOmm 2.5s ease-in-out infinite;"><span style="font-size:44px;">⚡</span></div>
+    <h1 style="font-size:19px;font-weight:800;color:#fff;" id="tStartTitle">Yarim o'tkazgichli diodning volt-amper — <span style="color:#facc15;">xarakteristikasini o'rganish</span></h1>
+    <p style="font-size:11px;color:#4a6080;font-family:'Space Mono',monospace;" id="tStartSub">U — kuchlanish (V) · I — tok kuchi (mA) · Diod tokni faqat bir yo'nalishda o'tkazadi</p>
+    <div style="background:rgba(250,204,21,.05);border:1px solid rgba(250,204,21,.15);border-radius:12px;padding:15px;width:100%;text-align:left;">
+      <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;color:#facc15;margin-bottom:10px;" id="tProcedure">BAJARISH TARTIBI</div>
+      <div style="display:flex;flex-direction:column;gap:7px;">
+        <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#c5d3e8;"><span style="width:20px;height:20px;border-radius:50%;background:rgba(250,204,21,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#facc15;flex-shrink:0;">1</span><span id="tS1">Yo'nalishni (to'g'ri/teskari) va U ni tanlang</span></div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#c5d3e8;"><span style="width:20px;height:20px;border-radius:50%;background:rgba(250,204,21,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#facc15;flex-shrink:0;">2</span><span id="tS2">Milliampermetrda tok kuchi I ni o'lchang</span></div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#c5d3e8;"><span style="width:20px;height:20px;border-radius:50%;background:rgba(250,204,21,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#facc15;flex-shrink:0;">3</span><span id="tS3">Bir necha U qiymatida takrorlab, jadvalga yozing</span></div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#c5d3e8;"><span style="width:20px;height:20px;border-radius:50%;background:rgba(250,204,21,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#facc15;flex-shrink:0;">4</span><span id="tS4">I = f(U) grafigini quring va ochilish kuchlanishini toping</span></div>
+      </div>
+    </div>
+    <button onclick="startLab()" style="background:linear-gradient(135deg,#facc15,#ca8a04);color:#000;border:none;border-radius:12px;padding:15px 60px;font-size:16px;font-weight:800;font-family:'Syne',sans-serif;cursor:pointer;box-shadow:0 8px 30px rgba(250,204,21,.4);width:100%;"><span id="tStartBtn">▶ Laboratoriyani boshlash</span></button>
+    <div style="display:flex;align-items:center;gap:6px;opacity:.6;"><span>🔬</span><span style="font-family:'Space Mono',monospace;font-size:10px;font-weight:700;background:linear-gradient(90deg,#facc15,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;">Xosiyat Virtual Lab</span></div>
+  </div>
+</div>
+<style>
+@keyframes pulseOmm{0%,100%{box-shadow:0 0 60px rgba(250,204,21,.25)}50%{box-shadow:0 0 90px rgba(250,204,21,.6)}}
+@keyframes fadeOut{0%{opacity:1}100%{opacity:0;transform:scale(1.04)}}
+</style>
+<script>
+(function(){var c=document.getElementById('bgCanvas');var x=c.getContext('2d');var pts=[];function rs(){c.width=window.innerWidth;c.height=window.innerHeight;}rs();window.addEventListener('resize',rs);
+for(var i=0;i<60;i++)pts.push({x:Math.random()*1600,y:Math.random()*900,r:Math.random()*1.5+.5,vx:(Math.random()-.5)*.35,vy:(Math.random()-.5)*.35,a:Math.random()});
+function fr(){x.clearRect(0,0,c.width,c.height);pts.forEach(function(p){p.x+=p.vx;p.y+=p.vy;p.a+=.005;if(p.x<0)p.x=c.width;if(p.x>c.width)p.x=0;if(p.y<0)p.y=c.height;if(p.y>c.height)p.y=0;x.fillStyle='rgba(250,204,21,'+(0.15+Math.sin(p.a)*0.12)+')';x.beginPath();x.arc(p.x%c.width,p.y%c.height,p.r,0,Math.PI*2);x.fill();});requestAnimationFrame(fr);}fr();})();
+function startLab(){var s=document.getElementById('startScreen');s.style.animation='fadeOut .5s ease forwards';setTimeout(function(){s.style.display='none';},480);}
+</script>
+
+<header>
+  <div class="badge" id="tBadge">ELEKTR · LAB 04</div>
+  <h1 class="htitle" id="tTitle">Diod xarakteristikasi — <span>Volt-amper bog'liqligi</span></h1>
+  <div class="hsub" id="tHsub">ELEKTR · FIZPRAKTIKUM · SDPI 2026</div>
+  <div class="langsw">
+    <button class="langbtn active" id="langUZ" onclick="setLang('uz')">UZ</button>
+    <button class="langbtn" id="langRU" onclick="setLang('ru')">RU</button>
+    <button class="langbtn" id="langEN" onclick="setLang('en')">EN</button>
+  </div>
+  <div class="brand"><span>🔬</span><span class="brand-txt">Xosiyat Virtual Lab</span></div>
+</header>
+
+<div class="statusbar">
+  <div class="dot off" id="dot"></div>
+  <span id="statusTxt">Yo'nalish va U ni tanlang → I ni o'lchang</span>
+  <div class="chips">
+    <div class="chip">U=<span id="cU">0.30</span>V</div>
+    <div class="chip">I=<span id="cI">—</span>mA</div>
+    <div class="chip"><span id="tMeasLbl">O'lchov:</span><span id="chipCnt">0</span></div>
+  </div>
+</div>
+
+<div class="body">
+<div class="left">
+  <div class="stitle" id="tDirLabel">Yo'nalish</div>
+  <div class="pillrow">
+    <button class="pill active" id="dir0" onclick="setDir('fwd')">To'g'ri</button>
+    <button class="pill" id="dir1" onclick="setDir('rev')">Teskari</button>
+  </div>
+
+  <div class="stitle" id="tUlabel">Kuchlanish (U)</div>
+  <div class="card">
+    <label>U (V) <span class="vb" id="dU">0.30 V</span></label>
+    <input type="range" id="sU" min="0" max="0.68" step="0.02" value="0.30" oninput="setUv(this.value)">
+  </div>
+
+  <button class="btn btn-p" id="measBtn" onclick="measure()">⚡ <span id="tMeasBtn">I ni o'lchash</span></button>
+
+  <div class="card" style="background:rgba(250,204,21,.04);border-color:rgba(250,204,21,.15);">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+      <div>
+        <div style="font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);">U</div>
+        <div style="font-size:15px;font-weight:800;color:var(--accent);" id="dUread">— V</div>
+      </div>
+      <div>
+        <div style="font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);">I</div>
+        <div style="font-size:15px;font-weight:800;color:var(--blue);" id="dI">— mA</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="fbox">
+    <div class="frow"><span class="fl">I</span><span class="fe">= Iₛ·(e^(U/φₜ) − 1)</span></div>
+    <div class="frow"><span class="fl"></span><span class="fe">Teskari yo'nalishda I ≈ 0</span></div>
+  </div>
+
+  <div class="steps">
+    <div class="step active" id="st1"><div class="snum">1</div><span id="tStep1">Yo'nalish, U tanlang</span></div>
+    <div class="step" id="st2"><div class="snum">2</div><span id="tStep2">I o'lchandi</span></div>
+    <div class="step" id="st3"><div class="snum">3</div><span id="tStep3">Natijani yozing</span></div>
+    <div class="step" id="st4"><div class="snum">4</div><span id="tStep4">Bir necha U sinang</span></div>
+    <div class="step" id="st5"><div class="snum">5</div><span id="tStep5">Tahlil</span></div>
+  </div>
+
+  <button class="btn btn-g" onclick="addMeas()" id="addBtn" disabled>+ <span id="tAddBtn">Natijani yozish</span></button>
+  <button class="btn btn-r" onclick="resetAll()">↺ <span id="tResetBtn">Qayta boshlash</span></button>
+</div>
+
+<div class="center">
+  <canvas id="simCanvas"></canvas>
+  <div class="instr-bar" id="tInstrBar">⚡ To'g'ri yo'nalishda diod tokni o'tkazadi (I keskin ortadi) · Teskari yo'nalishda deyarli o'tkazmaydi (I≈0) — bu diodning ventil xossasi</div>
+</div>
+
+<div class="right">
+  <div class="stitle" id="tResults">O'lchov natijalari</div>
+  <div class="two">
+    <div class="rc hi"><div class="rl">U (V)</div><div class="rv" id="rU">—</div></div>
+    <div class="rc hi2"><div class="rl">I (mA)</div><div class="rv" style="color:var(--blue)" id="rI">—</div></div>
+  </div>
+
+  <div class="stitle" id="tTableTitle">Jadval: I = f(U)</div>
+  <table>
+    <thead><tr><th>№</th><th>yo'nalish</th><th>U(V)</th><th>I(mA)</th></tr></thead>
+    <tbody id="tbody"></tbody>
+  </table>
+
+  <div class="stitle" id="tGraphTitle">Grafik: I = f(U)</div>
+  <canvas id="graphCanvas" height="120"></canvas>
+
+  <div class="final-card" id="finalCard">
+    <div class="rl" id="tFinalTitle">Yakuniy natija — diod xossalari</div>
+    <div style="display:flex;gap:8px;margin-top:8px;">
+      <div style="flex:1;text-align:center;">
+        <div style="font-size:9px;color:var(--muted);font-family:monospace;" id="tUturn">Ochilish kuchlanishi</div>
+        <div style="font-size:19px;font-weight:800;color:var(--blue);" id="resUturn">—</div>
+        <div style="font-size:8px;color:var(--muted);">V</div>
+      </div>
+      <div style="flex:1;text-align:center;">
+        <div style="font-size:9px;color:var(--muted);font-family:monospace;" id="tImax">Max tok (to'g'ri)</div>
+        <div style="font-size:19px;font-weight:800;color:var(--accent);" id="resImax">—</div>
+        <div style="font-size:8px;color:var(--muted);">mA</div>
+      </div>
+    </div>
+    <div class="err-row"><span id="tIrev">O'rt. teskari tok</span><span id="resIrev">—</span></div>
+    <div class="err-row"><span id="tMeasCnt">Jami o'lchashlar</span><span id="resCnt">—</span></div>
+  </div>
+</div>
+</div>
+
+<div style="position:fixed;bottom:14px;right:18px;display:flex;align-items:center;gap:7px;background:rgba(7,9,15,.75);border:1px solid rgba(250,204,21,.2);border-radius:30px;padding:5px 16px;backdrop-filter:blur(10px);z-index:9999;pointer-events:none;">
+  <span>🔬</span><span style="font-family:'Space Mono',monospace;font-size:11px;font-weight:700;background:linear-gradient(90deg,#facc15,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;">Xosiyat Virtual Lab</span>
+</div>
+
+<script>
+var LANG='uz';
+var I18N={
+ uz:{badge:'ELEKTR · LAB 04',title:"Diod xarakteristikasi — <span>Volt-amper bog'liqligi</span>",hsub:'ELEKTR · FIZPRAKTIKUM · SDPI 2026',
+   statusDefault:"Yo'nalish va U ni tanlang → I ni o'lchang",measLbl:"O'lchov:",
+   dirLabel:"Yo'nalish",uLabel:'Kuchlanish (U)',measBtn:"I ni o'lchash",addBtn:'Natijani yozish',resetBtn:'Qayta boshlash',
+   step1:'Yo\'nalish, U tanlang',step2:"I o'lchandi",step3:'Natijani yozing',step4:'Bir necha U sinang',step5:'Tahlil',
+   instrBar:"⚡ To'g'ri yo'nalishda diod tokni o'tkazadi (I keskin ortadi) · Teskari yo'nalishda deyarli o'tkazmaydi (I≈0) — bu diodning ventil xossasi",
+   results:"O'lchov natijalari",tableTitle:'Jadval: I = f(U)',graphTitle:'Grafik: I = f(U)',
+   finalTitle:'Yakuniy natija — diod xossalari',uturn:'Ochilish kuchlanishi',imax:"Max tok (to'g'ri)",irev:'O\'rt. teskari tok',measCnt:'Jami o\'lchashlar',
+   startTitle:"Yarim o'tkazgichli diodning volt-amper — <span style=\"color:#facc15;\">xarakteristikasini o'rganish</span>",startSub:"U — kuchlanish (V) · I — tok kuchi (mA) · Diod tokni faqat bir yo'nalishda o'tkazadi",
+   procedure:'BAJARISH TARTIBI',s1:"Yo'nalishni (to'g'ri/teskari) va U ni tanlang",s2:"Milliampermetrda tok kuchi I ni o'lchang",
+   s3:"Bir necha U qiymatida takrorlab, jadvalga yozing",s4:"I = f(U) grafigini quring va ochilish kuchlanishini toping",
+   startBtn:'▶ Laboratoriyani boshlash',
+   statusMeasured:"✓ I o'lchandi — natijani yozib qo'ying",statusDone:'✓ ',unit:'ta',dirFwd:"To'g'ri",dirRev:'Teskari'
+ },
+ ru:{badge:'ЭЛЕКТР · ЛАБ 04',title:'Характеристика диода — <span>Вольт-амперная зависимость</span>',hsub:'ЭЛЕКТР · ФИЗПРАКТИКУМ · SDPI 2026',
+   statusDefault:'Выберите направление и U → измерьте I',measLbl:'Измерений:',
+   dirLabel:'Направление',uLabel:'Напряжение (U)',measBtn:'Измерить I',addBtn:'Записать результат',resetBtn:'Начать заново',
+   step1:'Выберите направление, U',step2:'I измерен',step3:'Запишите результат',step4:'Испытайте разные U',step5:'Анализ',
+   instrBar:'⚡ В прямом направлении диод проводит ток (I резко растёт) · В обратном — почти не проводит (I≈0) — это вентильное свойство диода',
+   results:'Результаты измерений',tableTitle:'Таблица: I = f(U)',graphTitle:'График: I = f(U)',
+   finalTitle:'Итоговый результат — свойства диода',uturn:'Напряжение отпирания',imax:'Макс. ток (прямой)',irev:'Средн. обратный ток',measCnt:'Всего измерений',
+   startTitle:'Изучение вольт-амперной характеристики — <span style="color:#facc15;">полупроводникового диода</span>',startSub:'U — напряжение (В) · I — сила тока (мА) · Диод проводит ток только в одном направлении',
+   procedure:'ПОРЯДОК ВЫПОЛНЕНИЯ',s1:'Выберите направление (прямое/обратное) и U',s2:'Измерьте силу тока I на миллиамперметре',
+   s3:'Повторите для нескольких U, записывая в таблицу',s4:'Постройте график I=f(U) и найдите напряжение отпирания',
+   startBtn:'▶ Начать лабораторную',
+   statusMeasured:'✓ I измерен — запишите результат',statusDone:'✓ ',unit:'шт.',dirFwd:'Прямое',dirRev:'Обратное'
+ },
+ en:{badge:'ELECTRICITY · LAB 04',title:'Diode Characteristic — <span>Current-Voltage Dependence</span>',hsub:'ELECTRICITY · PHYSICS LAB · SDPI 2026',
+   statusDefault:'Choose direction and U → measure I',measLbl:'Measurements:',
+   dirLabel:'Direction',uLabel:'Voltage (U)',measBtn:'Measure I',addBtn:'Record result',resetBtn:'Restart',
+   step1:'Choose direction, U',step2:'I measured',step3:'Record result',step4:'Try several U values',step5:'Analysis',
+   instrBar:"⚡ In the forward direction the diode conducts (I rises sharply) · In reverse it barely conducts (I≈0) — the diode's valve property",
+   results:'Measurement results',tableTitle:'Table: I = f(U)',graphTitle:'Graph: I = f(U)',
+   finalTitle:'Final result — diode properties',uturn:'Turn-on voltage',imax:'Max current (forward)',irev:'Avg. reverse current',measCnt:'Total measurements',
+   startTitle:'Studying the Current-Voltage Characteristic of a — <span style="color:#facc15;">Semiconductor Diode</span>',startSub:'U — voltage (V) · I — current (mA) · A diode conducts current in only one direction',
+   procedure:'PROCEDURE',s1:'Choose the direction (forward/reverse) and U',s2:'Measure the current I on the milliammeter',
+   s3:'Repeat for several U values, recording each in the table',s4:'Plot I=f(U) and find the turn-on voltage',
+   startBtn:'▶ Start the lab',
+   statusMeasured:'✓ I measured — record the result',statusDone:'✓ ',unit:'',dirFwd:'Forward',dirRev:'Reverse'
+ }
+};
+function t(k){return I18N[LANG][k];}
+function setLang(l){
+  LANG=l;
+  document.getElementById('langUZ').className='langbtn'+(l==='uz'?' active':'');
+  document.getElementById('langRU').className='langbtn'+(l==='ru'?' active':'');
+  document.getElementById('langEN').className='langbtn'+(l==='en'?' active':'');
+  document.getElementById('tBadge').textContent=t('badge');
+  document.getElementById('tTitle').innerHTML=t('title');
+  document.getElementById('tHsub').textContent=t('hsub');
+  document.getElementById('tMeasLbl').textContent=t('measLbl');
+  document.getElementById('tDirLabel').textContent=t('dirLabel');
+  document.getElementById('tUlabel').textContent=t('uLabel');
+  document.getElementById('tMeasBtn').textContent=t('measBtn');
+  document.getElementById('tAddBtn').textContent=t('addBtn');
+  document.getElementById('tResetBtn').textContent=t('resetBtn');
+  document.getElementById('tStep1').textContent=t('step1');
+  document.getElementById('tStep2').textContent=t('step2');
+  document.getElementById('tStep3').textContent=t('step3');
+  document.getElementById('tStep4').textContent=t('step4');
+  document.getElementById('tStep5').textContent=t('step5');
+  document.getElementById('tInstrBar').textContent=t('instrBar');
+  document.getElementById('tResults').textContent=t('results');
+  document.getElementById('tTableTitle').textContent=t('tableTitle');
+  document.getElementById('tGraphTitle').textContent=t('graphTitle');
+  document.getElementById('tFinalTitle').textContent=t('finalTitle');
+  document.getElementById('tUturn').textContent=t('uturn');
+  document.getElementById('tImax').textContent=t('imax');
+  document.getElementById('tIrev').textContent=t('irev');
+  document.getElementById('tMeasCnt').textContent=t('measCnt');
+  document.getElementById('dir0').textContent=t('dirFwd');
+  document.getElementById('dir1').textContent=t('dirRev');
+  document.getElementById('tStartTitle').innerHTML=t('startTitle');
+  document.getElementById('tStartSub').textContent=t('startSub');
+  document.getElementById('tProcedure').textContent=t('procedure');
+  document.getElementById('tS1').textContent=t('s1');
+  document.getElementById('tS2').textContent=t('s2');
+  document.getElementById('tS3').textContent=t('s3');
+  document.getElementById('tS4').textContent=t('s4');
+  document.getElementById('tStartBtn').textContent=t('startBtn');
+  if(lastI===null){document.getElementById('statusTxt').textContent=t('statusDefault');}
+  drawGraph();
+}
+
+var Is=1e-12, VT=0.026; // diod modeli: Shockley tenglamasi (soddalashtirilgan)
+var direction='fwd',Uv=0.30,measList=[],cnt=0,animT=0;
+var lastI=null,lastU=0,measured=false;
+var sc=document.getElementById('simCanvas'),ctx=sc.getContext('2d');
+var gc=document.getElementById('graphCanvas'),gctx=gc.getContext('2d');
+
+function setDir(d){
+  direction=d;
+  document.getElementById('dir0').className='pill'+(d==='fwd'?' active':'');
+  document.getElementById('dir1').className='pill'+(d==='rev'?' active':'');
+  var slider=document.getElementById('sU');
+  if(d==='fwd'){slider.min=0;slider.max=0.68;slider.step=0.02;Uv=0.30;}
+  else{slider.min=0;slider.max=5;slider.step=0.25;Uv=1;}
+  slider.value=Uv;
+  document.getElementById('dU').textContent=Uv.toFixed(2)+' V';
+  document.getElementById('cU').textContent=Uv.toFixed(2);
+}
+function setUv(v){Uv=parseFloat(v);document.getElementById('dU').textContent=Uv.toFixed(2)+' V';document.getElementById('cU').textContent=Uv.toFixed(2);}
+
+function diodeI_mA(U,dir){
+  if(dir==='fwd'){
+    var Iamp=Is*(Math.exp(U/VT)-1);
+    return Math.min(Iamp*1000,60); // mA, 60mA cap (zanjir/reostat cheklovi)
+  } else {
+    return -(0.002+U*0.0003); // teskari yo'nalishda juda kichik, deyarli o'zgarmas oqim (mA)
+  }
+}
+
+function measure(){
+  var Itrue=diodeI_mA(Uv,direction);
+  var noise=(Math.random()-0.5)*0.08;
+  var I=Itrue*(1+noise);
+  lastI=I;lastU=Uv;measured=true;
+  document.getElementById('dUread').textContent=Uv.toFixed(2)+' V';
+  document.getElementById('dI').textContent=I.toFixed(I<1&&I>-1?4:2)+' mA';
+  document.getElementById('rU').textContent=Uv.toFixed(2);
+  document.getElementById('rI').textContent=I.toFixed(I<1&&I>-1?4:2);
+  document.getElementById('cI').textContent=I.toFixed(I<1&&I>-1?4:2);
+  document.getElementById('addBtn').disabled=false;
+  document.getElementById('dot').classList.remove('off');
+  setStep(3);
+  document.getElementById('statusTxt').textContent=t('statusMeasured');
+  drawSim();
+}
+
+function addMeas(){
+  if(!measured)return;
+  cnt++;
+  measList.push({dir:direction,U:lastU,I:lastI});
+  document.getElementById('chipCnt').textContent=cnt;
+  var tr=document.createElement('tr');
+  var dirLbl=direction==='fwd'?t('dirFwd'):t('dirRev');
+  tr.innerHTML='<td>'+cnt+'</td><td>'+dirLbl+'</td><td>'+lastU.toFixed(2)+'</td><td>'+lastI.toFixed(lastI<1&&lastI>-1?4:2)+'</td>';
+  document.getElementById('tbody').appendChild(tr);
+  document.getElementById('addBtn').disabled=true;
+  measured=false;
+  document.getElementById('dot').classList.add('off');
+  var fwdGroup=measList.filter(function(m){return m.dir==='fwd';});
+  var revGroup=measList.filter(function(m){return m.dir==='rev';});
+  setStep(4);
+  if(fwdGroup.length>=4){
+    var sorted=fwdGroup.slice().sort(function(a,b){return a.U-b.U;});
+    var turnOn=null;
+    for(var i=0;i<sorted.length;i++){if(sorted[i].I>=1){turnOn=sorted[i].U;break;}}
+    if(turnOn===null)turnOn=sorted[sorted.length-1].U;
+    var Imax=Math.max.apply(null,fwdGroup.map(function(m){return m.I;}));
+    document.getElementById('finalCard').style.display='block';
+    document.getElementById('resUturn').textContent=turnOn.toFixed(2);
+    document.getElementById('resImax').textContent=Imax.toFixed(1);
+    if(revGroup.length){
+      var avgRev=revGroup.reduce(function(a,b){return a+b.I;},0)/revGroup.length;
+      document.getElementById('resIrev').textContent=avgRev.toFixed(4)+' mA';
+    } else {
+      document.getElementById('resIrev').textContent='—';
+    }
+    document.getElementById('resCnt').textContent=measList.length+' '+t('unit');
+    setStep(5);
+  }
+  document.getElementById('statusTxt').textContent=t('statusDefault');
+  drawGraph();
+}
+
+function resetAll(){
+  measList=[];cnt=0;lastI=null;lastU=0;measured=false;
+  document.getElementById('tbody').innerHTML='';
+  document.getElementById('finalCard').style.display='none';
+  document.getElementById('addBtn').disabled=true;
+  document.getElementById('dot').classList.add('off');
+  document.getElementById('chipCnt').textContent=0;
+  ['rU','rI'].forEach(function(id){document.getElementById(id).textContent='—';});
+  document.getElementById('cI').textContent='—';
+  document.getElementById('dUread').textContent='— V';document.getElementById('dI').textContent='— mA';
+  document.getElementById('statusTxt').textContent=t('statusDefault');
+  setStep(1);drawGraph();drawSim();
+}
+function setStep(n){for(var i=1;i<=5;i++){var el=document.getElementById('st'+i);el.className='step'+(i<n?' done':i===n?' active':'');el.querySelector('.snum').textContent=i<n?'✓':i;}}
+function resize(){sc.width=sc.offsetWidth;sc.height=sc.offsetHeight;drawSim();}
+window.addEventListener('resize',resize);setTimeout(resize,80);
+
+function drawSim(){
+  var W=sc.width,H=sc.height;if(!W||!H)return;
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#040810';ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle='rgba(250,204,21,.02)';ctx.lineWidth=1;
+  for(var xi=0;xi<W;xi+=60){ctx.beginPath();ctx.moveTo(xi,0);ctx.lineTo(xi,H);ctx.stroke();}
+  for(var yi=0;yi<H;yi+=60){ctx.beginPath();ctx.moveTo(0,yi);ctx.lineTo(W,yi);ctx.stroke();}
+
+  var cx=W*0.42,cy=H*0.5;
+  var lx=cx-190,rx=cx+190,ty=cy-120,by=cy+120;
+  var col=measured?(direction==='fwd'?'rgba(111,255,92,.85)':'rgba(248,113,113,.7)'):'rgba(140,150,165,.5)';
+  ctx.strokeStyle=col;ctx.lineWidth=3;
+  if(measured){ctx.shadowColor=col;ctx.shadowBlur=6;}
+
+  ctx.beginPath();ctx.moveTo(lx,ty);ctx.lineTo(lx,by);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(lx,by);ctx.lineTo(rx,by);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(rx,by);ctx.lineTo(rx,cy+30);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(rx,cy-30);ctx.lineTo(rx,ty);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(lx,ty);ctx.lineTo(cx-40,ty);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(cx+40,ty);ctx.lineTo(rx,ty);ctx.stroke();
+  ctx.shadowBlur=0;
+
+  // battareya
+  ctx.strokeStyle=col;ctx.lineWidth=4;
+  ctx.beginPath();ctx.moveTo(lx-13,cy-13);ctx.lineTo(lx+13,cy-13);ctx.stroke();
+  ctx.lineWidth=2;
+  ctx.beginPath();ctx.moveTo(lx-7,cy+2);ctx.lineTo(lx+7,cy+2);ctx.stroke();
+  ctx.fillStyle=col;ctx.font='12px monospace';ctx.textAlign='left';ctx.fillText('36-42V',lx-42,cy+30);
+
+  // reostat (o'ngga qarab strelka bilan rezistor)
+  var rex=cx-100;
+  ctx.strokeStyle=col;ctx.lineWidth=2.5;
+  ctx.beginPath();ctx.moveTo(lx,cy-40);ctx.lineTo(rex,cy-40);ctx.lineTo(rex,cy+40);ctx.lineTo(lx,cy+40);ctx.stroke();
+  ctx.strokeRect(rex-10,cy-22,20,44);
+  ctx.beginPath();ctx.moveTo(rex-16,cy+14);ctx.lineTo(rex+16,cy-14);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(rex+16,cy-14);ctx.lineTo(rex+10,cy-14);ctx.moveTo(rex+16,cy-14);ctx.lineTo(rex+16,cy-8);ctx.stroke();
+
+  // ampermetr (yuqorida)
+  ctx.strokeStyle=col;ctx.lineWidth=2.5;
+  ctx.beginPath();ctx.arc(cx,ty,20,0,Math.PI*2);ctx.stroke();
+  ctx.fillStyle=col;ctx.font='bold 13px Space Mono';ctx.textAlign='center';ctx.fillText('mA',cx,ty+5);
+
+  // voltmetr (diodga parallel)
+  var vx=cx+70;
+  ctx.strokeStyle=col;ctx.lineWidth=2;
+  ctx.beginPath();ctx.moveTo(vx,cy-40);ctx.lineTo(vx,cy+40);ctx.stroke();
+  ctx.beginPath();ctx.arc(vx-30,cy,18,0,Math.PI*2);ctx.stroke();
+  ctx.font='bold 12px Space Mono';ctx.fillText('V',vx-30,cy+4);
+
+  // diod belgisi (o'ngda, vertikal)
+  var dCol=direction==='fwd'?col:'rgba(248,113,113,.75)';
+  ctx.strokeStyle=dCol;ctx.lineWidth=2.5;
+  ctx.beginPath();
+  if(direction==='fwd'){
+    ctx.moveTo(rx-15,cy-30);ctx.lineTo(rx+15,cy-30);ctx.lineTo(rx,cy);ctx.closePath();ctx.stroke();
+    ctx.beginPath();ctx.moveTo(rx-15,cy);ctx.lineTo(rx+15,cy);ctx.stroke();
+  } else {
+    ctx.moveTo(rx-15,cy);ctx.lineTo(rx+15,cy);ctx.lineTo(rx,cy-30);ctx.closePath();ctx.stroke();
+    ctx.beginPath();ctx.moveTo(rx-15,cy-30);ctx.lineTo(rx+15,cy-30);ctx.stroke();
+  }
+  ctx.font='11px monospace';ctx.textAlign='left';ctx.fillText('diod',rx+22,cy-10);
+
+  // panel olib tashlandi (toza ko'rinish uchun)
+
+  requestAnimationFrame(drawSim);
+}
+
+function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.lineTo(x+w-r,y);c.quadraticCurveTo(x+w,y,x+w,y+r);c.lineTo(x+w,y+h-r);c.quadraticCurveTo(x+w,y+h,x+w-r,y+h);c.lineTo(x+r,y+h);c.quadraticCurveTo(x,y+h,x,y+h-r);c.lineTo(x,y+r);c.quadraticCurveTo(x,y,x+r,y);c.closePath();}
+
+function drawGraph(){
+  var W2=gc.offsetWidth||250;gc.width=W2;var GH=120;
+  gctx.clearRect(0,0,W2,GH);gctx.fillStyle='#070c17';gctx.fillRect(0,0,W2,GH);
+  var pad=34,gW=W2-pad*2,gHH=GH-pad-10;
+  var zeroX=pad+gW*0.55;
+  gctx.strokeStyle='rgba(250,204,21,.3)';gctx.lineWidth=1;
+  gctx.beginPath();gctx.moveTo(pad,10);gctx.lineTo(pad,GH-pad);gctx.lineTo(W2-pad+6,GH-pad);gctx.stroke();
+  gctx.strokeStyle='rgba(140,150,165,.25)';gctx.beginPath();gctx.moveTo(zeroX,10);gctx.lineTo(zeroX,GH-pad);gctx.stroke();
+  gctx.fillStyle='rgba(250,204,21,.5)';gctx.font='7px monospace';gctx.textAlign='center';gctx.fillText('U(V)',W2-pad+8,GH-pad+3);
+  gctx.textAlign='right';gctx.fillText('I(mA)',pad-3,14);
+  if(!measList.length)return;
+  var maxI=Math.max(5,Math.max.apply(null,measList.filter(function(m){return m.dir==='fwd';}).map(function(m){return m.I;})||[5]))*1.15;
+  var maxUrev=5;
+  measList.forEach(function(m){
+    var px,py;
+    if(m.dir==='fwd'){
+      px=zeroX+(m.U/0.68)*(W2-pad-zeroX);
+      py=GH-pad-(Math.max(0,m.I)/maxI)*gHH;
+    } else {
+      px=zeroX-(m.U/maxUrev)*(zeroX-pad);
+      py=GH-pad-(0.02)*gHH; // reverse near-zero line, small fixed offset for visibility
+    }
+    var hex=m.dir==='fwd'?'rgba(111,255,92,.9)':'rgba(248,113,113,.85)';
+    gctx.shadowColor=hex;gctx.shadowBlur=5;
+    gctx.fillStyle=hex;gctx.beginPath();gctx.arc(px,py,3.5,0,Math.PI*2);gctx.fill();
+    gctx.shadowBlur=0;
+  });
+  gctx.fillStyle='rgba(111,255,92,.8)';gctx.font='7px monospace';gctx.textAlign='left';gctx.fillText("● to'g'ri",pad+2,22);
+  gctx.fillStyle='rgba(248,113,113,.8)';gctx.fillText('● teskari',pad+2,32);
+}
+
+window.addEventListener('load',function(){setTimeout(function(){resize();drawGraph();setDir('fwd');},100);});
+</script>
+</body>
+</html>

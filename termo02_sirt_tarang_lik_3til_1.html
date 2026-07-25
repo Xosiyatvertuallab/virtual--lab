@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Termodinamika — Sirt tarang lik</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap');
+:root{--bg:#07090f;--panel:#0e1420;--border:#1b2840;--accent:#facc15;--green:#6fff5c;--blue:#60a5fa;--red:#f87171;--text:#dde6f5;--muted:#4a6080;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;height:100vh;overflow:hidden;display:flex;flex-direction:column;}
+header{display:flex;align-items:center;gap:12px;padding:8px 20px;border-bottom:1px solid var(--border);background:linear-gradient(90deg,#07090f,#1a1400,#07090f);flex-shrink:0;}
+.badge{background:var(--accent);color:#000;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:3px 9px;letter-spacing:2px;border-radius:2px;}
+.htitle{font-size:14px;font-weight:800;}.htitle span{color:var(--accent);}
+.hsub{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-left:auto;}
+.brand{display:flex;align-items:center;gap:6px;background:linear-gradient(135deg,rgba(250,204,21,.12),rgba(111,255,92,.08));border:1px solid rgba(250,204,21,.3);border-radius:20px;padding:4px 14px;margin-left:10px;flex-shrink:0;}
+.brand-txt{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;background:linear-gradient(90deg,#facc15,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;}
+.statusbar{background:#0a0f1c;border-bottom:1px solid var(--border);padding:5px 20px;display:flex;align-items:center;gap:14px;font-family:'Space Mono',monospace;font-size:11px;flex-shrink:0;}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:bl 1s infinite;flex-shrink:0;}
+.dot.off{background:var(--muted);animation:none;}
+@keyframes bl{0%,100%{opacity:1}50%{opacity:.2}}
+#statusTxt{color:var(--accent);}
+.chips{display:flex;gap:6px;margin-left:auto;flex-wrap:wrap;}
+.chip{background:rgba(250,204,21,.08);border:1px solid rgba(250,204,21,.2);border-radius:10px;padding:2px 9px;font-size:10px;color:var(--muted);}
+.chip span{color:var(--accent);}
+.body{display:grid;grid-template-columns:215px 1fr 275px;flex:1;overflow:hidden;}
+.left{background:var(--panel);border-right:1px solid var(--border);overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:9px;}
+.stitle{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--accent);text-transform:uppercase;margin-bottom:3px;}
+.card{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:8px;padding:10px;}
+.card label{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:7px;}
+.vb{font-family:'Space Mono',monospace;font-size:11px;color:var(--accent);background:rgba(250,204,21,.12);padding:2px 7px;border-radius:3px;}
+.fbox{background:rgba(250,204,21,.04);border:1px solid rgba(250,204,21,.15);border-radius:7px;padding:9px;}
+.frow{display:flex;gap:6px;margin-bottom:4px;font-family:'Space Mono',monospace;font-size:9px;}
+.fl{color:var(--muted);min-width:22px;}.fe{color:var(--accent);}
+.steps{display:flex;flex-direction:column;gap:3px;}
+.step{display:flex;align-items:center;gap:7px;padding:5px 8px;border-radius:5px;font-size:10px;color:var(--muted);border:1px solid transparent;transition:all .3s;}
+.step.active{background:rgba(250,204,21,.07);border-color:rgba(250,204,21,.2);color:var(--accent);}
+.step.done{color:var(--green);}
+.snum{font-family:'Space Mono',monospace;font-size:9px;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.05);flex-shrink:0;}
+.step.active .snum{background:rgba(250,204,21,.2);}
+.step.done .snum{background:rgba(111,255,92,.12);color:var(--green);}
+.btn{width:100%;padding:9px;border:none;border-radius:7px;font-family:'Syne',sans-serif;font-weight:700;font-size:11px;cursor:pointer;transition:all .2s;margin-top:4px;}
+.btn-p{background:linear-gradient(135deg,#facc15,#ca8a04);color:#000;}
+.btn-p:hover{transform:translateY(-1px);box-shadow:0 5px 18px rgba(250,204,21,.4);}
+.btn-p:disabled{opacity:.35;cursor:not-allowed;}
+.btn-b{background:linear-gradient(135deg,#60a5fa,#2563eb);color:#000;}
+.btn-b:disabled{opacity:.35;cursor:not-allowed;}
+.btn-g{background:linear-gradient(135deg,#6fff5c,#33cc22);color:#000;}
+.btn-g:disabled{opacity:.35;}
+.btn-r{background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--border);font-size:11px;}
+.pillrow{display:flex;gap:5px;}
+.pill{flex:1;padding:8px 3px;border-radius:7px;border:1px solid var(--border);background:rgba(255,255,255,.03);color:var(--muted);font-family:'Space Mono',monospace;font-size:9px;font-weight:700;cursor:pointer;text-align:center;}
+.pill.active{border-color:rgba(250,204,21,.5);background:rgba(250,204,21,.1);color:var(--accent);}
+.center{position:relative;overflow:hidden;background:#040810;}
+#simCanvas{display:block;width:100%;height:100%;}
+.instr-bar{position:absolute;bottom:0;left:0;right:0;background:rgba(4,8,16,.92);border-top:1px solid var(--border);padding:5px 18px;font-size:10px;color:var(--muted);text-align:center;}
+.right{background:var(--panel);border-left:1px solid var(--border);overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:9px;}
+.rc{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:8px;padding:10px;}
+.rc.hi{border-color:rgba(250,204,21,.3);background:rgba(250,204,21,.05);}
+.rc.hi2{border-color:rgba(96,165,250,.25);background:rgba(96,165,250,.04);}
+.rl{font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:3px;}
+.rv{font-size:16px;font-weight:800;line-height:1;color:#fff;}
+.ru{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-top:2px;}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+table{width:100%;border-collapse:collapse;font-family:'Space Mono',monospace;font-size:7.5px;}
+th{color:var(--accent);font-size:6px;letter-spacing:.5px;border-bottom:1px solid var(--border);padding:4px 1px;text-align:center;}
+td{padding:3px 1px;border-bottom:1px solid rgba(255,255,255,.03);text-align:center;}
+#graphCanvas{display:block;width:100%;border-radius:8px;border:1px solid var(--border);}
+.final-card{background:rgba(250,204,21,.05);border:1px solid rgba(250,204,21,.2);border-radius:8px;padding:12px;display:none;}
+.err-row{display:flex;justify-content:space-between;margin-top:5px;font-family:'Space Mono',monospace;font-size:10px;}
+.err-row span:first-child{color:var(--muted);}
+.err-row span:last-child{color:var(--green);}
+.langsw{display:flex;gap:3px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;padding:3px;margin-left:10px;}
+.langbtn{background:transparent;border:none;color:var(--muted);font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:4px 9px;border-radius:5px;cursor:pointer;letter-spacing:1px;}
+.langbtn.active{background:var(--accent);color:#000;}
+</style>
+</head>
+<body>
+
+<!-- START SCREEN -->
+<div id="startScreen" style="position:fixed;inset:0;z-index:9999;background:radial-gradient(ellipse at 50% 40%,#1a1400 0%,#07090f 70%);display:flex;align-items:center;justify-content:center;">
+  <canvas id="bgCanvas" style="position:absolute;inset:0;width:100%;height:100%;opacity:.45;pointer-events:none"></canvas>
+  <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:18px;max-width:620px;padding:20px;text-align:center;">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div style="background:#facc15;color:#000;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:4px 14px;letter-spacing:2px;border-radius:2px;">TERMODINAMIKA · LAB 02</div>
+      <div style="font-family:'Space Mono',monospace;font-size:10px;color:#4a6080;letter-spacing:2px;">34-§ · σ=F/(2l)</div>
+    </div>
+    <div style="width:100px;height:100px;border-radius:50%;background:radial-gradient(circle,rgba(250,204,21,.2),rgba(250,204,21,.02));border:2px solid rgba(250,204,21,.5);display:flex;align-items:center;justify-content:center;box-shadow:0 0 60px rgba(250,204,21,.35);animation:pulseOmm 2.5s ease-in-out infinite;"><span style="font-size:44px;">💧</span></div>
+    <h1 style="font-size:19px;font-weight:800;color:#fff;" id="tStartTitle">Suyuqlikning sirt tarang lik — <span style="color:#facc15;">koeffitsiyentini aniqlash</span></h1>
+    <p style="font-size:11px;color:#4a6080;font-family:'Space Mono',monospace;" id="tStartSub">F₁ — quruq og'irlik · F₂ — uzilish momenti · σ=(F₂−F₁)/(2l)</p>
+    <div style="background:rgba(250,204,21,.05);border:1px solid rgba(250,204,21,.15);border-radius:12px;padding:15px;width:100%;text-align:left;">
+      <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;color:#facc15;margin-bottom:10px;" id="tProcedure">BAJARISH TARTIBI</div>
+      <div style="display:flex;flex-direction:column;gap:7px;">
+        <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#c5d3e8;"><span style="width:20px;height:20px;border-radius:50%;background:rgba(250,204,21,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#facc15;flex-shrink:0;">1</span><span id="tS1">Sim shaklini tanlang (uchburchak/kvadrat/aylana)</span></div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#c5d3e8;"><span style="width:20px;height:20px;border-radius:50%;background:rgba(250,204,21,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#facc15;flex-shrink:0;">2</span><span id="tS2">Dinamometrda og'irlik kuchi F₁ ni o'lchang</span></div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#c5d3e8;"><span style="width:20px;height:20px;border-radius:50%;background:rgba(250,204,21,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#facc15;flex-shrink:0;">3</span><span id="tS3">Simni suvga botirib, sekin torting — uzilish payti F₂ ni o'lchang</span></div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#c5d3e8;"><span style="width:20px;height:20px;border-radius:50%;background:rgba(250,204,21,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#facc15;flex-shrink:0;">4</span><span id="tS4">σ=(F₂−F₁)/(2l) formulasi bilan hisoblang</span></div>
+      </div>
+    </div>
+    <button onclick="startLab()" style="background:linear-gradient(135deg,#facc15,#ca8a04);color:#000;border:none;border-radius:12px;padding:15px 60px;font-size:16px;font-weight:800;font-family:'Syne',sans-serif;cursor:pointer;box-shadow:0 8px 30px rgba(250,204,21,.4);width:100%;"><span id="tStartBtn">▶ Laboratoriyani boshlash</span></button>
+    <div style="display:flex;align-items:center;gap:6px;opacity:.6;"><span>🔬</span><span style="font-family:'Space Mono',monospace;font-size:10px;font-weight:700;background:linear-gradient(90deg,#facc15,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;">Xosiyat Virtual Lab</span></div>
+  </div>
+</div>
+<style>
+@keyframes pulseOmm{0%,100%{box-shadow:0 0 60px rgba(250,204,21,.25)}50%{box-shadow:0 0 90px rgba(250,204,21,.6)}}
+@keyframes fadeOut{0%{opacity:1}100%{opacity:0;transform:scale(1.04)}}
+</style>
+<script>
+(function(){var c=document.getElementById('bgCanvas');var x=c.getContext('2d');var pts=[];function rs(){c.width=window.innerWidth;c.height=window.innerHeight;}rs();window.addEventListener('resize',rs);
+for(var i=0;i<60;i++)pts.push({x:Math.random()*1600,y:Math.random()*900,r:Math.random()*1.5+.5,vx:(Math.random()-.5)*.35,vy:(Math.random()-.5)*.35,a:Math.random()});
+function fr(){x.clearRect(0,0,c.width,c.height);pts.forEach(function(p){p.x+=p.vx;p.y+=p.vy;p.a+=.005;if(p.x<0)p.x=c.width;if(p.x>c.width)p.x=0;if(p.y<0)p.y=c.height;if(p.y>c.height)p.y=0;x.fillStyle='rgba(250,204,21,'+(0.15+Math.sin(p.a)*0.12)+')';x.beginPath();x.arc(p.x%c.width,p.y%c.height,p.r,0,Math.PI*2);x.fill();});requestAnimationFrame(fr);}fr();})();
+function startLab(){var s=document.getElementById('startScreen');s.style.animation='fadeOut .5s ease forwards';setTimeout(function(){s.style.display='none';},480);}
+</script>
+
+<header>
+  <div class="badge" id="tBadge">TERMODINAMIKA · LAB 02</div>
+  <h1 class="htitle" id="tTitle">Sirt tarang lik — <span>Suyuqlik koeffitsiyentini aniqlash</span></h1>
+  <div class="hsub" id="tHsub">TERMODINAMIKA · FIZPRAKTIKUM · SDPI 2026</div>
+  <div class="langsw">
+    <button class="langbtn active" id="langUZ" onclick="setLang('uz')">UZ</button>
+    <button class="langbtn" id="langRU" onclick="setLang('ru')">RU</button>
+    <button class="langbtn" id="langEN" onclick="setLang('en')">EN</button>
+  </div>
+  <div class="brand"><span>🔬</span><span class="brand-txt">Xosiyat Virtual Lab</span></div>
+</header>
+
+<div class="statusbar">
+  <div class="dot off" id="dot"></div>
+  <span id="statusTxt">Shaklni tanlang → F₁ ni o'lchang → F₂ ni o'lchang</span>
+  <div class="chips">
+    <div class="chip">shakl=<span id="cShape">Uchburchak</span></div>
+    <div class="chip">l=<span id="cL">0.12</span>m</div>
+    <div class="chip">σ=<span id="cSigma">—</span>N/m</div>
+    <div class="chip"><span id="tMeasLbl">O'lchov:</span><span id="chipCnt">0</span></div>
+  </div>
+</div>
+
+<div class="body">
+<div class="left">
+  <div class="stitle" id="tShapelabel">Sim shakli</div>
+  <div class="pillrow">
+    <button class="pill active" id="sh0" onclick="setShape(0)">Uchburchak</button>
+    <button class="pill" id="sh1" onclick="setShape(1)">Kvadrat</button>
+    <button class="pill" id="sh2" onclick="setShape(2)">Aylana</button>
+  </div>
+
+  <button class="btn btn-p" id="f1Btn" onclick="measureF1()">⚖ <span id="tF1Btn">F₁ ni o'lchash</span></button>
+  <button class="btn btn-b" id="f2Btn" onclick="measureF2()" disabled>💧 <span id="tF2Btn">F₂ ni o'lchash</span></button>
+
+  <div class="card" style="background:rgba(250,204,21,.04);border-color:rgba(250,204,21,.15);">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+      <div>
+        <div style="font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);">F₁</div>
+        <div style="font-size:14px;font-weight:800;color:var(--accent);" id="dF1">— N</div>
+      </div>
+      <div>
+        <div style="font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);">F₂</div>
+        <div style="font-size:14px;font-weight:800;color:var(--blue);" id="dF2">— N</div>
+      </div>
+      <div style="grid-column:1/3;">
+        <div style="font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);">σ=(F₂−F₁)/(2l)</div>
+        <div style="font-size:18px;font-weight:800;color:var(--green);" id="dSigma">— N/m</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="fbox">
+    <div class="frow"><span class="fl">F</span><span class="fe">= F₂ − F₁ — sirt tarang. kuchi</span></div>
+    <div class="frow"><span class="fl">σ</span><span class="fe">= F/(2l) — koeffitsiyent</span></div>
+  </div>
+
+  <div class="steps">
+    <div class="step active" id="st1"><div class="snum">1</div><span id="tStep1">Shaklni tanlang</span></div>
+    <div class="step" id="st2"><div class="snum">2</div><span id="tStep2">F₁ o'lchandi</span></div>
+    <div class="step" id="st3"><div class="snum">3</div><span id="tStep3">F₂ o'lchandi</span></div>
+    <div class="step" id="st4"><div class="snum">4</div><span id="tStep4">Natijani yozing</span></div>
+    <div class="step" id="st5"><div class="snum">5</div><span id="tStep5">Tahlil</span></div>
+  </div>
+
+  <button class="btn btn-g" onclick="addMeas()" id="addBtn" disabled>+ <span id="tAddBtn">Natijani yozish</span></button>
+  <button class="btn btn-r" onclick="resetAll()">↺ <span id="tResetBtn">Qayta boshlash</span></button>
+</div>
+
+<div class="center">
+  <canvas id="simCanvas"></canvas>
+  <div class="instr-bar" id="tInstrBar">💧 σ = (F₂−F₁)/(2l) · Sim halqasi suv sirtidan uzilayotgan paytda F₂ maksimal bo'ladi · Uchburchak, kvadrat, aylana bilan takrorlab o'rtachasini toping</div>
+</div>
+
+<div class="right">
+  <div class="stitle" id="tResults">O'lchov natijalari</div>
+  <div class="two">
+    <div class="rc hi"><div class="rl">F (N)</div><div class="rv" id="rF">—</div></div>
+    <div class="rc hi2"><div class="rl">σ (N/m)</div><div class="rv" style="color:var(--blue)" id="rSigma">—</div></div>
+  </div>
+
+  <div class="stitle" id="tTableTitle">Jadval: sirt tarang lik natijalari</div>
+  <table>
+    <thead><tr><th>№</th><th>shakl</th><th>l(m)</th><th>F₁(N)</th><th>F₂(N)</th><th>σ(N/m)</th></tr></thead>
+    <tbody id="tbody"></tbody>
+  </table>
+
+  <div class="stitle" id="tGraphTitle">Grafik: F = f(l)</div>
+  <canvas id="graphCanvas" height="110"></canvas>
+
+  <div class="final-card" id="finalCard">
+    <div class="rl" id="tFinalTitle">Yakuniy natija — sirt tarang lik</div>
+    <div style="display:flex;gap:8px;margin-top:8px;">
+      <div style="flex:1;text-align:center;">
+        <div style="font-size:9px;color:var(--muted);font-family:monospace;" id="tAvgSigma">O'rt. σ</div>
+        <div style="font-size:19px;font-weight:800;color:var(--blue);" id="resSigma">—</div>
+        <div style="font-size:8px;color:var(--muted);">N/m</div>
+      </div>
+      <div style="flex:1;text-align:center;">
+        <div style="font-size:9px;color:var(--muted);font-family:monospace;" id="tSigmaStar">σ* grafik</div>
+        <div style="font-size:19px;font-weight:800;color:var(--accent);" id="resSigmaStar">—</div>
+        <div style="font-size:8px;color:var(--muted);">N/m</div>
+      </div>
+    </div>
+    <div class="err-row"><span id="tGivenSigma">Nazorat qiymati (haqiqiy σ)</span><span id="resSigmaSet">—</span></div>
+    <div class="err-row"><span id="tAvgEps">O'rt. xatolik ε</span><span id="resEps">—</span></div>
+    <div class="err-row"><span id="tMeasCnt">O'lchashlar</span><span id="resCnt">—</span></div>
+  </div>
+</div>
+</div>
+
+<div style="position:fixed;bottom:14px;right:18px;display:flex;align-items:center;gap:7px;background:rgba(7,9,15,.75);border:1px solid rgba(250,204,21,.2);border-radius:30px;padding:5px 16px;backdrop-filter:blur(10px);z-index:9999;pointer-events:none;">
+  <span>🔬</span><span style="font-family:'Space Mono',monospace;font-size:11px;font-weight:700;background:linear-gradient(90deg,#facc15,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;">Xosiyat Virtual Lab</span>
+</div>
+
+<script>
+var LANG='uz';
+var I18N={
+ uz:{badge:'TERMODINAMIKA · LAB 02',title:"Sirt tarang lik — <span>Suyuqlik koeffitsiyentini aniqlash</span>",hsub:'TERMODINAMIKA · FIZPRAKTIKUM · SDPI 2026',
+   statusDefault:"Shaklni tanlang → F₁ ni o'lchang → F₂ ni o'lchang",measLbl:"O'lchov:",
+   shapeLabel:'Sim shakli',f1Btn:'F₁ ni o\'lchash',f2Btn:'F₂ ni o\'lchash',addBtn:'Natijani yozish',resetBtn:'Qayta boshlash',
+   step1:'Shaklni tanlang',step2:"F₁ o'lchandi",step3:"F₂ o'lchandi",step4:'Natijani yozing',step5:'Tahlil',
+   instrBar:"💧 σ = (F₂−F₁)/(2l) · Sim halqasi suv sirtidan uzilayotgan paytda F₂ maksimal bo'ladi · Uchburchak, kvadrat, aylana bilan takrorlab o'rtachasini toping",
+   results:"O'lchov natijalari",tableTitle:'Jadval: sirt tarang lik natijalari',graphTitle:'Grafik: F = f(l)',
+   finalTitle:'Yakuniy natija — sirt tarang lik',avgSigma:"O'rt. σ",sigmaStar:'σ* grafik',
+   givenSigma:'Nazorat qiymati (haqiqiy σ)',avgEps:"O'rt. xatolik ε",measCnt:"O'lchashlar",
+   startTitle:"Suyuqlikning sirt tarang lik — <span style=\"color:#facc15;\">koeffitsiyentini aniqlash</span>",startSub:"F₁ — quruq og'irlik · F₂ — uzilish momenti · σ=(F₂−F₁)/(2l)",
+   procedure:'BAJARISH TARTIBI',s1:'Sim shaklini tanlang (uchburchak/kvadrat/aylana)',s2:"Dinamometrda og'irlik kuchi F₁ ni o'lchang",
+   s3:"Simni suvga botirib, sekin torting — uzilish payti F₂ ni o'lchang",s4:"σ=(F₂−F₁)/(2l) formulasi bilan hisoblang",
+   startBtn:'▶ Laboratoriyani boshlash',
+   statusF1done:"✓ F₁ o'lchandi — endi simni suvga botirib torting",statusDone:'✓ ',unit:'ta'
+ },
+ ru:{badge:'ТЕРМОДИНАМИКА · ЛАБ 02',title:'Поверхностное натяжение — <span>Определение коэффициента</span>',hsub:'ТЕРМОДИНАМИКА · ФИЗПРАКТИКУМ · SDPI 2026',
+   statusDefault:'Выберите форму → измерьте F₁ → измерьте F₂',measLbl:'Измерений:',
+   shapeLabel:'Форма проволоки',f1Btn:'Измерить F₁',f2Btn:'Измерить F₂',addBtn:'Записать результат',resetBtn:'Начать заново',
+   step1:'Выберите форму',step2:'F₁ измерена',step3:'F₂ измерена',step4:'Запишите результат',step5:'Анализ',
+   instrBar:'💧 σ = (F₂−F₁)/(2l) · В момент отрыва кольца от воды F₂ максимальна · Повторите с треугольником, квадратом, кругом и найдите среднее',
+   results:'Результаты измерений',tableTitle:'Таблица: результаты натяжения',graphTitle:'График: F = f(l)',
+   finalTitle:'Итоговый результат — поверхностное натяжение',avgSigma:'Средн. σ',sigmaStar:'σ* график',
+   givenSigma:'Контрольное значение (истинная σ)',avgEps:'Средняя погрешность ε',measCnt:'Измерения',
+   startTitle:'Определение коэффициента поверхностного — <span style="color:#facc15;">натяжения жидкости</span>',startSub:'F₁ — вес всухую · F₂ — момент отрыва · σ=(F₂−F₁)/(2l)',
+   procedure:'ПОРЯДОК ВЫПОЛНЕНИЯ',s1:'Выберите форму проволоки (треугольник/квадрат/круг)',s2:'Измерьте вес F₁ на динамометре',
+   s3:'Погрузите кольцо в воду, медленно потяните — измерьте F₂ в момент отрыва',s4:'Вычислите σ=(F₂−F₁)/(2l)',
+   startBtn:'▶ Начать лабораторную',
+   statusF1done:'✓ F₁ измерена — теперь погрузите кольцо в воду и потяните',statusDone:'✓ ',unit:'шт.'
+ },
+ en:{badge:'THERMODYNAMICS · LAB 02',title:'Surface Tension — <span>Determining the Coefficient</span>',hsub:'THERMODYNAMICS · PHYSICS LAB · SDPI 2026',
+   statusDefault:'Choose the shape → measure F₁ → measure F₂',measLbl:'Measurements:',
+   shapeLabel:'Wire shape',f1Btn:'Measure F₁',f2Btn:'Measure F₂',addBtn:'Record result',resetBtn:'Restart',
+   step1:'Choose the shape',step2:'F₁ measured',step3:'F₂ measured',step4:'Record result',step5:'Analysis',
+   instrBar:"💧 σ = (F₂−F₁)/(2l) · F₂ is maximal at the moment the ring detaches from the water · Repeat with a triangle, square, and circle and average",
+   results:'Measurement results',tableTitle:'Table: surface tension results',graphTitle:'Graph: F = f(l)',
+   finalTitle:'Final result — surface tension',avgSigma:'Avg. σ',sigmaStar:'σ* graph',
+   givenSigma:'Reference value (true σ)',avgEps:'Avg. error ε',measCnt:'Measurements',
+   startTitle:'Determining the Surface Tension — <span style="color:#facc15;">Coefficient of a Liquid</span>',startSub:'F₁ — dry weight · F₂ — detachment moment · σ=(F₂−F₁)/(2l)',
+   procedure:'PROCEDURE',s1:'Choose the wire shape (triangle/square/circle)',s2:"Measure the weight F₁ on the dynamometer",
+   s3:'Dip the ring in water, pull slowly — measure F₂ at the moment it detaches',s4:'Compute σ=(F₂−F₁)/(2l)',
+   startBtn:'▶ Start the lab',
+   statusF1done:'✓ F₁ measured — now dip the ring in water and pull',statusDone:'✓ ',unit:''
+ }
+};
+function t(k){return I18N[LANG][k];}
+function setLang(l){
+  LANG=l;
+  document.getElementById('langUZ').className='langbtn'+(l==='uz'?' active':'');
+  document.getElementById('langRU').className='langbtn'+(l==='ru'?' active':'');
+  document.getElementById('langEN').className='langbtn'+(l==='en'?' active':'');
+  document.getElementById('tBadge').textContent=t('badge');
+  document.getElementById('tTitle').innerHTML=t('title');
+  document.getElementById('tHsub').textContent=t('hsub');
+  document.getElementById('tMeasLbl').textContent=t('measLbl');
+  document.getElementById('tShapelabel').textContent=t('shapeLabel');
+  document.getElementById('tF1Btn').textContent=t('f1Btn');
+  document.getElementById('tF2Btn').textContent=t('f2Btn');
+  document.getElementById('tAddBtn').textContent=t('addBtn');
+  document.getElementById('tResetBtn').textContent=t('resetBtn');
+  document.getElementById('tStep1').textContent=t('step1');
+  document.getElementById('tStep2').textContent=t('step2');
+  document.getElementById('tStep3').textContent=t('step3');
+  document.getElementById('tStep4').textContent=t('step4');
+  document.getElementById('tStep5').textContent=t('step5');
+  document.getElementById('tInstrBar').textContent=t('instrBar');
+  document.getElementById('tResults').textContent=t('results');
+  document.getElementById('tTableTitle').textContent=t('tableTitle');
+  document.getElementById('tGraphTitle').textContent=t('graphTitle');
+  document.getElementById('tFinalTitle').textContent=t('finalTitle');
+  document.getElementById('tAvgSigma').textContent=t('avgSigma');
+  document.getElementById('tSigmaStar').textContent=t('sigmaStar');
+  document.getElementById('tGivenSigma').textContent=t('givenSigma');
+  document.getElementById('tAvgEps').textContent=t('avgEps');
+  document.getElementById('tMeasCnt').textContent=t('measCnt');
+  document.getElementById('tStartTitle').innerHTML=t('startTitle');
+  document.getElementById('tStartSub').textContent=t('startSub');
+  document.getElementById('tProcedure').textContent=t('procedure');
+  document.getElementById('tS1').textContent=t('s1');
+  document.getElementById('tS2').textContent=t('s2');
+  document.getElementById('tS3').textContent=t('s3');
+  document.getElementById('tS4').textContent=t('s4');
+  document.getElementById('tStartBtn').textContent=t('startBtn');
+  if(F1val===0){document.getElementById('statusTxt').textContent=t('statusDefault');}
+  drawGraph();
+}
+
+var SIGMA_TRUE=Math.round((0.060+Math.random()*0.020)*10000)/10000; // 0.060..0.080 N/m, yashirin
+var SHAPES=[{name:'Uchburchak',nameRu:'Треугольник',nameEn:'Triangle',l:0.12,m:2.5},
+            {name:'Kvadrat',nameRu:'Квадрат',nameEn:'Square',l:0.16,m:3.5},
+            {name:'Aylana',nameRu:'Круг',nameEn:'Circle',l:0.14,m:3.0}];
+var shapeIdx=0,measList=[],cnt=0,animT=0;
+var F1val=0,F2val=0,f1Done=false,f2Done=false,pullProg=0;
+var lastF1=0,lastF2=0,lastSigma=0;
+
+var sc=document.getElementById('simCanvas'),ctx=sc.getContext('2d');
+var gc=document.getElementById('graphCanvas'),gctx=gc.getContext('2d');
+
+function curL(){return SHAPES[shapeIdx].l;}
+function curM(){return SHAPES[shapeIdx].m;}
+
+function setShape(i){
+  shapeIdx=i;
+  document.getElementById('sh0').className='pill'+(i===0?' active':'');
+  document.getElementById('sh1').className='pill'+(i===1?' active':'');
+  document.getElementById('sh2').className='pill'+(i===2?' active':'');
+  document.getElementById('cShape').textContent=SHAPES[i].name;
+  document.getElementById('cL').textContent=curL().toFixed(2);
+}
+
+function measureF1(){
+  var Ptrue=(curM()/1000)*9.8;
+  var noise=(Math.random()-0.5)*0.03;
+  F1val=Ptrue*(1+noise);
+  lastF1=F1val;f1Done=true;
+  document.getElementById('dF1').textContent=F1val.toFixed(4)+' N';
+  document.getElementById('f2Btn').disabled=false;
+  document.getElementById('dot').classList.remove('off');
+  setStep(3);
+  document.getElementById('statusTxt').textContent=t('statusF1done');
+  pullProg=0;
+  drawSim();
+}
+
+function measureF2(){
+  if(!f1Done)return;
+  var Ftension=SIGMA_TRUE*2*curL();
+  var Ftrue=lastF1+Ftension;
+  var noise=(Math.random()-0.5)*0.05;
+  F2val=Ftrue*(1+noise);
+  lastF2=F2val;f2Done=true;
+  var Fnet=lastF2-lastF1;
+  lastSigma=Fnet/(2*curL());
+  document.getElementById('dF2').textContent=F2val.toFixed(4)+' N';
+  document.getElementById('dSigma').textContent=lastSigma.toFixed(4)+' N/m';
+  document.getElementById('rF').textContent=Fnet.toFixed(4);
+  document.getElementById('rSigma').textContent=lastSigma.toFixed(4);
+  document.getElementById('cSigma').textContent=lastSigma.toFixed(4);
+  document.getElementById('addBtn').disabled=false;
+  document.getElementById('dot').classList.add('off');
+  setStep(4);
+  document.getElementById('statusTxt').textContent=t('statusDone')+'F₁='+lastF1.toFixed(4)+'N | F₂='+lastF2.toFixed(4)+'N | σ='+lastSigma.toFixed(4)+'N/m';
+  pullProg=1;
+  drawSim();
+}
+
+function addMeas(){
+  if(!f2Done)return;
+  cnt++;
+  measList.push({shape:SHAPES[shapeIdx].name,shapeIdx:shapeIdx,l:curL(),F1:lastF1,F2:lastF2,F:lastF2-lastF1,sigma:lastSigma});
+  document.getElementById('chipCnt').textContent=cnt;
+  var tr=document.createElement('tr');
+  tr.innerHTML='<td>'+cnt+'</td><td>'+SHAPES[shapeIdx].name+'</td><td>'+curL().toFixed(2)+'</td><td>'+lastF1.toFixed(4)+'</td><td>'+lastF2.toFixed(4)+'</td><td>'+lastSigma.toFixed(4)+'</td>';
+  document.getElementById('tbody').appendChild(tr);
+  document.getElementById('addBtn').disabled=true;
+  document.getElementById('f2Btn').disabled=true;
+  if(measList.length>=2){
+    var sSigma=measList.reduce(function(a,b){return a+b.sigma;},0)/measList.length;
+    var sumL2=0,sumL_F=0;
+    measList.forEach(function(m){sumL2+=m.l*m.l;sumL_F+=m.l*m.F;});
+    var slope=sumL_F/sumL2; // F=2*sigma*l => slope=2*sigma
+    var sigmaStar=slope/2;
+    var eps=Math.abs(sSigma-SIGMA_TRUE)/SIGMA_TRUE*100;
+    document.getElementById('finalCard').style.display='block';
+    document.getElementById('resSigma').textContent=sSigma.toFixed(4);
+    document.getElementById('resSigmaStar').textContent=sigmaStar.toFixed(4);
+    document.getElementById('resSigmaSet').textContent=SIGMA_TRUE.toFixed(4)+' N/m';
+    document.getElementById('resEps').textContent=eps.toFixed(2)+'%';
+    document.getElementById('resCnt').textContent=measList.length+' '+t('unit');
+    setStep(5);
+  }
+  drawGraph();
+  F1val=0;F2val=0;f1Done=false;f2Done=false;pullProg=0;
+  document.getElementById('dF1').textContent='— N';document.getElementById('dF2').textContent='— N';document.getElementById('dSigma').textContent='— N/m';
+  document.getElementById('cSigma').textContent='—';
+  document.getElementById('statusTxt').textContent=t('statusDefault');
+  setStep(1);
+  drawSim();
+}
+
+function resetAll(){
+  measList=[];cnt=0;F1val=0;F2val=0;f1Done=false;f2Done=false;lastF1=0;lastF2=0;lastSigma=0;pullProg=0;
+  document.getElementById('tbody').innerHTML='';
+  document.getElementById('finalCard').style.display='none';
+  document.getElementById('addBtn').disabled=true;
+  document.getElementById('f2Btn').disabled=true;
+  document.getElementById('dot').classList.add('off');
+  document.getElementById('chipCnt').textContent=0;
+  ['rF','rSigma'].forEach(function(id){document.getElementById(id).textContent='—';});
+  document.getElementById('cSigma').textContent='—';
+  document.getElementById('dF1').textContent='— N';document.getElementById('dF2').textContent='— N';document.getElementById('dSigma').textContent='— N/m';
+  document.getElementById('statusTxt').textContent=t('statusDefault');
+  setStep(1);drawGraph();drawSim();
+}
+function setStep(n){for(var i=1;i<=5;i++){var el=document.getElementById('st'+i);el.className='step'+(i<n?' done':i===n?' active':'');el.querySelector('.snum').textContent=i<n?'✓':i;}}
+function resize(){sc.width=sc.offsetWidth;sc.height=sc.offsetHeight;drawSim();}
+window.addEventListener('resize',resize);setTimeout(resize,80);
+
+function drawSim(){
+  var W=sc.width,H=sc.height;if(!W||!H)return;
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#040810';ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle='rgba(250,204,21,.02)';ctx.lineWidth=1;
+  for(var xi=0;xi<W;xi+=60){ctx.beginPath();ctx.moveTo(xi,0);ctx.lineTo(xi,H);ctx.stroke();}
+  for(var yi=0;yi<H;yi+=60){ctx.beginPath();ctx.moveTo(0,yi);ctx.lineTo(W,yi);ctx.stroke();}
+
+  var active=f1Done||f2Done;
+  var cx=W*0.44;
+  var standTopY=H*0.10;
+
+  // shtativ
+  ctx.strokeStyle='rgba(140,150,165,.5)';ctx.lineWidth=6;
+  ctx.beginPath();ctx.moveTo(cx-90,standTopY);ctx.lineTo(cx-90,H*0.88);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(cx-90,standTopY+10);ctx.lineTo(cx,standTopY+10);ctx.stroke();
+  ctx.fillStyle='rgba(90,100,115,.6)';rr(ctx,cx-125,H*0.88,70,12,4);ctx.fill();
+
+  // dinamometr
+  var dynTop=standTopY+18,dynLen=40+(f2Done?20:0);
+  var col=active?'rgba(250,204,21,.85)':'rgba(140,150,165,.5)';
+  ctx.strokeStyle=col;ctx.lineWidth=2.5;
+  if(active){ctx.shadowColor=col;ctx.shadowBlur=5;}
+  var coilsD=6,segD=dynLen/coilsD;
+  ctx.beginPath();ctx.moveTo(cx,dynTop);
+  for(var i=0;i<coilsD;i++){var yy=dynTop+segD*(i+0.5);ctx.lineTo(cx+(i%2===0?9:-9),yy);}
+  ctx.lineTo(cx,dynTop+dynLen);ctx.stroke();ctx.shadowBlur=0;
+  var showF=f2Done?lastF2:(f1Done?lastF1:0);
+  ctx.fillStyle=col;ctx.font='bold 13px Space Mono';ctx.textAlign='center';
+  ctx.fillText(showF.toFixed(4)+'N',cx+50,dynTop+dynLen/2);
+
+  // sim halqasi (shape shown as small icon)
+  var ringY=dynTop+dynLen+14;
+  ctx.strokeStyle=active?'rgba(200,210,225,.8)':'rgba(150,160,175,.5)';ctx.lineWidth=2;
+  drawShapeIcon(cx,ringY,shapeIdx,18);
+
+  // suv idishi
+  var waterBaseY=H*0.72,waterTop=waterBaseY-60;
+  var waterLevel=f2Done?waterTop+30*(1-pullProg):(f1Done?waterTop+50:waterTop+55);
+  ctx.fillStyle='rgba(96,165,250,.22)';rr(ctx,cx-90,waterLevel,180,waterBaseY-waterLevel,4);ctx.fill();
+  ctx.strokeStyle='rgba(96,165,250,.4)';ctx.lineWidth=1.5;rr(ctx,cx-90,waterLevel,180,waterBaseY-waterLevel,4);ctx.stroke();
+  ctx.fillStyle='rgba(80,90,105,.6)';rr(ctx,cx-95,waterBaseY,190,10,3);ctx.fill();
+
+  // sim halqasidan suvgacha (agar F2 bosqichida bo'lsa, cho'zilgan film chizig'i)
+  if(f2Done && pullProg<1){
+    ctx.strokeStyle='rgba(150,190,255,.5)';ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.moveTo(cx-18,ringY+8);ctx.lineTo(cx-18,waterLevel);ctx.moveTo(cx+18,ringY+8);ctx.lineTo(cx+18,waterLevel);ctx.stroke();
+  }
+
+  // panel olib tashlandi (toza ko'rinish uchun)
+}
+
+function drawShapeIcon(x,y,idx,r){
+  ctx.beginPath();
+  if(idx===0){ // uchburchak
+    ctx.moveTo(x,y-r);ctx.lineTo(x-r*0.87,y+r*0.5);ctx.lineTo(x+r*0.87,y+r*0.5);ctx.closePath();
+  } else if(idx===1){ // kvadrat
+    ctx.rect(x-r*0.8,y-r*0.8,r*1.6,r*1.6);
+  } else { // aylana
+    ctx.arc(x,y,r*0.85,0,Math.PI*2);
+  }
+  ctx.stroke();
+}
+
+function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.lineTo(x+w-r,y);c.quadraticCurveTo(x+w,y,x+w,y+r);c.lineTo(x+w,y+h-r);c.quadraticCurveTo(x+w,y+h,x+w-r,y+h);c.lineTo(x+r,y+h);c.quadraticCurveTo(x,y+h,x,y+h-r);c.lineTo(x,y+r);c.quadraticCurveTo(x,y,x+r,y);c.closePath();}
+
+function drawGraph(){
+  var W2=gc.offsetWidth||250;gc.width=W2;var GH=110;
+  gctx.clearRect(0,0,W2,GH);gctx.fillStyle='#070c17';gctx.fillRect(0,0,W2,GH);
+  var pad=32,gW=W2-pad*2,gHH=GH-pad-8;
+  gctx.strokeStyle='rgba(250,204,21,.3)';gctx.lineWidth=1;
+  gctx.beginPath();gctx.moveTo(pad,8);gctx.lineTo(pad,GH-pad);gctx.lineTo(W2-pad+6,GH-pad);gctx.stroke();
+  gctx.fillStyle='rgba(250,204,21,.5)';gctx.font='7px monospace';gctx.textAlign='center';gctx.fillText('l(m)',W2-pad+8,GH-pad+3);
+  gctx.textAlign='right';gctx.fillText('F(N)',pad-3,12);
+  if(!measList.length)return;
+  var lvals=measList.map(function(m){return m.l;}),fvals=measList.map(function(m){return m.F;});
+  var maxL=Math.max.apply(null,lvals)*1.3,maxF=Math.max.apply(null,fvals)*1.3;
+  measList.forEach(function(m){
+    var px=pad+(m.l/maxL)*gW,py=GH-pad-(m.F/maxF)*gHH;
+    var hex=['rgba(250,204,21,.9)','rgba(96,165,250,.9)','rgba(111,255,92,.9)'][m.shapeIdx];
+    gctx.shadowColor=hex;gctx.shadowBlur=6;
+    gctx.fillStyle=hex;gctx.beginPath();gctx.arc(px,py,4.5,0,Math.PI*2);gctx.fill();
+    gctx.shadowBlur=0;
+  });
+  gctx.font='7px monospace';gctx.textAlign='left';
+  gctx.fillStyle='rgba(250,204,21,.8)';gctx.fillText('● uchburchak',pad+2,GH-pad-gHH+12);
+  gctx.fillStyle='rgba(96,165,250,.8)';gctx.fillText('● kvadrat',pad+2,GH-pad-gHH+22);
+  gctx.fillStyle='rgba(111,255,92,.8)';gctx.fillText('● aylana',pad+72,GH-pad-gHH+22);
+}
+
+window.addEventListener('load',function(){setTimeout(function(){resize();drawGraph();},100);});
+</script>
+</body>
+</html>

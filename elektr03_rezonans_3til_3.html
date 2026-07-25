@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Elektr — Rezonans</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap');
+:root{--bg:#07090f;--panel:#0e1420;--border:#1b2840;--accent:#facc15;--green:#6fff5c;--blue:#60a5fa;--red:#f87171;--text:#dde6f5;--muted:#4a6080;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;height:100vh;overflow:hidden;display:flex;flex-direction:column;}
+header{display:flex;align-items:center;gap:12px;padding:8px 20px;border-bottom:1px solid var(--border);background:linear-gradient(90deg,#07090f,#1a1400,#07090f);flex-shrink:0;}
+.badge{background:var(--accent);color:#000;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:3px 9px;letter-spacing:2px;border-radius:2px;}
+.htitle{font-size:14px;font-weight:800;}.htitle span{color:var(--accent);}
+.hsub{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-left:auto;}
+.brand{display:flex;align-items:center;gap:6px;background:linear-gradient(135deg,rgba(250,204,21,.12),rgba(111,255,92,.08));border:1px solid rgba(250,204,21,.3);border-radius:20px;padding:4px 14px;margin-left:10px;flex-shrink:0;}
+.brand-txt{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;background:linear-gradient(90deg,#facc15,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;}
+.statusbar{background:#0a0f1c;border-bottom:1px solid var(--border);padding:5px 20px;display:flex;align-items:center;gap:14px;font-family:'Space Mono',monospace;font-size:11px;flex-shrink:0;}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:bl 1s infinite;flex-shrink:0;}
+.dot.off{background:var(--muted);animation:none;}
+@keyframes bl{0%,100%{opacity:1}50%{opacity:.2}}
+#statusTxt{color:var(--accent);}
+.chips{display:flex;gap:6px;margin-left:auto;flex-wrap:wrap;}
+.chip{background:rgba(250,204,21,.08);border:1px solid rgba(250,204,21,.2);border-radius:10px;padding:2px 9px;font-size:10px;color:var(--muted);}
+.chip span{color:var(--accent);}
+.body{display:grid;grid-template-columns:215px 1fr 275px;flex:1;overflow:hidden;}
+.left{background:var(--panel);border-right:1px solid var(--border);overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:9px;}
+.stitle{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--accent);text-transform:uppercase;margin-bottom:3px;}
+.card{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:8px;padding:10px;}
+.card label{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:7px;}
+.vb{font-family:'Space Mono',monospace;font-size:11px;color:var(--accent);background:rgba(250,204,21,.12);padding:2px 7px;border-radius:3px;}
+input[type=range]{width:100%;-webkit-appearance:none;height:4px;background:var(--border);border-radius:2px;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;background:var(--accent);border-radius:50%;cursor:pointer;box-shadow:0 0 8px rgba(250,204,21,.7);}
+.fbox{background:rgba(250,204,21,.04);border:1px solid rgba(250,204,21,.15);border-radius:7px;padding:9px;}
+.frow{display:flex;gap:6px;margin-bottom:4px;font-family:'Space Mono',monospace;font-size:9px;}
+.fl{color:var(--muted);min-width:22px;}.fe{color:var(--accent);}
+.steps{display:flex;flex-direction:column;gap:3px;}
+.step{display:flex;align-items:center;gap:7px;padding:5px 8px;border-radius:5px;font-size:10px;color:var(--muted);border:1px solid transparent;transition:all .3s;}
+.step.active{background:rgba(250,204,21,.07);border-color:rgba(250,204,21,.2);color:var(--accent);}
+.step.done{color:var(--green);}
+.snum{font-family:'Space Mono',monospace;font-size:9px;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.05);flex-shrink:0;}
+.step.active .snum{background:rgba(250,204,21,.2);}
+.step.done .snum{background:rgba(111,255,92,.12);color:var(--green);}
+.btn{width:100%;padding:9px;border:none;border-radius:7px;font-family:'Syne',sans-serif;font-weight:700;font-size:12px;cursor:pointer;transition:all .2s;margin-top:4px;}
+.btn-p{background:linear-gradient(135deg,#facc15,#ca8a04);color:#000;}
+.btn-p:hover{transform:translateY(-1px);box-shadow:0 5px 18px rgba(250,204,21,.4);}
+.btn-p:disabled{opacity:.35;cursor:not-allowed;}
+.btn-g{background:linear-gradient(135deg,#6fff5c,#33cc22);color:#000;}
+.btn-g:disabled{opacity:.35;}
+.btn-r{background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--border);font-size:11px;}
+.pillrow{display:flex;gap:5px;}
+.pill{flex:1;padding:8px 4px;border-radius:7px;border:1px solid var(--border);background:rgba(255,255,255,.03);color:var(--muted);font-family:'Space Mono',monospace;font-size:10px;font-weight:700;cursor:pointer;text-align:center;}
+.pill.active{border-color:rgba(250,204,21,.5);background:rgba(250,204,21,.1);color:var(--accent);}
+.center{position:relative;overflow:hidden;background:#040810;}
+#simCanvas{display:block;width:100%;height:100%;}
+.instr-bar{position:absolute;bottom:0;left:0;right:0;background:rgba(4,8,16,.92);border-top:1px solid var(--border);padding:5px 18px;font-size:10px;color:var(--muted);text-align:center;}
+.right{background:var(--panel);border-left:1px solid var(--border);overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:9px;}
+.rc{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:8px;padding:10px;}
+.rc.hi{border-color:rgba(250,204,21,.3);background:rgba(250,204,21,.05);}
+.rc.hi2{border-color:rgba(96,165,250,.25);background:rgba(96,165,250,.04);}
+.rc.hi3{border-color:rgba(111,255,92,.2);background:rgba(111,255,92,.04);}
+.rl{font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:3px;}
+.rv{font-size:16px;font-weight:800;line-height:1;color:#fff;}
+.ru{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-top:2px;}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;}
+table{width:100%;border-collapse:collapse;font-family:'Space Mono',monospace;font-size:8px;}
+th{color:var(--accent);font-size:6px;letter-spacing:.5px;border-bottom:1px solid var(--border);padding:4px 1px;text-align:center;}
+td{padding:3px 1px;border-bottom:1px solid rgba(255,255,255,.03);text-align:center;}
+#graphCanvas{display:block;width:100%;border-radius:8px;border:1px solid var(--border);}
+.final-card{background:rgba(250,204,21,.05);border:1px solid rgba(250,204,21,.2);border-radius:8px;padding:12px;display:none;}
+.err-row{display:flex;justify-content:space-between;margin-top:5px;font-family:'Space Mono',monospace;font-size:10px;}
+.err-row span:first-child{color:var(--muted);}
+.err-row span:last-child{color:var(--green);}
+.langsw{display:flex;gap:3px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;padding:3px;margin-left:10px;}
+.langbtn{background:transparent;border:none;color:var(--muted);font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:4px 9px;border-radius:5px;cursor:pointer;letter-spacing:1px;}
+.langbtn.active{background:var(--accent);color:#000;}
+</style>
+</head>
+<body>
+
+<!-- START SCREEN -->
+<div id="startScreen" style="position:fixed;inset:0;z-index:9999;background:radial-gradient(ellipse at 50% 40%,#1a1400 0%,#07090f 70%);display:flex;align-items:center;justify-content:center;">
+  <canvas id="bgCanvas" style="position:absolute;inset:0;width:100%;height:100%;opacity:.35;pointer-events:none"></canvas>
+  <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:18px;max-width:620px;padding:20px;text-align:center;">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div style="background:#facc15;color:#000;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:4px 14px;letter-spacing:2px;border-radius:2px;">ELEKTR · LAB 03</div>
+      <div style="font-family:'Space Mono',monospace;font-size:10px;color:#4a6080;letter-spacing:2px;">19-mavzu · Xʟ = Xᴄ</div>
+    </div>
+    <div style="width:100px;height:100px;border-radius:50%;background:radial-gradient(circle,rgba(250,204,21,.2),rgba(250,204,21,.02));border:2px solid rgba(250,204,21,.5);display:flex;align-items:center;justify-content:center;box-shadow:0 0 60px rgba(250,204,21,.35);animation:pulseOmm 2.5s ease-in-out infinite;"><span style="font-size:44px;">📡</span></div>
+    <h1 style="font-size:19px;font-weight:800;color:#fff;" id="tStartTitle">O'zgaruvchan tok zanjirida — <span style="color:#facc15;">rezonans hodisasini o'rganish</span></h1>
+    <p style="font-size:11px;color:#64748b;font-family:'Space Mono',monospace;" id="tStartSub">Xʟ=2πfL · Xᴄ=1/(2πfC) · Rezonansda Xʟ=Xᴄ, I maksimal</p>
+    <div style="background:rgba(250,204,21,.05);border:1px solid rgba(250,204,21,.15);border-radius:12px;padding:15px;width:100%;text-align:left;">
+      <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;color:#facc15;margin-bottom:10px;" id="tProcedure">BAJARISH TARTIBI</div>
+      <div style="display:flex;flex-direction:column;gap:7px;">
+        <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#c5d3e8;"><span style="width:20px;height:20px;border-radius:50%;background:rgba(250,204,21,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#facc15;flex-shrink:0;">1</span><span id="tS1">Qarshilik R ni tanlang, kondensator C ni sozlang</span></div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#c5d3e8;"><span style="width:20px;height:20px;border-radius:50%;background:rgba(250,204,21,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#facc15;flex-shrink:0;">2</span><span id="tS2">Multimetrlarda I va Uᴄ ni o'lchang</span></div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#c5d3e8;"><span style="width:20px;height:20px;border-radius:50%;background:rgba(250,204,21,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#facc15;flex-shrink:0;">3</span><span id="tS3">Bir necha C qiymatida takrorlab, natijani yozib boring</span></div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#c5d3e8;"><span style="width:20px;height:20px;border-radius:50%;background:rgba(250,204,21,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#facc15;flex-shrink:0;">4</span><span id="tS4">Grafikdan I eng katta bo'lgan (rezonans) C ni toping</span></div>
+      </div>
+    </div>
+    <button onclick="startLab()" style="background:linear-gradient(135deg,#facc15,#ca8a04);color:#000;border:none;border-radius:12px;padding:15px 60px;font-size:16px;font-weight:800;font-family:'Syne',sans-serif;cursor:pointer;box-shadow:0 8px 30px rgba(250,204,21,.4);width:100%;"><span id="tStartBtn">▶ Laboratoriyani boshlash</span></button>
+    <div style="display:flex;align-items:center;gap:6px;opacity:.7;"><span>🔬</span><span style="font-family:'Space Mono',monospace;font-size:10px;font-weight:700;background:linear-gradient(90deg,#facc15,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;">Xosiyat Virtual Lab</span></div>
+  </div>
+</div>
+<style>
+@keyframes pulseOmm{0%,100%{box-shadow:0 0 60px rgba(250,204,21,.25)}50%{box-shadow:0 0 90px rgba(250,204,21,.6)}}
+@keyframes fadeOut{0%{opacity:1}100%{opacity:0;transform:scale(1.04)}}
+</style>
+<script>
+(function(){var c=document.getElementById('bgCanvas');var x=c.getContext('2d');var pts=[];function rs(){c.width=window.innerWidth;c.height=window.innerHeight;}rs();window.addEventListener('resize',rs);
+for(var i=0;i<50;i++)pts.push({x:Math.random()*1600,y:Math.random()*900,r:Math.random()*1.5+.5,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,a:Math.random()});
+function fr(){x.clearRect(0,0,c.width,c.height);pts.forEach(function(p){p.x+=p.vx;p.y+=p.vy;p.a+=.005;if(p.x<0)p.x=c.width;if(p.x>c.width)p.x=0;if(p.y<0)p.y=c.height;if(p.y>c.height)p.y=0;x.fillStyle='rgba(250,204,21,'+(0.15+Math.sin(p.a)*0.12)+')';x.beginPath();x.arc(p.x%c.width,p.y%c.height,p.r,0,Math.PI*2);x.fill();});requestAnimationFrame(fr);}fr();})();
+function startLab(){var s=document.getElementById('startScreen');s.style.animation='fadeOut .5s ease forwards';setTimeout(function(){s.style.display='none';},480);}
+</script>
+
+<header>
+  <div class="badge" id="tBadge">ELEKTR · LAB 03</div>
+  <h1 class="htitle" id="tTitle">Rezonans hodisasi — <span>O'zgaruvchan tok zanjiri</span></h1>
+  <div class="hsub" id="tHsub">ELEKTR · FIZPRAKTIKUM · SDPI 2026</div>
+  <div class="langsw">
+    <button class="langbtn active" id="langUZ" onclick="setLang('uz')">UZ</button>
+    <button class="langbtn" id="langRU" onclick="setLang('ru')">RU</button>
+    <button class="langbtn" id="langEN" onclick="setLang('en')">EN</button>
+  </div>
+  <div class="brand"><span>🔬</span><span class="brand-txt">Xosiyat Virtual Lab</span></div>
+</header>
+
+<div class="statusbar">
+  <div class="dot off" id="dot"></div>
+  <span id="statusTxt">R ni tanlang → C ni sozlang → o'lchang</span>
+  <div class="chips">
+    <div class="chip">R=<span id="cR">100</span>Ω</div>
+    <div class="chip">C=<span id="cC">2.5</span>μF</div>
+    <div class="chip">I=<span id="cI">—</span>mA</div>
+    <div class="chip"><span id="tMeasLbl">O'lchov:</span><span id="chipCnt">0</span></div>
+  </div>
+</div>
+
+<div class="body">
+<div class="left">
+  <div class="stitle" id="tRlabel">Qarshilik (R)</div>
+  <div class="pillrow">
+    <button class="pill active" id="r0" onclick="setR(50)">50 Ω</button>
+    <button class="pill" id="r1" onclick="setR(100)">100 Ω</button>
+    <button class="pill" id="r2" onclick="setR(200)">200 Ω</button>
+  </div>
+
+  <div class="stitle" id="tClabel">Kondensator sig'imi (C)</div>
+  <div class="card">
+    <label>C (μF) <span class="vb" id="dC">2.5 μF</span></label>
+    <input type="range" id="sC" min="0.5" max="10" step="0.25" value="2.5" oninput="setCv(this.value)">
+  </div>
+
+  <div class="card" style="background:rgba(250,204,21,.05);border-color:rgba(250,204,21,.15);">
+    <div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:5px;">TG: f=100Hz, U=10V · L=1H</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+      <div>
+        <div style="font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);">I</div>
+        <div style="font-size:15px;font-weight:800;color:var(--accent);" id="dI">— mA</div>
+      </div>
+      <div>
+        <div style="font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);">Uᴄ</div>
+        <div style="font-size:15px;font-weight:800;color:var(--blue);" id="dUc">— V</div>
+      </div>
+      <div>
+        <div style="font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);">Uʟ</div>
+        <div style="font-size:13px;font-weight:700;color:var(--green);" id="dUl">— V</div>
+      </div>
+      <div>
+        <div style="font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);">Xʟ−Xᴄ</div>
+        <div style="font-size:13px;font-weight:700;color:var(--red);" id="dDiff">— Ω</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="fbox">
+    <div class="frow"><span class="fl">Xʟ</span><span class="fe">= 2πfL (Ω)</span></div>
+    <div class="frow"><span class="fl">Xᴄ</span><span class="fe">= 1/(2πfC) (Ω)</span></div>
+    <div class="frow"><span class="fl">I</span><span class="fe">= U/√(R²+(Xʟ−Xᴄ)²)</span></div>
+  </div>
+
+  <div class="steps">
+    <div class="step active" id="st1"><div class="snum">1</div><span id="tStep1">R, C tanlang</span></div>
+    <div class="step" id="st2"><div class="snum">2</div><span id="tStep2">O'lchash bajarildi</span></div>
+    <div class="step" id="st3"><div class="snum">3</div><span id="tStep3">Natijani yozing</span></div>
+    <div class="step" id="st4"><div class="snum">4</div><span id="tStep4">Bir necha C sinang</span></div>
+    <div class="step" id="st5"><div class="snum">5</div><span id="tStep5">Tahlil</span></div>
+  </div>
+
+  <button class="btn btn-p" id="measBtn" onclick="measure()">📡 <span id="tMeasBtn">I va Uᴄ ni o'lchash</span></button>
+  <button class="btn btn-g" onclick="addMeas()" id="addBtn" disabled>+ <span id="tAddBtn">Natijani yozish</span></button>
+  <button class="btn btn-r" onclick="resetAll()">↺ <span id="tResetBtn">Qayta boshlash</span></button>
+</div>
+
+<div class="center">
+  <canvas id="simCanvas"></canvas>
+  <div class="instr-bar" id="tInstrBar">📡 Rezonansda Xʟ=Xᴄ, Z=R minimal, I maksimal · Bu holda Uʟ va Uᴄ manba kuchlanishi U dan bir necha marta katta bo'lishi mumkin (kuchlanishlar rezonansi)</div>
+</div>
+
+<div class="right">
+  <div class="stitle" id="tResults">O'lchov natijalari</div>
+  <div class="three">
+    <div class="rc hi"><div class="rl">I (mA)</div><div class="rv" id="rI">—</div></div>
+    <div class="rc hi2"><div class="rl">Uᴄ (V)</div><div class="rv" style="color:var(--blue)" id="rUc">—</div></div>
+    <div class="rc hi3"><div class="rl">Uʟ (V)</div><div class="rv" style="color:var(--green);font-size:15px" id="rUl">—</div></div>
+  </div>
+
+  <div class="stitle" id="tTableTitle">Jadval: I, Uᴄ, Uʟ = f(C)</div>
+  <table>
+    <thead><tr><th>№</th><th>R(Ω)</th><th>C(μF)</th><th>I(mA)</th><th>Uᴄ(V)</th><th>Uʟ(V)</th></tr></thead>
+    <tbody id="tbody"></tbody>
+  </table>
+
+  <div class="stitle" id="tGraphTitle">Grafik: I = f(C)</div>
+  <canvas id="graphCanvas" height="110"></canvas>
+
+  <div class="final-card" id="finalCard">
+    <div class="rl" id="tFinalTitle">Yakuniy natija — rezonans</div>
+    <div style="display:flex;gap:8px;margin-top:8px;">
+      <div style="flex:1;text-align:center;">
+        <div style="font-size:9px;color:var(--muted);font-family:monospace;" id="tCfound">Topilgan C (max I)</div>
+        <div style="font-size:19px;font-weight:800;color:var(--blue);" id="resCfound">—</div>
+        <div style="font-size:8px;color:var(--muted);">μF</div>
+      </div>
+      <div style="flex:1;text-align:center;">
+        <div style="font-size:9px;color:var(--muted);font-family:monospace;" id="tCtheor">Nazariy C₀=1/(4π²f²L)</div>
+        <div style="font-size:19px;font-weight:800;color:var(--accent);" id="resCtheor">—</div>
+        <div style="font-size:8px;color:var(--muted);">μF</div>
+      </div>
+    </div>
+    <div class="err-row"><span id="tQfactor">Kuchayish (Uᴄ_max/U)</span><span id="resQ">—</span></div>
+    <div class="err-row"><span id="tAvgEps">Xatolik ε</span><span id="resEps">—</span></div>
+    <div class="err-row"><span id="tMeasCnt">O'lchashlar</span><span id="resCnt">—</span></div>
+  </div>
+</div>
+</div>
+
+<div style="position:fixed;bottom:14px;right:18px;display:flex;align-items:center;gap:7px;background:rgba(7,9,15,.75);border:1px solid rgba(250,204,21,.2);border-radius:30px;padding:5px 16px;backdrop-filter:blur(10px);z-index:9999;pointer-events:none;">
+  <span>🔬</span><span style="font-family:'Space Mono',monospace;font-size:11px;font-weight:700;background:linear-gradient(90deg,#facc15,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;">Xosiyat Virtual Lab</span>
+</div>
+
+<script>
+var LANG='uz';
+var I18N={
+ uz:{badge:'ELEKTR · LAB 03',title:"Rezonans hodisasi — <span>O'zgaruvchan tok zanjiri</span>",hsub:'ELEKTR · FIZPRAKTIKUM · SDPI 2026',
+   statusDefault:"R ni tanlang → C ni sozlang → o'lchang",measLbl:"O'lchov:",
+   rLabel:'Qarshilik (R)',cLabel:"Kondensator sig'imi (C)",
+   measBtn:"I va Uᴄ ni o'lchash",addBtn:'Natijani yozish',resetBtn:'Qayta boshlash',
+   step1:'R, C tanlang',step2:"O'lchash bajarildi",step3:'Natijani yozing',step4:'Bir necha C sinang',step5:'Tahlil',
+   instrBar:"📡 Rezonansda Xʟ=Xᴄ, Z=R minimal, I maksimal · Bu holda Uʟ va Uᴄ manba kuchlanishi U dan bir necha marta katta bo'lishi mumkin (kuchlanishlar rezonansi)",
+   results:"O'lchov natijalari",tableTitle:'Jadval: I, Uᴄ, Uʟ = f(C)',graphTitle:'Grafik: I = f(C)',
+   finalTitle:'Yakuniy natija — rezonans',cfound:'Topilgan C (max I)',ctheor:'Nazariy C₀=1/(4π²f²L)',
+   qfactor:'Kuchayish (Uᴄ_max/U)',avgEps:'Xatolik ε',measCnt:"O'lchashlar",
+   startTitle:"O'zgaruvchan tok zanjirida — <span style=\"color:#facc15;\">rezonans hodisasini o'rganish</span>",startSub:"Xʟ=2πfL · Xᴄ=1/(2πfC) · Rezonansda Xʟ=Xᴄ, I maksimal",
+   procedure:'BAJARISH TARTIBI',s1:'Qarshilik R ni tanlang, kondensator C ni sozlang',s2:"Multimetrlarda I va Uᴄ ni o'lchang",
+   s3:"Bir necha C qiymatida takrorlab, natijani yozib boring",s4:"Grafikdan I eng katta bo'lgan (rezonans) C ni toping",
+   startBtn:'▶ Laboratoriyani boshlash',
+   statusMeasured:'✓ O\'lchandi — natijani yozib qo\'ying',statusDone:'✓ ',unit:'ta'
+ },
+ ru:{badge:'ЭЛЕКТР · ЛАБ 03',title:'Явление резонанса — <span>Цепь переменного тока</span>',hsub:'ЭЛЕКТР · ФИЗПРАКТИКУМ · SDPI 2026',
+   statusDefault:'Выберите R → настройте C → измерьте',measLbl:'Измерений:',
+   rLabel:'Сопротивление (R)',cLabel:'Ёмкость конденсатора (C)',
+   measBtn:'Измерить I и Uᴄ',addBtn:'Записать результат',resetBtn:'Начать заново',
+   step1:'Выберите R, C',step2:'Измерение выполнено',step3:'Запишите результат',step4:'Испытайте разные C',step5:'Анализ',
+   instrBar:'📡 При резонансе Xʟ=Xᴄ, Z=R минимально, I максимально · При этом Uʟ и Uᴄ могут в разы превышать напряжение источника U (резонанс напряжений)',
+   results:'Результаты измерений',tableTitle:'Таблица: I, Uᴄ, Uʟ = f(C)',graphTitle:'График: I = f(C)',
+   finalTitle:'Итоговый результат — резонанс',cfound:'Найдено C (макс. I)',ctheor:'Теор. C₀=1/(4π²f²L)',
+   qfactor:'Усиление (Uᴄ_max/U)',avgEps:'Погрешность ε',measCnt:'Измерения',
+   startTitle:'Изучение явления резонанса в цепи — <span style="color:#facc15;">переменного тока</span>',startSub:'Xʟ=2πfL · Xᴄ=1/(2πfC) · При резонансе Xʟ=Xᴄ, I максимально',
+   procedure:'ПОРЯДОК ВЫПОЛНЕНИЯ',s1:'Выберите сопротивление R, настройте ёмкость C',s2:'Измерьте I и Uᴄ на мультиметрах',
+   s3:'Повторите для нескольких значений C, записывая результаты',s4:'По графику найдите C, при котором I максимален (резонанс)',
+   startBtn:'▶ Начать лабораторную',
+   statusMeasured:'✓ Измерено — запишите результат',statusDone:'✓ ',unit:'шт.'
+ },
+ en:{badge:'ELECTRICITY · LAB 03',title:'Resonance Phenomenon — <span>AC Circuit</span>',hsub:'ELECTRICITY · PHYSICS LAB · SDPI 2026',
+   statusDefault:'Choose R → adjust C → measure',measLbl:'Measurements:',
+   rLabel:'Resistance (R)',cLabel:'Capacitance (C)',
+   measBtn:'Measure I and Uᴄ',addBtn:'Record result',resetBtn:'Restart',
+   step1:'Choose R, C',step2:'Measurement done',step3:'Record result',step4:'Try several C values',step5:'Analysis',
+   instrBar:"📡 At resonance Xʟ=Xᴄ, Z=R is minimal, I is maximal · Uʟ and Uᴄ can far exceed the source voltage U (voltage resonance)",
+   results:'Measurement results',tableTitle:'Table: I, Uᴄ, Uʟ = f(C)',graphTitle:'Graph: I = f(C)',
+   finalTitle:'Final result — resonance',cfound:'Found C (max I)',ctheor:'Theoretical C₀=1/(4π²f²L)',
+   qfactor:'Gain (Uᴄ_max/U)',avgEps:'Error ε',measCnt:'Measurements',
+   startTitle:'Studying the Resonance Phenomenon in an — <span style="color:#facc15;">AC Circuit</span>',startSub:'Xʟ=2πfL · Xᴄ=1/(2πfC) · At resonance Xʟ=Xᴄ, I is maximal',
+   procedure:'PROCEDURE',s1:'Choose the resistance R, adjust the capacitance C',s2:'Measure I and Uᴄ on the multimeters',
+   s3:'Repeat for several C values, recording each result',s4:'From the graph find the C where I is maximal (resonance)',
+   startBtn:'▶ Start the lab',
+   statusMeasured:'✓ Measured — record the result',statusDone:'✓ ',unit:''
+ }
+};
+function t(k){return I18N[LANG][k];}
+function setLang(l){
+  LANG=l;
+  document.getElementById('langUZ').className='langbtn'+(l==='uz'?' active':'');
+  document.getElementById('langRU').className='langbtn'+(l==='ru'?' active':'');
+  document.getElementById('langEN').className='langbtn'+(l==='en'?' active':'');
+  document.getElementById('tBadge').textContent=t('badge');
+  document.getElementById('tTitle').innerHTML=t('title');
+  document.getElementById('tHsub').textContent=t('hsub');
+  document.getElementById('tMeasLbl').textContent=t('measLbl');
+  document.getElementById('tRlabel').textContent=t('rLabel');
+  document.getElementById('tClabel').textContent=t('cLabel');
+  document.getElementById('tMeasBtn').textContent=t('measBtn');
+  document.getElementById('tAddBtn').textContent=t('addBtn');
+  document.getElementById('tResetBtn').textContent=t('resetBtn');
+  document.getElementById('tStep1').textContent=t('step1');
+  document.getElementById('tStep2').textContent=t('step2');
+  document.getElementById('tStep3').textContent=t('step3');
+  document.getElementById('tStep4').textContent=t('step4');
+  document.getElementById('tStep5').textContent=t('step5');
+  document.getElementById('tInstrBar').textContent=t('instrBar');
+  document.getElementById('tResults').textContent=t('results');
+  document.getElementById('tTableTitle').textContent=t('tableTitle');
+  document.getElementById('tGraphTitle').textContent=t('graphTitle');
+  document.getElementById('tFinalTitle').textContent=t('finalTitle');
+  document.getElementById('tCfound').textContent=t('cfound');
+  document.getElementById('tCtheor').textContent=t('ctheor');
+  document.getElementById('tQfactor').textContent=t('qfactor');
+  document.getElementById('tAvgEps').textContent=t('avgEps');
+  document.getElementById('tMeasCnt').textContent=t('measCnt');
+  document.getElementById('tStartTitle').innerHTML=t('startTitle');
+  document.getElementById('tStartSub').textContent=t('startSub');
+  document.getElementById('tProcedure').textContent=t('procedure');
+  document.getElementById('tS1').textContent=t('s1');
+  document.getElementById('tS2').textContent=t('s2');
+  document.getElementById('tS3').textContent=t('s3');
+  document.getElementById('tS4').textContent=t('s4');
+  document.getElementById('tStartBtn').textContent=t('startBtn');
+  if(lastI===0){document.getElementById('statusTxt').textContent=t('statusDefault');}
+  drawGraph();
+}
+
+var F0=100, L0=1, U0=10; // Hz, H, V — TG parametrlari (o'zgarmas)
+var Rv=100,Cv=2.5,measList=[],cnt=0,animT=0;
+var lastI=0,lastUc=0,lastUl=0,measured=false;
+var sc=document.getElementById('simCanvas'),ctx=sc.getContext('2d');
+var gc=document.getElementById('graphCanvas'),gctx=gc.getContext('2d');
+
+function omega(){return 2*Math.PI*F0;}
+function XL(){return omega()*L0;}
+function XC(C_uF){return 1/(omega()*C_uF*1e-6);}
+function C0_theor(){return 1/(Math.pow(omega(),2)*L0)*1e6;} // μF
+
+function setR(r){Rv=r;document.getElementById('r0').className='pill'+(r===50?' active':'');document.getElementById('r1').className='pill'+(r===100?' active':'');document.getElementById('r2').className='pill'+(r===200?' active':'');document.getElementById('cR').textContent=r;}
+function setCv(v){Cv=parseFloat(v);document.getElementById('dC').textContent=v+' μF';document.getElementById('cC').textContent=v;}
+
+function measure(){
+  var xl=XL(),xc=XC(Cv);
+  var Z=Math.sqrt(Rv*Rv+Math.pow(xl-xc,2));
+  var Itrue=U0/Z;
+  var noise=(Math.random()-0.5)*0.04;
+  var I=Itrue*(1+noise);
+  var Ul=I*xl,Uc=I*xc;
+  lastI=I;lastUc=Uc;lastUl=Ul;measured=true;
+  document.getElementById('dI').textContent=(I*1000).toFixed(1)+' mA';
+  document.getElementById('dUc').textContent=Uc.toFixed(2)+' V';
+  document.getElementById('dUl').textContent=Ul.toFixed(2)+' V';
+  document.getElementById('dDiff').textContent=(xl-xc).toFixed(1)+' Ω';
+  document.getElementById('rI').textContent=(I*1000).toFixed(1);
+  document.getElementById('rUc').textContent=Uc.toFixed(2);
+  document.getElementById('rUl').textContent=Ul.toFixed(2);
+  document.getElementById('cI').textContent=(I*1000).toFixed(1);
+  document.getElementById('addBtn').disabled=false;
+  document.getElementById('dot').classList.remove('off');
+  setStep(3);
+  document.getElementById('statusTxt').textContent=t('statusMeasured');
+  drawSim();
+}
+
+function addMeas(){
+  if(!measured)return;
+  cnt++;
+  measList.push({R:Rv,C:Cv,I:lastI*1000,Uc:lastUc,Ul:lastUl});
+  document.getElementById('chipCnt').textContent=cnt;
+  var tr=document.createElement('tr');
+  tr.innerHTML='<td>'+cnt+'</td><td>'+Rv+'</td><td>'+Cv+'</td><td>'+(lastI*1000).toFixed(1)+'</td><td>'+lastUc.toFixed(2)+'</td><td>'+lastUl.toFixed(2)+'</td>';
+  document.getElementById('tbody').appendChild(tr);
+  document.getElementById('addBtn').disabled=true;
+  measured=false;
+  document.getElementById('dot').classList.add('off');
+  setStep(4);
+  if(measList.length>=3){
+    var group=measList.filter(function(m){return m.R===Rv;});
+    if(group.length>=3){
+      var maxRow=group.reduce(function(a,b){return b.I>a.I?b:a;});
+      var Ctheor=C0_theor();
+      var eps=Math.abs(maxRow.C-Ctheor)/Ctheor*100;
+      var Q=maxRow.Uc/U0;
+      document.getElementById('finalCard').style.display='block';
+      document.getElementById('resCfound').textContent=maxRow.C.toFixed(2);
+      document.getElementById('resCtheor').textContent=Ctheor.toFixed(2);
+      document.getElementById('resQ').textContent=Q.toFixed(1)+'x';
+      document.getElementById('resEps').textContent=eps.toFixed(2)+'%';
+      document.getElementById('resCnt').textContent=group.length+' '+t('unit');
+      setStep(5);
+    }
+  }
+  document.getElementById('statusTxt').textContent=t('statusDefault');
+  setStep(measList.filter(function(m){return m.R===Rv;}).length>=3?5:1);
+  drawGraph();
+}
+
+function resetAll(){
+  measList=[];cnt=0;lastI=0;lastUc=0;lastUl=0;measured=false;
+  document.getElementById('tbody').innerHTML='';
+  document.getElementById('finalCard').style.display='none';
+  document.getElementById('addBtn').disabled=true;
+  document.getElementById('dot').classList.add('off');
+  document.getElementById('chipCnt').textContent=0;
+  ['rI','rUc','rUl'].forEach(function(id){document.getElementById(id).textContent='—';});
+  document.getElementById('cI').textContent='—';
+  document.getElementById('dI').textContent='— mA';document.getElementById('dUc').textContent='— V';document.getElementById('dUl').textContent='— V';document.getElementById('dDiff').textContent='— Ω';
+  document.getElementById('statusTxt').textContent=t('statusDefault');
+  setStep(1);drawGraph();drawSim();
+}
+function setStep(n){for(var i=1;i<=5;i++){var el=document.getElementById('st'+i);el.className='step'+(i<n?' done':i===n?' active':'');el.querySelector('.snum').textContent=i<n?'✓':i;}}
+function resize(){sc.width=sc.offsetWidth;sc.height=sc.offsetHeight;drawSim();}
+window.addEventListener('resize',resize);setTimeout(resize,80);
+
+function drawSim(){
+  var W=sc.width,H=sc.height;if(!W||!H)return;
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#040810';ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle='rgba(250,204,21,.02)';ctx.lineWidth=1;
+  for(var xi=0;xi<W;xi+=60){ctx.beginPath();ctx.moveTo(xi,0);ctx.lineTo(xi,H);ctx.stroke();}
+  for(var yi=0;yi<H;yi+=60){ctx.beginPath();ctx.moveTo(0,yi);ctx.lineTo(W,yi);ctx.stroke();}
+
+  var cx=W*0.42,cy=H*0.5;
+  var lx=cx-190,rx=cx+190,ty=cy-120,by=cy+120;
+  var col=measured?'rgba(250,204,21,.85)':'rgba(140,150,165,.55)';
+  ctx.strokeStyle=col;ctx.lineWidth=3;
+  if(measured){ctx.shadowColor=col;ctx.shadowBlur=5;}
+
+  ctx.beginPath();ctx.moveTo(lx,ty);ctx.lineTo(lx,by);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(lx,by);ctx.lineTo(rx,by);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(rx,by);ctx.lineTo(rx,cy+35);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(rx,cy-35);ctx.lineTo(rx,ty);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(lx,ty);ctx.lineTo(cx-40,ty);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(cx+40,ty);ctx.lineTo(rx,ty);ctx.stroke();
+  ctx.shadowBlur=0;
+
+  // TG (AC manba) belgisi
+  ctx.strokeStyle=col;ctx.lineWidth=2.5;
+  ctx.beginPath();ctx.arc(lx,cy,22,0,Math.PI*2);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(lx-13,cy);
+  for(var i=0;i<4;i++){ctx.quadraticCurveTo(lx-13+6.5*(i+0.5),cy-8,lx-13+13*(i+1),cy);}
+  ctx.stroke();
+  ctx.fillStyle=col;ctx.font='bold 12px Space Mono';ctx.textAlign='center';ctx.fillText('TG',lx,cy+40);
+
+  // kondensator C (yuqorida, o'rtada)
+  ctx.strokeStyle=col;ctx.lineWidth=3;
+  ctx.beginPath();ctx.moveTo(cx-7,ty-14);ctx.lineTo(cx-7,ty+14);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(cx+7,ty-14);ctx.lineTo(cx+7,ty+14);ctx.stroke();
+  ctx.fillStyle=col;ctx.font='bold 13px Space Mono';ctx.fillText('C',cx,ty-24);
+
+  // rezistor R (o'ngda)
+  ctx.strokeStyle=col;ctx.lineWidth=2.5;
+  ctx.beginPath();ctx.moveTo(rx-13,cy-35);ctx.lineTo(rx+13,cy-35);ctx.lineTo(rx+13,cy+35);ctx.lineTo(rx-13,cy+35);ctx.stroke();
+  ctx.fillText('R',rx+30,cy+5);
+
+  // induktor L (pastda)
+  ctx.strokeStyle=col;ctx.lineWidth=2.5;
+  var lStart=lx+40,lEnd=rx-40;
+  ctx.beginPath();ctx.moveTo(lStart,by);
+  var coils=6,seg=(lEnd-lStart)/coils;
+  for(var i=0;i<coils;i++){var xx=lStart+seg*(i+0.5);ctx.quadraticCurveTo(xx,by-14,lStart+seg*(i+1),by);}
+  ctx.stroke();
+  ctx.fillText('L',(lStart+lEnd)/2,by+22);
+
+  // ampermetr indikatorlari olib tashlandi (toza ko'rinish uchun)
+
+  requestAnimationFrame(drawSim);
+}
+
+function drawGauge(x,y,label,val,maxVal,col){
+  var w=130,h=90;
+  ctx.fillStyle='rgba(14,20,32,.95)';rr(ctx,x,y,w,h,10);ctx.fill();
+  ctx.strokeStyle='rgba(250,204,21,.2)';ctx.lineWidth=1;rr(ctx,x,y,w,h,10);ctx.stroke();
+  ctx.fillStyle='rgba(140,150,165,.8)';ctx.font='9px monospace';ctx.textAlign='center';
+  ctx.fillText(label,x+w/2,y+16);
+  var pct=Math.min(1,val/maxVal);
+  ctx.strokeStyle='rgba(140,150,165,.15)';ctx.lineWidth=8;ctx.lineCap='round';
+  ctx.beginPath();ctx.arc(x+w/2,y+58,26,Math.PI*0.75,Math.PI*2.25);ctx.stroke();
+  ctx.strokeStyle=col;ctx.lineWidth=8;
+  ctx.beginPath();ctx.arc(x+w/2,y+58,26,Math.PI*0.75,Math.PI*0.75+pct*Math.PI*1.5);ctx.stroke();
+  ctx.fillStyle='#fff';ctx.font='bold 14px Space Mono';
+  ctx.fillText(val.toFixed(1),x+w/2,y+62);
+}
+
+function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.lineTo(x+w-r,y);c.quadraticCurveTo(x+w,y,x+w,y+r);c.lineTo(x+w,y+h-r);c.quadraticCurveTo(x+w,y+h,x+w-r,y+h);c.lineTo(x+r,y+h);c.quadraticCurveTo(x,y+h,x,y+h-r);c.lineTo(x,y+r);c.quadraticCurveTo(x,y,x+r,y);c.closePath();}
+
+function drawGraph(){
+  var W2=gc.offsetWidth||250;gc.width=W2;var GH=110;
+  gctx.clearRect(0,0,W2,GH);gctx.fillStyle='#070c17';gctx.fillRect(0,0,W2,GH);
+  var pad=32,gW=W2-pad*2,gHH=GH-pad-8;
+  gctx.strokeStyle='rgba(250,204,21,.3)';gctx.lineWidth=1;
+  gctx.beginPath();gctx.moveTo(pad,8);gctx.lineTo(pad,GH-pad);gctx.lineTo(W2-pad+6,GH-pad);gctx.stroke();
+  gctx.fillStyle='rgba(250,204,21,.6)';gctx.font='7px monospace';gctx.textAlign='center';gctx.fillText('C(μF)',W2-pad+8,GH-pad+3);
+  gctx.textAlign='right';gctx.fillText('I(mA)',pad-3,12);
+  var group=measList.filter(function(m){return m.R===Rv;});
+  if(!group.length)return;
+  var cvals=group.map(function(m){return m.C;}),ivals=group.map(function(m){return m.I;});
+  var maxC=10,maxI=Math.max.apply(null,ivals)*1.3;
+  group.sort(function(a,b){return a.C-b.C;}).forEach(function(m,idx,arr){
+    var px=pad+(m.C/maxC)*gW,py=GH-pad-(m.I/maxI)*gHH;
+    if(idx>0){
+      var pm=arr[idx-1];
+      var ppx=pad+(pm.C/maxC)*gW,ppy=GH-pad-(pm.I/maxI)*gHH;
+      gctx.strokeStyle='rgba(59,130,246,.4)';gctx.lineWidth=1.5;
+      gctx.beginPath();gctx.moveTo(ppx,ppy);gctx.lineTo(px,py);gctx.stroke();
+    }
+    gctx.shadowColor='rgba(59,130,246,.5)';gctx.shadowBlur=5;
+    gctx.fillStyle='rgba(59,130,246,.9)';gctx.beginPath();gctx.arc(px,py,4,0,Math.PI*2);gctx.fill();
+    gctx.shadowBlur=0;
+  });
+}
+
+window.addEventListener('load',function(){setTimeout(function(){resize();drawGraph();},100);});
+</script>
+</body>
+</html>

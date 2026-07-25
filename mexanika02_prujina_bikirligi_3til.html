@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mexanika — Prujina bikirligi</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap');
+:root{--bg:#07090f;--panel:#0e1420;--border:#1b2840;--accent:#facc15;--green:#6fff5c;--blue:#60a5fa;--red:#f87171;--text:#dde6f5;--muted:#4a6080;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;height:100vh;overflow:hidden;display:flex;flex-direction:column;}
+header{display:flex;align-items:center;gap:12px;padding:8px 20px;border-bottom:1px solid var(--border);background:linear-gradient(90deg,#07090f,#1a1400,#07090f);flex-shrink:0;}
+.badge{background:var(--accent);color:#000;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:3px 9px;letter-spacing:2px;border-radius:2px;}
+.htitle{font-size:14px;font-weight:800;}.htitle span{color:var(--accent);}
+.hsub{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-left:auto;}
+.brand{display:flex;align-items:center;gap:6px;background:linear-gradient(135deg,rgba(250,204,21,.12),rgba(111,255,92,.08));border:1px solid rgba(250,204,21,.3);border-radius:20px;padding:4px 14px;margin-left:10px;flex-shrink:0;}
+.brand-txt{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;background:linear-gradient(90deg,#facc15,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;}
+.statusbar{background:#0a0f1c;border-bottom:1px solid var(--border);padding:5px 20px;display:flex;align-items:center;gap:14px;font-family:'Space Mono',monospace;font-size:11px;flex-shrink:0;}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:bl 1s infinite;flex-shrink:0;}
+.dot.off{background:var(--muted);animation:none;}
+@keyframes bl{0%,100%{opacity:1}50%{opacity:.2}}
+#statusTxt{color:var(--accent);}
+.chips{display:flex;gap:6px;margin-left:auto;}
+.chip{background:rgba(250,204,21,.08);border:1px solid rgba(250,204,21,.2);border-radius:10px;padding:2px 9px;font-size:10px;color:var(--muted);}
+.chip span{color:var(--accent);}
+.body{display:grid;grid-template-columns:215px 1fr 265px;flex:1;overflow:hidden;}
+.left{background:var(--panel);border-right:1px solid var(--border);overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:9px;}
+.stitle{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--accent);text-transform:uppercase;margin-bottom:3px;}
+.card{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:8px;padding:10px;}
+.card label{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:7px;}
+.vb{font-family:'Space Mono',monospace;font-size:11px;color:var(--accent);background:rgba(250,204,21,.12);padding:2px 7px;border-radius:3px;}
+input[type=range]{width:100%;-webkit-appearance:none;height:4px;background:var(--border);border-radius:2px;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;background:var(--accent);border-radius:50%;cursor:pointer;box-shadow:0 0 8px rgba(250,204,21,.7);}
+.fbox{background:rgba(250,204,21,.04);border:1px solid rgba(250,204,21,.15);border-radius:7px;padding:9px;}
+.frow{display:flex;gap:6px;margin-bottom:4px;font-family:'Space Mono',monospace;font-size:9px;}
+.fl{color:var(--muted);min-width:22px;}.fe{color:var(--accent);}
+.steps{display:flex;flex-direction:column;gap:3px;}
+.step{display:flex;align-items:center;gap:7px;padding:5px 8px;border-radius:5px;font-size:10px;color:var(--muted);border:1px solid transparent;transition:all .3s;}
+.step.active{background:rgba(250,204,21,.07);border-color:rgba(250,204,21,.2);color:var(--accent);}
+.step.done{color:var(--green);}
+.snum{font-family:'Space Mono',monospace;font-size:9px;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.05);flex-shrink:0;}
+.step.active .snum{background:rgba(250,204,21,.2);}
+.step.done .snum{background:rgba(111,255,92,.12);color:var(--green);}
+.btn{width:100%;padding:9px;border:none;border-radius:7px;font-family:'Syne',sans-serif;font-weight:700;font-size:12px;cursor:pointer;transition:all .2s;margin-top:4px;}
+.btn-p{background:linear-gradient(135deg,#facc15,#ca8a04);color:#000;}
+.btn-p:hover{transform:translateY(-1px);box-shadow:0 5px 18px rgba(250,204,21,.4);}
+.btn-p:disabled{opacity:.35;cursor:not-allowed;}
+.btn-g{background:linear-gradient(135deg,#6fff5c,#33cc22);color:#000;}
+.btn-g:disabled{opacity:.35;}
+.btn-r{background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--border);font-size:11px;}
+.center{position:relative;overflow:hidden;background:#040810;}
+#simCanvas{display:block;width:100%;height:100%;}
+.instr-bar{position:absolute;bottom:0;left:0;right:0;background:rgba(4,8,16,.92);border-top:1px solid var(--border);padding:5px 18px;font-size:10px;color:var(--muted);text-align:center;}
+.right{background:var(--panel);border-left:1px solid var(--border);overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:9px;}
+.rc{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:8px;padding:10px;}
+.rc.hi{border-color:rgba(250,204,21,.3);background:rgba(250,204,21,.05);}
+.rc.hi2{border-color:rgba(96,165,250,.25);background:rgba(96,165,250,.04);}
+.rc.hi3{border-color:rgba(111,255,92,.2);background:rgba(111,255,92,.04);}
+.rl{font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:3px;}
+.rv{font-size:20px;font-weight:800;line-height:1;color:#fff;}
+.ru{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-top:2px;}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;}
+table{width:100%;border-collapse:collapse;font-family:'Space Mono',monospace;font-size:9px;}
+th{color:var(--accent);font-size:7px;letter-spacing:1px;border-bottom:1px solid var(--border);padding:4px 2px;text-align:center;}
+td{padding:3px 2px;border-bottom:1px solid rgba(255,255,255,.03);text-align:center;}
+#graphCanvas{display:block;width:100%;border-radius:8px;border:1px solid var(--border);}
+.final-card{background:rgba(250,204,21,.05);border:1px solid rgba(250,204,21,.2);border-radius:8px;padding:12px;display:none;}
+.err-row{display:flex;justify-content:space-between;margin-top:5px;font-family:'Space Mono',monospace;font-size:10px;}
+.err-row span:first-child{color:var(--muted);}
+.err-row span:last-child{color:var(--green);}
+.langsw{display:flex;gap:3px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;padding:3px;margin-left:10px;}
+.langbtn{background:transparent;border:none;color:var(--muted);font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:4px 9px;border-radius:5px;cursor:pointer;letter-spacing:1px;}
+.langbtn.active{background:var(--accent);color:#000;}
+</style>
+</head>
+<body>
+
+<!-- START SCREEN -->
+<div id="startScreen" style="position:fixed;inset:0;z-index:9999;background:radial-gradient(ellipse at 50% 40%,#1a1400 0%,#07090f 70%);display:flex;align-items:center;justify-content:center;">
+  <canvas id="bgCanvas" style="position:absolute;inset:0;width:100%;height:100%;opacity:.45;pointer-events:none"></canvas>
+  <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:18px;max-width:600px;padding:20px;text-align:center;">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div style="background:#facc15;color:#000;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:4px 14px;letter-spacing:2px;border-radius:2px;">MEXANIKA · LAB 02</div>
+      <div style="font-family:'Space Mono',monospace;font-size:10px;color:#4a6080;letter-spacing:2px;">25-§ · F = k·x</div>
+    </div>
+    <div style="width:100px;height:100px;border-radius:50%;background:radial-gradient(circle,rgba(250,204,21,.2),rgba(250,204,21,.02));border:2px solid rgba(250,204,21,.5);display:flex;align-items:center;justify-content:center;box-shadow:0 0 60px rgba(250,204,21,.35);animation:pulseOmm 2.5s ease-in-out infinite;"><span style="font-size:44px;">🌀</span></div>
+    <h1 style="font-size:20px;font-weight:800;color:#fff;" id="tStartTitle">Prujina bikirligini — <span style="color:#facc15;">aniqlash</span></h1>
+    <p style="font-size:11px;color:#4a6080;font-family:'Space Mono',monospace;" id="tStartSub">F — elastiklik kuchi (N) · x — uzayish (m) · k — bikirlik (N/m)</p>
+    <div style="background:rgba(250,204,21,.05);border:1px solid rgba(250,204,21,.15);border-radius:12px;padding:15px;width:100%;text-align:left;">
+      <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;color:#facc15;margin-bottom:10px;" id="tProcedure">BAJARISH TARTIBI</div>
+      <div style="display:flex;flex-direction:column;gap:7px;">
+        <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#c5d3e8;"><span style="width:20px;height:20px;border-radius:50%;background:rgba(250,204,21,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#facc15;flex-shrink:0;">1</span><span id="tS1">Yuk massasini (m) tanlang</span></div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#c5d3e8;"><span style="width:20px;height:20px;border-radius:50%;background:rgba(250,204,21,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#facc15;flex-shrink:0;">2</span><span id="tS2">Yukni prujinaga osing → prujina cho'ziladi</span></div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#c5d3e8;"><span style="width:20px;height:20px;border-radius:50%;background:rgba(250,204,21,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#facc15;flex-shrink:0;">3</span><span id="tS3">Millimetrli qog'ozdan uzayish x ni o'qing</span></div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#c5d3e8;"><span style="width:20px;height:20px;border-radius:50%;background:rgba(250,204,21,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#facc15;flex-shrink:0;">4</span><span id="tS4">F = f(x) grafigidan bikirlikni aniqlang (qiyalik = k)</span></div>
+      </div>
+    </div>
+    <button onclick="startLab()" style="background:linear-gradient(135deg,#facc15,#ca8a04);color:#000;border:none;border-radius:12px;padding:15px 60px;font-size:16px;font-weight:800;font-family:'Syne',sans-serif;cursor:pointer;box-shadow:0 8px 30px rgba(250,204,21,.4);width:100%;"><span id="tStartBtn">▶ Laboratoriyani boshlash</span></button>
+    <div style="display:flex;align-items:center;gap:6px;opacity:.6;"><span>🔬</span><span style="font-family:'Space Mono',monospace;font-size:10px;font-weight:700;background:linear-gradient(90deg,#facc15,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;">Xosiyat Virtual Lab</span></div>
+  </div>
+</div>
+<style>
+@keyframes pulseOmm{0%,100%{box-shadow:0 0 60px rgba(250,204,21,.25)}50%{box-shadow:0 0 90px rgba(250,204,21,.6)}}
+@keyframes fadeOut{0%{opacity:1}100%{opacity:0;transform:scale(1.04)}}
+</style>
+<script>
+(function(){var c=document.getElementById('bgCanvas');var x=c.getContext('2d');var pts=[];function rs(){c.width=window.innerWidth;c.height=window.innerHeight;}rs();window.addEventListener('resize',rs);
+for(var i=0;i<60;i++)pts.push({x:Math.random()*1600,y:Math.random()*900,r:Math.random()*1.5+.5,vx:(Math.random()-.5)*.35,vy:(Math.random()-.5)*.35,a:Math.random()});
+function fr(){x.clearRect(0,0,c.width,c.height);pts.forEach(function(p){p.x+=p.vx;p.y+=p.vy;p.a+=.005;if(p.x<0)p.x=c.width;if(p.x>c.width)p.x=0;if(p.y<0)p.y=c.height;if(p.y>c.height)p.y=0;x.fillStyle='rgba(250,204,21,'+(0.15+Math.sin(p.a)*0.12)+')';x.beginPath();x.arc(p.x%c.width,p.y%c.height,p.r,0,Math.PI*2);x.fill();});requestAnimationFrame(fr);}fr();})();
+function startLab(){var s=document.getElementById('startScreen');s.style.animation='fadeOut .5s ease forwards';setTimeout(function(){s.style.display='none';},480);}
+</script>
+
+<header>
+  <div class="badge" id="tBadge">MEXANIKA · LAB 02</div>
+  <h1 class="htitle" id="tTitle">Prujina bikirligi — <span>Elastiklik kuchi va Guk qonuni</span></h1>
+  <div class="hsub" id="tHsub">MEXANIKA · FIZPRAKTIKUM · SDPI 2026</div>
+  <div class="langsw">
+    <button class="langbtn active" id="langUZ" onclick="setLang('uz')">UZ</button>
+    <button class="langbtn" id="langRU" onclick="setLang('ru')">RU</button>
+    <button class="langbtn" id="langEN" onclick="setLang('en')">EN</button>
+  </div>
+  <div class="brand"><span>🔬</span><span class="brand-txt">Xosiyat Virtual Lab</span></div>
+</header>
+
+<div class="statusbar">
+  <div class="dot off" id="dot"></div>
+  <span id="statusTxt">Yuk massasini tanlang → osing → uzayishni o'lchang</span>
+  <div class="chips">
+    <div class="chip">m=<span id="cM">100</span>g</div>
+    <div class="chip">F=<span id="cF">—</span>N</div>
+    <div class="chip">x=<span id="cX">—</span>mm</div>
+    <div class="chip">k=<span id="cK">—</span>N/m</div>
+    <div class="chip"><span id="tMeasLbl">O'lchov:</span><span id="chipCnt">0</span></div>
+  </div>
+</div>
+
+<div class="body">
+<div class="left">
+  <div class="stitle" id="tMlabel">Yuk massasi (m)</div>
+  <div class="card">
+    <label>m (g) <span class="vb" id="dM">100 g</span></label>
+    <input type="range" id="sM" min="20" max="300" step="10" value="100" oninput="setMv(this.value)">
+  </div>
+
+  <div class="card" style="background:rgba(250,204,21,.04);border-color:rgba(250,204,21,.15);">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+      <div>
+        <div style="font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);">F = mg</div>
+        <div style="font-size:18px;font-weight:800;color:var(--accent);" id="dF">— N</div>
+      </div>
+      <div>
+        <div style="font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);">x = ?</div>
+        <div style="font-size:18px;font-weight:800;color:var(--green);" id="dX">— mm</div>
+      </div>
+      <div>
+        <div style="font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);">k = F/x</div>
+        <div style="font-size:14px;font-weight:700;color:var(--blue);" id="dK">— N/m</div>
+      </div>
+      <div>
+        <div style="font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);">g</div>
+        <div style="font-size:14px;font-weight:700;color:var(--red);" id="dG">9.8 m/s²</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="fbox">
+    <div class="frow"><span class="fl">F</span><span class="fe">= k·x (N) — Guk qonuni</span></div>
+    <div class="frow"><span class="fl">F</span><span class="fe">= m·g (N)</span></div>
+    <div class="frow"><span class="fl">k</span><span class="fe">= F / x (N/m)</span></div>
+    <div class="frow"><span class="fl">x</span><span class="fe" id="tMmNote">— millimetrli qog'ozdan o'qiladi</div>
+  </div>
+
+  <div class="steps">
+    <div class="step active" id="st1"><div class="snum">1</div><span id="tStep1">Massani tanlang</span></div>
+    <div class="step" id="st2"><div class="snum">2</div><span id="tStep2">Yuk osildi</span></div>
+    <div class="step" id="st3"><div class="snum">3</div><span id="tStep3">Uzayish o'lchanmoqda</span></div>
+    <div class="step" id="st4"><div class="snum">4</div><span id="tStep4">Natijani yozing</span></div>
+    <div class="step" id="st5"><div class="snum">5</div><span id="tStep5">Tahlil</span></div>
+  </div>
+
+  <button class="btn btn-p" id="runBtn" onclick="runExp()">🌀 <span id="tRunBtn">Yukni osib qo'yish</span></button>
+  <button class="btn btn-g" onclick="addMeas()" id="addBtn" disabled>+ <span id="tAddBtn">Natijani yozish</span></button>
+  <button class="btn btn-r" onclick="resetAll()">↺ <span id="tResetBtn">Qayta boshlash</span></button>
+</div>
+
+<div class="center">
+  <canvas id="simCanvas"></canvas>
+  <div class="instr-bar" id="tInstrBar">🌀 Guk qonuni: F = k·x · Grafik F = f(x) — to'g'ri chiziq, qiyaligi = k · k — prujinaning bikirligi (N/m) · Massa ortsa — cho'zilish ortadi</div>
+</div>
+
+<div class="right">
+  <div class="stitle" id="tResults">O'lchov natijalari</div>
+  <div class="three">
+    <div class="rc hi"><div class="rl">F (N)</div><div class="rv" id="rF">—</div></div>
+    <div class="rc hi2"><div class="rl">x (mm)</div><div class="rv" style="color:var(--blue)" id="rX">—</div></div>
+    <div class="rc hi3"><div class="rl">k (N/m)</div><div class="rv" style="color:var(--green);font-size:15px" id="rK">—</div></div>
+  </div>
+  <div class="two">
+    <div class="rc"><div class="rl" id="tExpLbl">o'rtacha k (N/m)</div><div class="rv" style="font-size:14px;color:var(--accent)" id="rAvgK">—</div><div class="ru" id="tExpSub">joriygacha</div></div>
+    <div class="rc"><div class="rl" id="tEpsLbl">ε xatolik</div><div class="rv" style="font-size:14px;color:var(--red)" id="rEps">— </div><div class="ru">%</div></div>
+  </div>
+
+  <div class="stitle" id="tTableTitle">Jadval: F = f(x)</div>
+  <table>
+    <thead><tr><th>№</th><th>m(g)</th><th>F(N)</th><th>x(mm)</th><th>k(N/m)</th><th>ε%</th></tr></thead>
+    <tbody id="tbody"></tbody>
+  </table>
+
+  <div class="stitle" id="tGraphTitle">Grafik: F = f(x)</div>
+  <canvas id="graphCanvas" height="110"></canvas>
+
+  <div class="final-card" id="finalCard">
+    <div class="rl" id="tFinalTitle">Yakuniy natija — bikirlik</div>
+    <div style="display:flex;gap:8px;margin-top:8px;">
+      <div style="flex:1;text-align:center;">
+        <div style="font-size:9px;color:var(--muted);font-family:monospace;" id="tAvgK">O'rt. k</div>
+        <div style="font-size:20px;font-weight:800;color:var(--blue);" id="resK">—</div>
+        <div style="font-size:8px;color:var(--muted);" id="tNmLbl">N/m</div>
+      </div>
+      <div style="flex:1;text-align:center;">
+        <div style="font-size:9px;color:var(--muted);font-family:monospace;" id="tKstar">k* grafik</div>
+        <div style="font-size:20px;font-weight:800;color:var(--accent);" id="resKstar">—</div>
+        <div style="font-size:8px;color:var(--muted);" id="tNmLbl2">N/m</div>
+      </div>
+    </div>
+    <div class="err-row"><span id="tGivenK">Nazorat qiymati (haqiqiy k)</span><span id="resKset">—</span></div>
+    <div class="err-row"><span id="tAvgEps">O'rt. xatolik ε</span><span id="resEps">—</span></div>
+    <div class="err-row"><span id="tMeasCnt">O'lchashlar</span><span id="resCnt">—</span></div>
+  </div>
+</div>
+</div>
+
+<div style="position:fixed;bottom:14px;right:18px;display:flex;align-items:center;gap:7px;background:rgba(7,9,15,.75);border:1px solid rgba(250,204,21,.2);border-radius:30px;padding:5px 16px;backdrop-filter:blur(10px);z-index:9999;pointer-events:none;">
+  <span>🔬</span><span style="font-family:'Space Mono',monospace;font-size:11px;font-weight:700;background:linear-gradient(90deg,#facc15,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;">Xosiyat Virtual Lab</span>
+</div>
+
+<script>
+var LANG='uz';
+var I18N={
+ uz:{badge:'MEXANIKA · LAB 02',title:'Prujina bikirligi — <span>Elastiklik kuchi va Guk qonuni</span>',hsub:'MEXANIKA · FIZPRAKTIKUM · SDPI 2026',
+   statusDefault:"Yuk massasini tanlang → osing → uzayishni o'lchang",measLbl:"O'lchov:",
+   mLabel:'Yuk massasi (m)',mmNote:"— millimetrli qog'ozdan o'qiladi",
+   step1:'Massani tanlang',step2:'Yuk osildi',step3:"Uzayish o'lchanmoqda",step4:'Natijani yozing',step5:'Tahlil',
+   runBtn:'Yukni osib qo\'yish',addBtn:'Natijani yozish',resetBtn:'Qayta boshlash',
+   instrBar:"🌀 Guk qonuni: F = k·x · Grafik F = f(x) — to'g'ri chiziq, qiyaligi = k · k — prujinaning bikirligi (N/m) · Massa ortsa — cho'zilish ortadi",
+   results:"O'lchov natijalari",expLbl:"o'rtacha k (N/m)",expSub:'joriygacha',epsLbl:'ε xatolik',tableTitle:'Jadval: F = f(x)',graphTitle:'Grafik: F = f(x)',
+   finalTitle:'Yakuniy natija — bikirlik',avgK:"O'rt. k",nmLbl:'N/m',kstar:'k* grafik',
+   givenK:'Nazorat qiymati (haqiqiy k)',avgEps:"O'rt. xatolik ε",measCnt:"O'lchashlar",
+   startTitle:'Prujina bikirligini — <span style="color:#facc15;">aniqlash</span>',startSub:'F — elastiklik kuchi (N) · x — uzayish (m) · k — bikirlik (N/m)',
+   procedure:'BAJARISH TARTIBI',s1:'Yuk massasini (m) tanlang',s2:"Yukni prujinaga osing → prujina cho'ziladi",
+   s3:"Millimetrli qog'ozdan uzayish x ni o'qing",s4:"F = f(x) grafigidan bikirlikni aniqlang (qiyalik = k)",
+   startBtn:'▶ Laboratoriyani boshlash',
+   statusRun:'🌀 Yuk osildi! Prujina cho\'zilmoqda...',
+   statusDone:'✓ ',unit:'ta'
+ },
+ ru:{badge:'МЕХАНИКА · ЛАБ 02',title:'Жёсткость пружины — <span>Сила упругости и закон Гука</span>',hsub:'МЕХАНИКА · ФИЗПРАКТИКУМ · SDPI 2026',
+   statusDefault:'Выберите массу груза → подвесьте → измерьте удлинение',measLbl:'Измерений:',
+   mLabel:'Масса груза (m)',mmNote:'— считывается с миллиметровой бумаги',
+   step1:'Выберите массу',step2:'Груз подвешен',step3:'Измеряется удлинение',step4:'Запишите результат',step5:'Анализ',
+   runBtn:'Подвесить груз',addBtn:'Записать результат',resetBtn:'Начать заново',
+   instrBar:'🌀 Закон Гука: F = k·x · График F = f(x) — прямая, наклон = k · k — жёсткость пружины (Н/м) · При увеличении массы удлинение растёт',
+   results:'Результаты измерений',expLbl:'средн. k (Н/м)',expSub:'на текущий момент',epsLbl:'ε погрешность',tableTitle:'Таблица: F = f(x)',graphTitle:'График: F = f(x)',
+   finalTitle:'Итоговый результат — жёсткость',avgK:'Средн. k',nmLbl:'Н/м',kstar:'k* график',
+   givenK:'Контрольное значение (истинное k)',avgEps:'Средняя погрешность ε',measCnt:'Измерения',
+   startTitle:'Определение жёсткости — <span style="color:#facc15;">пружины</span>',startSub:'F — сила упругости (Н) · x — удлинение (м) · k — жёсткость (Н/м)',
+   procedure:'ПОРЯДОК ВЫПОЛНЕНИЯ',s1:'Выберите массу груза (m)',s2:'Подвесьте груз на пружину → пружина растягивается',
+   s3:'Считайте удлинение x с миллиметровой бумаги',s4:'По графику F = f(x) определите жёсткость (наклон = k)',
+   startBtn:'▶ Начать лабораторную',
+   statusRun:'🌀 Груз подвешен! Пружина растягивается...',
+   statusDone:'✓ ',unit:'шт.'
+ },
+ en:{badge:'MECHANICS · LAB 02',title:'Spring Stiffness — <span>Elastic Force and Hooke\'s Law</span>',hsub:'MECHANICS · PHYSICS LAB · SDPI 2026',
+   statusDefault:'Choose the mass → hang it → measure the extension',measLbl:'Measurements:',
+   mLabel:'Load mass (m)',mmNote:'— read from the millimetre paper',
+   step1:'Choose the mass',step2:'Load hung',step3:'Measuring extension',step4:'Record result',step5:'Analysis',
+   runBtn:'Hang the load',addBtn:'Record result',resetBtn:'Restart',
+   instrBar:"🌀 Hooke's law: F = k·x · Graph F = f(x) — straight line, slope = k · k — spring stiffness (N/m) · More mass → more extension",
+   results:'Measurement results',expLbl:'avg. k (N/m)',expSub:'so far',epsLbl:'ε error',tableTitle:'Table: F = f(x)',graphTitle:'Graph: F = f(x)',
+   finalTitle:'Final result — stiffness',avgK:'Avg. k',nmLbl:'N/m',kstar:'k* graph',
+   givenK:'Reference value (true k)',avgEps:'Avg. error ε',measCnt:'Measurements',
+   startTitle:'Determining the — <span style="color:#facc15;">Spring Stiffness</span>',startSub:'F — elastic force (N) · x — extension (m) · k — stiffness (N/m)',
+   procedure:'PROCEDURE',s1:'Choose the load mass (m)',s2:'Hang the load on the spring → the spring stretches',
+   s3:'Read the extension x from the millimetre paper',s4:'From the F = f(x) graph, find the stiffness (slope = k)',
+   startBtn:'▶ Start the lab',
+   statusRun:'🌀 Load hung! Spring is stretching...',
+   statusDone:'✓ ',unit:''
+ }
+};
+function t(k){return I18N[LANG][k];}
+function setLang(l){
+  LANG=l;
+  document.getElementById('langUZ').className='langbtn'+(l==='uz'?' active':'');
+  document.getElementById('langRU').className='langbtn'+(l==='ru'?' active':'');
+  document.getElementById('langEN').className='langbtn'+(l==='en'?' active':'');
+  document.getElementById('tBadge').textContent=t('badge');
+  document.getElementById('tTitle').innerHTML=t('title');
+  document.getElementById('tHsub').textContent=t('hsub');
+  document.getElementById('tMeasLbl').textContent=t('measLbl');
+  document.getElementById('tMlabel').textContent=t('mLabel');
+  document.getElementById('tMmNote').textContent=t('mmNote');
+  document.getElementById('tStep1').textContent=t('step1');
+  document.getElementById('tStep2').textContent=t('step2');
+  document.getElementById('tStep3').textContent=t('step3');
+  document.getElementById('tStep4').textContent=t('step4');
+  document.getElementById('tStep5').textContent=t('step5');
+  document.getElementById('tRunBtn').textContent=t('runBtn');
+  document.getElementById('tAddBtn').textContent=t('addBtn');
+  document.getElementById('tResetBtn').textContent=t('resetBtn');
+  document.getElementById('tInstrBar').textContent=t('instrBar');
+  document.getElementById('tResults').textContent=t('results');
+  document.getElementById('tExpLbl').textContent=t('expLbl');
+  document.getElementById('tExpSub').textContent=t('expSub');
+  document.getElementById('tEpsLbl').textContent=t('epsLbl');
+  document.getElementById('tTableTitle').textContent=t('tableTitle');
+  document.getElementById('tGraphTitle').textContent=t('graphTitle');
+  document.getElementById('tFinalTitle').textContent=t('finalTitle');
+  document.getElementById('tAvgK').textContent=t('avgK');
+  document.getElementById('tNmLbl').textContent=t('nmLbl');
+  document.getElementById('tNmLbl2').textContent=t('nmLbl');
+  document.getElementById('tKstar').textContent=t('kstar');
+  document.getElementById('tGivenK').textContent=t('givenK');
+  document.getElementById('tAvgEps').textContent=t('avgEps');
+  document.getElementById('tMeasCnt').textContent=t('measCnt');
+  document.getElementById('tStartTitle').innerHTML=t('startTitle');
+  document.getElementById('tStartSub').textContent=t('startSub');
+  document.getElementById('tProcedure').textContent=t('procedure');
+  document.getElementById('tS1').textContent=t('s1');
+  document.getElementById('tS2').textContent=t('s2');
+  document.getElementById('tS3').textContent=t('s3');
+  document.getElementById('tS4').textContent=t('s4');
+  document.getElementById('tStartBtn').textContent=t('startBtn');
+  if(!running && lastX===0){document.getElementById('statusTxt').textContent=t('statusDefault');}
+  drawGraph();
+}
+
+var G=9.8;
+var K_TRUE=Math.round((15+Math.random()*25)*10)/10; // 15..40 N/m, sessiya boshida yashirin tayinlanadi
+var Mv=100,measList=[],cnt=0,animT=0;
+var running=false,finished=false,lastX=0,lastF=0,lastK=0,runStartTime=0,xTajCurrent=0,xTargetMm=0,springExt=0,springVel=0;
+var sc=document.getElementById('simCanvas'),ctx=sc.getContext('2d');
+var gc=document.getElementById('graphCanvas'),gctx=gc.getContext('2d');
+
+function setMv(v){Mv=parseFloat(v);document.getElementById('dM').textContent=v+' g';document.getElementById('cM').textContent=v;upd();}
+
+function upd(){
+  var F=(Mv/1000)*G;
+  document.getElementById('dF').textContent=F.toFixed(2)+' N';
+  document.getElementById('cF').textContent=F.toFixed(2);
+  if(!running && lastX===0){
+    document.getElementById('dX').textContent='— mm';
+    document.getElementById('dK').textContent='— N/m';
+  }
+}
+
+function runExp(){
+  if(running)return;
+  running=true;finished=false;
+  document.getElementById('runBtn').disabled=true;
+  document.getElementById('addBtn').disabled=true;
+  document.getElementById('dot').classList.remove('off');
+  setStep(2);
+  document.getElementById('statusTxt').textContent=t('statusRun');
+
+  var F=(Mv/1000)*G;
+  var xTrueMm=(F/K_TRUE)*1000;
+  var noise=(Math.random()-0.5)*0.06; // ±3% o'qish xatoligi
+  var xExp=Math.max(1,xTrueMm*(1+noise));
+  xExp=Math.round(xExp*2)/2; // 0.5mm aniqlik
+  xTajCurrent=xExp;
+  xTargetMm=xExp;
+  runStartTime=performance.now();
+  springExt=0;springVel=0;
+  setTimeout(function(){setStep(3);},150);
+}
+
+function finishRun(){
+  running=false;finished=true;
+  var F=(Mv/1000)*G;
+  lastX=xTajCurrent;lastF=F;lastK=F/(xTajCurrent/1000);
+  var eps=Math.abs(lastK-K_TRUE)/K_TRUE*100;
+  document.getElementById('dX').textContent=xTajCurrent.toFixed(1)+' mm';
+  document.getElementById('dK').textContent=lastK.toFixed(2)+' N/m';
+  document.getElementById('rF').textContent=F.toFixed(2);
+  document.getElementById('rX').textContent=xTajCurrent.toFixed(1);
+  document.getElementById('rK').textContent=lastK.toFixed(2);
+  document.getElementById('rEps').textContent=eps.toFixed(2);
+  document.getElementById('cX').textContent=xTajCurrent.toFixed(1);
+  document.getElementById('cK').textContent=lastK.toFixed(2);
+  document.getElementById('runBtn').disabled=false;
+  document.getElementById('addBtn').disabled=false;
+  document.getElementById('dot').classList.add('off');
+  setStep(4);
+  document.getElementById('statusTxt').textContent=t('statusDone')+'m='+Mv+'g | F='+F.toFixed(2)+'N | x='+xTajCurrent.toFixed(1)+'mm | k='+lastK.toFixed(2)+'N/m';
+}
+
+function addMeas(){
+  if(!finished)return;
+  cnt++;
+  var eps=Math.abs(lastK-K_TRUE)/K_TRUE*100;
+  measList.push({m:Mv,F:lastF,x:lastX,k:lastK,eps:eps});
+  document.getElementById('chipCnt').textContent=cnt;
+  var tr=document.createElement('tr');
+  tr.innerHTML='<td>'+cnt+'</td><td>'+Mv+'</td><td>'+lastF.toFixed(2)+'</td><td>'+lastX.toFixed(1)+'</td><td>'+lastK.toFixed(2)+'</td><td>'+eps.toFixed(2)+'</td>';
+  document.getElementById('tbody').appendChild(tr);
+  document.getElementById('addBtn').disabled=true;
+  var sK=measList.reduce(function(a,b){return a+b.k;},0)/measList.length;
+  document.getElementById('rAvgK').textContent=sK.toFixed(2);
+  if(measList.length>=2){
+    var sE=measList.reduce(function(a,b){return a+b.eps;},0)/measList.length;
+    // k* grafik qiyaligi: F = k*x (metrda), kvadratlar usuli, koordinata boshidan
+    var sumXX=0,sumXF=0;
+    measList.forEach(function(m){var xm=m.x/1000;sumXX+=xm*xm;sumXF+=xm*m.F;});
+    var kStar=sumXF/sumXX;
+    document.getElementById('finalCard').style.display='block';
+    document.getElementById('resK').textContent=sK.toFixed(2);
+    document.getElementById('resKstar').textContent=kStar.toFixed(2);
+    document.getElementById('resKset').textContent=K_TRUE.toFixed(2)+' N/m';
+    document.getElementById('resEps').textContent=sE.toFixed(2)+'%';
+    document.getElementById('resCnt').textContent=measList.length+' '+t('unit');
+    setStep(5);
+  }
+  drawGraph();
+}
+
+function resetAll(){
+  measList=[];cnt=0;running=false;finished=false;lastX=0;lastF=0;lastK=0;springExt=0;springVel=0;
+  document.getElementById('tbody').innerHTML='';
+  document.getElementById('finalCard').style.display='none';
+  document.getElementById('addBtn').disabled=true;
+  document.getElementById('runBtn').disabled=false;
+  document.getElementById('dot').classList.add('off');
+  document.getElementById('chipCnt').textContent=0;
+  ['rF','rX','rK','rAvgK','rEps'].forEach(function(id){document.getElementById(id).textContent='—';});
+  document.getElementById('cX').textContent='—';document.getElementById('cK').textContent='—';
+  document.getElementById('statusTxt').textContent=t('statusDefault');
+  setStep(1);upd();drawGraph();
+}
+function setStep(n){for(var i=1;i<=5;i++){var el=document.getElementById('st'+i);el.className='step'+(i<n?' done':i===n?' active':'');el.querySelector('.snum').textContent=i<n?'✓':i;}}
+function resize(){sc.width=sc.offsetWidth;sc.height=sc.offsetHeight;}
+window.addEventListener('resize',resize);setTimeout(resize,80);
+
+(function loop(){
+  animT+=0.016;
+  if(running){
+    // Damped spring-settle animatsiyasi: springExt haqiqiy maqsad uzunlikka intiladi
+    var target=xTargetMm;
+    var accEff=(target-springExt)*0.55-springVel*0.72;
+    springVel+=accEff*0.35;
+    springExt+=springVel*0.35;
+    var tau=(performance.now()-runStartTime)/1000;
+    if(tau>1.6 || (Math.abs(target-springExt)<0.15 && Math.abs(springVel)<0.15)){
+      springExt=target;
+      finishRun();
+    }
+  }
+  drawSim();
+  requestAnimationFrame(loop);
+})();
+
+function drawSim(){
+  var W=sc.width,H=sc.height;if(!W||!H)return;
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#040810';ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle='rgba(250,204,21,.02)';ctx.lineWidth=1;
+  for(var xi=0;xi<W;xi+=60){ctx.beginPath();ctx.moveTo(xi,0);ctx.lineTo(xi,H);ctx.stroke();}
+  for(var yi=0;yi<H;yi+=60){ctx.beginPath();ctx.moveTo(0,yi);ctx.lineTo(W,yi);ctx.stroke();}
+
+  var active=running||finished;
+  var cx=W*0.42;
+  var standTopY=H*0.12,armY=H*0.16;
+
+  // Shtativ (stand)
+  ctx.strokeStyle='rgba(140,150,165,.55)';ctx.lineWidth=5;
+  ctx.beginPath();ctx.moveTo(cx-90,standTopY);ctx.lineTo(cx-90,H*0.86);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(cx-90,armY);ctx.lineTo(cx+10,armY);ctx.stroke();
+  ctx.fillStyle='rgba(90,100,115,.6)';rr(ctx,cx-105,H*0.86,60,10,3);ctx.fill();
+
+  // Millimetrli qog'oz shkalasi (o'ng tomonda)
+  var rulerX=cx+70,rulerTop=armY+10,rulerBot=H*0.78;
+  ctx.fillStyle='rgba(255,255,255,.05)';rr(ctx,rulerX-18,rulerTop,36,rulerBot-rulerTop,3);ctx.fill();
+  ctx.strokeStyle='rgba(250,204,21,.25)';ctx.lineWidth=1;rr(ctx,rulerX-18,rulerTop,36,rulerBot-rulerTop,3);ctx.stroke();
+  ctx.strokeStyle='rgba(200,210,225,.35)';ctx.lineWidth=1;ctx.font='6px monospace';ctx.fillStyle='rgba(200,210,225,.4)';ctx.textAlign='left';
+  for(var mm=0;mm<=180;mm+=10){
+    var ry=rulerTop+mm*((rulerBot-rulerTop)/180);
+    if(ry>rulerBot)break;
+    var big=mm%50===0;
+    ctx.beginPath();ctx.moveTo(rulerX-18,ry);ctx.lineTo(rulerX-18+(big?12:6),ry);ctx.stroke();
+    if(big){ctx.fillText(mm+'mm',rulerX-14,ry-2);}
+  }
+
+  // Prujina (spring) — cx da osilgan, boshlang'ich uzunlik + cho'zilish
+  var springTopY=armY,springBaseLen=70;
+  var extPx=(running?springExt:(finished?lastX:0))*0.9;
+  var springLen=springBaseLen+extPx;
+  var springBotY=springTopY+springLen;
+  drawSpring(cx,springTopY,springBotY,active);
+
+  // Osilgan yuk (hanging weight)
+  drawWeight(cx,springBotY,Mv,active);
+
+  // Ko'rsatkich chizig'i — hozirgi cho'zilish darajasi
+  if(active){
+    var curExtMm=running?springExt:(finished?lastX:0);
+    var indY=rulerTop+curExtMm*((rulerBot-rulerTop)/180);
+    if(indY<=rulerBot){
+      ctx.strokeStyle='rgba(96,165,250,.9)';ctx.lineWidth=1.5;ctx.setLineDash([3,2]);
+      ctx.beginPath();ctx.moveTo(cx,springBotY);ctx.lineTo(rulerX,springBotY);ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle='rgba(96,165,250,.95)';ctx.beginPath();ctx.moveTo(rulerX-18,springBotY);ctx.lineTo(rulerX-24,springBotY-4);ctx.lineTo(rulerX-24,springBotY+4);ctx.closePath();ctx.fill();
+    }
+  }
+
+  // O'lchov ko'rsatkichlari paneli olib tashlandi (toza ko'rinish uchun)
+}
+
+function drawSpring(x,yTop,yBot,active){
+  var col=active?'rgba(250,204,21,.85)':'rgba(140,150,165,.55)';
+  ctx.strokeStyle=col;ctx.lineWidth=2.5;
+  if(active){ctx.shadowColor='rgba(250,204,21,.3)';ctx.shadowBlur=5;}
+  var coils=11,w=16;
+  ctx.beginPath();ctx.moveTo(x,yTop);
+  var segH=(yBot-yTop)/coils;
+  for(var i=0;i<coils;i++){
+    var yy=yTop+segH*(i+0.5);
+    ctx.lineTo(x+(i%2===0?w:-w),yy);
+  }
+  ctx.lineTo(x,yBot);
+  ctx.stroke();
+  ctx.shadowBlur=0;
+  // ilgak (hook) yuqorida
+  ctx.strokeStyle='rgba(150,160,175,.6)';ctx.lineWidth=2;
+  ctx.beginPath();ctx.arc(x,yTop-6,6,0,Math.PI*1.6);ctx.stroke();
+}
+
+function drawWeight(x,ySpringEnd,mass,active){
+  var y=ySpringEnd+4;
+  var size=14+Math.min(mass/300,1)*10;
+  ctx.strokeStyle=active?'rgba(150,160,175,.7)':'rgba(120,128,140,.4)';ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.moveTo(x,ySpringEnd);ctx.lineTo(x,y+4);ctx.stroke();
+  ctx.fillStyle='rgba(70,78,92,.9)';
+  rr(ctx,x-size/2,y+4,size,size*0.85,3);ctx.fill();
+  ctx.strokeStyle='rgba(150,160,175,.5)';ctx.lineWidth=1;rr(ctx,x-size/2,y+4,size,size*0.85,3);ctx.stroke();
+  ctx.fillStyle='rgba(220,225,235,.75)';ctx.font='bold 8px monospace';ctx.textAlign='center';
+  ctx.fillText(mass+'g',x,y+4+size*0.85/2+3);
+}
+
+function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.lineTo(x+w-r,y);c.quadraticCurveTo(x+w,y,x+w,y+r);c.lineTo(x+w,y+h-r);c.quadraticCurveTo(x+w,y+h,x+w-r,y+h);c.lineTo(x+r,y+h);c.quadraticCurveTo(x,y+h,x,y+h-r);c.lineTo(x,y+r);c.quadraticCurveTo(x,y,x+r,y);c.closePath();}
+
+function drawGraph(){
+  var W2=gc.offsetWidth||250;gc.width=W2;var GH=110;
+  gctx.clearRect(0,0,W2,GH);gctx.fillStyle='#070c17';gctx.fillRect(0,0,W2,GH);
+  var pad=32,gW=W2-pad*2,gHH=GH-pad-8;
+  gctx.strokeStyle='rgba(250,204,21,.3)';gctx.lineWidth=1;
+  gctx.beginPath();gctx.moveTo(pad,8);gctx.lineTo(pad,GH-pad);gctx.lineTo(W2-pad+6,GH-pad);gctx.stroke();
+  gctx.fillStyle='rgba(250,204,21,.5)';gctx.font='7px monospace';gctx.textAlign='center';gctx.fillText('x(mm)',W2-pad+8,GH-pad+3);
+  gctx.textAlign='right';gctx.fillText('F(N)',pad-3,12);
+  if(!measList.length)return;
+  var xvals=measList.map(function(m){return m.x;}),fvals=measList.map(function(m){return m.F;});
+  var maxX=Math.max.apply(null,xvals)*1.3,maxF=Math.max.apply(null,fvals)*1.3;
+  // Nazorat chizig'i (haqiqiy k asosida)
+  gctx.strokeStyle='rgba(250,204,21,.2)';gctx.lineWidth=1;gctx.setLineDash([3,4]);
+  var yAtMaxX=K_TRUE*(maxX/1000);
+  gctx.beginPath();gctx.moveTo(pad,GH-pad);gctx.lineTo(W2-pad,GH-pad-(yAtMaxX/maxF)*gHH);gctx.stroke();gctx.setLineDash([]);
+  // Nuqtalar
+  measList.forEach(function(m){
+    var px=pad+(m.x/maxX)*gW,py=GH-pad-(m.F/maxF)*gHH;
+    gctx.shadowColor='rgba(96,165,250,.6)';gctx.shadowBlur=6;
+    gctx.fillStyle='rgba(96,165,250,.9)';gctx.beginPath();gctx.arc(px,py,5,0,Math.PI*2);gctx.fill();
+    gctx.shadowBlur=0;
+  });
+  gctx.fillStyle='rgba(96,165,250,.7)';gctx.font='7px monospace';gctx.textAlign='left';gctx.fillText('● F taj.',pad+2,GH-pad-gHH+12);
+  gctx.fillStyle='rgba(250,204,21,.4)';gctx.fillText('— nazorat',pad+2,GH-pad-gHH+22);
+}
+
+window.addEventListener('load',function(){setTimeout(function(){resize();upd();drawGraph();},100);});
+</script>
+</body>
+</html>
