@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kulon Qonuni</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap');
+:root{--bg:#07090f;--panel:#0e1420;--border:#1b2840;--accent:#f43f5e;--blue:#60a5fa;--green:#6fff5c;--yellow:#ffc947;--text:#dde6f5;--muted:#4a6080;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;height:100vh;overflow:hidden;display:flex;flex-direction:column;}
+header{display:flex;align-items:center;gap:12px;padding:8px 20px;border-bottom:1px solid var(--border);background:linear-gradient(90deg,#07090f,#1a0008,#07090f);flex-shrink:0;}
+.badge{background:var(--accent);color:#fff;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:3px 9px;letter-spacing:2px;border-radius:2px;}
+.htitle{font-size:14px;font-weight:800;}.htitle span{color:var(--accent);}
+.hsub{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-left:auto;}
+.brand{display:flex;align-items:center;gap:6px;background:linear-gradient(135deg,rgba(244,63,94,.12),rgba(111,255,92,.08));border:1px solid rgba(244,63,94,.3);border-radius:20px;padding:4px 14px;margin-left:10px;flex-shrink:0;}
+.brand-txt{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;background:linear-gradient(90deg,#f43f5e,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;}
+.statusbar{background:#0a0f1c;border-bottom:1px solid var(--border);padding:5px 20px;display:flex;align-items:center;gap:14px;font-family:'Space Mono',monospace;font-size:11px;flex-shrink:0;}
+#statusTxt{color:var(--accent);}
+.chips{display:flex;gap:6px;margin-left:auto;}
+.chip{background:rgba(244,63,94,.08);border:1px solid rgba(244,63,94,.2);border-radius:10px;padding:2px 9px;font-size:10px;color:var(--muted);}
+.chip span{color:var(--accent);}
+.body{display:grid;grid-template-columns:220px 1fr;flex:1;overflow:hidden;}
+.left{background:var(--panel);border-right:1px solid var(--border);overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:9px;}
+.stitle{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--accent);text-transform:uppercase;margin-bottom:3px;}
+.card{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:8px;padding:10px;}
+.card label{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:7px;}
+.vb{font-family:'Space Mono',monospace;font-size:11px;color:var(--accent);background:rgba(244,63,94,.12);padding:2px 7px;border-radius:3px;}
+input[type=range]{width:100%;-webkit-appearance:none;height:4px;background:var(--border);border-radius:2px;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;background:var(--accent);border-radius:50%;cursor:pointer;box-shadow:0 0 8px rgba(244,63,94,.7);}
+.sign-row{display:flex;gap:5px;margin-bottom:8px;}
+.sb{flex:1;border:1px solid var(--border);background:rgba(255,255,255,.03);color:var(--muted);padding:7px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;text-align:center;transition:all .2s;}
+.sb.pos{background:rgba(244,63,94,.15);border-color:var(--accent);color:var(--accent);}
+.sb.neg{background:rgba(96,165,250,.15);border-color:var(--blue);color:var(--blue);}
+.fbox{background:rgba(244,63,94,.04);border:1px solid rgba(244,63,94,.15);border-radius:7px;padding:9px;}
+.frow{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:4px;}
+.frow span{color:var(--accent);}
+.btn{width:100%;padding:9px;border:none;border-radius:7px;font-family:'Syne',sans-serif;font-weight:700;font-size:12px;cursor:pointer;transition:all .2s;margin-top:4px;}
+.btn-p{background:linear-gradient(135deg,#f43f5e,#be123c);color:#fff;}
+.btn-p:hover{transform:translateY(-1px);box-shadow:0 5px 18px rgba(244,63,94,.4);}
+.btn-b{background:linear-gradient(135deg,#60a5fa,#2563eb);color:#fff;margin-top:4px;}
+.btn-r{background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--border);font-size:11px;}
+.res-box{background:rgba(244,63,94,.05);border:1px solid rgba(244,63,94,.2);border-radius:8px;padding:10px;}
+.res-row{display:flex;justify-content:space-between;margin-bottom:5px;font-family:'Space Mono',monospace;font-size:10px;}
+.res-row span:first-child{color:var(--muted);}
+.center{position:relative;overflow:hidden;background:#020408;}
+#simCanvas{display:block;width:100%;height:100%;}
+.instr-bar{position:absolute;bottom:0;left:0;right:0;background:rgba(2,4,8,.92);border-top:1px solid var(--border);padding:5px 18px;font-size:10px;color:var(--muted);text-align:center;}
+</style>
+
+<style>
+.lang-btns-inject{display:flex;gap:4px;margin-left:8px;flex-shrink:0;}
+.lb-inject{border:1px solid #1b2840;background:rgba(255,255,255,.04);color:#4a6080;padding:4px 10px;border-radius:5px;font-family:'Space Mono',monospace;font-size:9px;cursor:pointer;transition:all .2s;}
+.lb-inject.on{border-color:currentColor;font-weight:700;opacity:1;}
+.lb-inject:hover{opacity:.8;}
+</style>
+</head>
+<body>
+<div id="startScreen" style="position:fixed;inset:0;z-index:9999;background:radial-gradient(ellipse at 50% 40%,#1a0008 0%,#07090f 70%);display:flex;align-items:center;justify-content:center;">
+  <canvas id="bgCanvas" style="position:absolute;inset:0;width:100%;height:100%;opacity:.4;pointer-events:none"></canvas>
+  <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:18px;max-width:560px;padding:20px;text-align:center;">
+    <div style="display:flex;align-items:center;gap:10px;"><div style="background:#f43f5e;color:#fff;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:4px 14px;letter-spacing:2px;border-radius:2px;">ELEKTR · LAB 03</div><div style="font-family:'Space Mono',monospace;font-size:10px;color:#4a6080;">KULON QONUNI · ELEKTROSTATIKA</div></div>
+    <div style="width:100px;height:100px;border-radius:50%;background:radial-gradient(circle,rgba(244,63,94,.18),rgba(244,63,94,.02));border:2px solid rgba(244,63,94,.4);display:flex;align-items:center;justify-content:center;box-shadow:0 0 55px rgba(244,63,94,.3);animation:pk3 2.5s ease-in-out infinite;"><span style="font-size:44px;">⚛️</span></div>
+    <h1 style="font-size:20px;font-weight:800;color:#fff;" id="tStartTitle">Kulon Qonuni — <span style="color:#f43f5e;">F = k·q₁·q₂/r²</span></h1>
+    <p style="font-size:11px;color:#4a6080;font-family:'Space Mono',monospace;" id="tStartSub">k = 9×10⁹ N·m²/C² · Tortishish / Itarishish kuchi</p>
+    <div style="background:rgba(244,63,94,.05);border:1px solid rgba(244,63,94,.15);border-radius:12px;padding:15px;width:100%;text-align:left;">
+      <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;color:#f43f5e;margin-bottom:8px;" id="tProcedure">BAJARISH TARTIBI</div>
+      <div style="display:flex;flex-direction:column;gap:7px;">
+        <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#c5d3e8;"><span style="width:20px;height:20px;border-radius:50%;background:rgba(244,63,94,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#f43f5e;flex-shrink:0;">1</span><span id="tS1">Zaryadlar q₁, q₂ va ishoralarini tanlang</span></div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#c5d3e8;"><span style="width:20px;height:20px;border-radius:50%;background:rgba(244,63,94,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#f43f5e;flex-shrink:0;">2</span><span id="tS2">r masofani o'zgartiring → F = kq₁q₂/r² kuzating</span></div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#c5d3e8;"><span style="width:20px;height:20px;border-radius:50%;background:rgba(244,63,94,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#f43f5e;flex-shrink:0;">3</span><span id="tS3">Bir xil ishorada — itarishish, har xil — tortishish</span></div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#c5d3e8;"><span style="width:20px;height:20px;border-radius:50%;background:rgba(244,63,94,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#f43f5e;flex-shrink:0;">4</span><span id="tS4">F = f(r) grafigi — teskari kvadrat qonuni</span></div>
+      </div>
+    </div>
+    <button onclick="startLab()" style="background:linear-gradient(135deg,#f43f5e,#be123c);color:#fff;border:none;border-radius:12px;padding:15px 60px;font-size:15px;font-weight:800;font-family:'Syne',sans-serif;cursor:pointer;box-shadow:0 8px 30px rgba(244,63,94,.35);width:100%;"><span id="tStartBtn">▶ Laboratoriyani boshlash</span></button>
+    <div style="display:flex;align-items:center;gap:6px;opacity:.6;"><span>🔬</span><span style="font-family:'Space Mono',monospace;font-size:10px;font-weight:700;background:linear-gradient(90deg,#f43f5e,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;">Xosiyat Virtual Lab</span></div>
+  </div>
+</div>
+<style>@keyframes pk3{0%,100%{box-shadow:0 0 55px rgba(244,63,94,.2)}50%{box-shadow:0 0 80px rgba(244,63,94,.5)}}@keyframes fadeOut{0%{opacity:1}100%{opacity:0;transform:scale(1.04)}}</style>
+<script>
+(function(){var c=document.getElementById('bgCanvas');var x=c.getContext('2d');var pts=[];function rs(){c.width=window.innerWidth;c.height=window.innerHeight;}rs();window.addEventListener('resize',rs);for(var i=0;i<55;i++)pts.push({x:Math.random()*1600,y:Math.random()*900,r:Math.random()*1.5+.5,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,a:Math.random()});function fr(){x.clearRect(0,0,c.width,c.height);pts.forEach(function(p){p.x+=p.vx;p.y+=p.vy;p.a+=.005;if(p.x<0)p.x=c.width;if(p.x>c.width)p.x=0;if(p.y<0)p.y=c.height;if(p.y>c.height)p.y=0;x.fillStyle='rgba(244,63,94,'+(0.12+Math.sin(p.a)*0.1)+')';x.beginPath();x.arc(p.x%c.width,p.y%c.height,p.r,0,Math.PI*2);x.fill();});requestAnimationFrame(fr);}fr();})();
+function startLab(){var s=document.getElementById('startScreen');s.style.animation='fadeOut .5s ease forwards';setTimeout(function(){s.style.display='none';},480);}
+</script>
+
+<header>
+  <div class="badge" id="tBadge">ELEKTR · LAB 03</div>
+  <h1 class="htitle" id="tTitle">Kulon Qonuni — <span>F = k·q₁·q₂ / r²</span></h1>
+  <div class="hsub" id="tHsub">ELEKTROSTATIKA · FIZPRAKTIKUM · SDPI 2026</div>
+  <div class="brand"><span>🔬</span><span class="brand-txt">Xosiyat Virtual Lab</span></div>
+<div class="lang-btns-inject" id="_langbtns">
+<div class="lb-inject on" id="_lbuz" onclick="window._changeLang('uz')" style="color:#f43f5e;">🇺🇿 UZ</div>
+<div class="lb-inject" id="_lbru" onclick="window._changeLang('ru')">🇷🇺 RU</div>
+<div class="lb-inject" id="_lben" onclick="window._changeLang('en')">🇬🇧 EN</div>
+</div></header>
+<div class="statusbar">
+  <span id="statusTxt">q₁, q₂ va masofani tanlang → F = kq₁q₂/r² avtomatik hisoblanadi</span>
+  <div class="chips">
+    <div class="chip">q₁=<span id="cQ1">2</span>μC</div>
+    <div class="chip">q₂=<span id="cQ2">3</span>μC</div>
+    <div class="chip">r=<span id="cR">0.10</span>m</div>
+    <div class="chip">F=<span id="cF">—</span>N</div>
+  </div>
+</div>
+<div class="body">
+<div class="left">
+  <div class="stitle" id="tSt1">1-zaryad (q₁)</div>
+  <div class="sign-row">
+    <div class="sb pos" id="s1p" onclick="setSign1(1)"><span id="tPos1">+ ijobiy</span></div>
+    <div class="sb" id="s1n" onclick="setSign1(-1)"><span id="tNeg1">− salbiy</span></div>
+  </div>
+  <div class="card">
+    <label>|q₁| (μC) <span class="vb" id="dQ1">2 μC</span></label>
+    <input type="range" id="sQ1" min="1" max="20" step="1" value="2" oninput="setQ1(this.value)">
+  </div>
+
+  <div class="stitle" id="tSt2">2-zaryad (q₂)</div>
+  <div class="sign-row">
+    <div class="sb pos" id="s2p" onclick="setSign2(1)"><span id="tPos2">+ ijobiy</span></div>
+    <div class="sb" id="s2n" onclick="setSign2(-1)"><span id="tNeg2">− salbiy</span></div>
+  </div>
+  <div class="card">
+    <label>|q₂| (μC) <span class="vb" id="dQ2">3 μC</span></label>
+    <input type="range" id="sQ2" min="1" max="20" step="1" value="3" oninput="setQ2(this.value)">
+  </div>
+
+  <div class="stitle" id="tSt3">Zaryadlar orasidagi masofa (r)</div>
+  <div class="card">
+    <label>r (sm) <span class="vb" id="dR">10 sm</span></label>
+    <input type="range" id="sRr" min="2" max="50" step="1" value="10" oninput="setRr(this.value)">
+  </div>
+
+  <div class="res-box">
+    <div class="stitle" style="margin-bottom:6px;" id="tSt4">Hisob-kitob</div>
+    <div class="res-row"><span id="tRfLbl">F = kq₁q₂/r²</span><span id="rF" style="color:var(--accent);">— N</span></div>
+    <div class="res-row"><span id="tRtypeLbl">Harakat turi</span><span id="rType">—</span></div>
+    <div class="res-row"><span id="tRe1Lbl">E₁ = kq₁/r²</span><span id="rE1" style="color:var(--yellow);">—</span></div>
+    <div class="res-row"><span id="tRe2Lbl">E₂ = kq₂/r²</span><span id="rE2" style="color:var(--yellow);">—</span></div>
+    <div class="res-row"><span id="tReLbl">Potensial E (V/m)</span><span id="rE" style="color:var(--green);">—</span></div>
+  </div>
+
+  <div class="fbox">
+    <div class="frow"><span id="tF1">F = </span><span>k · q₁ · q₂ / r²</span></div>
+    <div class="frow"><span id="tF2">k = </span><span>9×10⁹ N·m²/C²</span></div>
+    <div class="frow"><span id="tF3">E = </span><span id="tF3v">k·q/r² (maydon kuchi)</span></div>
+    <div class="frow"><span id="tF4a">F>0: </span><span id="tF4b">itarishish</span><span id="tF4c"> · F&lt;0: </span><span id="tF4d">tortishish</span></div>
+  </div>
+
+  <button class="btn btn-r" onclick="toggleGraph()"><span id="tGraphBtn">📊 F=f(r) grafigini ko'rsatish</span></button>
+</div>
+
+<div class="center">
+  <canvas id="simCanvas"></canvas>
+  <div class="instr-bar"><span id="tInstr">⚛️ Kulon qonuni: F = kq₁q₂/r² · Bir xil ishorali → itarishish · Har xil ishorali → tortishish · F ~ 1/r² — teskari kvadrat qonuni</span></div>
+</div>
+</div>
+
+<div style="position:fixed;bottom:14px;right:18px;display:flex;align-items:center;gap:7px;background:rgba(7,9,15,.75);border:1px solid rgba(244,63,94,.2);border-radius:30px;padding:5px 16px;backdrop-filter:blur(10px);z-index:9999;pointer-events:none;">
+  <span>🔬</span><span style="font-family:'Space Mono',monospace;font-size:11px;font-weight:700;background:linear-gradient(90deg,#f43f5e,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;">Xosiyat Virtual Lab</span>
+</div>
+
+<script>
+var k=9e9,Q1=2,Q2=3,Rv=10,sign1=1,sign2=1,animT=0,showGraph=false;
+var sc=document.getElementById('simCanvas'),ctx=sc.getContext('2d');
+
+function setSign1(s){sign1=s;document.getElementById('s1p').className='sb'+(s>0?' pos':'');document.getElementById('s1n').className='sb'+(s<0?' neg':'');upd();}
+function setSign2(s){sign2=s;document.getElementById('s2p').className='sb'+(s>0?' pos':'');document.getElementById('s2n').className='sb'+(s<0?' neg':'');upd();}
+function setQ1(v){Q1=parseFloat(v);document.getElementById('dQ1').textContent=v+' μC';document.getElementById('cQ1').textContent=v;upd();}
+function setQ2(v){Q2=parseFloat(v);document.getElementById('dQ2').textContent=v+' μC';document.getElementById('cQ2').textContent=v;upd();}
+function setRr(v){Rv=parseFloat(v);document.getElementById('dR').textContent=v+' sm';document.getElementById('cR').textContent=(v/100).toFixed(2);upd();}
+
+function upd(){
+  var r=Rv/100,q1=sign1*Q1*1e-6,q2=sign2*Q2*1e-6;
+  var F=k*q1*q2/(r*r);
+  var attract=F<0;
+  var E1=k*Math.abs(q1)/(r*r),E2=k*Math.abs(q2)/(r*r);
+  document.getElementById('rF').textContent=F.toExponential(3)+' N';
+  document.getElementById('rType').textContent=attract?'⬅ TORTISHISH ➡':'➡ ITARISHISH ⬅';
+  document.getElementById('rType').style.color=attract?'rgba(96,165,250,.9)':'rgba(244,63,94,.9)';
+  document.getElementById('rE1').textContent=E1.toExponential(2)+' V/m';
+  document.getElementById('rE2').textContent=E2.toExponential(2)+' V/m';
+  document.getElementById('rE').textContent=((E1+E2)/2).toExponential(2)+' V/m';
+  document.getElementById('cF').textContent=Math.abs(F).toExponential(2);
+  document.getElementById('statusTxt').textContent='F='+F.toExponential(3)+'N | r='+r+'m | '+(attract?'TORTISHISH':'ITARISHISH');
+}
+
+function toggleGraph(){showGraph=!showGraph;}
+
+function resize(){sc.width=sc.offsetWidth;sc.height=sc.offsetHeight;}
+window.addEventListener('resize',resize);setTimeout(function(){resize();upd();},80);
+
+(function loop(){animT+=0.016;draw();requestAnimationFrame(loop);})();
+
+function draw(){
+  var W=sc.width,H=sc.height;if(!W||!H)return;
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#020408';ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle='rgba(244,63,94,.02)';ctx.lineWidth=1;
+  for(var xi=0;xi<W;xi+=50){ctx.beginPath();ctx.moveTo(xi,0);ctx.lineTo(xi,H);ctx.stroke();}
+  for(var yi=0;yi<H;yi+=50){ctx.beginPath();ctx.moveTo(0,yi);ctx.lineTo(W,yi);ctx.stroke();}
+
+  // scale factor for the drawn charges/arrows/field lines only (fonts stay
+  // untouched) so the simulation fills the canvas nicely on larger windows too
+  var S=Math.max(1.2, Math.min(2.5, Math.min(W,H)/380));
+
+  var cx=W/2,cy=H/2;
+  var r=Rv/100,q1=sign1*Q1*1e-6,q2=sign2*Q2*1e-6;
+  var F=k*q1*q2/(r*r);
+  var attract=F<0;
+  var sep=Math.min(Rv*6*S,W*0.42);
+  var x1=cx-sep/2,x2=cx+sep/2;
+  var R1=Math.min(30+Q1*2,60)*S,R2=Math.min(30+Q2*2,60)*S;
+
+  // Elektr maydon chiziqlari
+  drawFieldLines(x1,cy,sign1,R1,S);
+  drawFieldLines(x2,cy,sign2,R2,S);
+
+  // Masofa ko'rsatgich
+  ctx.strokeStyle='rgba(255,201,71,.3)';ctx.lineWidth=1*S;ctx.setLineDash([4*S,6*S]);
+  ctx.beginPath();ctx.moveTo(x1,cy-80*S);ctx.lineTo(x2,cy-80*S);ctx.stroke();ctx.setLineDash([]);
+  ctx.fillStyle='rgba(255,201,71,.7)';ctx.font='bold 13px Space Mono';ctx.textAlign='center';
+  ctx.fillText('r = '+Rv+' sm',cx,cy-90*S);
+  arrH3(x1,cy-80*S,-1,'rgba(255,201,71,.6)',S);arrH3(x2,cy-80*S,1,'rgba(255,201,71,.6)',S);
+
+  // Kuch strelkalari
+  var arrowLen=(Math.min(Math.abs(F)*1e-3+20,120))*S;
+  var arrowCol=attract?'rgba(96,165,250,.9)':'rgba(244,63,94,.9)';
+  ctx.strokeStyle=arrowCol;ctx.lineWidth=3*S;ctx.shadowColor=arrowCol;ctx.shadowBlur=12*S;
+  if(attract){
+    // tortishish: ichkariga
+    ctx.beginPath();ctx.moveTo(x1-arrowLen,cy);ctx.lineTo(x1-R1-5*S,cy);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(x2+arrowLen,cy);ctx.lineTo(x2+R2+5*S,cy);ctx.stroke();
+    arrH3(x1-R1-5*S,cy,1,arrowCol,S);arrH3(x2+R2+5*S,cy,-1,arrowCol,S);
+  } else {
+    // itarishish: tashqariga
+    ctx.beginPath();ctx.moveTo(x1,cy);ctx.lineTo(x1-arrowLen-R1,cy);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(x2,cy);ctx.lineTo(x2+arrowLen+R2,cy);ctx.stroke();
+    arrH3(x1-arrowLen-R1,cy,-1,arrowCol,S);arrH3(x2+arrowLen+R2,cy,1,arrowCol,S);
+  }
+  ctx.shadowBlur=0;
+
+  // F qiymati
+  ctx.fillStyle=arrowCol;ctx.font='bold 16px Space Mono';ctx.textAlign='center';
+  ctx.fillText('F = '+Math.abs(F).toExponential(3)+' N',cx,cy+110*S);
+  ctx.fillStyle='rgba(255,255,255,.5)';ctx.font='12px Syne';
+  ctx.fillText(attract?'⬅ TORTISHISH KUCHI ➡':'➡ ITARISHISH KUCHI ⬅',cx,cy+132*S);
+
+  // Zaryad 1
+  var c1=sign1>0?'#f43f5e':'#60a5fa';
+  drawCharge(x1,cy,R1,sign1,Q1,c1);
+  // Zaryad 2
+  var c2=sign2>0?'#f43f5e':'#60a5fa';
+  drawCharge(x2,cy,R2,sign2,Q2,c2);
+
+  // Info paneli olib tashlandi (toza ko'rinish uchun)
+  ctx.fillStyle=attract?'rgba(96,165,250,.7)':'rgba(244,63,94,.7)';ctx.font='10px monospace';ctx.textAlign='center';
+  ctx.fillText(attract?'Har xil ishorali → tortishish':'Bir xil ishorali → itarishish',W/2,H-14);
+
+  // Graf
+  if(showGraph){drawGraph2(W,H);}
+}
+
+function drawCharge(x,y,R,sign,q,col){
+  var gr=ctx.createRadialGradient(x-R*0.3,y-R*0.3,R*0.1,x,y,R);
+  gr.addColorStop(0,'rgba(255,255,255,.3)');gr.addColorStop(0.4,col);gr.addColorStop(1,'rgba(0,0,0,.5)');
+  ctx.shadowColor=col;ctx.shadowBlur=25;
+  ctx.fillStyle=gr;ctx.beginPath();ctx.arc(x,y,R,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle=col;ctx.lineWidth=2;ctx.beginPath();ctx.arc(x,y,R,0,Math.PI*2);ctx.stroke();
+  ctx.shadowBlur=0;
+  ctx.fillStyle='#fff';ctx.font='bold '+(R>45?'20':'16')+'px Space Mono';ctx.textAlign='center';
+  ctx.fillText(sign>0?'+':'-',x,y+R*0.35);
+  ctx.fillStyle='rgba(255,255,255,.7)';ctx.font='10px monospace';
+  ctx.fillText(q+'μC',x,y+R+16);
+}
+
+function drawFieldLines(cx,cy,sign,R,S){
+  S=S||1;
+  var nLines=8;
+  for(var i=0;i<nLines;i++){
+    var ang=i*Math.PI*2/nLines;
+    ctx.strokeStyle='rgba('+(sign>0?'244,63,94':'96,165,250')+',.08)';
+    ctx.lineWidth=1;
+    ctx.beginPath();
+    ctx.moveTo(cx+Math.cos(ang)*(R+5*S),cy+Math.sin(ang)*(R+5*S));
+    ctx.lineTo(cx+Math.cos(ang)*200*S,cy+Math.sin(ang)*200*S);
+    ctx.stroke();
+  }
+}
+
+function drawGraph2(W,H){
+  var gw=W*0.38,gh=H*0.35,gx=W-gw-20,gy=20;
+  ctx.fillStyle='rgba(7,9,15,.92)';rr(ctx,gx,gy,gw,gh,8);ctx.fill();
+  ctx.strokeStyle='rgba(244,63,94,.3)';ctx.lineWidth=1;rr(ctx,gx,gy,gw,gh,8);ctx.stroke();
+  ctx.fillStyle='rgba(244,63,94,.7)';ctx.font='9px Space Mono';ctx.textAlign='center';
+  ctx.fillText('F = f(r) — teskari kvadrat qonuni',gx+gw/2,gy+14);
+  var pad=28,gw2=gw-pad*2,gh2=gh-pad-16;
+  ctx.strokeStyle='rgba(244,63,94,.3)';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(gx+pad,gy+16);ctx.lineTo(gx+pad,gy+16+gh2);ctx.lineTo(gx+pad+gw2,gy+16+gh2);ctx.stroke();
+  ctx.fillStyle='rgba(255,201,71,.5)';ctx.font='7px monospace';
+  ctx.fillText('r(sm)',gx+pad+gw2+8,gy+16+gh2+3);
+  ctx.textAlign='right';ctx.fillText('F',gx+pad-3,gy+20);
+  // Egri chiziq
+  ctx.strokeStyle='rgba(244,63,94,.8)';ctx.lineWidth=2;ctx.beginPath();
+  var q1=Math.abs(sign1*Q1*1e-6),q2=Math.abs(sign2*Q2*1e-6);
+  var maxF=k*q1*q2/(0.01*0.01);
+  for(var ri=2;ri<=50;ri++){
+    var rr2=ri/100,FF=k*q1*q2/(rr2*rr2);
+    var px=gx+pad+(ri-2)/(50-2)*gw2,py=gy+16+gh2-Math.min(FF/maxF,1)*gh2;
+    if(ri===2)ctx.moveTo(px,py);else ctx.lineTo(px,py);
+  }
+  ctx.stroke();
+  // Joriy nuqta
+  var rx=gx+pad+(Rv-2)/(50-2)*gw2;
+  var ry=gy+16+gh2-Math.min(Math.abs(k*q1*q2/((Rv/100)*(Rv/100)))/maxF,1)*gh2;
+  ctx.shadowColor='rgba(244,63,94,.8)';ctx.shadowBlur=10;
+  ctx.fillStyle='rgba(244,63,94,.9)';ctx.beginPath();ctx.arc(rx,ry,6,0,Math.PI*2);ctx.fill();
+  ctx.shadowBlur=0;
+}
+
+function arrH3(x,y,d,c,S){S=S||1;ctx.fillStyle=c;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x-d*14*S,y-6*S);ctx.lineTo(x-d*14*S,y+6*S);ctx.closePath();ctx.fill();}
+function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.lineTo(x+w-r,y);c.quadraticCurveTo(x+w,y,x+w,y+r);c.lineTo(x+w,y+h-r);c.quadraticCurveTo(x+w,y+h,x+w-r,y+h);c.lineTo(x+r,y+h);c.quadraticCurveTo(x,y+h,x,y+h-r);c.lineTo(x,y+r);c.quadraticCurveTo(x,y,x+r,y);c.closePath();}
+</script>
+
+<script id="langScript">
+(function(){
+var _lt={
+ uz:{badge:"ELEKTR · LAB 03",title:'Kulon Qonuni — <span>F = k·q₁·q₂ / r²</span>',hsub:"ELEKTROSTATIKA · FIZPRAKTIKUM · SDPI 2026",
+   startTitle:'Kulon Qonuni — <span style="color:#f43f5e;">F = k·q₁·q₂/r²</span>',startSub:"k = 9×10⁹ N·m²/C² · Tortishish / Itarishish kuchi",
+   st1:"1-zaryad (q₁)",st2:"2-zaryad (q₂)",st3:"Zaryadlar orasidagi masofa (r)",st4:"Hisob-kitob",
+   pos:"+ ijobiy",neg:"− salbiy",
+   rfLbl:"F = kq₁q₂/r²",rtypeLbl:"Harakat turi",re1Lbl:"E₁ = kq₁/r²",re2Lbl:"E₂ = kq₂/r²",reLbl:"Potensial E (V/m)",
+   f1:"F = ",f2:"k = ",f3:"E = ",f3v:"k·q/r² (maydon kuchi)",f4a:"F>0: ",f4b:"itarishish",f4c:" · F<0: ",f4d:"tortishish",
+   graphBtn:"📊 F=f(r) grafigini ko'rsatish",
+   instr:"⚛️ Kulon qonuni: F = kq₁q₂/r² · Bir xil ishorali → itarishish · Har xil ishorali → tortishish · F ~ 1/r² — teskari kvadrat qonuni",
+   procedure:"BAJARISH TARTIBI",
+   s1:"Zaryadlar q₁, q₂ va ishoralarini tanlang",s2:"r masofani o'zgartiring → F = kq₁q₂/r² kuzating",
+   s3:"Bir xil ishorada — itarishish, har xil — tortishish",s4:"F = f(r) grafigi — teskari kvadrat qonuni",
+   startBtn:"▶ Laboratoriyani boshlash",
+   status:"q₁, q₂ va masofani tanlang → F = kq₁q₂/r² avtomatik hisoblanadi",
+   attractLbl:"⬅ TORTISHISH ➡",repelLbl:"➡ ITARISHISH ⬅"},
+ ru:{badge:"ЭЛЕКТРИЧЕСТВО · ЛАБ 03",title:'Закон Кулона — <span>F = k·q₁·q₂ / r²</span>',hsub:"ЭЛЕКТРОСТАТИКА · ФИЗПРАКТИКУМ · SDPI 2026",
+   startTitle:'Закон Кулона — <span style="color:#f43f5e;">F = k·q₁·q₂/r²</span>',startSub:"k = 9×10⁹ Н·м²/Кл² · Сила притяжения / отталкивания",
+   st1:"Заряд 1 (q₁)",st2:"Заряд 2 (q₂)",st3:"Расстояние между зарядами (r)",st4:"Расчёт",
+   pos:"+ положительный",neg:"− отрицательный",
+   rfLbl:"F = kq₁q₂/r²",rtypeLbl:"Тип взаимодействия",re1Lbl:"E₁ = kq₁/r²",re2Lbl:"E₂ = kq₂/r²",reLbl:"Потенциал E (В/м)",
+   f1:"F = ",f2:"k = ",f3:"E = ",f3v:"k·q/r² (напряжённость поля)",f4a:"F>0: ",f4b:"отталкивание",f4c:" · F<0: ",f4d:"притяжение",
+   graphBtn:"📊 Показать график F=f(r)",
+   instr:"⚛️ Закон Кулона: F = kq₁q₂/r² · Одинаковые заряды → отталкивание · Разные → притяжение · F ~ 1/r² — закон обратных квадратов",
+   procedure:"ПОРЯДОК ВЫПОЛНЕНИЯ",
+   s1:"Выберите заряды q₁, q₂ и их знаки",s2:"Измените расстояние r → наблюдайте F = kq₁q₂/r²",
+   s3:"Одинаковые знаки — отталкивание, разные — притяжение",s4:"График F = f(r) — закон обратных квадратов",
+   startBtn:"▶ Начать лабораторную",
+   status:"Выберите q₁, q₂ и расстояние → F = kq₁q₂/r² вычисляется автоматически",
+   attractLbl:"⬅ ПРИТЯЖЕНИЕ ➡",repelLbl:"➡ ОТТАЛКИВАНИЕ ⬅"},
+ en:{badge:"ELECTRICITY · LAB 03",title:'Coulomb\'s Law — <span>F = k·q₁·q₂ / r²</span>',hsub:"ELECTROSTATICS · PHYSICS LAB · SDPI 2026",
+   startTitle:'Coulomb\'s Law — <span style="color:#f43f5e;">F = k·q₁·q₂/r²</span>',startSub:"k = 9×10⁹ N·m²/C² · Attraction / repulsion force",
+   st1:"Charge 1 (q₁)",st2:"Charge 2 (q₂)",st3:"Distance between charges (r)",st4:"Calculation",
+   pos:"+ positive",neg:"− negative",
+   rfLbl:"F = kq₁q₂/r²",rtypeLbl:"Interaction type",re1Lbl:"E₁ = kq₁/r²",re2Lbl:"E₂ = kq₂/r²",reLbl:"Potential E (V/m)",
+   f1:"F = ",f2:"k = ",f3:"E = ",f3v:"k·q/r² (field strength)",f4a:"F>0: ",f4b:"repulsion",f4c:" · F<0: ",f4d:"attraction",
+   graphBtn:"📊 Show F=f(r) graph",
+   instr:"⚛️ Coulomb's law: F = kq₁q₂/r² · Same sign → repulsion · Opposite sign → attraction · F ~ 1/r² — inverse square law",
+   procedure:"PROCEDURE",
+   s1:"Choose charges q₁, q₂ and their signs",s2:"Change distance r → observe F = kq₁q₂/r²",
+   s3:"Same sign — repulsion, opposite — attraction",s4:"Graph F = f(r) — inverse square law",
+   startBtn:"▶ Start the Lab",
+   status:"Select q₁, q₂ and distance → F = kq₁q₂/r² is calculated automatically",
+   attractLbl:"⬅ ATTRACTION ➡",repelLbl:"➡ REPULSION ⬅"}
+};
+var _lang='uz';
+var _acc='#f43f5e';
+function _setLang(l){
+  _lang=l;
+  ['uz','ru','en'].forEach(function(x){
+    var el=document.getElementById('_lb'+x);
+    if(!el)return;
+    el.className='lb-inject'+(x===l?' on':'');
+    el.style.color=x===l?_acc:'#4a6080';
+    el.style.background=x===l?'rgba('+_acc.replace('#','').match(/../g).map(function(h){return parseInt(h,16);}).join(',')+',0.12)':'rgba(255,255,255,.04)';
+  });
+  var t=_lt[l];
+  if(!t)return;
+  var map={tBadge:t.badge,tHsub:t.hsub,tSt1:t.st1,tSt2:t.st2,tSt3:t.st3,tSt4:t.st4,
+    tPos1:t.pos,tNeg1:t.neg,tPos2:t.pos,tNeg2:t.neg,
+    tRfLbl:t.rfLbl,tRtypeLbl:t.rtypeLbl,tRe1Lbl:t.re1Lbl,tRe2Lbl:t.re2Lbl,tReLbl:t.reLbl,
+    tF1:t.f1,tF2:t.f2,tF3:t.f3,tF3v:t.f3v,tF4a:t.f4a,tF4b:t.f4b,tF4c:t.f4c,tF4d:t.f4d,
+    tGraphBtn:t.graphBtn,tInstr:t.instr,tProcedure:t.procedure,
+    tS1:t.s1,tS2:t.s2,tS3:t.s3,tS4:t.s4,tStartBtn:t.startBtn,tStartSub:t.startSub,
+    statusTxt:(typeof measCnt==='undefined'||!animT?t.status:null)};
+  Object.keys(map).forEach(function(id){
+    var el=document.getElementById(id);
+    if(el&&map[id])el.textContent=map[id];
+  });
+  var tt=document.getElementById('tTitle'); if(tt)tt.innerHTML=t.title;
+  var ts=document.getElementById('tStartTitle'); if(ts)ts.innerHTML=t.startTitle;
+  var rt=document.getElementById('rType');
+  if(rt && rt.textContent!=='—'){
+    var isAttract=rt.textContent.indexOf('TORTISH')>=0||rt.textContent.indexOf('ПРИТЯ')>=0||rt.textContent.indexOf('ATTRACT')>=0;
+    rt.textContent=isAttract?t.attractLbl:t.repelLbl;
+  }
+}
+window._changeLang=function(l){_setLang(l);};
+document.addEventListener('DOMContentLoaded',function(){_setLang('uz');});
+})();
+</script>
+</body>
+</html>

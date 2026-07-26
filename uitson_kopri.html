@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Elektr — Uitson Ko'prigi</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap');
+:root{--bg:#07090f;--panel:#0e1420;--border:#1b2840;--accent:#6fff5c;--yellow:#facc15;--blue:#60a5fa;--red:#f87171;--text:#dde6f5;--muted:#4a6080;}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{font-size:15px;}
+body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;min-height:100vh;display:flex;flex-direction:column;font-size:1rem;}
+header{display:flex;align-items:center;gap:12px;padding:8px 20px;border-bottom:1px solid var(--border);background:linear-gradient(90deg,#07090f,#0d1a08,#07090f);flex-shrink:0;flex-wrap:wrap;}
+.badge{background:var(--accent);color:#000;font-family:'Space Mono',monospace;font-size:.6rem;font-weight:700;padding:3px 9px;letter-spacing:2px;border-radius:2px;}
+.htitle{font-size:1.05rem;font-weight:800;}.htitle span{color:var(--accent);}
+.hsub{font-family:'Space Mono',monospace;font-size:.6rem;color:var(--muted);margin-left:auto;}
+.brand{display:flex;align-items:center;gap:6px;background:linear-gradient(135deg,rgba(111,255,92,.12),rgba(96,165,250,.08));border:1px solid rgba(111,255,92,.3);border-radius:20px;padding:4px 14px;margin-left:10px;flex-shrink:0;}
+.brand-txt{font-family:'Space Mono',monospace;font-size:.67rem;font-weight:700;background:linear-gradient(90deg,#6fff5c,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;}
+.statusbar{background:#0a0f1c;border-bottom:1px solid var(--border);padding:5px 20px;display:flex;align-items:center;gap:14px;font-family:'Space Mono',monospace;font-size:.73rem;flex-shrink:0;flex-wrap:wrap;}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--accent);animation:bl 1s infinite;flex-shrink:0;}
+.dot.off{background:var(--muted);animation:none;}
+@keyframes bl{0%,100%{opacity:1}50%{opacity:.2}}
+#statusTxt{color:var(--accent);}
+.chips{display:flex;gap:6px;margin-left:auto;flex-wrap:wrap;}
+.chip{background:rgba(111,255,92,.08);border:1px solid rgba(111,255,92,.2);border-radius:10px;padding:2px 9px;font-size:.67rem;color:var(--muted);}
+.chip span{color:var(--accent);}
+.body{display:grid;grid-template-columns:min(220px,22vw) 1fr min(265px,26vw);flex:1;overflow:hidden;}
+.left{background:var(--panel);border-right:1px solid var(--border);overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:9px;}
+.stitle{font-family:'Space Mono',monospace;font-size:.53rem;letter-spacing:3px;color:var(--accent);text-transform:uppercase;margin-bottom:3px;}
+.card{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:8px;padding:10px;}
+.card label{display:flex;justify-content:space-between;font-size:.73rem;color:var(--muted);margin-bottom:7px;}
+.vb{font-family:'Space Mono',monospace;font-size:.73rem;color:var(--accent);background:rgba(111,255,92,.12);padding:2px 7px;border-radius:3px;}
+select{width:100%;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:8px;color:#fff;font-family:'Space Mono',monospace;font-size:.73rem;padding:7px;}
+.decade{display:flex;gap:6px;justify-content:space-between;margin-top:6px;}
+.digit{flex:1;text-align:center;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:7px;padding:7px 3px;}
+.digit .dlabel{font-family:'Space Mono',monospace;font-size:.53rem;color:var(--muted);letter-spacing:1px;}
+.digit .dval{font-family:'Space Mono',monospace;font-size:1.33rem;font-weight:700;color:var(--accent);margin:4px 0;}
+.dbtns{display:flex;justify-content:center;gap:4px;}
+.dbtn{width:28px;height:26px;background:rgba(111,255,92,.1);border:1px solid rgba(111,255,92,.25);color:var(--accent);border-radius:5px;cursor:pointer;font-size:.9rem;font-weight:700;}
+.dbtn:hover{background:rgba(111,255,92,.2);}
+.dbtn:active{transform:scale(.92);}
+.keyrow{display:flex;gap:6px;}
+.keybtn{flex:1;padding:10px 5px;border-radius:7px;border:1px solid var(--border);background:rgba(255,255,255,.04);color:var(--muted);font-family:'Space Mono',monospace;font-size:.73rem;font-weight:700;cursor:pointer;text-align:center;transition:all .2s;line-height:1.4;}
+.keybtn.on{background:rgba(111,255,92,.15);border-color:rgba(111,255,92,.5);color:var(--accent);box-shadow:0 0 14px rgba(111,255,92,.25);}
+.fbox{background:rgba(111,255,92,.04);border:1px solid rgba(111,255,92,.15);border-radius:7px;padding:9px;}
+.frow{display:flex;gap:6px;margin-bottom:4px;font-family:'Space Mono',monospace;font-size:.67rem;}
+.fl{color:var(--muted);min-width:34px;}.fe{color:var(--accent);}
+.steps{display:flex;flex-direction:column;gap:3px;}
+.step{display:flex;align-items:center;gap:7px;padding:5px 8px;border-radius:5px;font-size:.67rem;color:var(--muted);border:1px solid transparent;transition:all .3s;}
+.step.active{background:rgba(111,255,92,.07);border-color:rgba(111,255,92,.2);color:var(--accent);}
+.step.done{color:var(--accent);}
+.snum{font-family:'Space Mono',monospace;font-size:.6rem;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.05);flex-shrink:0;}
+.step.active .snum{background:rgba(111,255,92,.2);}
+.step.done .snum{background:rgba(111,255,92,.12);color:var(--accent);}
+.btn{width:100%;padding:10px;border:none;border-radius:7px;font-family:'Syne',sans-serif;font-weight:700;font-size:.87rem;cursor:pointer;transition:all .2s;margin-top:5px;}
+.btn-p{background:linear-gradient(135deg,#6fff5c,#33cc22);color:#000;}
+.btn-p:hover{transform:translateY(-1px);box-shadow:0 5px 18px rgba(111,255,92,.4);}
+.btn-p:disabled{opacity:.35;cursor:not-allowed;}
+.btn-b{background:linear-gradient(135deg,#60a5fa,#2563eb);color:#000;}
+.btn-b:disabled{opacity:.35;}
+.btn-r{background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--border);font-size:.73rem;}
+.center{position:relative;overflow:hidden;background:#040810;}
+#simCanvas{display:block;width:100%;height:100%;}
+.instr-bar{position:absolute;bottom:0;left:0;right:0;background:rgba(4,8,16,.92);border-top:1px solid var(--border);padding:6px 18px;font-size:.73rem;color:var(--muted);text-align:center;}
+.right{background:var(--panel);border-left:1px solid var(--border);overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:9px;}
+.rc{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:8px;padding:10px;}
+.rc.hi{border-color:rgba(111,255,92,.3);background:rgba(111,255,92,.05);}
+.rc.hi2{border-color:rgba(96,165,250,.25);background:rgba(96,165,250,.04);}
+.rl{font-family:'Space Mono',monospace;font-size:.53rem;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:3px;}
+.rv{font-size:1.47rem;font-weight:800;line-height:1;color:#fff;}
+.ru{font-family:'Space Mono',monospace;font-size:.67rem;color:var(--muted);margin-top:2px;}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+.balance-badge{text-align:center;font-family:'Space Mono',monospace;font-size:.73rem;font-weight:700;padding:9px;border-radius:7px;background:rgba(255,255,255,.03);border:1px solid var(--border);color:var(--muted);transition:all .3s;}
+.balance-badge.ok{background:rgba(111,255,92,.15);border-color:rgba(111,255,92,.5);color:var(--accent);}
+table{width:100%;border-collapse:collapse;font-family:'Space Mono',monospace;font-size:.6rem;}
+th{color:var(--accent);font-size:.53rem;letter-spacing:1px;border-bottom:1px solid var(--border);padding:4px 2px;text-align:center;}
+td{padding:3px 2px;border-bottom:1px solid rgba(255,255,255,.03);text-align:center;}
+.answer-card{background:rgba(96,165,250,.05);border:1px solid rgba(96,165,250,.25);border-radius:8px;padding:12px;}
+.answer-card input{width:100%;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:8px;color:#fff;font-family:'Space Mono',monospace;font-size:.87rem;padding:8px;margin:5px 0;text-align:center;}
+.verdict{font-family:'Space Mono',monospace;font-size:.67rem;text-align:center;padding:6px;border-radius:6px;margin-top:6px;display:none;}
+.verdict.ok{display:block;background:rgba(111,255,92,.12);color:var(--accent);border:1px solid rgba(111,255,92,.3);}
+.verdict.no{display:block;background:rgba(248,113,113,.12);color:var(--red);border:1px solid rgba(248,113,113,.3);}
+.final-card{background:rgba(111,255,92,.05);border:1px solid rgba(111,255,92,.2);border-radius:8px;padding:12px;display:none;}
+.err-row{display:flex;justify-content:space-between;margin-top:6px;font-family:'Space Mono',monospace;font-size:.67rem;}
+.err-row span:first-child{color:var(--muted);}
+.err-row span:last-child{color:var(--accent);}
+.langsw{display:flex;gap:3px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;padding:3px;margin-left:10px;}
+.langbtn{background:transparent;border:none;color:var(--muted);font-family:'Space Mono',monospace;font-size:.6rem;font-weight:700;padding:4px 9px;border-radius:5px;cursor:pointer;letter-spacing:1px;}
+.langbtn.active{background:var(--accent);color:#000;}
+@media (max-width:900px){
+  html{font-size:14px;}
+  body{height:auto;overflow:auto;}
+  .body{display:flex;flex-direction:column;overflow:visible;}
+  .left,.right{border:none;border-bottom:1px solid var(--border);}
+  .center{height:60vh;min-height:420px;}
+  header{padding:12px 16px;}
+  .statusbar{padding:8px 16px;}
+}
+</style>
+</head>
+<body>
+
+<!-- START SCREEN -->
+<div id="startScreen" style="position:fixed;inset:0;z-index:9999;background:radial-gradient(ellipse at 50% 40%,#0a1a05 0%,#07090f 70%);display:flex;align-items:center;justify-content:center;">
+  <canvas id="bgCanvas" style="position:absolute;inset:0;width:100%;height:100%;opacity:.45;pointer-events:none"></canvas>
+  <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:18px;max-width:620px;padding:20px;text-align:center;">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div style="background:#6fff5c;color:#000;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:4px 14px;letter-spacing:2px;border-radius:2px;">ELEKTR · LAB 03</div>
+      <div style="font-family:'Space Mono',monospace;font-size:10px;color:#4a6080;letter-spacing:2px;">UITSON KO'PRIGI · Rx = R2·R3/R1</div>
+    </div>
+    <div style="width:100px;height:100px;border-radius:50%;background:radial-gradient(circle,rgba(111,255,92,.2),rgba(111,255,92,.02));border:2px solid rgba(111,255,92,.5);display:flex;align-items:center;justify-content:center;box-shadow:0 0 60px rgba(111,255,92,.35);animation:pulseOmm 2.5s ease-in-out infinite;"><span style="font-size:44px;">⚖️</span></div>
+    <h1 style="font-size:21px;font-weight:800;color:#fff;" id="tStartTitle">Uitson ko'prigi — <span style="color:#6fff5c;">balans usuli</span></h1>
+    <p style="font-size:11px;color:#4a6080;font-family:'Space Mono',monospace;" id="tStartSub">Ko'prikni muvozanatga keltirib, noma'lum Rx qarshilikni aniqlang</p>
+    <div style="background:rgba(111,255,92,.05);border:1px solid rgba(111,255,92,.15);border-radius:12px;padding:15px;width:100%;text-align:left;">
+      <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;color:#6fff5c;margin-bottom:10px;" id="tProcedure">BAJARISH TARTIBI</div>
+      <div style="display:flex;flex-direction:column;gap:7px;">
+        <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#c5d3e8;"><span style="width:20px;height:20px;border-radius:50%;background:rgba(111,255,92,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#6fff5c;flex-shrink:0;">1</span><span id="tS1">R1 va R2 nisbat yelkalarini tanlang</span></div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#c5d3e8;"><span style="width:20px;height:20px;border-radius:50%;background:rgba(111,255,92,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#6fff5c;flex-shrink:0;">2</span><span id="tS2">K1 (batareya) va K2 (galvanometr) kalitlarini yoping</span></div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#c5d3e8;"><span style="width:20px;height:20px;border-radius:50%;background:rgba(111,255,92,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#6fff5c;flex-shrink:0;">3</span><span id="tS3">R3 qarshilik quticha (dekada) bilan galvanometrni nolga keltiring</span></div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#c5d3e8;"><span style="width:20px;height:20px;border-radius:50%;background:rgba(111,255,92,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#6fff5c;flex-shrink:0;">4</span><span id="tS4">Balans holatini kamida 2 marta, turli nisbatlarda yozib oling</span></div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#c5d3e8;"><span style="width:20px;height:20px;border-radius:50%;background:rgba(111,255,92,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#6fff5c;flex-shrink:0;">5</span><span id="tS5">Rx = R2·R3/R1 formula bilan hisoblab, javobni tekshiring</span></div>
+      </div>
+    </div>
+    <button onclick="startLab()" style="background:linear-gradient(135deg,#6fff5c,#33cc22);color:#000;border:none;border-radius:12px;padding:15px 60px;font-size:16px;font-weight:800;font-family:'Syne',sans-serif;cursor:pointer;box-shadow:0 8px 30px rgba(111,255,92,.4);width:100%;"><span id="tStartBtn">▶ Laboratoriyani boshlash</span></button>
+    <div style="display:flex;align-items:center;gap:6px;opacity:.6;"><span>🔬</span><span style="font-family:'Space Mono',monospace;font-size:10px;font-weight:700;background:linear-gradient(90deg,#6fff5c,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;">Xosiyat Virtual Lab</span></div>
+  </div>
+</div>
+<style>
+@keyframes pulseOmm{0%,100%{box-shadow:0 0 60px rgba(111,255,92,.25)}50%{box-shadow:0 0 90px rgba(111,255,92,.6)}}
+@keyframes fadeOut{0%{opacity:1}100%{opacity:0;transform:scale(1.04)}}
+</style>
+<script>
+(function(){var c=document.getElementById('bgCanvas');var x=c.getContext('2d');var pts=[];function rs(){c.width=window.innerWidth;c.height=window.innerHeight;}rs();window.addEventListener('resize',rs);
+for(var i=0;i<60;i++)pts.push({x:Math.random()*1600,y:Math.random()*900,r:Math.random()*1.5+.5,vx:(Math.random()-.5)*.35,vy:(Math.random()-.5)*.35,a:Math.random()});
+function fr(){x.clearRect(0,0,c.width,c.height);pts.forEach(function(p){p.x+=p.vx;p.y+=p.vy;p.a+=.005;if(p.x<0)p.x=c.width;if(p.x>c.width)p.x=0;if(p.y<0)p.y=c.height;if(p.y>c.height)p.y=0;x.fillStyle='rgba(111,255,92,'+(0.15+Math.sin(p.a)*0.12)+')';x.beginPath();x.arc(p.x%c.width,p.y%c.height,p.r,0,Math.PI*2);x.fill();});requestAnimationFrame(fr);}fr();})();
+function startLab(){var s=document.getElementById('startScreen');s.style.animation='fadeOut .5s ease forwards';setTimeout(function(){s.style.display='none';},480);}
+</script>
+
+<header>
+  <div class="badge" id="tBadge">ELEKTR · LAB 03</div>
+  <h1 class="htitle" id="tTitle">Uitson Ko'prigi — <span>Rx = R2·R3 / R1 · Balans usuli</span></h1>
+  <div class="hsub" id="tHsub">ELEKTR · FIZPRAKTIKUM · SDPI 2026</div>
+  <div class="langsw">
+    <button class="langbtn active" id="langUZ" onclick="setLang('uz')">UZ</button>
+    <button class="langbtn" id="langRU" onclick="setLang('ru')">RU</button>
+    <button class="langbtn" id="langEN" onclick="setLang('en')">EN</button>
+  </div>
+  <div class="brand"><span>🔬</span><span class="brand-txt">Xosiyat Virtual Lab</span></div>
+</header>
+
+<div class="statusbar">
+  <div class="dot off" id="dot"></div>
+  <span id="statusTxt">Nisbat yelkalarini tanlang → kalitlarni yoping → R3 bilan balans toping</span>
+  <div class="chips">
+    <div class="chip">R1=<span id="cR1">100</span>Ω</div>
+    <div class="chip">R2=<span id="cR2">100</span>Ω</div>
+    <div class="chip">R3=<span id="cR3">0</span>Ω</div>
+    <div class="chip"><span id="tRecLbl">Yozuv:</span><span id="chipCnt">0</span></div>
+  </div>
+</div>
+
+<div class="body">
+<div class="left">
+  <div class="stitle" id="tRatioArms">Nisbat yelkalari</div>
+  <div class="card">
+    <label>R1 (Ω) <span class="vb" id="dR1">100 Ω</span></label>
+    <select id="sR1" onchange="setR1(this.value)">
+      <option value="1">1 Ω</option>
+      <option value="10">10 Ω</option>
+      <option value="100" selected>100 Ω</option>
+      <option value="1000">1000 Ω</option>
+    </select>
+  </div>
+  <div class="card">
+    <label>R2 (Ω) <span class="vb" id="dR2">100 Ω</span></label>
+    <select id="sR2" onchange="setR2(this.value)">
+      <option value="1">1 Ω</option>
+      <option value="10">10 Ω</option>
+      <option value="100" selected>100 Ω</option>
+      <option value="1000">1000 Ω</option>
+    </select>
+  </div>
+
+  <div class="stitle" id="tR3lbl">R3 — qarshilik quticha (dekada)</div>
+  <div class="card">
+    <div class="decade">
+      <div class="digit"><div class="dlabel">×1000</div><div class="dval" id="d3">0</div><div class="dbtns"><div class="dbtn" onclick="chDigit(3,1)">+</div><div class="dbtn" onclick="chDigit(3,-1)">−</div></div></div>
+      <div class="digit"><div class="dlabel">×100</div><div class="dval" id="d2">0</div><div class="dbtns"><div class="dbtn" onclick="chDigit(2,1)">+</div><div class="dbtn" onclick="chDigit(2,-1)">−</div></div></div>
+      <div class="digit"><div class="dlabel">×10</div><div class="dval" id="d1">0</div><div class="dbtns"><div class="dbtn" onclick="chDigit(1,1)">+</div><div class="dbtn" onclick="chDigit(1,-1)">−</div></div></div>
+      <div class="digit"><div class="dlabel">×1</div><div class="dval" id="d0">0</div><div class="dbtns"><div class="dbtn" onclick="chDigit(0,1)">+</div><div class="dbtn" onclick="chDigit(0,-1)">−</div></div></div>
+    </div>
+  </div>
+
+  <div class="stitle" id="tKeys">Kalitlar</div>
+  <div class="keyrow">
+    <div class="keybtn" id="k1btn" onclick="toggleKey(1)">K1<br><span id="tK1lbl">batareya</span></div>
+    <div class="keybtn" id="k2btn" onclick="toggleKey(2)">K2<br><span id="tK2lbl">galvanometr</span></div>
+  </div>
+
+  <div class="fbox">
+    <div class="frow"><span class="fl" id="tCondLbl">Sharti</span><span class="fe">R1·Rx = R2·R3</span></div>
+    <div class="frow"><span class="fl">Rx</span><span class="fe">= R2·R3 / R1</span></div>
+  </div>
+
+  <div class="steps">
+    <div class="step active" id="st1"><div class="snum">1</div><span id="tStep1">Nisbat tanlang</span></div>
+    <div class="step" id="st2"><div class="snum">2</div><span id="tStep2">Kalitlar yopildi</span></div>
+    <div class="step" id="st3"><div class="snum">3</div><span id="tStep3">Balans qidirilmoqda</span></div>
+    <div class="step" id="st4"><div class="snum">4</div><span id="tStep4">Balans yozildi (≥2)</span></div>
+    <div class="step" id="st5"><div class="snum">5</div><span id="tStep5">Rx ni toping</span></div>
+  </div>
+
+  <button class="btn btn-p" onclick="recordBalance()" id="recBtn" disabled>✓ <span id="tRecBtn">Balansni yozib olish</span></button>
+  <button class="btn btn-r" onclick="resetAll()">↺ <span id="tResetBtn">Qayta boshlash</span></button>
+  <button class="btn btn-r" onclick="newUnknown()">🎲 <span id="tNewBtn">Yangi Rx (mashq)</span></button>
+</div>
+
+<div class="center">
+  <canvas id="simCanvas"></canvas>
+  <div class="instr-bar" id="tInstrBar">⚖️ Vazifa: R3 dekada quticha bilan galvanometrni nolga keltiring (balans) → turli R1/R2 nisbatlarida qayta tasdiqlang</div>
+</div>
+
+<div class="right">
+  <div class="stitle" id="tGalvLbl">Galvanometr</div>
+  <div class="balance-badge" id="balBadge">Kalitlar ochiq</div>
+  <div class="two">
+    <div class="rc hi"><div class="rl">ΔU (mV)</div><div class="rv" id="rDU">—</div></div>
+    <div class="rc hi2"><div class="rl">Rx = R2R3/R1</div><div class="rv" style="color:var(--blue);font-size:15px" id="rRxCalc">—</div></div>
+  </div>
+
+  <div class="stitle" id="tBalRecs">Balans yozuvlari</div>
+  <table>
+    <thead><tr><th>№</th><th>R1</th><th>R2</th><th>R3</th><th>Rx</th></tr></thead>
+    <tbody id="tbody"></tbody>
+  </table>
+
+  <div class="answer-card" id="answerCard" style="display:none;">
+    <div class="rl" id="tYourAnswer">Sizning javobingiz</div>
+    <div style="font-size:9px;color:var(--muted);" id="tAnswerHint">O'rtacha Rx = R2·R3/R1 ni hisoblab kiriting</div>
+    <input type="number" id="userAnswer" placeholder="Rx (Ω)...">
+    <button class="btn btn-b" onclick="checkAnswer()">✓ <span id="tCheckBtn">Tekshirish</span></button>
+    <div class="verdict" id="verdict"></div>
+  </div>
+
+  <div class="final-card" id="finalCard">
+    <div class="rl" id="tFinalTitle">Yakuniy natija</div>
+    <div style="display:flex;gap:8px;margin-top:8px;">
+      <div style="flex:1;text-align:center;">
+        <div style="font-size:9px;color:var(--muted);font-family:monospace;" id="tAvgRx">O'rtacha Rx*</div>
+        <div style="font-size:20px;font-weight:800;color:var(--blue);" id="resRstar">—</div>
+        <div style="font-size:8px;color:var(--muted);" id="tMeasuredOhm">Om (o'lchangan)</div>
+      </div>
+      <div style="flex:1;text-align:center;">
+        <div style="font-size:9px;color:var(--muted);font-family:monospace;" id="tRealRx">Haqiqiy Rx</div>
+        <div style="font-size:20px;font-weight:800;color:var(--accent);" id="resRreal">—</div>
+        <div style="font-size:8px;color:var(--muted);" id="tRevealOhm">Om (yechilgach ochiladi)</div>
+      </div>
+    </div>
+    <div class="err-row"><span id="tRecCnt">Yozuvlar soni</span><span id="resCnt">—</span></div>
+  </div>
+</div>
+</div>
+
+<div style="position:fixed;bottom:14px;right:18px;display:flex;align-items:center;gap:7px;background:rgba(7,9,15,.75);border:1px solid rgba(111,255,92,.2);border-radius:30px;padding:5px 16px;backdrop-filter:blur(10px);z-index:9999;pointer-events:none;">
+  <span>🔬</span><span style="font-family:'Space Mono',monospace;font-size:11px;font-weight:700;background:linear-gradient(90deg,#6fff5c,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;">Xosiyat Virtual Lab</span>
+</div>
+
+<script>
+var LANG='uz';
+var I18N={
+ uz:{badge:'ELEKTR · LAB 03',title:"Uitson Ko'prigi — <span>Rx = R2·R3 / R1 · Balans usuli</span>",hsub:'ELEKTR · FIZPRAKTIKUM · SDPI 2026',
+   statusDefault:'Nisbat yelkalarini tanlang → kalitlarni yoping → R3 bilan balans toping',recLbl:'Yozuv:',
+   ratioArms:'Nisbat yelkalari',r3lbl:'R3 — qarshilik quticha (dekada)',keys:'Kalitlar',k1lbl:'batareya',k2lbl:'galvanometr',condLbl:'Sharti',
+   step1:'Nisbat tanlang',step2:'Kalitlar yopildi',step3:'Balans qidirilmoqda',step4:'Balans yozildi (≥2)',step5:'Rx ni toping',
+   recBtn:'Balansni yozib olish',resetBtn:'Qayta boshlash',newBtn:'Yangi Rx (mashq)',
+   instrBar:"⚖️ Vazifa: R3 dekada quticha bilan galvanometrni nolga keltiring (balans) → turli R1/R2 nisbatlarida qayta tasdiqlang",
+   galvLbl:'Galvanometr',balRecs:'Balans yozuvlari',
+   yourAnswer:'Sizning javobingiz',answerHint:"O'rtacha Rx = R2·R3/R1 ni hisoblab kiriting",checkBtn:'Tekshirish',
+   finalTitle:'Yakuniy natija',avgRx:"O'rtacha Rx*",measuredOhm:"Om (o'lchangan)",realRx:'Haqiqiy Rx',revealOhm:'Om (yechilgach ochiladi)',recCnt:'Yozuvlar soni',
+   startTitle:'Uitson ko\'prigi — <span style="color:#6fff5c;">balans usuli</span>',startSub:"Ko'prikni muvozanatga keltirib, noma'lum Rx qarshilikni aniqlang",
+   procedure:'BAJARISH TARTIBI',s1:'R1 va R2 nisbat yelkalarini tanlang',s2:'K1 (batareya) va K2 (galvanometr) kalitlarini yoping',
+   s3:'R3 qarshilik quticha (dekada) bilan galvanometrni nolga keltiring',s4:'Balans holatini kamida 2 marta, turli nisbatlarda yozib oling',
+   s5:'Rx = R2·R3/R1 formula bilan hisoblab, javobni tekshiring',startBtn:'▶ Laboratoriyani boshlash',
+   keysOpen:'Kalitlar ochiq',balFound:'✓ BALANS TOPILDI (G=0)',galvRight:"Galvanometr: → (o'ngga)",galvLeft:'Galvanometr: ← (chapga)',
+   enoughBal:"Yetarli balans yozuvi to'plandi! Endi Rx ni hisoblab javobni kiriting.",findMore:'Yana boshqa R1/R2 nisbati bilan balansni toping va yozib oling.',
+   errPositive:'Iltimos, musbat son kiriting.',correct:'✓ To\'g\'ri! Xatolik atigi ',correctReal:'%. Haqiqiy Rx=',
+   wrong:'✗ Hali unchalik aniq emas (xatolik ',wrongEnd:'%). Rx=R2·R3/R1 formulasini qayta tekshiring.',
+   unit:'ta',ansPlaceholder:'Rx (Ω)...',k1open:'K1 ochiq',k1closed:'K1 yopiq',balCondition:'Balans sharti: R1·Rx = R2·R3',
+   keyOpenShort:'ochiq',keyClosedShort:'yopiq'
+ },
+ ru:{badge:'ЭЛЕКТРИЧЕСТВО · ЛАБ 03',title:'Мост Уитстона — <span>Rx = R2·R3 / R1 · Метод баланса</span>',hsub:'ЭЛЕКТРИЧЕСТВО · ФИЗПРАКТИКУМ · SDPI 2026',
+   statusDefault:'Выберите плечи отношения → замкните ключи → найдите баланс с R3',recLbl:'Записей:',
+   ratioArms:'Плечи отношения',r3lbl:'R3 — магазин сопротивлений (декады)',keys:'Ключи',k1lbl:'батарея',k2lbl:'гальванометр',condLbl:'Условие',
+   step1:'Выберите отношение',step2:'Ключи замкнуты',step3:'Поиск баланса',step4:'Баланс записан (≥2)',step5:'Найдите Rx',
+   recBtn:'Записать баланс',resetBtn:'Начать заново',newBtn:'Новое Rx (тренировка)',
+   instrBar:'⚖️ Задача: магазином сопротивлений R3 приведите гальванометр к нулю (баланс) → повторите с разными отношениями R1/R2',
+   galvLbl:'Гальванометр',balRecs:'Записи баланса',
+   yourAnswer:'Ваш ответ',answerHint:'Вычислите среднее Rx = R2·R3/R1',checkBtn:'Проверить',
+   finalTitle:'Итоговый результат',avgRx:'Среднее Rx*',measuredOhm:'Ом (измерено)',realRx:'Реальное Rx',revealOhm:'Ом (откроется после решения)',recCnt:'Число записей',
+   startTitle:'Мост Уитстона — <span style="color:#6fff5c;">метод баланса</span>',startSub:'Приведите мост в равновесие и найдите неизвестное Rx',
+   procedure:'ПОРЯДОК ВЫПОЛНЕНИЯ',s1:'Выберите плечи отношения R1 и R2',s2:'Замкните ключи K1 (батарея) и K2 (гальванометр)',
+   s3:'Магазином сопротивлений R3 приведите гальванометр к нулю',s4:'Запишите баланс не менее 2 раз с разными отношениями',
+   s5:'Вычислите Rx = R2·R3/R1 и проверьте ответ',startBtn:'▶ Начать лабораторную',
+   keysOpen:'Ключи разомкнуты',balFound:'✓ БАЛАНС НАЙДЕН (G=0)',galvRight:'Гальванометр: → (вправо)',galvLeft:'Гальванометр: ← (влево)',
+   enoughBal:'Достаточно записей! Теперь вычислите Rx и введите ответ.',findMore:'Найдите баланс с другим отношением R1/R2 и запишите.',
+   errPositive:'Пожалуйста, введите положительное число.',correct:'✓ Верно! Погрешность всего ',correctReal:'%. Реальное Rx=',
+   wrong:'✗ Пока не точно (погрешность ',wrongEnd:'%). Пересчитайте по формуле Rx=R2·R3/R1.',
+   unit:'шт.',ansPlaceholder:'Rx (Ом)...',k1open:'K1 разомкнут',k1closed:'K1 замкнут',balCondition:'Условие баланса: R1·Rx = R2·R3',
+   keyOpenShort:'разомкнут',keyClosedShort:'замкнут'
+ },
+ en:{badge:'ELECTRICITY · LAB 03',title:'Wheatstone Bridge — <span>Rx = R2·R3 / R1 · Balance method</span>',hsub:'ELECTRICITY · PHYSICS LAB · SDPI 2026',
+   statusDefault:'Choose ratio arms → close the keys → balance with R3',recLbl:'Records:',
+   ratioArms:'Ratio arms',r3lbl:'R3 — resistance box (decades)',keys:'Keys',k1lbl:'battery',k2lbl:'galvanometer',condLbl:'Condition',
+   step1:'Choose ratio',step2:'Keys closed',step3:'Searching balance',step4:'Balance recorded (≥2)',step5:'Find Rx',
+   recBtn:'Record balance',resetBtn:'Restart',newBtn:'New Rx (practice)',
+   instrBar:'⚖️ Task: use the R3 resistance box to zero the galvanometer (balance) → repeat with different R1/R2 ratios',
+   galvLbl:'Galvanometer',balRecs:'Balance records',
+   yourAnswer:'Your answer',answerHint:'Calculate the average Rx = R2·R3/R1',checkBtn:'Check',
+   finalTitle:'Final result',avgRx:'Average Rx*',measuredOhm:'Ohm (measured)',realRx:'Real Rx',revealOhm:'Ohm (revealed after solving)',recCnt:'Number of records',
+   startTitle:'Wheatstone Bridge — <span style="color:#6fff5c;">balance method</span>',startSub:'Balance the bridge to find the unknown Rx',
+   procedure:'PROCEDURE',s1:'Choose ratio arms R1 and R2',s2:'Close keys K1 (battery) and K2 (galvanometer)',
+   s3:'Use the R3 resistance box to zero the galvanometer',s4:'Record balance at least 2 times with different ratios',
+   s5:'Calculate Rx = R2·R3/R1 and check your answer',startBtn:'▶ Start the lab',
+   keysOpen:'Keys open',balFound:'✓ BALANCE FOUND (G=0)',galvRight:'Galvanometer: → (right)',galvLeft:'Galvanometer: ← (left)',
+   enoughBal:'Enough records! Now calculate Rx and enter your answer.',findMore:'Find balance with another R1/R2 ratio and record it.',
+   errPositive:'Please enter a positive number.',correct:'✓ Correct! Error only ',correctReal:'%. Real Rx=',
+   wrong:'✗ Not quite accurate yet (error ',wrongEnd:'%). Recheck using Rx=R2·R3/R1.',
+   unit:'',ansPlaceholder:'Rx (Ω)...',k1open:'K1 open',k1closed:'K1 closed',balCondition:'Balance condition: R1·Rx = R2·R3',
+   keyOpenShort:'open',keyClosedShort:'closed'
+ }
+};
+function t(k){return I18N[LANG][k];}
+function setLang(l){
+  LANG=l;
+  document.getElementById('langUZ').className='langbtn'+(l==='uz'?' active':'');
+  document.getElementById('langRU').className='langbtn'+(l==='ru'?' active':'');
+  document.getElementById('langEN').className='langbtn'+(l==='en'?' active':'');
+  document.getElementById('tBadge').textContent=t('badge');
+  document.getElementById('tTitle').innerHTML=t('title');
+  document.getElementById('tHsub').textContent=t('hsub');
+  document.getElementById('tRecLbl').textContent=t('recLbl');
+  document.getElementById('tRatioArms').textContent=t('ratioArms');
+  document.getElementById('tR3lbl').textContent=t('r3lbl');
+  document.getElementById('tKeys').textContent=t('keys');
+  document.getElementById('tK1lbl').textContent=t('k1lbl');
+  document.getElementById('tK2lbl').textContent=t('k2lbl');
+  document.getElementById('tCondLbl').textContent=t('condLbl');
+  document.getElementById('tStep1').textContent=t('step1');
+  document.getElementById('tStep2').textContent=t('step2');
+  document.getElementById('tStep3').textContent=t('step3');
+  document.getElementById('tStep4').textContent=t('step4');
+  document.getElementById('tStep5').textContent=t('step5');
+  document.getElementById('tRecBtn').textContent=t('recBtn');
+  document.getElementById('tResetBtn').textContent=t('resetBtn');
+  document.getElementById('tNewBtn').textContent=t('newBtn');
+  document.getElementById('tInstrBar').textContent=t('instrBar');
+  document.getElementById('tGalvLbl').textContent=t('galvLbl');
+  document.getElementById('tBalRecs').textContent=t('balRecs');
+  document.getElementById('tYourAnswer').textContent=t('yourAnswer');
+  document.getElementById('tAnswerHint').textContent=t('answerHint');
+  document.getElementById('tCheckBtn').textContent=t('checkBtn');
+  document.getElementById('tFinalTitle').textContent=t('finalTitle');
+  document.getElementById('tAvgRx').textContent=t('avgRx');
+  document.getElementById('tMeasuredOhm').textContent=t('measuredOhm');
+  document.getElementById('tRealRx').textContent=t('realRx');
+  document.getElementById('tRevealOhm').textContent=t('revealOhm');
+  document.getElementById('tRecCnt').textContent=t('recCnt');
+  document.getElementById('tStartTitle').innerHTML=t('startTitle');
+  document.getElementById('tStartSub').textContent=t('startSub');
+  document.getElementById('tProcedure').textContent=t('procedure');
+  document.getElementById('tS1').textContent=t('s1');
+  document.getElementById('tS2').textContent=t('s2');
+  document.getElementById('tS3').textContent=t('s3');
+  document.getElementById('tS4').textContent=t('s4');
+  document.getElementById('tS5').textContent=t('s5');
+  document.getElementById('tStartBtn').textContent=t('startBtn');
+  document.getElementById('userAnswer').placeholder=t('ansPlaceholder');
+  if(!(k1&&k2)){document.getElementById('statusTxt').textContent=t('statusDefault');}
+  update();
+}
+
+var RxSet=[15,47,68,120,235,330,470,680,820,1000,1500,2350];
+var Rx=RxSet[Math.floor(Math.random()*RxSet.length)];
+var R1=100,R2=100,R3=0,E=6;
+var digits=[0,0,0,0]; // ones,tens,hundreds,thousands
+var k1=false,k2=false,records=[],cnt=0,revealed=false,animT=0;
+var sc=document.getElementById('simCanvas'),ctx=sc.getContext('2d');
+var needleAngle=0;
+
+function setR1(v){R1=parseFloat(v);document.getElementById('dR1').textContent=v+' Ω';document.getElementById('cR1').textContent=v;update();}
+function setR2(v){R2=parseFloat(v);document.getElementById('dR2').textContent=v+' Ω';document.getElementById('cR2').textContent=v;update();}
+
+function chDigit(pos,dir){
+  digits[pos]=Math.min(9,Math.max(0,digits[pos]+dir));
+  document.getElementById('d'+pos).textContent=digits[pos];
+  R3=digits[3]*1000+digits[2]*100+digits[1]*10+digits[0];
+  document.getElementById('cR3').textContent=R3;
+  update();
+}
+
+function toggleKey(n){
+  if(n===1){k1=!k1;document.getElementById('k1btn').className='keybtn'+(k1?' on':'');}
+  if(n===2){k2=!k2;document.getElementById('k2btn').className='keybtn'+(k2?' on':'');}
+  setStep(k1&&k2?3:2);
+  document.getElementById('dot').className='dot'+(k1&&k2?'':' off');
+  update();
+}
+
+function calcDU(){
+  if(!(k1&&k2))return 0;
+  var vb=E*R2/(R1+R2);
+  var vd=E*Rx/(R3+Rx);
+  return (vb-vd)*1000; // mV
+}
+
+function update(){
+  var dU=calcDU();
+  var active=k1&&k2;
+  document.getElementById('rDU').textContent=active?dU.toFixed(2):'—';
+  document.getElementById('rRxCalc').textContent=(R1>0?(R2*R3/R1).toFixed(1):'—')+' Ω';
+  var bal=active&&Math.abs(dU)<3;
+  var badge=document.getElementById('balBadge');
+  if(!active){badge.className='balance-badge';badge.textContent=t('keysOpen');}
+  else if(bal){badge.className='balance-badge ok';badge.textContent=t('balFound');}
+  else{badge.className='balance-badge';badge.textContent=dU>0?t('galvRight'):t('galvLeft');}
+  document.getElementById('recBtn').disabled=!bal;
+  needleAngle=active?Math.max(-35,Math.min(35,dU*1.2)):0;
+}
+
+function recordBalance(){
+  cnt++;
+  var Rxc=R2*R3/R1;
+  records.push({R1:R1,R2:R2,R3:R3,Rxc:Rxc});
+  document.getElementById('chipCnt').textContent=cnt;
+  var tr=document.createElement('tr');
+  tr.innerHTML='<td>'+cnt+'</td><td>'+R1+'</td><td>'+R2+'</td><td>'+R3+'</td><td>'+Rxc.toFixed(1)+'</td>';
+  document.getElementById('tbody').appendChild(tr);
+  if(records.length>=2){
+    document.getElementById('answerCard').style.display='block';
+    setStep(5);
+    document.getElementById('statusTxt').textContent=t('enoughBal');
+  } else {
+    setStep(4);
+    document.getElementById('statusTxt').textContent=t('findMore');
+  }
+}
+
+function checkAnswer(){
+  var ans=parseFloat(document.getElementById('userAnswer').value);
+  var v=document.getElementById('verdict');
+  if(isNaN(ans)||ans<=0){v.className='verdict no';v.textContent=t('errPositive');return;}
+  var eps=Math.abs(ans-Rx)/Rx*100;
+  if(eps<=5){
+    v.className='verdict ok';v.textContent=t('correct')+eps.toFixed(1)+t('correctReal')+Rx+'Ω';
+    reveal();
+  } else {
+    v.className='verdict no';v.textContent=t('wrong')+eps.toFixed(1)+t('wrongEnd');
+  }
+}
+
+function reveal(){
+  revealed=true;
+  var avg=records.reduce(function(a,b){return a+b.Rxc;},0)/records.length;
+  document.getElementById('finalCard').style.display='block';
+  document.getElementById('resRstar').textContent=avg.toFixed(1)+' Ω';
+  document.getElementById('resRreal').textContent=Rx+' Ω';
+  document.getElementById('resCnt').textContent=records.length+' '+t('unit');
+}
+
+function newUnknown(){
+  Rx=RxSet[Math.floor(Math.random()*RxSet.length)];
+  resetAll();
+}
+
+function resetAll(){
+  records=[];cnt=0;k1=false;k2=false;revealed=false;
+  digits=[0,0,0,0];R3=0;
+  ['d0','d1','d2','d3'].forEach(function(id){document.getElementById(id).textContent='0';});
+  document.getElementById('cR3').textContent='0';
+  document.getElementById('k1btn').className='keybtn';
+  document.getElementById('k2btn').className='keybtn';
+  document.getElementById('tbody').innerHTML='';
+  document.getElementById('finalCard').style.display='none';
+  document.getElementById('answerCard').style.display='none';
+  document.getElementById('userAnswer').value='';
+  document.getElementById('verdict').className='verdict';document.getElementById('verdict').textContent='';
+  document.getElementById('recBtn').disabled=true;
+  document.getElementById('dot').className='dot off';
+  document.getElementById('chipCnt').textContent=0;
+  document.getElementById('statusTxt').textContent=t('statusDefault');
+  setStep(1);update();
+}
+function setStep(n){for(var i=1;i<=5;i++){var el=document.getElementById('st'+i);el.className='step'+(i<n?' done':i===n?' active':'');el.querySelector('.snum').textContent=i<n?'✓':i;}}
+function resize(){sc.width=sc.offsetWidth;sc.height=sc.offsetHeight;}
+window.addEventListener('resize',resize);setTimeout(resize,80);
+
+(function loop(){
+  animT+=0.016;
+  drawSim();
+  requestAnimationFrame(loop);
+})();
+
+function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.lineTo(x+w-r,y);c.quadraticCurveTo(x+w,y,x+w,y+r);c.lineTo(x+w,y+h-r);c.quadraticCurveTo(x+w,y+h,x+w-r,y+h);c.lineTo(x+r,y+h);c.quadraticCurveTo(x,y+h,x,y+h-r);c.lineTo(x,y+r);c.quadraticCurveTo(x,y,x+r,y);c.closePath();}
+
+function drawSim(){
+  var W=sc.width,H=sc.height;if(!W||!H)return;
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#040810';ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle='rgba(111,255,92,.02)';ctx.lineWidth=1;
+  for(var xi=0;xi<W;xi+=60){ctx.beginPath();ctx.moveTo(xi,0);ctx.lineTo(xi,H);ctx.stroke();}
+  for(var yi=0;yi<H;yi+=60){ctx.beginPath();ctx.moveTo(0,yi);ctx.lineTo(W,yi);ctx.stroke();}
+
+  // scale factor for the drawn circuit only (fonts stay untouched) so the
+  // bridge fills the canvas nicely on larger windows too
+  var S=Math.max(1.3, Math.min(3, Math.min(W,H)/280));
+
+  var cx=W/2,cy=H/2;
+  var hw=150*S,hh=110*S; // diamond half-width/height
+  var A={x:cx-hw,y:cy},C={x:cx+hw,y:cy},B={x:cx,y:cy-hh},D={x:cx,y:cy+hh};
+  var active=k1&&k2;
+  var col=active?'rgba(111,255,92,.8)':'rgba(100,100,100,.4)';
+
+  ctx.strokeStyle=col;ctx.lineWidth=(active?2.5:1.5)*S;
+  if(active){ctx.shadowColor='rgba(111,255,92,.35)';ctx.shadowBlur=7*S;}
+  [[A,B],[B,C],[A,D],[D,C]].forEach(function(p){ctx.beginPath();ctx.moveTo(p[0].x,p[0].y);ctx.lineTo(p[1].x,p[1].y);ctx.stroke();});
+  ctx.shadowBlur=0;
+
+  // Galvanometer branch B-D
+  ctx.strokeStyle=k2?'rgba(96,165,250,.7)':'rgba(90,90,90,.35)';ctx.lineWidth=1.5*S;ctx.setLineDash(k2?[]:[4*S,3*S]);
+  ctx.beginPath();ctx.moveTo(B.x,B.y);ctx.lineTo(D.x,D.y);ctx.stroke();ctx.setLineDash([]);
+
+  // Battery branch A-C (drawn as a small loop below)
+  ctx.strokeStyle=k1?'rgba(250,204,21,.7)':'rgba(90,90,90,.35)';ctx.lineWidth=1.5*S;ctx.setLineDash(k1?[]:[4*S,3*S]);
+  ctx.beginPath();ctx.moveTo(A.x,A.y);ctx.lineTo(A.x-30*S,A.y+70*S);ctx.lineTo(C.x+30*S,C.y+70*S);ctx.lineTo(C.x,C.y);ctx.stroke();ctx.setLineDash([]);
+
+  // labels for arms
+  ctx.fillStyle=col;ctx.font='bold 11px Space Mono';ctx.textAlign='center';
+  ctx.fillText('R1='+R1+'Ω',(A.x+B.x)/2-18,(A.y+B.y)/2-6);
+  ctx.fillText('R2='+R2+'Ω',(B.x+C.x)/2+18,(B.y+C.y)/2-6);
+  ctx.fillText('R3='+R3+'Ω',(A.x+D.x)/2-18,(A.y+D.y)/2+16);
+  ctx.fillStyle=active?'rgba(96,165,250,.9)':'rgba(90,90,90,.5)';
+  ctx.fillText(revealed?('Rx='+Rx+'Ω'):'Rx = ?',(D.x+C.x)/2+18,(D.y+C.y)/2+16);
+
+  // nodes
+  [A,B,C,D].forEach(function(p){ctx.fillStyle=active?'rgba(111,255,92,.9)':'rgba(120,120,120,.6)';ctx.beginPath();ctx.arc(p.x,p.y,4*S,0,Math.PI*2);ctx.fill();});
+
+  // Battery symbol at bottom of loop
+  var bx=cx,by=cy+70*S;
+  ctx.strokeStyle=k1?'rgba(250,204,21,.9)':'rgba(90,90,90,.5)';ctx.lineWidth=2*S;
+  ctx.beginPath();ctx.moveTo(bx-14*S,by-10*S);ctx.lineTo(bx-14*S,by+10*S);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(bx+14*S,by-16*S);ctx.lineTo(bx+14*S,by+16*S);ctx.stroke();
+  ctx.fillStyle=k1?'rgba(250,204,21,.9)':'rgba(90,90,90,.5)';ctx.font='bold 9px monospace';ctx.textAlign='center';
+  ctx.fillText('E='+E+'V',bx,by-24*S);
+  ctx.font='7px monospace';ctx.fillText(k1?t('k1closed'):t('k1open'),bx,by+30*S);
+
+  // Galvanometer dial at B-D midpoint
+  var gx=cx,gy=cy;
+  var gr=30*S;
+  ctx.fillStyle='rgba(14,20,32,.95)';ctx.beginPath();ctx.arc(gx,gy,gr,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle=k2?'rgba(96,165,250,.9)':'rgba(90,90,90,.5)';ctx.lineWidth=2*S;ctx.beginPath();ctx.arc(gx,gy,gr,0,Math.PI*2);ctx.stroke();
+  if(k1&&k2){ctx.shadowColor='rgba(96,165,250,.5)';ctx.shadowBlur=10*S;ctx.stroke();ctx.shadowBlur=0;}
+  ctx.fillStyle=k2?'rgba(96,165,250,.9)':'rgba(90,90,90,.6)';ctx.font='bold 12px Space Mono';ctx.textAlign='center';
+  ctx.fillText('G',gx,gy-gr*0.5);
+  // scale ticks
+  ctx.strokeStyle='rgba(255,255,255,.25)';ctx.lineWidth=1*S;
+  for(var ti=-3;ti<=3;ti++){
+    var a=-Math.PI/2+ti*0.22;
+    ctx.beginPath();ctx.moveTo(gx+Math.cos(a)*gr*0.73,gy+Math.sin(a)*gr*0.73);ctx.lineTo(gx+Math.cos(a)*gr*0.87,gy+Math.sin(a)*gr*0.87);ctx.stroke();
+  }
+  // needle
+  var ang=-Math.PI/2+(needleAngle*Math.PI/180);
+  ctx.strokeStyle=k1&&k2?'rgba(250,204,21,.9)':'rgba(120,120,120,.5)';ctx.lineWidth=2*S;
+  ctx.beginPath();ctx.moveTo(gx,gy+6*S);ctx.lineTo(gx+Math.cos(ang)*gr*0.67,gy+Math.sin(ang)*gr*0.67+6*S);ctx.stroke();
+  ctx.fillStyle=ctx.strokeStyle;ctx.beginPath();ctx.arc(gx,gy+6*S,2.5*S,0,Math.PI*2);ctx.fill();
+
+  // info box olib tashlandi (toza ko'rinish uchun)
+}
+
+update();
+setStep(1);
+</script>
+</body>
+</html>

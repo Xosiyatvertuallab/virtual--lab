@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Elektr — Kondensator Sig'imi</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap');
+:root{--bg:#07090f;--panel:#0e1420;--border:#1b2840;--accent:#22d3ee;--yellow:#facc15;--blue:#60a5fa;--green:#6fff5c;--red:#f87171;--text:#dde6f5;--muted:#4a6080;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;height:100vh;overflow:hidden;display:flex;flex-direction:column;}
+header{display:flex;align-items:center;gap:12px;padding:8px 20px;border-bottom:1px solid var(--border);background:linear-gradient(90deg,#07090f,#1e0a0a,#07090f);flex-shrink:0;flex-wrap:wrap;}
+.badge{background:var(--accent);color:#000;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:3px 9px;letter-spacing:2px;border-radius:2px;}
+.htitle{font-size:15px;font-weight:800;}.htitle span{color:var(--accent);}
+.hsub{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-left:auto;}
+.brand{display:flex;align-items:center;gap:6px;background:linear-gradient(135deg,rgba(34,211,238,.12),rgba(96,165,250,.08));border:1px solid rgba(34,211,238,.3);border-radius:20px;padding:4px 14px;margin-left:10px;flex-shrink:0;}
+.brand-txt{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;background:linear-gradient(90deg,#22d3ee,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;}
+.statusbar{background:#0a0f1c;border-bottom:1px solid var(--border);padding:5px 20px;display:flex;align-items:center;gap:14px;font-family:'Space Mono',monospace;font-size:11px;flex-shrink:0;flex-wrap:wrap;}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--accent);animation:bl 1s infinite;flex-shrink:0;}
+.dot.off{background:var(--muted);animation:none;}
+@keyframes bl{0%,100%{opacity:1}50%{opacity:.2}}
+#statusTxt{color:var(--accent);}
+.chips{display:flex;gap:6px;margin-left:auto;flex-wrap:wrap;}
+.chip{background:rgba(34,211,238,.08);border:1px solid rgba(34,211,238,.2);border-radius:10px;padding:2px 9px;font-size:10px;color:var(--muted);}
+.chip span{color:var(--accent);}
+.body{display:grid;grid-template-columns:min(210px,22vw) 1fr min(255px,26vw);flex:1;overflow:hidden;}
+.left{background:var(--panel);border-right:1px solid var(--border);overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:9px;}
+.stitle{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--accent);text-transform:uppercase;margin-bottom:3px;}
+.card{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:8px;padding:10px;}
+.card label{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:7px;}
+.vb{font-family:'Space Mono',monospace;font-size:11px;color:var(--accent);background:rgba(34,211,238,.12);padding:2px 7px;border-radius:3px;}
+input[type=range]{width:100%;-webkit-appearance:none;height:4px;background:var(--border);border-radius:2px;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;background:var(--accent);border-radius:50%;cursor:pointer;box-shadow:0 0 8px rgba(34,211,238,.7);}
+.fbox{background:rgba(34,211,238,.04);border:1px solid rgba(34,211,238,.15);border-radius:7px;padding:9px;}
+.frow{display:flex;gap:6px;margin-bottom:4px;font-family:'Space Mono',monospace;font-size:10px;}
+.fl{color:var(--muted);min-width:42px;}.fe{color:var(--accent);}
+.steps{display:flex;flex-direction:column;gap:3px;}
+.step{display:flex;align-items:center;gap:7px;padding:5px 8px;border-radius:5px;font-size:10px;color:var(--muted);border:1px solid transparent;transition:all .3s;}
+.step.active{background:rgba(34,211,238,.07);border-color:rgba(34,211,238,.2);color:var(--accent);}
+.step.done{color:var(--accent);}
+.snum{font-family:'Space Mono',monospace;font-size:9px;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.05);flex-shrink:0;}
+.step.active .snum{background:rgba(34,211,238,.2);}
+.step.done .snum{background:rgba(34,211,238,.12);color:var(--accent);}
+.btn{width:100%;padding:10px;border:none;border-radius:7px;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;cursor:pointer;transition:all .2s;margin-top:5px;}
+.btn-p{background:linear-gradient(135deg,#22d3ee,#0891b2);color:#000;}
+.btn-p:hover{transform:translateY(-1px);box-shadow:0 5px 18px rgba(34,211,238,.4);}
+.btn-p:disabled{opacity:.35;cursor:not-allowed;}
+.btn-g{background:linear-gradient(135deg,#6fff5c,#33cc22);color:#000;}
+.btn-g:disabled{opacity:.35;}
+.btn-b{background:linear-gradient(135deg,#60a5fa,#2563eb);color:#000;}
+.btn-b:disabled{opacity:.35;}
+.btn-r{background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--border);font-size:11px;}
+.center{position:relative;overflow:hidden;background:#040810;}
+#simCanvas{display:block;width:100%;height:100%;}
+.instr-bar{position:absolute;bottom:0;left:0;right:0;background:rgba(4,8,16,.92);border-top:1px solid var(--border);padding:6px 18px;font-size:11px;color:var(--muted);text-align:center;}
+.right{background:var(--panel);border-left:1px solid var(--border);overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:9px;}
+.rc{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:8px;padding:10px;}
+.rc.hi{border-color:rgba(34,211,238,.3);background:rgba(34,211,238,.05);}
+.rc.hi2{border-color:rgba(96,165,250,.25);background:rgba(96,165,250,.04);}
+.rl{font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:3px;}
+.rv{font-size:22px;font-weight:800;line-height:1;color:#fff;}
+.ru{font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);margin-top:2px;}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+table{width:100%;border-collapse:collapse;font-family:'Space Mono',monospace;font-size:9px;}
+th{color:var(--accent);font-size:8px;letter-spacing:1px;border-bottom:1px solid var(--border);padding:4px 2px;text-align:center;}
+td{padding:3px 2px;border-bottom:1px solid rgba(255,255,255,.03);text-align:center;}
+#graphCanvas{display:block;width:100%;border-radius:8px;border:1px solid var(--border);}
+.answer-card{background:rgba(96,165,250,.05);border:1px solid rgba(96,165,250,.25);border-radius:8px;padding:12px;}
+.answer-card input{width:100%;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:8px;color:#fff;font-family:'Space Mono',monospace;font-size:13px;padding:8px;margin:5px 0;text-align:center;}
+.verdict{font-family:'Space Mono',monospace;font-size:10px;text-align:center;padding:6px;border-radius:6px;margin-top:6px;display:none;}
+.verdict.ok{display:block;background:rgba(111,255,92,.12);color:var(--green);border:1px solid rgba(111,255,92,.3);}
+.verdict.no{display:block;background:rgba(248,113,113,.12);color:var(--red);border:1px solid rgba(248,113,113,.3);}
+.final-card{background:rgba(34,211,238,.05);border:1px solid rgba(34,211,238,.2);border-radius:8px;padding:12px;display:none;}
+.err-row{display:flex;justify-content:space-between;margin-top:6px;font-family:'Space Mono',monospace;font-size:10px;}
+.err-row span:first-child{color:var(--muted);}
+.err-row span:last-child{color:var(--accent);}
+.langsw{display:flex;gap:3px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;padding:3px;margin-left:10px;}
+.langbtn{background:transparent;border:none;color:var(--muted);font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:4px 9px;border-radius:5px;cursor:pointer;letter-spacing:1px;}
+.langbtn.active{background:var(--accent);color:#000;}
+@media (max-width:900px){
+  body{height:auto;overflow:auto;}
+  .body{display:flex;flex-direction:column;overflow:visible;}
+  .left,.right{border:none;border-bottom:1px solid var(--border);}
+  .center{height:60vh;min-height:420px;}
+  header{padding:12px 16px;}
+  .statusbar{padding:8px 16px;}
+}
+</style>
+</head>
+<body>
+
+<!-- START SCREEN -->
+<div id="startScreen" style="position:fixed;inset:0;z-index:9999;background:radial-gradient(ellipse at 50% 40%,#031a1e 0%,#07090f 70%);display:flex;align-items:center;justify-content:center;">
+  <canvas id="bgCanvas" style="position:absolute;inset:0;width:100%;height:100%;opacity:.45;pointer-events:none"></canvas>
+  <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:18px;max-width:640px;padding:20px;text-align:center;">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div style="background:#22d3ee;color:#000;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:4px 14px;letter-spacing:2px;border-radius:3px;">ELEKTR · LAB 06</div>
+      <div style="font-family:'Space Mono',monospace;font-size:10px;color:#4a6080;letter-spacing:2px;">KONDENSATOR · C = τ/R</div>
+    </div>
+    <div style="width:110px;height:110px;border-radius:50%;background:radial-gradient(circle,rgba(34,211,238,.2),rgba(34,211,238,.02));border:2px solid rgba(34,211,238,.5);display:flex;align-items:center;justify-content:center;box-shadow:0 0 60px rgba(34,211,238,.35);animation:pulseOmm 2.5s ease-in-out infinite;"><span style="font-size:46px;">🔋</span></div>
+    <h1 style="font-size:24px;font-weight:800;color:#fff;" id="tStartTitle">Noma'lum kondensator sig'imini <span style="color:#22d3ee;">aniqlash</span></h1>
+    <p style="font-size:13px;color:#4a6080;font-family:'Space Mono',monospace;" id="tStartSub">RC-zanjir razryad usuli: V(t)=V0·e^(-t/RC) grafigidan C ni toping</p>
+    <div style="background:rgba(34,211,238,.05);border:1px solid rgba(34,211,238,.15);border-radius:12px;padding:18px;width:100%;text-align:left;">
+      <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;color:#22d3ee;margin-bottom:10px;" id="tProcedure">BAJARISH TARTIBI</div>
+      <div style="display:flex;flex-direction:column;gap:9px;">
+        <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:#c5d3e8;"><span style="width:24px;height:24px;border-radius:50%;background:rgba(34,211,238,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#22d3ee;flex-shrink:0;">1</span><span id="tS1">R (qarshilik) ni tanlang</span></div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:#c5d3e8;"><span style="width:24px;height:24px;border-radius:50%;background:rgba(34,211,238,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#22d3ee;flex-shrink:0;">2</span><span id="tS2">"Zaryadlash" bilan kondensatorni V0 gacha to'ldiring</span></div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:#c5d3e8;"><span style="width:24px;height:24px;border-radius:50%;background:rgba(34,211,238,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#22d3ee;flex-shrink:0;">3</span><span id="tS3">"Razryadlash"ni boshlang va turli t vaqtlarda V ni yozib oling</span></div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:#c5d3e8;"><span style="width:24px;height:24px;border-radius:50%;background:rgba(34,211,238,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#22d3ee;flex-shrink:0;">4</span><span id="tS4">Kamida 5 ta nuqta to'plang (bir necha marta zaryad/razryad qiling)</span></div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:#c5d3e8;"><span style="width:24px;height:24px;border-radius:50%;background:rgba(34,211,238,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#22d3ee;flex-shrink:0;">5</span><span id="tS5">ln(V)=f(t) grafigi qiyaligidan C=-1/(R·qiyalik) ni hisoblang</span></div>
+      </div>
+    </div>
+    <button onclick="startLab()" style="background:linear-gradient(135deg,#22d3ee,#0891b2);color:#000;border:none;border-radius:12px;padding:16px 60px;font-size:16px;font-weight:800;font-family:'Syne',sans-serif;cursor:pointer;box-shadow:0 8px 30px rgba(34,211,238,.4);width:100%;"><span id="tStartBtn">▶ Laboratoriyani boshlash</span></button>
+    <div style="display:flex;align-items:center;gap:6px;opacity:.6;"><span>🔬</span><span style="font-family:'Space Mono',monospace;font-size:10px;font-weight:700;background:linear-gradient(90deg,#22d3ee,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;">Xosiyat Virtual Lab</span></div>
+  </div>
+</div>
+<style>
+@keyframes pulseOmm{0%,100%{box-shadow:0 0 60px rgba(34,211,238,.25)}50%{box-shadow:0 0 90px rgba(34,211,238,.6)}}
+@keyframes fadeOut{0%{opacity:1}100%{opacity:0;transform:scale(1.04)}}
+</style>
+<script>
+(function(){var c=document.getElementById('bgCanvas');var x=c.getContext('2d');var pts=[];function rs(){c.width=window.innerWidth;c.height=window.innerHeight;}rs();window.addEventListener('resize',rs);
+for(var i=0;i<60;i++)pts.push({x:Math.random()*1600,y:Math.random()*900,r:Math.random()*1.5+.5,vx:(Math.random()-.5)*.35,vy:(Math.random()-.5)*.35,a:Math.random()});
+function fr(){x.clearRect(0,0,c.width,c.height);pts.forEach(function(p){p.x+=p.vx;p.y+=p.vy;p.a+=.005;if(p.x<0)p.x=c.width;if(p.x>c.width)p.x=0;if(p.y<0)p.y=c.height;if(p.y>c.height)p.y=0;x.fillStyle='rgba(34,211,238,'+(0.15+Math.sin(p.a)*0.12)+')';x.beginPath();x.arc(p.x%c.width,p.y%c.height,p.r,0,Math.PI*2);x.fill();});requestAnimationFrame(fr);}fr();})();
+function startLab(){var s=document.getElementById('startScreen');s.style.animation='fadeOut .5s ease forwards';setTimeout(function(){s.style.display='none';},480);}
+</script>
+
+<header>
+  <div class="badge" id="tBadge">ELEKTR · LAB 06</div>
+  <h1 class="htitle" id="tTitle">Kondensator Sig'imi — <span>RC-zanjir razryad usuli</span></h1>
+  <div class="hsub" id="tHsub">ELEKTR · FIZPRAKTIKUM · SDPI 2026</div>
+  <div class="langsw">
+    <button class="langbtn active" id="langUZ" onclick="setLang('uz')">UZ</button>
+    <button class="langbtn" id="langRU" onclick="setLang('ru')">RU</button>
+    <button class="langbtn" id="langEN" onclick="setLang('en')">EN</button>
+  </div>
+  <div class="brand"><span>🔬</span><span class="brand-txt">Xosiyat Virtual Lab</span></div>
+</header>
+
+<div class="statusbar">
+  <div class="dot off" id="dot"></div>
+  <span id="statusTxt">R ni tanlang → zaryadlang → razryadlashni boshlang → V(t) ni yozib boring</span>
+  <div class="chips">
+    <div class="chip">R=<span id="cR">2200</span>Ω</div>
+    <div class="chip">V0=<span id="cV0">9</span>V</div>
+    <div class="chip">V=<span id="cV">—</span>V</div>
+    <div class="chip">t=<span id="cT">—</span>s</div>
+    <div class="chip"><span id="tMeasLbl">O'lchov:</span><span id="chipCnt">0</span></div>
+  </div>
+</div>
+
+<div class="body">
+<div class="left">
+  <div class="stitle" id="tRlbl">Qarshilik (R)</div>
+  <div class="card">
+    <select id="sR" onchange="setR(this.value)">
+      <option value="1000" id="optR1000">1000 Ω (1kΩ)</option>
+      <option value="2200" selected id="optR2200">2200 Ω (2.2kΩ)</option>
+      <option value="4700" id="optR4700">4700 Ω (4.7kΩ)</option>
+      <option value="10000" id="optR10000">10000 Ω (10kΩ)</option>
+    </select>
+  </div>
+
+  <div class="stitle" id="tUnkTitle">Noma'lum kondensator</div>
+  <div class="card" style="text-align:center;">
+    <div style="font-size:34px;">🔋</div>
+    <div style="font-family:'Space Mono',monospace;font-size:13px;color:var(--blue);font-weight:700;">Cx = ?</div>
+    <div style="font-size:9px;color:var(--muted);margin-top:3px;" id="tUnkSub">Faqat V(t) o'lchov orqali topiladi</div>
+  </div>
+
+  <div class="fbox">
+    <div class="frow"><span class="fl">V(t)</span><span class="fe">= V0·e^(-t/RC)</span></div>
+    <div class="frow"><span class="fl">ln V</span><span class="fe">= ln V0 - t/(RC)</span></div>
+    <div class="frow"><span class="fl">C</span><span class="fe" id="tCform">= -1/(R·qiyalik)</span></div>
+  </div>
+
+  <div class="steps">
+    <div class="step active" id="st1"><div class="snum">1</div><span id="tStep1">R tanlang</span></div>
+    <div class="step" id="st2"><div class="snum">2</div><span id="tStep2">Zaryadlandi</span></div>
+    <div class="step" id="st3"><div class="snum">3</div><span id="tStep3">Razryad boshlandi</span></div>
+    <div class="step" id="st4"><div class="snum">4</div><span id="tStep4">Nuqtalar yozildi (≥5)</span></div>
+    <div class="step" id="st5"><div class="snum">5</div><span id="tStep5">Cx ni toping</span></div>
+  </div>
+
+  <button class="btn btn-p" id="chargeBtn" onclick="chargeCap()">⚡ <span id="tChargeBtn">Zaryadlash</span></button>
+  <button class="btn btn-b" id="dischargeBtn" onclick="startDischarge()" disabled>▶ <span id="tDischargeBtn">Razryadlashni boshlash</span></button>
+  <button class="btn btn-g" id="addBtn" onclick="addMeas()" disabled>+ <span id="tAddBtn">Joriy (t,V) ni yozish</span></button>
+  <button class="btn btn-r" onclick="resetAll()">↺ <span id="tResetBtn">Qayta boshlash</span></button>
+</div>
+
+<div class="center">
+  <canvas id="simCanvas"></canvas>
+  <div class="instr-bar" id="tInstrBar">🔋 Vazifa: kondensatorni zaryadlang, so'ng razryad paytida turli t larda V ni "yozib olish" orqali jadvalga kiriting</div>
+</div>
+
+<div class="right">
+  <div class="stitle" id="tCurMeas">Joriy o'lchov</div>
+  <div class="two">
+    <div class="rc hi"><div class="rl">t (s)</div><div class="rv" id="rT">—</div></div>
+    <div class="rc hi2"><div class="rl">V (V)</div><div class="rv" style="color:var(--blue)" id="rV">—</div></div>
+  </div>
+
+  <div class="stitle" id="tTableTitle">Jadval: V = f(t)</div>
+  <table>
+    <thead><tr><th>№</th><th>t(s)</th><th>V(V)</th><th>ln V</th></tr></thead>
+    <tbody id="tbody"></tbody>
+  </table>
+
+  <div class="stitle" id="tGraphTitle">Grafik: ln(V) = f(t)</div>
+  <canvas id="graphCanvas" height="130"></canvas>
+
+  <div class="answer-card" id="answerCard" style="display:none;">
+    <div class="rl" id="tYourAnswer">Sizning javobingiz</div>
+    <div style="font-size:10px;color:var(--muted);" id="tAnswerHint">Grafik qiyaligidan Cx ni hisoblab kiriting (mikrofarad, μF)</div>
+    <input type="number" id="userAnswer" placeholder="Cx (μF) kiriting...">
+    <button class="btn btn-b" onclick="checkAnswer()">✓ <span id="tCheckBtn">Tekshirish</span></button>
+    <div class="verdict" id="verdict"></div>
+  </div>
+
+  <div class="final-card" id="finalCard">
+    <div class="rl" id="tFinalTitle">Yakuniy natija</div>
+    <div style="display:flex;gap:8px;margin-top:8px;">
+      <div style="flex:1;text-align:center;">
+        <div style="font-size:9px;color:var(--muted);font-family:monospace;" id="tCgraphLbl">Grafik qiyaligidan Cx</div>
+        <div style="font-size:18px;font-weight:800;color:var(--blue);" id="resCgraph">—</div>
+        <div style="font-size:8px;color:var(--muted);" id="tApproxUnit">μF (taxminiy)</div>
+      </div>
+      <div style="flex:1;text-align:center;">
+        <div style="font-size:9px;color:var(--muted);font-family:monospace;" id="tCrealLbl">Haqiqiy Cx</div>
+        <div style="font-size:18px;font-weight:800;color:var(--accent);" id="resCreal">—</div>
+        <div style="font-size:8px;color:var(--muted);" id="tRevealUnit">μF (yechilgach ochiladi)</div>
+      </div>
+    </div>
+    <div class="err-row"><span id="tMeasCntLbl">O'lchashlar</span><span id="resCnt">—</span></div>
+  </div>
+</div>
+</div>
+
+<div style="position:fixed;bottom:14px;right:18px;display:flex;align-items:center;gap:7px;background:rgba(7,9,15,.75);border:1px solid rgba(34,211,238,.2);border-radius:30px;padding:5px 16px;backdrop-filter:blur(10px);z-index:9999;pointer-events:none;">
+  <span>🔬</span><span style="font-family:'Space Mono',monospace;font-size:11px;font-weight:700;background:linear-gradient(90deg,#22d3ee,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;">Xosiyat Virtual Lab</span>
+</div>
+
+<script>
+var LANG='uz';
+var I18N={
+ uz:{badge:'ELEKTR · LAB 06',title:"Kondensator Sig'imi — <span>RC-zanjir razryad usuli</span>",hsub:'ELEKTR · FIZPRAKTIKUM · SDPI 2026',
+   statusDefault:"R ni tanlang → zaryadlang → razryadlashni boshlang → V(t) ni yozib boring",measLbl:"O'lchov:",
+   rLbl:'Qarshilik (R)',optR1000:'1000 Ω (1kΩ)',optR2200:'2200 Ω (2.2kΩ)',optR4700:'4700 Ω (4.7kΩ)',optR10000:'10000 Ω (10kΩ)',
+   unkTitle:"Noma'lum kondensator",unkSub:"Faqat V(t) o'lchov orqali topiladi",cForm:'= -1/(R·qiyalik)',
+   step1:'R tanlang',step2:'Zaryadlandi',step3:'Razryad boshlandi',step4:'Nuqtalar yozildi (≥5)',step5:'Cx ni toping',
+   chargeBtn:'Zaryadlash',dischargeBtn:'Razryadlashni boshlash',addBtn:'Joriy (t,V) ni yozish',resetBtn:'Qayta boshlash',
+   instrBar:'🔋 Vazifa: kondensatorni zaryadlang, so\'ng razryad paytida turli t larda V ni "yozib olish" orqali jadvalga kiriting',
+   curMeas:"Joriy o'lchov",tableTitle:'Jadval: V = f(t)',graphTitle:'Grafik: ln(V) = f(t)',
+   yourAnswer:'Sizning javobingiz',answerHint:'Grafik qiyaligidan Cx ni hisoblab kiriting (mikrofarad, μF)',checkBtn:'Tekshirish',
+   finalTitle:'Yakuniy natija',cGraphLbl:'Grafik qiyaligidan Cx',approxUnit:'μF (taxminiy)',cRealLbl:'Haqiqiy Cx',revealUnit:'μF (yechilgach ochiladi)',
+   measCntLbl:'O\'lchashlar',
+   statusCharged:"✓ Kondensator V0=",statusChargedMid:"V gacha zaryadlandi. Endi razryadlashni boshlang.",
+   statusDischargeStart:'⏱ Razryad boshlandi! Turli vaqtlarda "Yozish" tugmasini bosing.',
+   statusEnough:"Yetarli nuqta to'plandi! Grafikdan Cx ni hisoblab javobni kiriting.",
+   statusNeed:" ta nuqta kerak (davom eting yoki qayta zaryadlang).",statusNeedPre:"Yana ",
+   ansPositive:'Iltimos, musbat son kiriting.',
+   correctPre:"✓ To'g'ri! Xatolik atigi ",correctMid:"%. Haqiqiy Cx=",correctEnd:"μF",
+   wrongPre:"✗ Hali unchalik aniq emas (xatolik ",wrongEnd:"%). ln(V)=f(t) qiyaligini qayta hisoblang.",
+   dischargeEnd:"Razryad tugadi. Yana zaryadlab, boshqa nuqtalar to'plang.",unit:'ta',
+   startTitle:"Noma'lum kondensator sig'imini <span style=\"color:#22d3ee;\">aniqlash</span>",
+   startSub:"RC-zanjir razryad usuli: V(t)=V0·e^(-t/RC) grafigidan C ni toping",
+   procedure:'BAJARISH TARTIBI',
+   s1:"R (qarshilik) ni tanlang",s2:"\"Zaryadlash\" bilan kondensatorni V0 gacha to'ldiring",
+   s3:"\"Razryadlash\"ni boshlang va turli t vaqtlarda V ni yozib oling",
+   s4:"Kamida 5 ta nuqta to'plang (bir necha marta zaryad/razryad qiling)",
+   s5:"ln(V)=f(t) grafigi qiyaligidan C=-1/(R·qiyalik) ni hisoblang",
+   startBtn:'▶ Laboratoriyani boshlash'
+ },
+ ru:{badge:'ЭЛЕКТРИЧЕСТВО · ЛАБ 06',title:'Ёмкость Конденсатора — <span>метод разряда RC-цепи</span>',hsub:'ЭЛЕКТРИЧЕСТВО · ФИЗПРАКТИКУМ · SDPI 2026',
+   statusDefault:'Выберите R → зарядите → начните разряд → записывайте V(t)',measLbl:'Измерений:',
+   rLbl:'Сопротивление (R)',optR1000:'1000 Ω (1кОм)',optR2200:'2200 Ω (2.2кОм)',optR4700:'4700 Ω (4.7кОм)',optR10000:'10000 Ω (10кОм)',
+   unkTitle:'Неизвестный конденсатор',unkSub:'Определяется только через измерение V(t)',cForm:'= -1/(R·наклон)',
+   step1:'Выберите R',step2:'Заряжен',step3:'Разряд начат',step4:'Точки записаны (≥5)',step5:'Найдите Cx',
+   chargeBtn:'Зарядить',dischargeBtn:'Начать разряд',addBtn:'Записать текущую (t,V)',resetBtn:'Начать заново',
+   instrBar:'🔋 Задача: зарядите конденсатор, затем во время разряда записывайте V при разных t в таблицу',
+   curMeas:'Текущее измерение',tableTitle:'Таблица: V = f(t)',graphTitle:'График: ln(V) = f(t)',
+   yourAnswer:'Ваш ответ',answerHint:'Вычислите Cx по наклону графика и введите (микрофарады, мкФ)',checkBtn:'Проверить',
+   finalTitle:'Итоговый результат',cGraphLbl:'Cx по наклону графика',approxUnit:'мкФ (приближ.)',cRealLbl:'Реальный Cx',revealUnit:'мкФ (открывается после решения)',
+   measCntLbl:'Измерений',
+   statusCharged:'✓ Конденсатор заряжен до V0=',statusChargedMid:'В. Теперь начните разряд.',
+   statusDischargeStart:'⏱ Разряд начался! Нажимайте "Записать" в разное время.',
+   statusEnough:'Собрано достаточно точек! Вычислите Cx по графику и введите ответ.',
+   statusNeed:' точек нужно ещё (продолжайте или зарядите снова).',statusNeedPre:'Ещё ',
+   ansPositive:'Пожалуйста, введите положительное число.',
+   correctPre:'✓ Верно! Погрешность всего ',correctMid:'%. Реальный Cx=',correctEnd:'мкФ',
+   wrongPre:'✗ Пока не точно (погрешность ',wrongEnd:'%). Пересчитайте наклон ln(V)=f(t).',
+   dischargeEnd:'Разряд завершён. Зарядите снова и соберите другие точки.',unit:'шт.',
+   startTitle:'Определение ёмкости <span style="color:#22d3ee;">неизвестного конденсатора</span>',
+   startSub:'Метод разряда RC-цепи: найдите C по графику V(t)=V0·e^(-t/RC)',
+   procedure:'ПОРЯДОК ВЫПОЛНЕНИЯ',
+   s1:'Выберите R (сопротивление)',s2:'Зарядите конденсатор до V0 кнопкой "Зарядить"',
+   s3:'Начните "Разряд" и записывайте V в разное время t',
+   s4:'Соберите не менее 5 точек (заряжайте/разряжайте несколько раз)',
+   s5:'По наклону графика ln(V)=f(t) вычислите C=-1/(R·наклон)',
+   startBtn:'▶ Начать лабораторную'
+ },
+ en:{badge:'ELECTRICITY · LAB 06',title:'Capacitor Capacitance — <span>RC-circuit discharge method</span>',hsub:'ELECTRICITY · PHYSICS LAB · SDPI 2026',
+   statusDefault:'Choose R → charge it → start discharge → record V(t)',measLbl:'Measurements:',
+   rLbl:'Resistance (R)',optR1000:'1000 Ω (1kΩ)',optR2200:'2200 Ω (2.2kΩ)',optR4700:'4700 Ω (4.7kΩ)',optR10000:'10000 Ω (10kΩ)',
+   unkTitle:'Unknown capacitor',unkSub:'Found only through V(t) measurement',cForm:'= -1/(R·slope)',
+   step1:'Choose R',step2:'Charged',step3:'Discharge started',step4:'Points recorded (≥5)',step5:'Find Cx',
+   chargeBtn:'Charge',dischargeBtn:'Start discharge',addBtn:'Record current (t,V)',resetBtn:'Restart',
+   instrBar:'🔋 Task: charge the capacitor, then during discharge record V at different t values into the table',
+   curMeas:'Current measurement',tableTitle:'Table: V = f(t)',graphTitle:'Graph: ln(V) = f(t)',
+   yourAnswer:'Your answer',answerHint:'Calculate Cx from the graph slope and enter it (microfarads, μF)',checkBtn:'Check',
+   finalTitle:'Final result',cGraphLbl:'Cx from graph slope',approxUnit:'μF (approx.)',cRealLbl:'Actual Cx',revealUnit:'μF (revealed after solving)',
+   measCntLbl:'Measurements',
+   statusCharged:'✓ Capacitor charged to V0=',statusChargedMid:'V. Now start the discharge.',
+   statusDischargeStart:'⏱ Discharge started! Press "Record" at different times.',
+   statusEnough:'Enough points collected! Calculate Cx from the graph and enter your answer.',
+   statusNeed:' more point(s) needed (continue or recharge).',statusNeedPre:'',
+   ansPositive:'Please enter a positive number.',
+   correctPre:'✓ Correct! Error only ',correctMid:'%. Actual Cx=',correctEnd:'μF',
+   wrongPre:'✗ Not quite accurate yet (error ',wrongEnd:'%). Recalculate the ln(V)=f(t) slope.',
+   dischargeEnd:'Discharge finished. Charge again and collect other points.',unit:'',
+   startTitle:'Determining the capacitance of an <span style="color:#22d3ee;">unknown capacitor</span>',
+   startSub:'RC-circuit discharge method: find C from the V(t)=V0·e^(-t/RC) graph',
+   procedure:'PROCEDURE',
+   s1:'Choose R (resistance)',s2:'Charge the capacitor to V0 with "Charge"',
+   s3:'Start "Discharge" and record V at different times t',
+   s4:'Collect at least 5 points (charge/discharge several times)',
+   s5:'Calculate C=-1/(R·slope) from the ln(V)=f(t) graph slope',
+   startBtn:'▶ Start the lab'
+ }
+};
+function t(k){return I18N[LANG][k];}
+function setLang(l){
+  LANG=l;
+  document.getElementById('langUZ').className='langbtn'+(l==='uz'?' active':'');
+  document.getElementById('langRU').className='langbtn'+(l==='ru'?' active':'');
+  document.getElementById('langEN').className='langbtn'+(l==='en'?' active':'');
+  document.getElementById('tBadge').textContent=t('badge');
+  document.getElementById('tTitle').innerHTML=t('title');
+  document.getElementById('tHsub').textContent=t('hsub');
+  document.getElementById('tMeasLbl').textContent=t('measLbl');
+  document.getElementById('tRlbl').textContent=t('rLbl');
+  document.getElementById('optR1000').textContent=t('optR1000');
+  document.getElementById('optR2200').textContent=t('optR2200');
+  document.getElementById('optR4700').textContent=t('optR4700');
+  document.getElementById('optR10000').textContent=t('optR10000');
+  document.getElementById('tUnkTitle').textContent=t('unkTitle');
+  document.getElementById('tUnkSub').textContent=t('unkSub');
+  document.getElementById('tCform').textContent=t('cForm');
+  document.getElementById('tStep1').textContent=t('step1');
+  document.getElementById('tStep2').textContent=t('step2');
+  document.getElementById('tStep3').textContent=t('step3');
+  document.getElementById('tStep4').textContent=t('step4');
+  document.getElementById('tStep5').textContent=t('step5');
+  document.getElementById('tChargeBtn').textContent=t('chargeBtn');
+  document.getElementById('tDischargeBtn').textContent=t('dischargeBtn');
+  document.getElementById('tAddBtn').textContent=t('addBtn');
+  document.getElementById('tResetBtn').textContent=t('resetBtn');
+  document.getElementById('tInstrBar').textContent=t('instrBar');
+  document.getElementById('tCurMeas').textContent=t('curMeas');
+  document.getElementById('tTableTitle').textContent=t('tableTitle');
+  document.getElementById('tGraphTitle').textContent=t('graphTitle');
+  document.getElementById('tYourAnswer').textContent=t('yourAnswer');
+  document.getElementById('tAnswerHint').textContent=t('answerHint');
+  document.getElementById('tCheckBtn').textContent=t('checkBtn');
+  document.getElementById('tFinalTitle').textContent=t('finalTitle');
+  document.getElementById('tCgraphLbl').textContent=t('cGraphLbl');
+  document.getElementById('tApproxUnit').textContent=t('approxUnit');
+  document.getElementById('tCrealLbl').textContent=t('cRealLbl');
+  document.getElementById('tRevealUnit').textContent=t('revealUnit');
+  document.getElementById('tMeasCntLbl').textContent=t('measCntLbl');
+  document.getElementById('tStartTitle').innerHTML=t('startTitle')||document.getElementById('tStartTitle').innerHTML;
+  document.getElementById('tStartSub').textContent=t('startSub')||document.getElementById('tStartSub').textContent;
+  document.getElementById('tProcedure').textContent=t('procedure')||document.getElementById('tProcedure').textContent;
+  if(t('s1')){document.getElementById('tS1').textContent=t('s1');document.getElementById('tS2').textContent=t('s2');document.getElementById('tS3').textContent=t('s3');document.getElementById('tS4').textContent=t('s4');document.getElementById('tS5').textContent=t('s5');}
+  document.getElementById('tStartBtn').textContent=t('startBtn')||document.getElementById('tStartBtn').textContent;
+  if(state==='idle'&&measList.length===0){document.getElementById('statusTxt').textContent=t('statusDefault');}
+  drawGraph();
+}
+
+var CxSet=[100e-6,220e-6,470e-6,1000e-6,2200e-6]; // Farad
+var Cx=CxSet[Math.floor(Math.random()*CxSet.length)];
+var R=2200,V0=9,measList=[],cnt=0,revealed=false;
+var state='idle'; // idle, charged, discharging
+var dischargeStart=0,curV=0,curT=0;
+var sc=document.getElementById('simCanvas'),ctx=sc.getContext('2d');
+var gc=document.getElementById('graphCanvas'),gctx=gc.getContext('2d');
+
+function setR(v){R=parseFloat(v);document.getElementById('cR').textContent=v;}
+
+function chargeCap(){
+  state='charged';curV=V0;curT=0;
+  document.getElementById('rV').textContent=V0.toFixed(2);
+  document.getElementById('rT').textContent='0.00';
+  document.getElementById('cV').textContent=V0.toFixed(2);
+  document.getElementById('cT').textContent='0.00';
+  document.getElementById('dischargeBtn').disabled=false;
+  document.getElementById('addBtn').disabled=true;
+  setStep(2);
+  document.getElementById('statusTxt').textContent=t('statusCharged')+V0+t('statusChargedMid');
+}
+
+function startDischarge(){
+  if(state!=='charged')return;
+  state='discharging';
+  dischargeStart=performance.now();
+  document.getElementById('dot').classList.remove('off');
+  document.getElementById('dischargeBtn').disabled=true;
+  document.getElementById('chargeBtn').disabled=true;
+  document.getElementById('addBtn').disabled=false;
+  setStep(3);
+  document.getElementById('statusTxt').textContent=t('statusDischargeStart');
+}
+
+function addMeas(){
+  if(state!=='discharging')return;
+  cnt++;
+  var t=curT,V=curV;
+  measList.push({t:t,V:V});
+  document.getElementById('chipCnt').textContent=cnt;
+  var tr=document.createElement('tr');
+  tr.innerHTML='<td>'+cnt+'</td><td>'+t.toFixed(2)+'</td><td>'+V.toFixed(3)+'</td><td>'+Math.log(V).toFixed(3)+'</td>';
+  document.getElementById('tbody').appendChild(tr);
+  if(measList.length>=5){
+    document.getElementById('answerCard').style.display='block';
+    setStep(5);
+    document.getElementById('statusTxt').textContent=t('statusEnough');
+  } else {
+    document.getElementById('statusTxt').textContent=t('statusNeedPre')+(5-measList.length)+t('statusNeed');
+  }
+  drawGraph();
+}
+
+function checkAnswer(){
+  var ans=parseFloat(document.getElementById('userAnswer').value);
+  var v=document.getElementById('verdict');
+  if(isNaN(ans)||ans<=0){v.className='verdict no';v.textContent=t('ansPositive');return;}
+  var CxuF=Cx*1e6;
+  var eps=Math.abs(ans-CxuF)/CxuF*100;
+  if(eps<=8){
+    v.className='verdict ok';v.textContent=t('correctPre')+eps.toFixed(1)+t('correctMid')+CxuF.toFixed(0)+t('correctEnd');
+    reveal();
+  } else {
+    v.className='verdict no';v.textContent=t('wrongPre')+eps.toFixed(1)+t('wrongEnd');
+  }
+}
+
+function reveal(){
+  revealed=true;
+  var n=measList.length,sT=0,sL=0,sTT=0,sTL=0;
+  measList.forEach(function(m){var l=Math.log(m.V);sT+=m.t;sL+=l;sTT+=m.t*m.t;sTL+=m.t*l;});
+  var slope=(n*sTL-sT*sL)/(n*sTT-sT*sT);
+  var Cgraph=-1/(R*slope)*1e6;
+  document.getElementById('finalCard').style.display='block';
+  document.getElementById('resCgraph').textContent=Cgraph.toFixed(0)+' μF';
+  document.getElementById('resCreal').textContent=(Cx*1e6).toFixed(0)+' μF';
+  document.getElementById('resCnt').textContent=measList.length+' ta';
+  drawGraph();
+}
+
+function resetAll(){
+  measList=[];cnt=0;state='idle';revealed=false;curV=0;curT=0;
+  document.getElementById('tbody').innerHTML='';
+  document.getElementById('finalCard').style.display='none';
+  document.getElementById('answerCard').style.display='none';
+  document.getElementById('userAnswer').value='';
+  document.getElementById('verdict').className='verdict';document.getElementById('verdict').textContent='';
+  document.getElementById('addBtn').disabled=true;
+  document.getElementById('dischargeBtn').disabled=true;
+  document.getElementById('chargeBtn').disabled=false;
+  document.getElementById('dot').classList.add('off');
+  document.getElementById('chipCnt').textContent=0;
+  document.getElementById('rV').textContent='—';document.getElementById('rT').textContent='—';
+  document.getElementById('cV').textContent='—';document.getElementById('cT').textContent='—';
+  document.getElementById('statusTxt').textContent=t('statusDefault');
+  setStep(1);drawGraph();
+}
+function setStep(n){for(var i=1;i<=5;i++){var el=document.getElementById('st'+i);el.className='step'+(i<n?' done':i===n?' active':'');el.querySelector('.snum').textContent=i<n?'✓':i;}}
+function resize(){sc.width=sc.offsetWidth;sc.height=sc.offsetHeight;}
+window.addEventListener('resize',resize);setTimeout(resize,80);
+
+(function loop(){
+  if(state==='discharging'){
+    var t=(performance.now()-dischargeStart)/1000;
+    curT=t;
+    curV=V0*Math.exp(-t/(R*Cx));
+    document.getElementById('rV').textContent=curV.toFixed(3);
+    document.getElementById('rT').textContent=t.toFixed(2);
+    document.getElementById('cV').textContent=curV.toFixed(2);
+    document.getElementById('cT').textContent=t.toFixed(2);
+    if(curV<V0*0.02){
+      state='charged'; // tugadi, qayta zaryadlash mumkin
+      document.getElementById('chargeBtn').disabled=false;
+      document.getElementById('dischargeBtn').disabled=true;
+      document.getElementById('dot').classList.add('off');
+      document.getElementById('statusTxt').textContent=t('dischargeEnd');
+    }
+  }
+  drawSim();
+  requestAnimationFrame(loop);
+})();
+
+function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.lineTo(x+w-r,y);c.quadraticCurveTo(x+w,y,x+w,y+r);c.lineTo(x+w,y+h-r);c.quadraticCurveTo(x+w,y+h,x+w-r,y+h);c.lineTo(x+r,y+h);c.quadraticCurveTo(x,y+h,x,y+h-r);c.lineTo(x,y+r);c.quadraticCurveTo(x,y,x+r,y);c.closePath();}
+
+function drawSim(){
+  var W=sc.width,H=sc.height;if(!W||!H)return;
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#040810';ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle='rgba(34,211,238,.02)';ctx.lineWidth=1;
+  for(var xi=0;xi<W;xi+=60){ctx.beginPath();ctx.moveTo(xi,0);ctx.lineTo(xi,H);ctx.stroke();}
+  for(var yi=0;yi<H;yi+=60){ctx.beginPath();ctx.moveTo(0,yi);ctx.lineTo(W,yi);ctx.stroke();}
+
+  // scale factor for the drawn circuit only (fonts stay untouched) so the
+  // simulation fills the canvas nicely on larger windows too
+  var S=Math.max(1.2, Math.min(2.4, Math.min(W,H)/380));
+
+  var cx=W/2,cy=H/2;
+  var active=state!=='idle';
+  var frac=V0>0?curV/V0:0;
+
+  // Battery + switch + R + capacitor loop
+  var pw=280*S,ph=170*S;
+  var x0=cx-pw/2,y0=cy-ph/2,x1=cx+pw/2,y1=cy+ph/2;
+  ctx.strokeStyle=active?'rgba(34,211,238,.8)':'rgba(100,100,100,.4)';ctx.lineWidth=(active?2.5:1.5)*S;
+  if(active){ctx.shadowColor='rgba(34,211,238,.3)';ctx.shadowBlur=7*S;}
+  ctx.beginPath();ctx.moveTo(x0,y0);ctx.lineTo(x1,y0);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(x0,y1);ctx.lineTo(x1,y1);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(x0,y0);ctx.lineTo(x0,y1);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(x1,y0);ctx.lineTo(x1,y1);ctx.stroke();
+  ctx.shadowBlur=0;
+
+  // Battery (left)
+  ctx.strokeStyle=state==='charged'||state==='discharging'?'rgba(250,204,21,.8)':'rgba(90,90,90,.4)';ctx.lineWidth=2*S;
+  ctx.beginPath();ctx.moveTo(x0-14*S,cy-10*S);ctx.lineTo(x0-14*S,cy+10*S);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(x0+14*S,cy-16*S);ctx.lineTo(x0+14*S,cy+16*S);ctx.stroke();
+  ctx.fillStyle='rgba(250,204,21,.8)';ctx.font='bold 12px Space Mono';ctx.textAlign='center';
+  ctx.fillText('V0='+V0+'V',x0,cy+34*S);
+
+  // Resistor (top)
+  var rx=cx-40*S,ry=y0;
+  ctx.strokeStyle=active?'rgba(96,165,250,.8)':'rgba(90,90,90,.4)';ctx.lineWidth=2*S;
+  ctx.beginPath();
+  for(var i=0;i<6;i++){ctx.lineTo(rx-30*S+i*12*S,ry+(i%2===0?-8*S:8*S));}
+  ctx.stroke();
+  ctx.fillStyle='rgba(96,165,250,.8)';ctx.font='bold 12px Space Mono';ctx.textAlign='center';
+  ctx.fillText('R='+R+'Ω',rx,ry-18*S);
+
+  // Capacitor (right side, vertical plates)
+  var capx=x1,capy=cy;
+  ctx.strokeStyle='rgba(255,255,255,.7)';ctx.lineWidth=3*S;
+  ctx.beginPath();ctx.moveTo(capx-30*S,capy-25*S);ctx.lineTo(capx-30*S,capy+25*S);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(capx-14*S,capy-25*S);ctx.lineTo(capx-14*S,capy+25*S);ctx.stroke();
+  // charge level fill bar between plates
+  var barH=50*S*frac;
+  ctx.fillStyle='rgba(34,211,238,'+(0.15+frac*0.5)+')';
+  ctx.fillRect(capx-29*S,capy+25*S-barH,14*S,barH);
+  ctx.fillStyle='rgba(96,165,250,.8)';ctx.font='bold 11px Space Mono';ctx.textAlign='center';
+  ctx.fillText('Cx=?',capx-22*S,capy+45*S);
+
+  // Charge/discharge current dots
+  if(state==='discharging'&&curV>V0*0.02){
+    var speed=(performance.now()/300)%1;
+    ctx.fillStyle='rgba(96,165,250,.9)';
+    [0.2,0.5,0.8].forEach(function(off){
+      var p=(speed+off)%1;
+      var ex=x0+(x1-x0)*p;
+      ctx.beginPath();ctx.arc(ex,y0,4*S,0,Math.PI*2);ctx.fill();
+    });
+  }
+
+  // Voltmeter across capacitor
+  var vmx=cx+10*S,vmy=y1+50*S;
+  var vmr=28*S;
+  ctx.fillStyle='rgba(14,20,32,.9)';ctx.beginPath();ctx.arc(vmx,vmy,vmr,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle=active?'rgba(34,211,238,.9)':'rgba(90,90,90,.5)';ctx.lineWidth=2*S;ctx.beginPath();ctx.arc(vmx,vmy,vmr,0,Math.PI*2);ctx.stroke();
+  ctx.fillStyle=active?'rgba(34,211,238,.9)':'rgba(90,90,90,.6)';ctx.font='bold 12px Space Mono';ctx.textAlign='center';
+  ctx.fillText('V',vmx,vmy-4);
+  ctx.font='9px monospace';ctx.fillText(active?curV.toFixed(2)+'V':'0V',vmx,vmy+10);
+
+}
+
+function drawGraph(){
+  var W2=gc.offsetWidth||300;gc.width=W2;var GH=130;
+  gctx.clearRect(0,0,W2,GH);gctx.fillStyle='#070c17';gctx.fillRect(0,0,W2,GH);
+  var pad=38,gW=W2-pad*2,gHH=GH-pad-10;
+  gctx.strokeStyle='rgba(34,211,238,.3)';gctx.lineWidth=1;
+  gctx.beginPath();gctx.moveTo(pad,10);gctx.lineTo(pad,GH-pad);gctx.lineTo(W2-pad+6,GH-pad);gctx.stroke();
+  gctx.fillStyle='rgba(34,211,238,.5)';gctx.font='9px monospace';gctx.textAlign='center';gctx.fillText('t(s)',W2-pad+10,GH-pad+5);
+  gctx.textAlign='right';gctx.fillText('lnV',pad-4,14);
+  if(!measList.length)return;
+  var tvals=measList.map(function(m){return m.t;}),lvals=measList.map(function(m){return Math.log(m.V);});
+  var maxT=Math.max.apply(null,tvals)*1.15||1;
+  var maxL=Math.max.apply(null,lvals)*1.15||1,minL=Math.min.apply(null,lvals)*0.9;
+  measList.forEach(function(m){
+    var l=Math.log(m.V);
+    var px=pad+(m.t/maxT)*gW,py=GH-pad-((l-minL)/(maxL-minL))*gHH;
+    gctx.shadowColor='rgba(34,211,238,.6)';gctx.shadowBlur=6;
+    gctx.fillStyle='rgba(34,211,238,.9)';gctx.beginPath();gctx.arc(px,py,5,0,Math.PI*2);gctx.fill();
+    gctx.shadowBlur=0;
+  });
+  gctx.fillStyle='rgba(34,211,238,.7)';gctx.font='9px monospace';gctx.textAlign='left';gctx.fillText('● ln(V)=f(t) tajriba nuqtalari',pad+2,GH-pad-gHH+14);
+}
+
+resetAll();
+</script>
+</body>
+</html>

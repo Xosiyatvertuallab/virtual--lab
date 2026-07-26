@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Elektr — Ferromagnetik Gisterezis Halqasi</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap');
+:root{--bg:#07090f;--panel:#0e1420;--border:#1b2840;--accent:#fb923c;--yellow:#facc15;--blue:#60a5fa;--green:#6fff5c;--red:#f87171;--text:#dde6f5;--muted:#4a6080;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;height:100vh;overflow:hidden;display:flex;flex-direction:column;}
+header{display:flex;align-items:center;gap:12px;padding:8px 20px;border-bottom:1px solid var(--border);background:linear-gradient(90deg,#07090f,#160c1e,#07090f);flex-shrink:0;flex-wrap:wrap;}
+.badge{background:var(--accent);color:#000;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:3px 9px;letter-spacing:2px;border-radius:2px;}
+.htitle{font-size:15px;font-weight:800;}.htitle span{color:var(--accent);}
+.hsub{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-left:auto;}
+.brand{display:flex;align-items:center;gap:6px;background:linear-gradient(135deg,rgba(251,146,60,.12),rgba(96,165,250,.08));border:1px solid rgba(251,146,60,.3);border-radius:20px;padding:4px 14px;margin-left:10px;flex-shrink:0;}
+.brand-txt{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;background:linear-gradient(90deg,#fb923c,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;}
+.statusbar{background:#0a0f1c;border-bottom:1px solid var(--border);padding:5px 20px;display:flex;align-items:center;gap:14px;font-family:'Space Mono',monospace;font-size:11px;flex-shrink:0;flex-wrap:wrap;}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--accent);animation:bl 1s infinite;flex-shrink:0;}
+.dot.off{background:var(--muted);animation:none;}
+@keyframes bl{0%,100%{opacity:1}50%{opacity:.2}}
+#statusTxt{color:var(--accent);}
+.chips{display:flex;gap:6px;margin-left:auto;flex-wrap:wrap;}
+.chip{background:rgba(251,146,60,.08);border:1px solid rgba(251,146,60,.2);border-radius:10px;padding:2px 9px;font-size:10px;color:var(--muted);}
+.chip span{color:var(--accent);}
+.body{display:grid;grid-template-columns:min(210px,22vw) 1fr min(255px,26vw);flex:1;overflow:hidden;}
+.left{background:var(--panel);border-right:1px solid var(--border);overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:9px;}
+.stitle{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--accent);text-transform:uppercase;margin-bottom:3px;}
+.card{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:8px;padding:10px;}
+.card label{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:7px;}
+.vb{font-family:'Space Mono',monospace;font-size:11px;color:var(--accent);background:rgba(251,146,60,.12);padding:2px 7px;border-radius:3px;}
+input[type=range]{width:100%;-webkit-appearance:none;height:4px;background:var(--border);border-radius:2px;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;background:var(--accent);border-radius:50%;cursor:pointer;box-shadow:0 0 8px rgba(251,146,60,.7);}
+.fbox{background:rgba(251,146,60,.04);border:1px solid rgba(251,146,60,.15);border-radius:7px;padding:9px;}
+.frow{display:flex;gap:6px;margin-bottom:4px;font-family:'Space Mono',monospace;font-size:10px;}
+.fl{color:var(--muted);min-width:42px;}.fe{color:var(--accent);}
+.steps{display:flex;flex-direction:column;gap:3px;}
+.step{display:flex;align-items:center;gap:7px;padding:5px 8px;border-radius:5px;font-size:10px;color:var(--muted);border:1px solid transparent;transition:all .3s;}
+.step.active{background:rgba(251,146,60,.07);border-color:rgba(251,146,60,.2);color:var(--accent);}
+.step.done{color:var(--accent);}
+.snum{font-family:'Space Mono',monospace;font-size:9px;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.05);flex-shrink:0;}
+.step.active .snum{background:rgba(251,146,60,.2);}
+.step.done .snum{background:rgba(251,146,60,.12);color:var(--accent);}
+.btn{width:100%;padding:10px;border:none;border-radius:7px;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;cursor:pointer;transition:all .2s;margin-top:5px;}
+.btn-p{background:linear-gradient(135deg,#fb923c,#c2410c);color:#000;}
+.btn-p:hover{transform:translateY(-1px);box-shadow:0 5px 18px rgba(251,146,60,.4);}
+.btn-p:disabled{opacity:.35;cursor:not-allowed;}
+.btn-g{background:linear-gradient(135deg,#6fff5c,#33cc22);color:#000;}
+.btn-g:disabled{opacity:.35;}
+.btn-b{background:linear-gradient(135deg,#60a5fa,#2563eb);color:#000;}
+.btn-b:disabled{opacity:.35;}
+.btn-r{background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--border);font-size:11px;}
+.center{position:relative;overflow:hidden;background:#040810;}
+#simCanvas{display:block;width:100%;height:100%;}
+.instr-bar{position:absolute;bottom:0;left:0;right:0;background:rgba(4,8,16,.92);border-top:1px solid var(--border);padding:6px 18px;font-size:11px;color:var(--muted);text-align:center;}
+.right{background:var(--panel);border-left:1px solid var(--border);overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:9px;}
+.rc{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:8px;padding:10px;}
+.rc.hi{border-color:rgba(251,146,60,.3);background:rgba(251,146,60,.05);}
+.rc.hi2{border-color:rgba(96,165,250,.25);background:rgba(96,165,250,.04);}
+.rl{font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:3px;}
+.rv{font-size:22px;font-weight:800;line-height:1;color:#fff;}
+.ru{font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);margin-top:2px;}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+table{width:100%;border-collapse:collapse;font-family:'Space Mono',monospace;font-size:9px;}
+th{color:var(--accent);font-size:8px;letter-spacing:1px;border-bottom:1px solid var(--border);padding:4px 2px;text-align:center;}
+td{padding:3px 2px;border-bottom:1px solid rgba(255,255,255,.03);text-align:center;}
+#graphCanvas{display:block;width:100%;border-radius:8px;border:1px solid var(--border);}
+.answer-card{background:rgba(96,165,250,.05);border:1px solid rgba(96,165,250,.25);border-radius:8px;padding:12px;}
+.answer-card input{width:100%;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:8px;color:#fff;font-family:'Space Mono',monospace;font-size:13px;padding:8px;margin:5px 0;text-align:center;}
+.verdict{font-family:'Space Mono',monospace;font-size:10px;text-align:center;padding:6px;border-radius:6px;margin-top:6px;display:none;}
+.verdict.ok{display:block;background:rgba(111,255,92,.12);color:var(--green);border:1px solid rgba(111,255,92,.3);}
+.verdict.no{display:block;background:rgba(248,113,113,.12);color:var(--red);border:1px solid rgba(248,113,113,.3);}
+.final-card{background:rgba(251,146,60,.05);border:1px solid rgba(251,146,60,.2);border-radius:8px;padding:12px;display:none;}
+.err-row{display:flex;justify-content:space-between;margin-top:6px;font-family:'Space Mono',monospace;font-size:10px;}
+.err-row span:first-child{color:var(--muted);}
+.err-row span:last-child{color:var(--accent);}
+.langsw{display:flex;gap:3px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;padding:3px;margin-left:10px;}
+.langbtn{background:transparent;border:none;color:var(--muted);font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:4px 9px;border-radius:5px;cursor:pointer;letter-spacing:1px;}
+.langbtn.active{background:var(--accent);color:#000;}
+@media (max-width:900px){
+  body{height:auto;overflow:auto;}
+  .body{display:flex;flex-direction:column;overflow:visible;}
+  .left,.right{border:none;border-bottom:1px solid var(--border);}
+  .center{height:60vh;min-height:420px;}
+  header{padding:12px 16px;}
+  .statusbar{padding:8px 16px;}
+}
+</style>
+</head>
+<body>
+
+<!-- START SCREEN -->
+<div id="startScreen" style="position:fixed;inset:0;z-index:9999;background:radial-gradient(ellipse at 50% 40%,#1f1206 0%,#07090f 70%);display:flex;align-items:center;justify-content:center;">
+  <canvas id="bgCanvas" style="position:absolute;inset:0;width:100%;height:100%;opacity:.45;pointer-events:none"></canvas>
+  <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:18px;max-width:640px;padding:20px;text-align:center;">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div style="background:#fb923c;color:#000;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:4px 14px;letter-spacing:2px;border-radius:3px;">ELEKTR · LAB 19</div>
+      <div style="font-family:'Space Mono',monospace;font-size:10px;color:#4a6080;letter-spacing:2px;">GISTEREZIS · B=f(H)</div>
+    </div>
+    <div style="width:110px;height:110px;border-radius:50%;background:radial-gradient(circle,rgba(251,146,60,.2),rgba(251,146,60,.02));border:2px solid rgba(251,146,60,.5);display:flex;align-items:center;justify-content:center;box-shadow:0 0 60px rgba(251,146,60,.35);animation:pulseOmm 2.5s ease-in-out infinite;"><span style="font-size:46px;">🧲</span></div>
+    <h1 style="font-size:24px;font-weight:800;color:#fff;" id="tStartTitle">Ferromagnitning magnitlanish egri chizig'ini va <span style="color:#fb923c;">gisterezis halqasini</span> aniqlash</h1>
+    <p style="font-size:13px;color:#4a6080;font-family:'Space Mono',monospace;" id="tStartSub">Toroidal g'altak: H=N1I/l ni o'zgartirib, B(H) halqasidan Bs, Br, Hc ni toping</p>
+    <div style="background:rgba(251,146,60,.05);border:1px solid rgba(251,146,60,.15);border-radius:12px;padding:18px;width:100%;text-align:left;">
+      <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;color:#fb923c;margin-bottom:10px;" id="tProcedure">BAJARISH TARTIBI</div>
+      <div style="display:flex;flex-direction:column;gap:9px;">
+        <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:#c5d3e8;"><span style="width:24px;height:24px;border-radius:50%;background:rgba(251,146,60,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#fb923c;flex-shrink:0;">1</span><span id="tS1">I=0 dan +Imax gacha asta oshirib, boshlang'ich egri chiziqni yozing</span></div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:#c5d3e8;"><span style="width:24px;height:24px;border-radius:50%;background:rgba(251,146,60,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#fb923c;flex-shrink:0;">2</span><span id="tS2">+Imax dan -Imax gacha kamaytirib, yuqori tarmoqni yozing</span></div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:#c5d3e8;"><span style="width:24px;height:24px;border-radius:50%;background:rgba(251,146,60,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#fb923c;flex-shrink:0;">3</span><span id="tS3">-Imax dan +Imax gacha oshirib, pastki tarmoqni yozing (halqa yopiladi)</span></div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:#c5d3e8;"><span style="width:24px;height:24px;border-radius:50%;background:rgba(251,146,60,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#fb923c;flex-shrink:0;">4</span><span id="tS4">Kamida 12 ta nuqta to'plang (ikkala tarmoq bo'ylab)</span></div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:#c5d3e8;"><span style="width:24px;height:24px;border-radius:50%;background:rgba(251,146,60,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#fb923c;flex-shrink:0;">5</span><span id="tS5">Grafikdan Bs (to'yinish), Br (qoldiq) va Hc (majburlovchi kuch) ni aniqlang</span></div>
+      </div>
+    </div>
+    <button onclick="startLab()" style="background:linear-gradient(135deg,#fb923c,#c2410c);color:#000;border:none;border-radius:12px;padding:16px 60px;font-size:16px;font-weight:800;font-family:'Syne',sans-serif;cursor:pointer;box-shadow:0 8px 30px rgba(251,146,60,.4);width:100%;"><span id="tStartBtn">▶ Laboratoriyani boshlash</span></button>
+    <div style="display:flex;align-items:center;gap:6px;opacity:.6;"><span>🔬</span><span style="font-family:'Space Mono',monospace;font-size:10px;font-weight:700;background:linear-gradient(90deg,#fb923c,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;">Xosiyat Virtual Lab</span></div>
+  </div>
+</div>
+<style>
+@keyframes pulseOmm{0%,100%{box-shadow:0 0 60px rgba(251,146,60,.25)}50%{box-shadow:0 0 90px rgba(251,146,60,.6)}}
+@keyframes fadeOut{0%{opacity:1}100%{opacity:0;transform:scale(1.04)}}
+</style>
+<script>
+(function(){var c=document.getElementById('bgCanvas');var x=c.getContext('2d');var pts=[];function rs(){c.width=window.innerWidth;c.height=window.innerHeight;}rs();window.addEventListener('resize',rs);
+for(var i=0;i<60;i++)pts.push({x:Math.random()*1600,y:Math.random()*900,r:Math.random()*1.5+.5,vx:(Math.random()-.5)*.35,vy:(Math.random()-.5)*.35,a:Math.random()});
+function fr(){x.clearRect(0,0,c.width,c.height);pts.forEach(function(p){p.x+=p.vx;p.y+=p.vy;p.a+=.005;if(p.x<0)p.x=c.width;if(p.x>c.width)p.x=0;if(p.y<0)p.y=c.height;if(p.y>c.height)p.y=0;x.fillStyle='rgba(251,146,60,'+(0.15+Math.sin(p.a)*0.12)+')';x.beginPath();x.arc(p.x%c.width,p.y%c.height,p.r,0,Math.PI*2);x.fill();});requestAnimationFrame(fr);}fr();})();
+function startLab(){var s=document.getElementById('startScreen');s.style.animation='fadeOut .5s ease forwards';setTimeout(function(){s.style.display='none';},480);}
+</script>
+
+<header>
+  <div class="badge" id="tBadge">ELEKTR · LAB 19</div>
+  <h1 class="htitle" id="tTitle">Ferromagnetik Gisterezis — <span>B(H) egri chizig'i</span></h1>
+  <div class="hsub" id="tHsub">ELEKTR · FIZPRAKTIKUM · SDPI 2026</div>
+  <div class="langsw">
+    <button class="langbtn active" id="langUZ" onclick="setLang('uz')">UZ</button>
+    <button class="langbtn" id="langRU" onclick="setLang('ru')">RU</button>
+    <button class="langbtn" id="langEN" onclick="setLang('en')">EN</button>
+  </div>
+  <div class="brand"><span>🔬</span><span class="brand-txt">Xosiyat Virtual Lab</span></div>
+</header>
+
+<div class="statusbar">
+  <div class="dot off" id="dot"></div>
+  <span id="statusTxt">I ni asta o'zgartiring → to'liq tsikl (+Imax→-Imax→+Imax) bajaring → nuqtalarni yozib boring</span>
+  <div class="chips">
+    <div class="chip">I=<span id="cI">0.00</span>A</div>
+    <div class="chip">H=<span id="cH">0</span>A/m</div>
+    <div class="chip">B=<span id="cB">0.000</span>T</div>
+    <div class="chip"><span id="tMeasLbl">O'lchov:</span><span id="chipCnt">0</span></div>
+  </div>
+</div>
+
+<div class="body">
+<div class="left">
+  <div class="stitle" id="tIlbl">Tok kuchi (I)</div>
+  <div class="card">
+    <label>I (A) <span class="vb" id="dI">0.00 A</span></label>
+    <input type="range" id="sI" min="-2.0" max="2.0" step="0.05" value="0" oninput="setI(this.value)">
+  </div>
+
+  <div class="stitle" id="tUnkTitle">Noma'lum namuna</div>
+  <div class="card" style="text-align:center;">
+    <div style="font-size:34px;">🧲</div>
+    <div style="font-family:'Space Mono',monospace;font-size:13px;color:var(--blue);font-weight:700;">Bs=? Br=? Hc=?</div>
+    <div style="font-size:9px;color:var(--muted);margin-top:3px;" id="tUnkSub">Faqat B(H) halqasi orqali topiladi</div>
+  </div>
+
+  <div class="fbox">
+    <div class="frow"><span class="fl">H</span><span class="fe" id="tHform">= N1·I / l</span></div>
+    <div class="frow"><span class="fl">N1</span><span class="fe" id="tN1given">= 200 o'ram (berilgan)</div>
+    <div class="frow"><span class="fl">l</span><span class="fe" id="tLgiven">= 0.12 m (berilgan)</div>
+  </div>
+
+  <div class="steps">
+    <div class="step active" id="st1"><div class="snum">1</div><span id="tStep1">Boshlang'ich egri chiziq</span></div>
+    <div class="step" id="st2"><div class="snum">2</div><span id="tStep2">Yuqori tarmoq</span></div>
+    <div class="step" id="st3"><div class="snum">3</div><span id="tStep3">Pastki tarmoq</span></div>
+    <div class="step" id="st4"><div class="snum">4</div><span id="tStep4">Halqa yopildi (≥12)</span></div>
+    <div class="step" id="st5"><div class="snum">5</div><span id="tStep5">Bs,Br,Hc ni toping</span></div>
+  </div>
+
+  <button class="btn btn-g" onclick="addMeas()" id="addBtn">+ <span id="tAddBtn">Nuqtani yozish</span></button>
+  <button class="btn btn-r" onclick="resetAll()">↺ <span id="tResetBtn">Qayta boshlash</span></button>
+  <button class="btn btn-r" onclick="newUnknown()">🎲 <span id="tNewBtn">Yangi namuna (mashq)</span></button>
+</div>
+
+<div class="center">
+  <canvas id="simCanvas"></canvas>
+  <div class="instr-bar" id="tInstrBar">🧲 Vazifa: I ni asta +Imax → -Imax → +Imax tsiklida o'zgartirib, har bosqichda "Yozish" bilan (I,H,B) nuqtalarini jadvalga kiriting va to'liq gisterezis halqasini chizing</div>
+</div>
+
+<div class="right">
+  <div class="stitle" id="tResults">Joriy o'lchov</div>
+  <div class="two">
+    <div class="rc hi"><div class="rl">H (A/m)</div><div class="rv" id="rH">—</div></div>
+    <div class="rc hi2"><div class="rl">B (T)</div><div class="rv" style="color:var(--blue);font-size:16px" id="rB">—</div></div>
+  </div>
+
+  <div class="stitle" id="tTableTitle">Jadval: B = f(H)</div>
+  <table>
+    <thead><tr><th>№</th><th>I(A)</th><th>H(A/m)</th><th>B(T)</th></tr></thead>
+    <tbody id="tbody"></tbody>
+  </table>
+
+  <div class="stitle" id="tGraphTitle">Grafik: gisterezis halqasi B(H)</div>
+  <canvas id="graphCanvas" height="150"></canvas>
+
+  <div class="answer-card" id="answerCard" style="display:none;">
+    <div class="rl" id="tYourAnswer">Sizning javobingiz</div>
+    <div style="font-size:10px;color:var(--muted);" id="tAnswerHint">Grafikdan Bs, Br, Hc ni hisoblab kiriting</div>
+    <input type="number" id="ansBs" placeholder="Bs (T) kiriting...">
+    <input type="number" id="ansBr" placeholder="Br (T) kiriting...">
+    <input type="number" id="ansHc" placeholder="Hc (A/m) kiriting...">
+    <button class="btn btn-b" onclick="checkAnswer()">✓ <span id="tCheckBtn">Tekshirish</span></button>
+    <div class="verdict" id="verdict"></div>
+  </div>
+
+  <div class="final-card" id="finalCard">
+    <div class="rl" id="tFinalTitle">Yakuniy natija</div>
+    <table style="margin-top:8px;">
+      <thead><tr><th id="tParamCol">Parametr</th><th id="tGraphCol">Grafik</th><th id="tRealCol">Haqiqiy</th></tr></thead>
+      <tbody>
+        <tr><td>Bs (T)</td><td id="resBsGraph">—</td><td id="resBsReal">—</td></tr>
+        <tr><td>Br (T)</td><td id="resBrGraph">—</td><td id="resBrReal">—</td></tr>
+        <tr><td>Hc (A/m)</td><td id="resHcGraph">—</td><td id="resHcReal">—</td></tr>
+      </tbody>
+    </table>
+    <div class="err-row"><span id="tMeasCntLbl">O'lchashlar</span><span id="resCnt">—</span></div>
+  </div>
+</div>
+</div>
+
+<div style="position:fixed;bottom:14px;right:18px;display:flex;align-items:center;gap:7px;background:rgba(7,9,15,.75);border:1px solid rgba(251,146,60,.2);border-radius:30px;padding:5px 16px;backdrop-filter:blur(10px);z-index:9999;pointer-events:none;">
+  <span>🔬</span><span style="font-family:'Space Mono',monospace;font-size:11px;font-weight:700;background:linear-gradient(90deg,#fb923c,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;">Xosiyat Virtual Lab</span>
+</div>
+
+<script>
+var LANG='uz';
+var I18N={
+ uz:{badge:'ELEKTR · LAB 19',title:"Ferromagnetik Gisterezis — <span>B(H) egri chizig'i</span>",hsub:'ELEKTR · FIZPRAKTIKUM · SDPI 2026',
+   statusDefault:"I ni asta o'zgartiring → to'liq tsikl (+Imax→-Imax→+Imax) bajaring → nuqtalarni yozib boring",measLbl:"O'lchov:",
+   iLbl:'Tok kuchi (I)',unkTitle:"Noma'lum namuna",unkSub:"Faqat B(H) halqasi orqali topiladi",
+   hForm:'= N1·I / l',n1Given:"= 200 o'ram (berilgan)",lGiven:'= 0.12 m (berilgan)',
+   step1:"Boshlang'ich egri chiziq",step2:'Yuqori tarmoq',step3:'Pastki tarmoq',step4:'Halqa yopildi (≥12)',step5:'Bs,Br,Hc ni toping',
+   addBtn:'Nuqtani yozish',resetBtn:'Qayta boshlash',newBtn:'Yangi namuna (mashq)',
+   instrBar:'🧲 Vazifa: I ni asta +Imax → -Imax → +Imax tsiklida o\'zgartirib, har bosqichda "Yozish" bilan (I,H,B) nuqtalarini jadvalga kiriting va to\'liq gisterezis halqasini chizing',
+   results:'Joriy o\'lchov',tableTitle:'Jadval: B = f(H)',graphTitle:'Grafik: gisterezis halqasi B(H)',
+   yourAnswer:'Sizning javobingiz',answerHint:'Grafikdan Bs, Br, Hc ni hisoblab kiriting',checkBtn:'Tekshirish',
+   finalTitle:'Yakuniy natija',paramCol:'Parametr',graphCol:'Grafik',realCol:'Haqiqiy',measCntLbl:"O'lchashlar",
+   statusRecorded:'✓ Nuqta yozildi: I=',statusRecordedMid1:'A H=',statusRecordedMid2:'A/m B=',statusRecordedEnd:'T',
+   statusNeedSat:"Avval I ni ±Imax (to'yinish) ga yetkazing, so'ng tsiklni davom ettiring.",
+   statusEnough:"Yetarli nuqta to'plandi va halqa yopildi! Grafikdan Bs, Br, Hc ni hisoblang.",
+   statusNeedPre:'Yana ',statusNeed:' ta nuqta kerak (ikkala to\'yinishga ham yeting).',
+   ansPositive:'Iltimos, barcha qiymatlarni musbat son sifatida kiriting.',
+   correctPre:"✓ Yaxshi! Xatoliklar: Bs ",correctMid1:'%, Br ',correctMid2:'%, Hc ',correctMid3:'%.',
+   wrongPre:'✗ Hali unchalik aniq emas (Bs xato ',wrongMid1:'%, Br xato ',wrongMid2:'%, Hc xato ',wrongEnd:'%). Halqani to\'liqroq yozib, qayta hisoblang.',
+   unit:'ta'
+ },
+ ru:{badge:'ЭЛЕКТРИЧЕСТВО · ЛАБ 19',title:'Ферромагнитный Гистерезис — <span>кривая B(H)</span>',hsub:'ЭЛЕКТРИЧЕСТВО · ФИЗПРАКТИКУМ · SDPI 2026',
+   statusDefault:'Меняйте I плавно → пройдите полный цикл (+Imax→-Imax→+Imax) → записывайте точки',measLbl:'Измерений:',
+   iLbl:'Сила тока (I)',unkTitle:'Неизвестный образец',unkSub:'Определяется только через петлю B(H)',
+   hForm:'= N1·I / l',n1Given:'= 200 витков (задано)',lGiven:'= 0.12 м (задано)',
+   step1:'Начальная кривая',step2:'Верхняя ветвь',step3:'Нижняя ветвь',step4:'Петля замкнута (≥12)',step5:'Найдите Bs,Br,Hc',
+   addBtn:'Записать точку',resetBtn:'Начать заново',newBtn:'Новый образец (тренировка)',
+   instrBar:'🧲 Задача: плавно меняя I по циклу +Imax → -Imax → +Imax, на каждом этапе записывайте точки (I,H,B) в таблицу и постройте полную петлю гистерезиса',
+   results:'Текущее измерение',tableTitle:'Таблица: B = f(H)',graphTitle:'График: петля гистерезиса B(H)',
+   yourAnswer:'Ваш ответ',answerHint:'Вычислите Bs, Br, Hc по графику и введите',checkBtn:'Проверить',
+   finalTitle:'Итоговый результат',paramCol:'Параметр',graphCol:'График',realCol:'Реальное',measCntLbl:'Измерений',
+   statusRecorded:'✓ Точка записана: I=',statusRecordedMid1:'А H=',statusRecordedMid2:'А/м B=',statusRecordedEnd:'Тл',
+   statusNeedSat:'Сначала доведите I до ±Imax (насыщение), затем продолжайте цикл.',
+   statusEnough:'Собрано достаточно точек, петля замкнута! Вычислите Bs, Br, Hc по графику.',
+   statusNeedPre:'Ещё ',statusNeed:' точек нужно (достигните обоих насыщений).',
+   ansPositive:'Пожалуйста, введите все значения как положительные числа.',
+   correctPre:'✓ Хорошо! Погрешности: Bs ',correctMid1:'%, Br ',correctMid2:'%, Hc ',correctMid3:'%.',
+   wrongPre:'✗ Пока не точно (Bs ошибка ',wrongMid1:'%, Br ошибка ',wrongMid2:'%, Hc ошибка ',wrongEnd:'%). Запишите петлю полнее и пересчитайте.',
+   unit:'шт.'
+ },
+ en:{badge:'ELECTRICITY · LAB 19',title:'Ferromagnetic Hysteresis — <span>the B(H) curve</span>',hsub:'ELECTRICITY · PHYSICS LAB · SDPI 2026',
+   statusDefault:'Vary I smoothly → complete a full cycle (+Imax→-Imax→+Imax) → record points along the way',measLbl:'Measurements:',
+   iLbl:'Current (I)',unkTitle:'Unknown sample',unkSub:'Found only through the B(H) loop',
+   hForm:'= N1·I / l',n1Given:'= 200 turns (given)',lGiven:'= 0.12 m (given)',
+   step1:'Initial curve',step2:'Upper branch',step3:'Lower branch',step4:'Loop closed (≥12)',step5:'Find Bs,Br,Hc',
+   addBtn:'Record point',resetBtn:'Restart',newBtn:'New sample (practice)',
+   instrBar:'🧲 Task: smoothly cycle I through +Imax → -Imax → +Imax, recording (I,H,B) points into the table at each stage to trace the full hysteresis loop',
+   results:'Current measurement',tableTitle:'Table: B = f(H)',graphTitle:'Graph: B(H) hysteresis loop',
+   yourAnswer:'Your answer',answerHint:'Calculate Bs, Br, Hc from the graph and enter them',checkBtn:'Check',
+   finalTitle:'Final result',paramCol:'Parameter',graphCol:'Graph',realCol:'Actual',measCntLbl:'Measurements',
+   statusRecorded:'✓ Point recorded: I=',statusRecordedMid1:'A H=',statusRecordedMid2:'A/m B=',statusRecordedEnd:'T',
+   statusNeedSat:'First bring I to ±Imax (saturation), then continue the cycle.',
+   statusEnough:'Enough points collected and the loop is closed! Calculate Bs, Br, Hc from the graph.',
+   statusNeedPre:'',statusNeed:' more point(s) needed (reach both saturations).',
+   ansPositive:'Please enter all values as positive numbers.',
+   correctPre:'✓ Good! Errors: Bs ',correctMid1:'%, Br ',correctMid2:'%, Hc ',correctMid3:'%.',
+   wrongPre:'✗ Not quite accurate yet (Bs error ',wrongMid1:'%, Br error ',wrongMid2:'%, Hc error ',wrongEnd:'%). Record the loop more fully and recalculate.',
+   unit:''
+ }
+};
+function t(k){return I18N[LANG][k];}
+function setLang(l){
+  LANG=l;
+  document.getElementById('langUZ').className='langbtn'+(l==='uz'?' active':'');
+  document.getElementById('langRU').className='langbtn'+(l==='ru'?' active':'');
+  document.getElementById('langEN').className='langbtn'+(l==='en'?' active':'');
+  document.getElementById('tBadge').textContent=t('badge');
+  document.getElementById('tTitle').innerHTML=t('title');
+  document.getElementById('tHsub').textContent=t('hsub');
+  document.getElementById('tMeasLbl').textContent=t('measLbl');
+  document.getElementById('tIlbl').textContent=t('iLbl');
+  document.getElementById('tUnkTitle').textContent=t('unkTitle');
+  document.getElementById('tUnkSub').textContent=t('unkSub');
+  document.getElementById('tHform').textContent=t('hForm');
+  document.getElementById('tN1given').textContent=t('n1Given');
+  document.getElementById('tLgiven').textContent=t('lGiven');
+  document.getElementById('tStep1').textContent=t('step1');
+  document.getElementById('tStep2').textContent=t('step2');
+  document.getElementById('tStep3').textContent=t('step3');
+  document.getElementById('tStep4').textContent=t('step4');
+  document.getElementById('tStep5').textContent=t('step5');
+  document.getElementById('tAddBtn').textContent=t('addBtn');
+  document.getElementById('tResetBtn').textContent=t('resetBtn');
+  document.getElementById('tNewBtn').textContent=t('newBtn');
+  document.getElementById('tInstrBar').textContent=t('instrBar');
+  document.getElementById('tResults').textContent=t('results');
+  document.getElementById('tTableTitle').textContent=t('tableTitle');
+  document.getElementById('tGraphTitle').textContent=t('graphTitle');
+  document.getElementById('tYourAnswer').textContent=t('yourAnswer');
+  document.getElementById('tAnswerHint').textContent=t('answerHint');
+  document.getElementById('tCheckBtn').textContent=t('checkBtn');
+  document.getElementById('tFinalTitle').textContent=t('finalTitle');
+  document.getElementById('tParamCol').textContent=t('paramCol');
+  document.getElementById('tGraphCol').textContent=t('graphCol');
+  document.getElementById('tRealCol').textContent=t('realCol');
+  document.getElementById('tMeasCntLbl').textContent=t('measCntLbl');
+  document.getElementById('tStartTitle').innerHTML=t('startTitle')||document.getElementById('tStartTitle').innerHTML;
+  document.getElementById('tStartSub').textContent=t('startSub')||document.getElementById('tStartSub').textContent;
+  document.getElementById('tProcedure').textContent=t('procedure')||document.getElementById('tProcedure').textContent;
+  document.getElementById('tS1').textContent=t('s1')||document.getElementById('tS1').textContent;
+  document.getElementById('tS2').textContent=t('s2')||document.getElementById('tS2').textContent;
+  document.getElementById('tS3').textContent=t('s3')||document.getElementById('tS3').textContent;
+  document.getElementById('tS4').textContent=t('s4')||document.getElementById('tS4').textContent;
+  document.getElementById('tS5').textContent=t('s5')||document.getElementById('tS5').textContent;
+  document.getElementById('tStartBtn').textContent=t('startBtn')||document.getElementById('tStartBtn').textContent;
+  if(measList.length>=12){document.getElementById('resCnt').textContent=measList.length+' '+t('unit');}
+  document.getElementById('statusTxt').textContent=t('statusDefault');
+  drawGraph();
+}
+</script>
+<script>
+I18N.uz.startTitle="Ferromagnitning magnitlanish egri chizig'ini va <span style=\"color:#fb923c;\">gisterezis halqasini</span> aniqlash";
+I18N.uz.startSub="Toroidal g'altak: H=N1I/l ni o'zgartirib, B(H) halqasidan Bs, Br, Hc ni toping";
+I18N.uz.procedure='BAJARISH TARTIBI';
+I18N.uz.s1="I=0 dan +Imax gacha asta oshirib, boshlang'ich egri chiziqni yozing";
+I18N.uz.s2="+Imax dan -Imax gacha kamaytirib, yuqori tarmoqni yozing";
+I18N.uz.s3="-Imax dan +Imax gacha oshirib, pastki tarmoqni yozing (halqa yopiladi)";
+I18N.uz.s4="Kamida 12 ta nuqta to'plang (ikkala tarmoq bo'ylab)";
+I18N.uz.s5="Grafikdan Bs (to'yinish), Br (qoldiq) va Hc (majburlovchi kuch) ni aniqlang";
+I18N.uz.startBtn='▶ Laboratoriyani boshlash';
+
+I18N.ru.startTitle='Определение кривой намагничивания и <span style="color:#fb923c;">петли гистерезиса</span> ферромагнетика';
+I18N.ru.startSub='Тороидальная катушка: меняя H=N1I/l, найдите Bs, Br, Hc по петле B(H)';
+I18N.ru.procedure='ПОРЯДОК ВЫПОЛНЕНИЯ';
+I18N.ru.s1='Плавно увеличьте I от 0 до +Imax, запишите начальную кривую';
+I18N.ru.s2='Уменьшите I от +Imax до -Imax, запишите верхнюю ветвь';
+I18N.ru.s3='Увеличьте I от -Imax до +Imax, запишите нижнюю ветвь (петля замкнётся)';
+I18N.ru.s4='Соберите не менее 12 точек (по обеим ветвям)';
+I18N.ru.s5='Определите по графику Bs (насыщение), Br (остаточная) и Hc (коэрцитивная сила)';
+I18N.ru.startBtn='▶ Начать лабораторную';
+
+I18N.en.startTitle='Determining the magnetization curve and <span style="color:#fb923c;">hysteresis loop</span> of a ferromagnet';
+I18N.en.startSub='Toroidal coil: vary H=N1I/l and find Bs, Br, Hc from the B(H) loop';
+I18N.en.procedure='PROCEDURE';
+I18N.en.s1='Slowly increase I from 0 to +Imax, recording the initial curve';
+I18N.en.s2='Decrease I from +Imax to -Imax, recording the upper branch';
+I18N.en.s3='Increase I from -Imax to +Imax, recording the lower branch (loop closes)';
+I18N.en.s4='Collect at least 12 points (along both branches)';
+I18N.en.s5='Determine Bs (saturation), Br (remanence) and Hc (coercive force) from the graph';
+I18N.en.startBtn='▶ Start the lab';
+</script>
+
+<script>
+var N1=200,l=0.12,Imax=2.0;
+var Bs,Hc,Br,a,av;
+var MATSET=[
+ {Bs:1.2,Hc:60,S:0.55},
+ {Bs:1.5,Hc:110,S:0.42},
+ {Bs:0.9,Hc:35,S:0.62},
+ {Bs:1.35,Hc:85,S:0.50},
+ {Bs:1.05,Hc:150,S:0.38}
+];
+
+var Iv=0,currentH=0,currentB=0,measList=[],cnt=0,animT=0;
+var mode='virgin',reachedPosSat=false,reachedNegSat=false,lastI=0;
+var sc=document.getElementById('simCanvas'),ctx=sc.getContext('2d');
+var gc=document.getElementById('graphCanvas'),gctx=gc.getContext('2d');
+
+function Bvirgin(H){return Bs*Math.tanh(H/av);}
+function Bupper(H){return Bs*Math.tanh((H+Hc)/a);}
+function Blower(H){return Bs*Math.tanh((H-Hc)/a);}
+
+function setI(v){
+  v=parseFloat(v);
+  if(mode==='virgin'){
+    if(v>=Imax*0.92){reachedPosSat=true;mode='upper';}
+  } else if(mode==='upper'){
+    if(v<=-Imax*0.92){reachedNegSat=true;mode='lower';}
+  } else if(mode==='lower'){
+    if(v>=Imax*0.92){mode='upper';}
+  }
+  lastI=v;Iv=v;
+  var H=N1*v/l;
+  var B=mode==='virgin'?Bvirgin(H):(mode==='upper'?Bupper(H):Blower(H));
+  currentH=H;currentB=B;
+  document.getElementById('dI').textContent=v.toFixed(2)+' A';
+  document.getElementById('cI').textContent=v.toFixed(2);
+  document.getElementById('cH').textContent=H.toFixed(1);
+  document.getElementById('cB').textContent=B.toFixed(3);
+  document.getElementById('rH').textContent=H.toFixed(1);
+  document.getElementById('rB').textContent=B.toFixed(3);
+  var stepN=mode==='virgin'?1:(mode==='upper'?(reachedNegSat?3:2):3);
+  if(measList.length>=12&&reachedPosSat&&reachedNegSat)stepN=4;
+  setStep(stepN);
+}
+
+function addMeas(){
+  cnt++;
+  measList.push({I:Iv,H:currentH,B:currentB});
+  document.getElementById('chipCnt').textContent=cnt;
+  var tr=document.createElement('tr');
+  tr.innerHTML='<td>'+cnt+'</td><td>'+Iv.toFixed(2)+'</td><td>'+currentH.toFixed(1)+'</td><td>'+currentB.toFixed(3)+'</td>';
+  document.getElementById('tbody').appendChild(tr);
+  if(!reachedPosSat||!reachedNegSat){
+    document.getElementById('statusTxt').textContent=t('statusNeedSat');
+  } else if(measList.length>=12){
+    document.getElementById('answerCard').style.display='block';
+    document.getElementById('statusTxt').textContent=t('statusEnough');
+    setStep(5);
+  } else {
+    document.getElementById('statusTxt').textContent=t('statusNeedPre')+(12-measList.length)+t('statusNeed');
+  }
+  drawGraph();
+}
+
+function estimateFromData(){
+  if(!measList.length)return{Bs:0,Br:0,Hc:0};
+  var Bmax=0,BrCand=0,HcCand=0,BrMinAbsH=Infinity,HcMinAbsB=Infinity;
+  measList.forEach(function(m){
+    if(Math.abs(m.B)>Bmax)Bmax=Math.abs(m.B);
+    if(Math.abs(m.H)<BrMinAbsH){BrMinAbsH=Math.abs(m.H);BrCand=Math.abs(m.B);}
+    if(Math.abs(m.B)<HcMinAbsB){HcMinAbsB=Math.abs(m.B);HcCand=Math.abs(m.H);}
+  });
+  return{Bs:Bmax,Br:BrCand,Hc:HcCand};
+}
+
+function checkAnswer(){
+  var v=document.getElementById('verdict');
+  var aBs=parseFloat(document.getElementById('ansBs').value);
+  var aBr=parseFloat(document.getElementById('ansBr').value);
+  var aHc=parseFloat(document.getElementById('ansHc').value);
+  if(isNaN(aBs)||isNaN(aBr)||isNaN(aHc)||aBs<=0||aBr<=0||aHc<=0){v.className='verdict no';v.textContent=t('ansPositive');return;}
+  var eBs=Math.abs(aBs-Bs)/Bs*100, eBr=Math.abs(aBr-Br)/Br*100, eHc=Math.abs(aHc-Hc)/Hc*100;
+  if(eBs<=10&&eBr<=20&&eHc<=20){
+    v.className='verdict ok';v.textContent=t('correctPre')+eBs.toFixed(1)+t('correctMid1')+eBr.toFixed(1)+t('correctMid2')+eHc.toFixed(1)+t('correctMid3');
+    reveal();
+  } else {
+    v.className='verdict no';v.textContent=t('wrongPre')+eBs.toFixed(1)+t('wrongMid1')+eBr.toFixed(1)+t('wrongMid2')+eHc.toFixed(1)+t('wrongEnd');
+  }
+}
+
+function reveal(){
+  var est=estimateFromData();
+  document.getElementById('finalCard').style.display='block';
+  document.getElementById('resBsGraph').textContent=est.Bs.toFixed(2);
+  document.getElementById('resBrGraph').textContent=est.Br.toFixed(2);
+  document.getElementById('resHcGraph').textContent=est.Hc.toFixed(0);
+  document.getElementById('resBsReal').textContent=Bs.toFixed(2);
+  document.getElementById('resBrReal').textContent=Br.toFixed(2);
+  document.getElementById('resHcReal').textContent=Hc.toFixed(0);
+  document.getElementById('resCnt').textContent=measList.length+' '+t('unit');
+}
+
+function newUnknown(){
+  var m=MATSET[Math.floor(Math.random()*MATSET.length)];
+  Bs=m.Bs;Hc=m.Hc;
+  a=Hc/Math.atanh(m.S);
+  av=a*0.55;
+  Br=Bs*m.S;
+  resetAll();
+}
+
+function resetAll(){
+  measList=[];cnt=0;mode='virgin';reachedPosSat=false;reachedNegSat=false;lastI=0;
+  document.getElementById('tbody').innerHTML='';
+  document.getElementById('finalCard').style.display='none';
+  document.getElementById('answerCard').style.display='none';
+  document.getElementById('verdict').className='verdict';
+  document.getElementById('chipCnt').textContent=0;
+  document.getElementById('sI').value=0;
+  document.getElementById('ansBs').value='';
+  document.getElementById('ansBr').value='';
+  document.getElementById('ansHc').value='';
+  setI(0);
+  document.getElementById('statusTxt').textContent=t('statusDefault');
+  setStep(1);drawGraph();
+}
+function setStep(n){for(var i=1;i<=5;i++){var el=document.getElementById('st'+i);el.className='step'+(i<n?' done':i===n?' active':'');el.querySelector('.snum').textContent=i<n?'✓':i;}}
+
+function resize(){sc.width=sc.offsetWidth;sc.height=sc.offsetHeight;}
+window.addEventListener('resize',resize);setTimeout(function(){resize();setLang('uz');},80);
+
+(function loop(){animT+=0.016;drawSim();requestAnimationFrame(loop);})();
+function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.lineTo(x+w-r,y);c.quadraticCurveTo(x+w,y,x+w,y+r);c.lineTo(x+w,y+h-r);c.quadraticCurveTo(x+w,y+h,x+w-r,y+h);c.lineTo(x+r,y+h);c.quadraticCurveTo(x,y+h,x,y+h-r);c.lineTo(x,y+r);c.quadraticCurveTo(x,y,x+r,y);c.closePath();}
+
+function drawSim(){
+  var W=sc.width,H=sc.height;if(!W||!H)return;
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#040810';ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle='rgba(251,146,60,.02)';ctx.lineWidth=1;
+  for(var xi=0;xi<W;xi+=60){ctx.beginPath();ctx.moveTo(xi,0);ctx.lineTo(xi,H);ctx.stroke();}
+  for(var yi=0;yi<H;yi+=60){ctx.beginPath();ctx.moveTo(0,yi);ctx.lineTo(W,yi);ctx.stroke();}
+
+  var cx=W/2,cy=H/2-10;
+  var frac=Bs?(currentB/Bs):0;
+  var active=Math.abs(Iv)>0.001;
+
+  // scale factor for the torus/windings/meters only (fonts stay untouched)
+  // so the simulation fills the canvas nicely on larger windows too
+  var S=Math.max(1.2, Math.min(2.4, Math.min(W,H)/380));
+
+  var Rout=100*S,Rin=55*S;
+  ctx.strokeStyle=active?'rgba(251,146,60,.7)':'rgba(120,120,120,.4)';ctx.lineWidth=2*S;
+  ctx.beginPath();ctx.ellipse(cx,cy,Rout,Rout*0.55,0,0,Math.PI*2);ctx.stroke();
+  ctx.beginPath();ctx.ellipse(cx,cy,Rin,Rin*0.55,0,0,Math.PI*2);ctx.stroke();
+
+  var colr=frac>=0?'96,165,250':'248,113,113';
+  ctx.fillStyle='rgba('+colr+','+(0.05+0.28*Math.abs(frac))+')';
+  ctx.beginPath();ctx.ellipse(cx,cy,Rout,Rout*0.55,0,0,Math.PI*2);
+  ctx.ellipse(cx,cy,Rin,Rin*0.55,0,Math.PI*2,true);
+  ctx.fill('evenodd');
+
+  for(var i=0;i<16;i++){
+    var ang=i/16*Math.PI*2;
+    var rx=(Rout+Rin)/2, ry=(Rout+Rin)/2*0.55;
+    var wx=cx+Math.cos(ang)*rx, wy=cy+Math.sin(ang)*ry;
+    ctx.strokeStyle='rgba(250,204,21,.55)';ctx.lineWidth=1.3*S;
+    ctx.beginPath();ctx.ellipse(wx,wy,7*S,10*S,ang,0,Math.PI*2);ctx.stroke();
+  }
+  ctx.fillStyle='rgba(255,255,255,.45)';ctx.font='9px monospace';ctx.textAlign='center';
+  ctx.fillText('N1='+N1,cx,cy+Rout*0.55+22);
+
+  var bx=14,by=14,bw=160,bh=62;
+  ctx.fillStyle='rgba(14,20,32,.9)';rr(ctx,bx,by,bw,bh,6);ctx.fill();
+  ctx.strokeStyle='rgba(251,146,60,.25)';ctx.lineWidth=1;rr(ctx,bx,by,bw,bh,6);ctx.stroke();
+  ctx.fillStyle='rgba(251,146,60,.8)';ctx.font='bold 8px Space Mono';ctx.textAlign='left';
+  ctx.fillText('Domenlar (B/Bs='+frac.toFixed(2)+')',bx+6,by+11);
+  var rows=2,cols=6;
+  for(var r=0;r<rows;r++)for(var c=0;c<cols;c++){
+    var ax=bx+16+c*23, ay=by+30+r*20;
+    var len=6+Math.abs(frac)*9;
+    var wig=Math.sin(animT*2+r*1.3+c*0.7)*(1-Math.min(Math.abs(frac),1))*0.6;
+    var angle=(frac>=0?0:Math.PI)+wig;
+    ctx.strokeStyle=frac>=0?'rgba(96,165,250,.85)':'rgba(248,113,113,.85)';
+    ctx.lineWidth=1.6;
+    ctx.beginPath();ctx.moveTo(ax-Math.cos(angle)*len/2,ay-Math.sin(angle)*len/2);ctx.lineTo(ax+Math.cos(angle)*len/2,ay+Math.sin(angle)*len/2);ctx.stroke();
+    ctx.beginPath();ctx.arc(ax+Math.cos(angle)*len/2,ay+Math.sin(angle)*len/2,1.3,0,Math.PI*2);ctx.fillStyle=ctx.strokeStyle;ctx.fill();
+  }
+
+  var mx=cx,my=cy+150*S;
+  var mr=38*S;
+  ctx.fillStyle='rgba(14,20,32,.95)';ctx.beginPath();ctx.arc(mx,my,mr,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle='rgba(255,255,255,.15)';ctx.lineWidth=1*S;ctx.beginPath();ctx.arc(mx,my,mr,0,Math.PI*2);ctx.stroke();
+  ctx.fillStyle='rgba(251,146,60,.7)';ctx.font='bold 8px Space Mono';ctx.textAlign='center';ctx.fillText('B',mx,my-24*S);
+  var Bcap=Bs||1.3;
+  var needleAngle=-Math.PI/2+(currentB/(Bcap*1.2))*(Math.PI*0.42);
+  ctx.strokeStyle='rgba(250,204,21,.9)';ctx.lineWidth=2.4*S;
+  ctx.beginPath();ctx.moveTo(mx,my);ctx.lineTo(mx+Math.cos(needleAngle)*28*S,my+Math.sin(needleAngle)*28*S);ctx.stroke();
+  ctx.fillStyle='rgba(250,204,21,.9)';ctx.beginPath();ctx.arc(mx,my,2.5*S,0,Math.PI*2);ctx.fill();
+  ctx.font='8px monospace';ctx.fillStyle='rgba(255,255,255,.6)';ctx.fillText(currentB.toFixed(3)+'T',mx,my+14*S);
+
+}
+
+function drawGraph(){
+  var W2=gc.offsetWidth||280;gc.width=W2;var GH=150;gc.height=GH;
+  gctx.clearRect(0,0,W2,GH);gctx.fillStyle='#070c17';gctx.fillRect(0,0,W2,GH);
+  var pad=30;
+  var Hmax=(N1*Imax/l)*1.15;
+  var Bmax=(Bs||1.3)*1.25;
+  function px(Hh){return pad+(Hh+Hmax)/(2*Hmax)*(W2-2*pad);}
+  function py(Bb){return GH-pad-(Bb+Bmax)/(2*Bmax)*(GH-2*pad);}
+  gctx.strokeStyle='rgba(251,146,60,.3)';gctx.lineWidth=1;
+  gctx.beginPath();gctx.moveTo(px(-Hmax),py(0));gctx.lineTo(px(Hmax),py(0));gctx.stroke();
+  gctx.beginPath();gctx.moveTo(px(0),py(-Bmax));gctx.lineTo(px(0),py(Bmax));gctx.stroke();
+  gctx.fillStyle='rgba(251,146,60,.55)';gctx.font='7px monospace';gctx.textAlign='right';
+  gctx.fillText('H(A/m)',px(Hmax),py(0)-4);
+  gctx.textAlign='left';gctx.fillText('B(T)',px(0)+4,py(Bmax)+8);
+  if(!measList.length)return;
+  gctx.strokeStyle='rgba(251,146,60,.6)';gctx.lineWidth=1.5;
+  gctx.beginPath();
+  measList.forEach(function(m,i){var x=px(m.H),y=py(m.B);if(i===0)gctx.moveTo(x,y);else gctx.lineTo(x,y);});
+  gctx.stroke();
+  measList.forEach(function(m){
+    var x=px(m.H),y=py(m.B);
+    gctx.shadowColor='rgba(251,146,60,.6)';gctx.shadowBlur=5;
+    gctx.fillStyle='rgba(251,146,60,.9)';gctx.beginPath();gctx.arc(x,y,4,0,Math.PI*2);gctx.fill();
+    gctx.shadowBlur=0;
+  });
+}
+
+newUnknown();
+</script>
+</body>
+</html>

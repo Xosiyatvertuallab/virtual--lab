@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Elektr Zanjiri — Ketma-ket va Parallel</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap');
+:root{--bg:#07090f;--panel:#0e1420;--border:#1b2840;--accent:#fb923c;--green:#6fff5c;--blue:#60a5fa;--yellow:#ffc947;--red:#f87171;--text:#dde6f5;--muted:#4a6080;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;height:100vh;overflow:hidden;display:flex;flex-direction:column;}
+header{display:flex;align-items:center;gap:12px;padding:8px 20px;border-bottom:1px solid var(--border);background:linear-gradient(90deg,#07090f,#150700,#07090f);flex-shrink:0;}
+.badge{background:var(--accent);color:#000;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:3px 9px;letter-spacing:2px;border-radius:2px;}
+.htitle{font-size:14px;font-weight:800;}.htitle span{color:var(--accent);}
+.hsub{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-left:auto;}
+.brand{display:flex;align-items:center;gap:6px;background:linear-gradient(135deg,rgba(251,146,60,.12),rgba(111,255,92,.08));border:1px solid rgba(251,146,60,.3);border-radius:20px;padding:4px 14px;margin-left:10px;flex-shrink:0;}
+.brand-txt{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;background:linear-gradient(90deg,#fb923c,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;}
+.statusbar{background:#0a0f1c;border-bottom:1px solid var(--border);padding:5px 20px;display:flex;align-items:center;gap:14px;font-family:'Space Mono',monospace;font-size:11px;flex-shrink:0;}
+#statusTxt{color:var(--accent);}
+.chips{display:flex;gap:6px;margin-left:auto;}
+.chip{background:rgba(251,146,60,.08);border:1px solid rgba(251,146,60,.2);border-radius:10px;padding:2px 9px;font-size:10px;color:var(--muted);}
+.chip span{color:var(--accent);}
+.body{display:grid;grid-template-columns:220px 1fr;flex:1;overflow:hidden;}
+.left{background:var(--panel);border-right:1px solid var(--border);overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:9px;}
+.stitle{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--accent);text-transform:uppercase;margin-bottom:3px;}
+.card{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:8px;padding:10px;}
+.card label{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:7px;}
+.vb{font-family:'Space Mono',monospace;font-size:11px;color:var(--accent);background:rgba(251,146,60,.12);padding:2px 7px;border-radius:3px;}
+input[type=range]{width:100%;-webkit-appearance:none;height:4px;background:var(--border);border-radius:2px;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;background:var(--accent);border-radius:50%;cursor:pointer;box-shadow:0 0 8px rgba(251,146,60,.7);}
+.mode-row{display:flex;gap:5px;}
+.mdb{flex:1;border:1px solid var(--border);background:rgba(255,255,255,.03);color:var(--muted);padding:8px 4px;border-radius:6px;font-size:10px;font-family:'Space Mono',monospace;cursor:pointer;text-align:center;transition:all .2s;}
+.mdb.on{background:rgba(251,146,60,.12);border-color:var(--accent);color:var(--accent);}
+.fbox{background:rgba(251,146,60,.04);border:1px solid rgba(251,146,60,.15);border-radius:7px;padding:9px;}
+.frow{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:4px;}
+.frow span{color:var(--accent);}
+.btn{width:100%;padding:9px;border:none;border-radius:7px;font-family:'Syne',sans-serif;font-weight:700;font-size:12px;cursor:pointer;transition:all .2s;margin-top:4px;}
+.btn-p{background:linear-gradient(135deg,#fb923c,#ea580c);color:#000;}
+.btn-p:hover{transform:translateY(-1px);box-shadow:0 5px 18px rgba(251,146,60,.4);}
+.btn-r{background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--border);font-size:11px;}
+.res-box{background:rgba(251,146,60,.05);border:1px solid rgba(251,146,60,.2);border-radius:8px;padding:10px;}
+.res-row{display:flex;justify-content:space-between;margin-bottom:5px;font-family:'Space Mono',monospace;font-size:10px;}
+.res-row span:first-child{color:var(--muted);}
+.center{position:relative;overflow:hidden;background:#020508;}
+#simCanvas{display:block;width:100%;height:100%;}
+.instr-bar{position:absolute;bottom:0;left:0;right:0;background:rgba(2,5,8,.92);border-top:1px solid var(--border);padding:5px 18px;font-size:10px;color:var(--muted);text-align:center;}
+</style>
+
+<style>
+.lang-btns-inject{display:flex;gap:4px;margin-left:8px;flex-shrink:0;}
+.lb-inject{border:1px solid #1b2840;background:rgba(255,255,255,.04);color:#4a6080;padding:4px 10px;border-radius:5px;font-family:'Space Mono',monospace;font-size:9px;cursor:pointer;transition:all .2s;}
+.lb-inject.on{border-color:currentColor;font-weight:700;opacity:1;}
+.lb-inject:hover{opacity:.8;}
+</style>
+</head>
+<body>
+<div id="startScreen" style="position:fixed;inset:0;z-index:9999;background:radial-gradient(ellipse at 50% 40%,#150700 0%,#07090f 70%);display:flex;align-items:center;justify-content:center;">
+  <canvas id="bgCanvas" style="position:absolute;inset:0;width:100%;height:100%;opacity:.4;pointer-events:none"></canvas>
+  <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:18px;max-width:560px;padding:20px;text-align:center;">
+    <div style="display:flex;align-items:center;gap:10px;"><div style="background:#fb923c;color:#000;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:4px 14px;letter-spacing:2px;border-radius:2px;">ELEKTR · LAB 04</div><div style="font-family:'Space Mono',monospace;font-size:10px;color:#4a6080;">ZANJIR · KETMA-KET · PARALLEL</div></div>
+    <div style="width:100px;height:100px;border-radius:50%;background:radial-gradient(circle,rgba(251,146,60,.18),rgba(251,146,60,.02));border:2px solid rgba(251,146,60,.4);display:flex;align-items:center;justify-content:center;box-shadow:0 0 55px rgba(251,146,60,.3);animation:pz 2.5s ease-in-out infinite;"><span style="font-size:44px;">💡</span></div>
+    <h1 style="font-size:19px;font-weight:800;color:#fff;" id="tStartTitle">Elektr Zanjiri — <span style="color:#fb923c;">Ketma-ket va Parallel Ulash</span></h1>
+    <p style="font-size:11px;color:#4a6080;font-family:'Space Mono',monospace;" id="tStartSub">Ketma-ket: R = R₁+R₂+R₃ · Parallel: 1/R = 1/R₁+1/R₂+1/R₃</p>
+    <div style="background:rgba(251,146,60,.05);border:1px solid rgba(251,146,60,.15);border-radius:12px;padding:15px;width:100%;text-align:left;">
+      <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;color:#fb923c;margin-bottom:10px;" id="tProcedure">BAJARISH TARTIBI</div>
+      <div style="display:flex;flex-direction:column;gap:7px;">
+        <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#c5d3e8;"><span style="width:20px;height:20px;border-radius:50%;background:rgba(251,146,60,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#fb923c;flex-shrink:0;">1</span><span id="tS1">Ulash turini tanlang (ketma-ket yoki parallel)</span></div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#c5d3e8;"><span style="width:20px;height:20px;border-radius:50%;background:rgba(251,146,60,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#fb923c;flex-shrink:0;">2</span><span id="tS2">U va R₁, R₂, R₃ larni sozlang</span></div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#c5d3e8;"><span style="width:20px;height:20px;border-radius:50%;background:rgba(251,146,60,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#fb923c;flex-shrink:0;">3</span><span id="tS3">R_umumiy, I₁, I₂, I₃, U₁, U₂, U₃ larni kuzating</span></div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#c5d3e8;"><span style="width:20px;height:20px;border-radius:50%;background:rgba(251,146,60,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#fb923c;flex-shrink:0;">4</span><span id="tS4">Chiroqlarning yonish intensivligini solishtiring</span></div>
+      </div>
+    </div>
+    <button onclick="startLab()" style="background:linear-gradient(135deg,#fb923c,#ea580c);color:#000;border:none;border-radius:12px;padding:15px 60px;font-size:15px;font-weight:800;font-family:'Syne',sans-serif;cursor:pointer;box-shadow:0 8px 30px rgba(251,146,60,.35);width:100%;"><span id="tStartBtn">▶ Laboratoriyani boshlash</span></button>
+    <div style="display:flex;align-items:center;gap:6px;opacity:.6;"><span>🔬</span><span style="font-family:'Space Mono',monospace;font-size:10px;font-weight:700;background:linear-gradient(90deg,#fb923c,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;">Xosiyat Virtual Lab</span></div>
+  </div>
+</div>
+<style>@keyframes pz{0%,100%{box-shadow:0 0 55px rgba(251,146,60,.2)}50%{box-shadow:0 0 80px rgba(251,146,60,.5)}}@keyframes fadeOut{0%{opacity:1}100%{opacity:0;transform:scale(1.04)}}</style>
+<script>
+(function(){var c=document.getElementById('bgCanvas');var x=c.getContext('2d');var pts=[];function rs(){c.width=window.innerWidth;c.height=window.innerHeight;}rs();window.addEventListener('resize',rs);for(var i=0;i<55;i++)pts.push({x:Math.random()*1600,y:Math.random()*900,r:Math.random()*1.5+.5,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,a:Math.random()});function fr(){x.clearRect(0,0,c.width,c.height);pts.forEach(function(p){p.x+=p.vx;p.y+=p.vy;p.a+=.005;if(p.x<0)p.x=c.width;if(p.x>c.width)p.x=0;if(p.y<0)p.y=c.height;if(p.y>c.height)p.y=0;x.fillStyle='rgba(251,146,60,'+(0.13+Math.sin(p.a)*0.1)+')';x.beginPath();x.arc(p.x%c.width,p.y%c.height,p.r,0,Math.PI*2);x.fill();});requestAnimationFrame(fr);}fr();})();
+function startLab(){var s=document.getElementById('startScreen');s.style.animation='fadeOut .5s ease forwards';setTimeout(function(){s.style.display='none';},480);}
+</script>
+
+<header>
+  <div class="badge" id="tBadge">ELEKTR · LAB 04</div>
+  <h1 class="htitle" id="tTitle">Elektr Zanjiri — <span>Ketma-ket va Parallel Ulash</span></h1>
+  <div class="hsub" id="tHsub">ELEKTR · FIZPRAKTIKUM · SDPI 2026</div>
+  <div class="brand"><span>🔬</span><span class="brand-txt">Xosiyat Virtual Lab</span></div>
+<div class="lang-btns-inject" id="_langbtns">
+<div class="lb-inject on" id="_lbuz" onclick="window._changeLang('uz')" style="color:#fb923c;">🇺🇿 UZ</div>
+<div class="lb-inject" id="_lbru" onclick="window._changeLang('ru')">🇷🇺 RU</div>
+<div class="lb-inject" id="_lben" onclick="window._changeLang('en')">🇬🇧 EN</div>
+</div></header>
+<div class="statusbar">
+  <span id="statusTxt">Ulash turini tanlang → parametrlarni sozlang → natijalarni kuzating</span>
+  <div class="chips">
+    <div class="chip">R_um=<span id="cRtot">—</span>Ω</div>
+    <div class="chip">I=<span id="cItot">—</span>A</div>
+    <div class="chip">P=<span id="cPtot">—</span>W</div>
+  </div>
+</div>
+<div class="body">
+<div class="left">
+  <div class="stitle" id="tSt0">Ulash turi</div>
+  <div class="mode-row">
+    <div class="mdb on" id="mdb1" onclick="setMode('series')"><span id="tSeries">Ketma-ket</span></div>
+    <div class="mdb" id="mdb2" onclick="setMode('parallel')"><span id="tParallel">Parallel</span></div>
+  </div>
+
+  <div class="stitle" id="tSt1">Manba kuchlanishi</div>
+  <div class="card">
+    <label>U (V) <span class="vb" id="dU">12 V</span></label>
+    <input type="range" id="sU" min="1" max="24" step="1" value="12" oninput="setUv(this.value)">
+  </div>
+
+  <div class="stitle" id="tSt2">Rezistorlar</div>
+  <div class="card">
+    <label>R₁ (Ω) <span class="vb" id="dR1">20 Ω</span></label>
+    <input type="range" id="sR1" min="5" max="100" step="5" value="20" oninput="setR1(this.value)">
+  </div>
+  <div class="card">
+    <label>R₂ (Ω) <span class="vb" id="dR2">30 Ω</span></label>
+    <input type="range" id="sR2" min="5" max="100" step="5" value="30" oninput="setR2(this.value)">
+  </div>
+  <div class="card">
+    <label>R₃ (Ω) <span class="vb" id="dR3">40 Ω</span></label>
+    <input type="range" id="sR3" min="5" max="100" step="5" value="40" oninput="setR3(this.value)">
+  </div>
+
+  <div class="res-box" id="resBox">
+    <div class="stitle" style="margin-bottom:6px;" id="tSt3">Natijalar</div>
+    <div class="res-row"><span id="tRtot">R_umumiy</span><span id="rRtot" style="color:var(--accent);">—</span></div>
+    <div class="res-row"><span id="tItot">I_umumiy</span><span id="rItot" style="color:var(--blue);">—</span></div>
+    <div style="border-top:1px solid rgba(251,146,60,.15);margin:5px 0;"></div>
+    <div class="res-row"><span id="tR1">I₁ / U₁ / P₁</span><span id="r1" style="color:var(--green);">—</span></div>
+    <div class="res-row"><span id="tR2">I₂ / U₂ / P₂</span><span id="r2" style="color:var(--green);">—</span></div>
+    <div class="res-row"><span id="tR3">I₃ / U₃ / P₃</span><span id="r3" style="color:var(--green);">—</span></div>
+    <div style="border-top:1px solid rgba(251,146,60,.15);margin:5px 0;"></div>
+    <div class="res-row"><span id="tPtot">P_umumiy</span><span id="rPtot" style="color:var(--yellow);">—</span></div>
+    <div class="res-row"><span id="tCheck">Tekshiruv</span><span id="rCheck" style="color:var(--green);">—</span></div>
+  </div>
+
+  <div class="fbox" id="fboxEl">
+    <div class="frow" id="f1"><span id="tF1">R = </span><span id="tF1v">R₁+R₂+R₃ (ketma-ket)</span></div>
+    <div class="frow" id="f2"><span id="tF2">I = </span><span id="tF2v">U/R (umumiy tok)</span></div>
+    <div class="frow" id="f3"><span id="tF3">Uₙ = </span><span id="tF3v">I·Rₙ (har birida)</span></div>
+    <div class="frow" id="f4"><span id="tF4">P = </span><span id="tF4v">UI = I²R (quvvat)</span></div>
+  </div>
+</div>
+
+<div class="center">
+  <canvas id="simCanvas"></canvas>
+  <div class="instr-bar" id="instrBar">💡 Ketma-ket: R=R₁+R₂+R₃, bir xil tok · Parallel: 1/R=1/R₁+1/R₂+1/R₃, bir xil kuchlanish</div>
+</div>
+</div>
+
+<div style="position:fixed;bottom:14px;right:18px;display:flex;align-items:center;gap:7px;background:rgba(7,9,15,.75);border:1px solid rgba(251,146,60,.2);border-radius:30px;padding:5px 16px;backdrop-filter:blur(10px);z-index:9999;pointer-events:none;">
+  <span>🔬</span><span style="font-family:'Space Mono',monospace;font-size:11px;font-weight:700;background:linear-gradient(90deg,#fb923c,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;">Xosiyat Virtual Lab</span>
+</div>
+
+<script>
+var mode='series',Uv=12,R1v=20,R2v=30,R3v=40,animT=0;
+var sc=document.getElementById('simCanvas'),ctx=sc.getContext('2d');
+var electrons=[];
+for(var i=0;i<25;i++)electrons.push({pos:Math.random(),branch:Math.floor(Math.random()*3)});
+
+function setMode(m){
+  mode=m;
+  document.getElementById('mdb1').classList.toggle('on',m==='series');
+  document.getElementById('mdb2').classList.toggle('on',m==='parallel');
+  document.getElementById('instrBar').textContent=window._getInstr?window._getInstr(m):(m==='series'?
+    '💡 Ketma-ket: R=R₁+R₂+R₃, bir xil tok barcha rezistordan o\'tadi, kuchlanishlar bo\'linadi':
+    '💡 Parallel: 1/R=1/R₁+1/R₂+1/R₃, bir xil kuchlanish, toklarning yig\'indisi = umumiy tok');
+  upd();
+}
+function setUv(v){Uv=parseFloat(v);document.getElementById('dU').textContent=v+' V';upd();}
+function setR1(v){R1v=parseFloat(v);document.getElementById('dR1').textContent=v+' Ω';upd();}
+function setR2(v){R2v=parseFloat(v);document.getElementById('dR2').textContent=v+' Ω';upd();}
+function setR3(v){R3v=parseFloat(v);document.getElementById('dR3').textContent=v+' Ω';upd();}
+
+function upd(){
+  var Rtot,Itot,I1,I2,I3,U1,U2,U3,P1,P2,P3;
+  if(mode==='series'){
+    Rtot=R1v+R2v+R3v; Itot=Uv/Rtot;
+    I1=I2=I3=Itot;
+    U1=I1*R1v; U2=I2*R2v; U3=I3*R3v;
+  } else {
+    Rtot=1/(1/R1v+1/R2v+1/R3v); Itot=Uv/Rtot;
+    U1=U2=U3=Uv;
+    I1=Uv/R1v; I2=Uv/R2v; I3=Uv/R3v;
+  }
+  P1=U1*I1; P2=U2*I2; P3=U3*I3;
+  var Ptot=P1+P2+P3;
+  var check=mode==='series'?(Math.abs(U1+U2+U3-Uv)<0.01?'✅ U₁+U₂+U₃=U':'❌'):(Math.abs(I1+I2+I3-Itot)<0.01?'✅ I₁+I₂+I₃=I':'❌');
+  document.getElementById('rRtot').textContent=Rtot.toFixed(2)+' Ω';
+  document.getElementById('rItot').textContent=Itot.toFixed(4)+' A';
+  document.getElementById('r1').textContent=I1.toFixed(3)+'A / '+U1.toFixed(2)+'V / '+P1.toFixed(2)+'W';
+  document.getElementById('r2').textContent=I2.toFixed(3)+'A / '+U2.toFixed(2)+'V / '+P2.toFixed(2)+'W';
+  document.getElementById('r3').textContent=I3.toFixed(3)+'A / '+U3.toFixed(2)+'V / '+P3.toFixed(2)+'W';
+  document.getElementById('rPtot').textContent=Ptot.toFixed(3)+' W';
+  document.getElementById('rCheck').textContent=check;
+  document.getElementById('cRtot').textContent=Rtot.toFixed(1);
+  document.getElementById('cItot').textContent=Itot.toFixed(3);
+  document.getElementById('cPtot').textContent=Ptot.toFixed(2);
+  // Elektron tezligi
+  var speeds=[I1*0.03,I2*0.03,I3*0.03];
+  electrons.forEach(function(e){e.speed=speeds[e.branch]||0.01;});
+  document.getElementById('statusTxt').textContent='R_um='+Rtot.toFixed(2)+'Ω | I='+Itot.toFixed(4)+'A | P='+Ptot.toFixed(2)+'W | '+check;
+}
+
+function resize(){sc.width=sc.offsetWidth;sc.height=sc.offsetHeight;}
+window.addEventListener('resize',resize);setTimeout(function(){resize();upd();},80);
+
+(function loop(){
+  animT+=0.016;
+  electrons.forEach(function(e){e.pos=(e.pos+(e.speed||0.01))%1;});
+  draw();
+  requestAnimationFrame(loop);
+})();
+
+function draw(){
+  var W=sc.width,H=sc.height;if(!W||!H)return;
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#020508';ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle='rgba(251,146,60,.02)';ctx.lineWidth=1;
+  for(var xi=0;xi<W;xi+=50){ctx.beginPath();ctx.moveTo(xi,0);ctx.lineTo(xi,H);ctx.stroke();}
+  for(var yi=0;yi<H;yi+=50){ctx.beginPath();ctx.moveTo(0,yi);ctx.lineTo(W,yi);ctx.stroke();}
+  if(mode==='series') drawSeries(W,H);
+  else drawParallel(W,H);
+}
+
+function drawSeries(W,H){
+  var cx=W/2,cy=H/2;
+  var pw=Math.min(W*0.78,600),ph=80;
+  var x0=cx-pw/2,x1=cx+pw/2,y=cy;
+  var Rtot=R1v+R2v+R3v,Itot=Uv/Rtot;
+  var rw=Math.min(pw*0.18,100);
+
+  // Asosiy zanjir
+  var wc='rgba(251,146,60,.85)';
+  ctx.shadowColor='rgba(251,146,60,.3)';ctx.shadowBlur=10;
+  wire2(x0,y-ph,x1,y-ph,wc,3);
+  wire2(x0,y+ph,x1,y+ph,wc,3);
+  wire2(x0,y-ph,x0,y+ph,wc,3);
+  wire2(x1,y-ph,x1,y+ph,wc,3);
+  ctx.shadowBlur=0;
+
+  // Manba
+  drawBat2(x0,y,Uv,'rgba(251,146,60,.9)');
+
+  // 3 ta rezistor/chiroq
+  var xr1=cx-pw*0.25,xr2=cx,xr3=cx+pw*0.25;
+  var I=Itot;
+  var U1=I*R1v,U2=I*R2v,U3=I*R3v;
+  var P1=U1*I,P2=U2*I,P3=U3*I;
+  drawLamp(xr1,y-ph,R1v,U1,P1,'R₁','rgba(96,165,250,.9)');
+  drawLamp(xr2,y-ph,R2v,U2,P2,'R₂','rgba(111,255,92,.9)');
+  drawLamp(xr3,y-ph,R3v,U3,P3,'R₃','rgba(251,146,60,.9)');
+
+  // Tok strelkalari
+  ctx.fillStyle='rgba(251,146,60,.5)';ctx.font='9px monospace';ctx.textAlign='center';
+  ctx.fillText('I='+I.toFixed(3)+'A →',cx,y-ph-15);
+  ctx.fillText('← I='+I.toFixed(3)+'A',cx,y+ph+14);
+
+  // Elektronlar (ketma-ket)
+  electrons.forEach(function(e){
+    var p=e.pos%1,ex,ey;
+    if(p<0.25){ex=x0+(x1-x0)*p/0.25;ey=y-ph;}
+    else if(p<0.5){ex=x1;ey=y-ph+(y+ph-(y-ph))*(p-0.25)/0.25;}
+    else if(p<0.75){ex=x1-(x1-x0)*(p-0.5)/0.25;ey=y+ph;}
+    else{ex=x0;ey=y+ph-(y+ph-(y-ph))*(p-0.75)/0.25;}
+    ctx.shadowColor='rgba(251,146,60,.7)';ctx.shadowBlur=6;
+    ctx.fillStyle='rgba(251,146,60,.85)';ctx.beginPath();ctx.arc(ex,ey,4,0,Math.PI*2);ctx.fill();
+    ctx.shadowBlur=0;
+  });
+
+  drawInfo2(W,H,'KETMA-KET',Rtot,Itot,R1v+'+'+R2v+'+'+R3v);
+}
+
+function drawParallel(W,H){
+  var cx=W/2,cy=H/2;
+  var pw=Math.min(W*0.78,600),rows=3,rh=90,startY=cy-rh;
+  var x0=cx-pw/2,x1=cx+pw/2;
+  var Rtot=1/(1/R1v+1/R2v+1/R3v),Itot=Uv/Rtot;
+  var I1=Uv/R1v,I2=Uv/R2v,I3=Uv/R3v;
+  var Is=[I1,I2,I3],Rs=[R1v,R2v,R3v],Ls=['R₁','R₂','R₃'];
+  var cols=['rgba(96,165,250,.9)','rgba(111,255,92,.9)','rgba(251,146,60,.9)'];
+
+  // Yon magistrallar
+  ctx.shadowColor='rgba(251,146,60,.25)';ctx.shadowBlur=10;
+  wire2(x0,startY-20,x0,startY+rh*(rows-1)+20,'rgba(251,146,60,.8)',3.5);
+  wire2(x1,startY-20,x1,startY+rh*(rows-1)+20,'rgba(251,146,60,.8)',3.5);
+  ctx.shadowBlur=0;
+
+  // Manba
+  drawBat2(x0-55,cy,Uv,'rgba(251,146,60,.9)');
+  wire2(x0-40,cy-80,x0,cy-80,'rgba(251,146,60,.7)',2);
+  wire2(x0-40,cy+80,x0,cy+80,'rgba(251,146,60,.7)',2);
+  wire2(x0-40,cy-80,x0-40,cy-30,'rgba(251,146,60,.7)',2);
+  wire2(x0-40,cy+80,x0-40,cy+30,'rgba(251,146,60,.7)',2);
+
+  // 3 ta parallel tarmoq
+  for(var i=0;i<rows;i++){
+    var yy=startY+i*rh;
+    wire2(x0,yy,x1,yy,cols[i],2);
+    var P=Uv*Is[i];
+    drawLamp(cx,yy,Rs[i],Uv,P,Ls[i],cols[i]);
+    // Tok qiymati
+    ctx.fillStyle=cols[i];ctx.font='bold 10px Space Mono';ctx.textAlign='right';
+    ctx.fillText('I'+( i+1)+'='+Is[i].toFixed(3)+'A',x1-20,yy-8);
+  }
+
+  // Elektronlar (parallel)
+  electrons.forEach(function(e){
+    var br=e.branch%3,yy=startY+br*rh;
+    var p=e.pos%1,ex;
+    if(p<0.5){ex=x0+(x1-x0)*p/0.5;}
+    else{ex=x1-(x1-x0)*(p-0.5)/0.5;}
+    ctx.shadowColor=cols[br];ctx.shadowBlur=6;
+    ctx.fillStyle=cols[br];ctx.beginPath();ctx.arc(ex,yy,4,0,Math.PI*2);ctx.fill();
+    ctx.shadowBlur=0;
+  });
+
+  drawInfo2(W,H,'PARALLEL',Rtot,Itot,'1/(1/'+R1v+'+1/'+R2v+'+1/'+R3v+')');
+}
+
+function drawInfo2(W,H,mod,Rtot,Itot,formula){
+  // Info paneli olib tashlandi (toza ko'rinish uchun)
+}
+
+function drawBat2(x,y,emf,col){
+  ctx.fillStyle='rgba(14,20,32,.95)';rr(ctx,x-18,y-38,36,76,5);ctx.fill();
+  ctx.strokeStyle=col;ctx.lineWidth=2;rr(ctx,x-18,y-38,36,76,5);ctx.stroke();
+  for(var i=0;i<3;i++){var yy=y-18+i*20;ctx.strokeStyle=col;ctx.lineWidth=i%2===0?3:1.5;ctx.beginPath();ctx.moveTo(x-12,yy);ctx.lineTo(x+12,yy);ctx.stroke();}
+  ctx.fillStyle=col;ctx.font='bold 9px Space Mono';ctx.textAlign='center';
+  ctx.fillText(emf+'V',x,y+30);
+}
+
+function drawLamp(x,y,R,U,P,lbl,col){
+  var brightness=Math.min(P/5,1);
+  // Yorug'lik
+  if(brightness>0.1){
+    var gr=ctx.createRadialGradient(x,y,2,x,y,40+brightness*20);
+    gr.addColorStop(0,'rgba(255,240,150,'+(brightness*0.35)+')');
+    gr.addColorStop(1,'rgba(255,200,50,0)');
+    ctx.fillStyle=gr;ctx.beginPath();ctx.arc(x,y,40+brightness*20,0,Math.PI*2);ctx.fill();
+  }
+  // Korpus
+  ctx.fillStyle='rgba(20,14,5,.95)';ctx.beginPath();ctx.arc(x,y,20,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle=col;ctx.lineWidth=2;
+  ctx.shadowColor=col;ctx.shadowBlur=brightness*20;
+  ctx.beginPath();ctx.arc(x,y,20,0,Math.PI*2);ctx.stroke();
+  ctx.shadowBlur=0;
+  // Spiral
+  ctx.strokeStyle='rgba(255,240,180,'+(0.3+brightness*0.7)+')';ctx.lineWidth=1.5;
+  ctx.beginPath();
+  for(var t=0;t<=Math.PI*3;t+=0.2){
+    var ex=x+Math.cos(t)*8*(t/(Math.PI*3));
+    var ey=y+Math.sin(t)*8*(t/(Math.PI*3));
+    if(t===0)ctx.moveTo(ex,ey);else ctx.lineTo(ex,ey);
+  }ctx.stroke();
+  // Matn
+  ctx.fillStyle=col;ctx.font='bold 9px Space Mono';ctx.textAlign='center';
+  ctx.fillText(lbl,x,y-26);
+  ctx.fillStyle='rgba(255,255,255,.6)';ctx.font='8px monospace';
+  ctx.fillText(R+'Ω',x,y+32);
+  ctx.fillText(U.toFixed(1)+'V',x,y+43);
+}
+
+function wire2(x1,y1,x2,y2,col,w){ctx.strokeStyle=col;ctx.lineWidth=w;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();}
+function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.lineTo(x+w-r,y);c.quadraticCurveTo(x+w,y,x+w,y+r);c.lineTo(x+w,y+h-r);c.quadraticCurveTo(x+w,y+h,x+w-r,y+h);c.lineTo(x+r,y+h);c.quadraticCurveTo(x,y+h,x,y+h-r);c.lineTo(x,y+r);c.quadraticCurveTo(x,y,x+r,y);c.closePath();}
+</script>
+
+<script id="langScript">
+(function(){
+var _lt={
+ uz:{badge:"ELEKTR · LAB 04",title:'Elektr Zanjiri — <span>Ketma-ket va Parallel Ulash</span>',hsub:"ELEKTR · FIZPRAKTIKUM · SDPI 2026",
+   startTitle:'Elektr Zanjiri — <span style="color:#fb923c;">Ketma-ket va Parallel Ulash</span>',
+   startSub:"Ketma-ket: R = R₁+R₂+R₃ · Parallel: 1/R = 1/R₁+1/R₂+1/R₃",
+   st0:"Ulash turi",series:"Ketma-ket",parallel:"Parallel",st1:"Manba kuchlanishi",st2:"Rezistorlar",st3:"Natijalar",
+   rtot:"R_umumiy",itot:"I_umumiy",r1:"I₁ / U₁ / P₁",r2:"I₂ / U₂ / P₂",r3:"I₃ / U₃ / P₃",ptot:"P_umumiy",check:"Tekshiruv",
+   f1:"R = ",f1v:"R₁+R₂+R₃ (ketma-ket)",f2:"I = ",f2v:"U/R (umumiy tok)",f3:"Uₙ = ",f3v:"I·Rₙ (har birida)",f4:"P = ",f4v:"UI = I²R (quvvat)",
+   procedure:"BAJARISH TARTIBI",
+   s1:"Ulash turini tanlang (ketma-ket yoki parallel)",s2:"U va R₁, R₂, R₃ larni sozlang",
+   s3:"R_umumiy, I₁, I₂, I₃, U₁, U₂, U₃ larni kuzating",s4:"Chiroqlarning yonish intensivligini solishtiring",
+   startBtn:"▶ Laboratoriyani boshlash",
+   status:"Ulash turini tanlang → parametrlarni sozlang → natijalarni kuzating",
+   instrSeries:"💡 Ketma-ket: R=R₁+R₂+R₃, bir xil tok barcha rezistordan o'tadi, kuchlanishlar bo'linadi",
+   instrParallel:"💡 Parallel: 1/R=1/R₁+1/R₂+1/R₃, bir xil kuchlanish, toklarning yig'indisi = umumiy tok"},
+ ru:{badge:"ЭЛЕКТРИЧЕСТВО · ЛАБ 04",title:'Электрическая цепь — <span>последовательное и параллельное соединение</span>',hsub:"ЭЛЕКТРИЧЕСТВО · ФИЗПРАКТИКУМ · SDPI 2026",
+   startTitle:'Электрическая цепь — <span style="color:#fb923c;">последовательное и параллельное соединение</span>',
+   startSub:"Последовательное: R = R₁+R₂+R₃ · Параллельное: 1/R = 1/R₁+1/R₂+1/R₃",
+   st0:"Тип соединения",series:"Последовательное",parallel:"Параллельное",st1:"Напряжение источника",st2:"Резисторы",st3:"Результаты",
+   rtot:"R_общее",itot:"I_общий",r1:"I₁ / U₁ / P₁",r2:"I₂ / U₂ / P₂",r3:"I₃ / U₃ / P₃",ptot:"P_общая",check:"Проверка",
+   f1:"R = ",f1v:"R₁+R₂+R₃ (последоват.)",f2:"I = ",f2v:"U/R (общий ток)",f3:"Uₙ = ",f3v:"I·Rₙ (на каждом)",f4:"P = ",f4v:"UI = I²R (мощность)",
+   procedure:"ПОРЯДОК ВЫПОЛНЕНИЯ",
+   s1:"Выберите тип соединения (последовательное или параллельное)",s2:"Настройте U и R₁, R₂, R₃",
+   s3:"Наблюдайте R_общее, I₁, I₂, I₃, U₁, U₂, U₃",s4:"Сравните яркость свечения ламп",
+   startBtn:"▶ Начать лабораторную",
+   status:"Выберите тип соединения → настройте параметры → наблюдайте результаты",
+   instrSeries:"💡 Последовательное: R=R₁+R₂+R₃, одинаковый ток через все резисторы, напряжения делятся",
+   instrParallel:"💡 Параллельное: 1/R=1/R₁+1/R₂+1/R₃, одинаковое напряжение, сумма токов = общий ток"},
+ en:{badge:"ELECTRICITY · LAB 04",title:'Electric Circuit — <span>Series and Parallel Connection</span>',hsub:"ELECTRICITY · PHYSICS LAB · SDPI 2026",
+   startTitle:'Electric Circuit — <span style="color:#fb923c;">Series and Parallel Connection</span>',
+   startSub:"Series: R = R₁+R₂+R₃ · Parallel: 1/R = 1/R₁+1/R₂+1/R₃",
+   st0:"Connection type",series:"Series",parallel:"Parallel",st1:"Source voltage",st2:"Resistors",st3:"Results",
+   rtot:"R_total",itot:"I_total",r1:"I₁ / U₁ / P₁",r2:"I₂ / U₂ / P₂",r3:"I₃ / U₃ / P₃",ptot:"P_total",check:"Verification",
+   f1:"R = ",f1v:"R₁+R₂+R₃ (series)",f2:"I = ",f2v:"U/R (total current)",f3:"Uₙ = ",f3v:"I·Rₙ (each)",f4:"P = ",f4v:"UI = I²R (power)",
+   procedure:"PROCEDURE",
+   s1:"Choose connection type (series or parallel)",s2:"Set U and R₁, R₂, R₃",
+   s3:"Observe R_total, I₁, I₂, I₃, U₁, U₂, U₃",s4:"Compare bulb brightness",
+   startBtn:"▶ Start the Lab",
+   status:"Select connection type → set parameters → observe results",
+   instrSeries:"💡 Series: R=R₁+R₂+R₃, same current through all resistors, voltages divide",
+   instrParallel:"💡 Parallel: 1/R=1/R₁+1/R₂+1/R₃, same voltage, sum of currents = total current"}
+};
+var _lang='uz';
+var _acc='#fb923c';
+window._getInstr=function(m){
+  var t=_lt[_lang];
+  return m==='series'?t.instrSeries:t.instrParallel;
+};
+function _setLang(l){
+  _lang=l;
+  ['uz','ru','en'].forEach(function(x){
+    var el=document.getElementById('_lb'+x);
+    if(!el)return;
+    el.className='lb-inject'+(x===l?' on':'');
+    el.style.color=x===l?_acc:'#4a6080';
+    el.style.background=x===l?'rgba('+_acc.replace('#','').match(/../g).map(function(h){return parseInt(h,16);}).join(',')+',0.12)':'rgba(255,255,255,.04)';
+  });
+  var t=_lt[l];
+  if(!t)return;
+  var map={tBadge:t.badge,tHsub:t.hsub,tSt0:t.st0,tSeries:t.series,tParallel:t.parallel,
+    tSt1:t.st1,tSt2:t.st2,tSt3:t.st3,
+    tRtot:t.rtot,tItot:t.itot,tR1:t.r1,tR2:t.r2,tR3:t.r3,tPtot:t.ptot,tCheck:t.check,
+    tF1:t.f1,tF1v:t.f1v,tF2:t.f2,tF2v:t.f2v,tF3:t.f3,tF3v:t.f3v,tF4:t.f4,tF4v:t.f4v,
+    tProcedure:t.procedure,tS1:t.s1,tS2:t.s2,tS3:t.s3,tS4:t.s4,tStartBtn:t.startBtn,tStartSub:t.startSub,
+    statusTxt:(typeof mode!=='undefined'?t.status:null)};
+  Object.keys(map).forEach(function(id){
+    var el=document.getElementById(id);
+    if(el&&map[id])el.textContent=map[id];
+  });
+  var tt=document.getElementById('tTitle'); if(tt)tt.innerHTML=t.title;
+  var ts=document.getElementById('tStartTitle'); if(ts)ts.innerHTML=t.startTitle;
+  var ib=document.getElementById('instrBar');
+  if(ib&&typeof mode!=='undefined')ib.textContent=window._getInstr(mode);
+}
+window._changeLang=function(l){_setLang(l);};
+document.addEventListener('DOMContentLoaded',function(){_setLang('uz');});
+})();
+</script>
+</body>
+</html>

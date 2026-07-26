@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Elektr — Omm Qonuni</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap');
+:root{--bg:#07090f;--panel:#0e1420;--border:#1b2840;--accent:#facc15;--green:#6fff5c;--blue:#60a5fa;--red:#f87171;--text:#dde6f5;--muted:#4a6080;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;height:100vh;overflow:hidden;display:flex;flex-direction:column;}
+header{display:flex;align-items:center;gap:12px;padding:8px 20px;border-bottom:1px solid var(--border);background:linear-gradient(90deg,#07090f,#1a1400,#07090f);flex-shrink:0;}
+.badge{background:var(--accent);color:#000;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:3px 9px;letter-spacing:2px;border-radius:2px;}
+.htitle{font-size:14px;font-weight:800;}.htitle span{color:var(--accent);}
+.hsub{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-left:auto;}
+.brand{display:flex;align-items:center;gap:6px;background:linear-gradient(135deg,rgba(250,204,21,.12),rgba(111,255,92,.08));border:1px solid rgba(250,204,21,.3);border-radius:20px;padding:4px 14px;margin-left:10px;flex-shrink:0;}
+.brand-txt{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;background:linear-gradient(90deg,#facc15,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;}
+.statusbar{background:#0a0f1c;border-bottom:1px solid var(--border);padding:5px 20px;display:flex;align-items:center;gap:14px;font-family:'Space Mono',monospace;font-size:11px;flex-shrink:0;}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:bl 1s infinite;flex-shrink:0;}
+.dot.off{background:var(--muted);animation:none;}
+@keyframes bl{0%,100%{opacity:1}50%{opacity:.2}}
+#statusTxt{color:var(--accent);}
+.chips{display:flex;gap:6px;margin-left:auto;}
+.chip{background:rgba(250,204,21,.08);border:1px solid rgba(250,204,21,.2);border-radius:10px;padding:2px 9px;font-size:10px;color:var(--muted);}
+.chip span{color:var(--accent);}
+.body{display:grid;grid-template-columns:215px 1fr 265px;flex:1;overflow:hidden;}
+.left{background:var(--panel);border-right:1px solid var(--border);overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:9px;}
+.stitle{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--accent);text-transform:uppercase;margin-bottom:3px;}
+.card{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:8px;padding:10px;}
+.card label{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:7px;}
+.vb{font-family:'Space Mono',monospace;font-size:11px;color:var(--accent);background:rgba(250,204,21,.12);padding:2px 7px;border-radius:3px;}
+input[type=range]{width:100%;-webkit-appearance:none;height:4px;background:var(--border);border-radius:2px;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;background:var(--accent);border-radius:50%;cursor:pointer;box-shadow:0 0 8px rgba(250,204,21,.7);}
+.fbox{background:rgba(250,204,21,.04);border:1px solid rgba(250,204,21,.15);border-radius:7px;padding:9px;}
+.frow{display:flex;gap:6px;margin-bottom:4px;font-family:'Space Mono',monospace;font-size:9px;}
+.fl{color:var(--muted);min-width:22px;}.fe{color:var(--accent);}
+.steps{display:flex;flex-direction:column;gap:3px;}
+.step{display:flex;align-items:center;gap:7px;padding:5px 8px;border-radius:5px;font-size:10px;color:var(--muted);border:1px solid transparent;transition:all .3s;}
+.step.active{background:rgba(250,204,21,.07);border-color:rgba(250,204,21,.2);color:var(--accent);}
+.step.done{color:var(--green);}
+.snum{font-family:'Space Mono',monospace;font-size:9px;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.05);flex-shrink:0;}
+.step.active .snum{background:rgba(250,204,21,.2);}
+.step.done .snum{background:rgba(111,255,92,.12);color:var(--green);}
+.btn{width:100%;padding:9px;border:none;border-radius:7px;font-family:'Syne',sans-serif;font-weight:700;font-size:12px;cursor:pointer;transition:all .2s;margin-top:4px;}
+.btn-p{background:linear-gradient(135deg,#facc15,#ca8a04);color:#000;}
+.btn-p:hover{transform:translateY(-1px);box-shadow:0 5px 18px rgba(250,204,21,.4);}
+.btn-p:disabled{opacity:.35;cursor:not-allowed;}
+.btn-g{background:linear-gradient(135deg,#6fff5c,#33cc22);color:#000;}
+.btn-g:disabled{opacity:.35;}
+.btn-r{background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--border);font-size:11px;}
+.center{position:relative;overflow:hidden;background:#040810;}
+#simCanvas{display:block;width:100%;height:100%;}
+.instr-bar{position:absolute;bottom:0;left:0;right:0;background:rgba(4,8,16,.92);border-top:1px solid var(--border);padding:5px 18px;font-size:10px;color:var(--muted);text-align:center;}
+.right{background:var(--panel);border-left:1px solid var(--border);overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:9px;}
+.rc{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:8px;padding:10px;}
+.rc.hi{border-color:rgba(250,204,21,.3);background:rgba(250,204,21,.05);}
+.rc.hi2{border-color:rgba(96,165,250,.25);background:rgba(96,165,250,.04);}
+.rc.hi3{border-color:rgba(111,255,92,.2);background:rgba(111,255,92,.04);}
+.rl{font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:3px;}
+.rv{font-size:20px;font-weight:800;line-height:1;color:#fff;}
+.ru{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-top:2px;}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;}
+table{width:100%;border-collapse:collapse;font-family:'Space Mono',monospace;font-size:9px;}
+th{color:var(--accent);font-size:7px;letter-spacing:1px;border-bottom:1px solid var(--border);padding:4px 2px;text-align:center;}
+td{padding:3px 2px;border-bottom:1px solid rgba(255,255,255,.03);text-align:center;}
+#graphCanvas{display:block;width:100%;border-radius:8px;border:1px solid var(--border);}
+.final-card{background:rgba(250,204,21,.05);border:1px solid rgba(250,204,21,.2);border-radius:8px;padding:12px;display:none;}
+.err-row{display:flex;justify-content:space-between;margin-top:5px;font-family:'Space Mono',monospace;font-size:10px;}
+.err-row span:first-child{color:var(--muted);}
+.err-row span:last-child{color:var(--green);}
+.langsw{display:flex;gap:3px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;padding:3px;margin-left:10px;}
+.langbtn{background:transparent;border:none;color:var(--muted);font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:4px 9px;border-radius:5px;cursor:pointer;letter-spacing:1px;}
+.langbtn.active{background:var(--accent);color:#000;}
+</style>
+</head>
+<body>
+
+<!-- START SCREEN -->
+<div id="startScreen" style="position:fixed;inset:0;z-index:9999;background:radial-gradient(ellipse at 50% 40%,#1a1400 0%,#07090f 70%);display:flex;align-items:center;justify-content:center;">
+  <canvas id="bgCanvas" style="position:absolute;inset:0;width:100%;height:100%;opacity:.45;pointer-events:none"></canvas>
+  <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:18px;max-width:580px;padding:20px;text-align:center;">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div style="background:#facc15;color:#000;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:4px 14px;letter-spacing:2px;border-radius:2px;">ELEKTR · LAB 01</div>
+      <div style="font-family:'Space Mono',monospace;font-size:10px;color:#4a6080;letter-spacing:2px;">OMM QONUNI · I = U/R</div>
+    </div>
+    <div style="width:100px;height:100px;border-radius:50%;background:radial-gradient(circle,rgba(250,204,21,.2),rgba(250,204,21,.02));border:2px solid rgba(250,204,21,.5);display:flex;align-items:center;justify-content:center;box-shadow:0 0 60px rgba(250,204,21,.35);animation:pulseOmm 2.5s ease-in-out infinite;"><span style="font-size:44px;">⚡</span></div>
+    <h1 style="font-size:21px;font-weight:800;color:#fff;" id="tStartTitle">Omm Qonuni — <span style="color:#facc15;">I = U / R</span></h1>
+    <p style="font-size:11px;color:#4a6080;font-family:'Space Mono',monospace;" id="tStartSub">U — kuchlanish (V) · I — tok kuchi (A) · R — qarshilik (Ω)</p>
+    <div style="background:rgba(250,204,21,.05);border:1px solid rgba(250,204,21,.15);border-radius:12px;padding:15px;width:100%;text-align:left;">
+      <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;color:#facc15;margin-bottom:10px;" id="tProcedure">BAJARISH TARTIBI</div>
+      <div style="display:flex;flex-direction:column;gap:7px;">
+        <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#c5d3e8;"><span style="width:20px;height:20px;border-radius:50%;background:rgba(250,204,21,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#facc15;flex-shrink:0;">1</span><span id="tS1">R qarshilik va U kuchlanishni tanlang</span></div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#c5d3e8;"><span style="width:20px;height:20px;border-radius:50%;background:rgba(250,204,21,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#facc15;flex-shrink:0;">2</span><span id="tS2">Zanjirni yoping → I = U/R tok o'lchanadi</span></div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#c5d3e8;"><span style="width:20px;height:20px;border-radius:50%;background:rgba(250,204,21,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#facc15;flex-shrink:0;">3</span><span id="tS3">U ni o'zgartirib I ni kuzating → chiziqli bog'liqlik</span></div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#c5d3e8;"><span style="width:20px;height:20px;border-radius:50%;background:rgba(250,204,21,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#facc15;flex-shrink:0;">4</span><span id="tS4">I = f(U) grafigidan R ni aniqlang (qiyalik 1/R)</span></div>
+      </div>
+    </div>
+    <button onclick="startLab()" style="background:linear-gradient(135deg,#facc15,#ca8a04);color:#000;border:none;border-radius:12px;padding:15px 60px;font-size:16px;font-weight:800;font-family:'Syne',sans-serif;cursor:pointer;box-shadow:0 8px 30px rgba(250,204,21,.4);width:100%;"><span id="tStartBtn">▶ Laboratoriyani boshlash</span></button>
+    <div style="display:flex;align-items:center;gap:6px;opacity:.6;"><span>🔬</span><span style="font-family:'Space Mono',monospace;font-size:10px;font-weight:700;background:linear-gradient(90deg,#facc15,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;">Xosiyat Virtual Lab</span></div>
+  </div>
+</div>
+<style>
+@keyframes pulseOmm{0%,100%{box-shadow:0 0 60px rgba(250,204,21,.25)}50%{box-shadow:0 0 90px rgba(250,204,21,.6)}}
+@keyframes fadeOut{0%{opacity:1}100%{opacity:0;transform:scale(1.04)}}
+</style>
+<script>
+(function(){var c=document.getElementById('bgCanvas');var x=c.getContext('2d');var pts=[];function rs(){c.width=window.innerWidth;c.height=window.innerHeight;}rs();window.addEventListener('resize',rs);
+for(var i=0;i<60;i++)pts.push({x:Math.random()*1600,y:Math.random()*900,r:Math.random()*1.5+.5,vx:(Math.random()-.5)*.35,vy:(Math.random()-.5)*.35,a:Math.random()});
+function fr(){x.clearRect(0,0,c.width,c.height);pts.forEach(function(p){p.x+=p.vx;p.y+=p.vy;p.a+=.005;if(p.x<0)p.x=c.width;if(p.x>c.width)p.x=0;if(p.y<0)p.y=c.height;if(p.y>c.height)p.y=0;x.fillStyle='rgba(250,204,21,'+(0.15+Math.sin(p.a)*0.12)+')';x.beginPath();x.arc(p.x%c.width,p.y%c.height,p.r,0,Math.PI*2);x.fill();});requestAnimationFrame(fr);}fr();})();
+function startLab(){var s=document.getElementById('startScreen');s.style.animation='fadeOut .5s ease forwards';setTimeout(function(){s.style.display='none';},480);}
+</script>
+
+<header>
+  <div class="badge" id="tBadge">ELEKTR · LAB 01</div>
+  <h1 class="htitle" id="tTitle">Omm Qonuni — <span>I = U/R · Tok, Kuchlanish, Qarshilik</span></h1>
+  <div class="hsub" id="tHsub">ELEKTR · FIZPRAKTIKUM · SDPI 2026</div>
+  <div class="langsw">
+    <button class="langbtn active" id="langUZ" onclick="setLang('uz')">UZ</button>
+    <button class="langbtn" id="langRU" onclick="setLang('ru')">RU</button>
+    <button class="langbtn" id="langEN" onclick="setLang('en')">EN</button>
+  </div>
+  <div class="brand"><span>🔬</span><span class="brand-txt">Xosiyat Virtual Lab</span></div>
+</header>
+
+<div class="statusbar">
+  <div class="dot off" id="dot"></div>
+  <span id="statusTxt">R va U ni tanlang → zanjirni yoping → I = U/R ni o'lchang</span>
+  <div class="chips">
+    <div class="chip">R=<span id="cR">100</span>Ω</div>
+    <div class="chip">U=<span id="cU">6</span>V</div>
+    <div class="chip">I=<span id="cI">—</span>A</div>
+    <div class="chip">P=<span id="cP">—</span>W</div>
+    <div class="chip"><span id="tMeasLbl">O'lchov:</span><span id="chipCnt">0</span></div>
+  </div>
+</div>
+
+<div class="body">
+<div class="left">
+  <div class="stitle" id="tRlabel">Qarshilik (R)</div>
+  <div class="card">
+    <label>R (Ω) <span class="vb" id="dR">100 Ω</span></label>
+    <input type="range" id="sR" min="10" max="1000" step="10" value="100" oninput="setRv(this.value)">
+  </div>
+
+  <div class="stitle" id="tUlabel">Kuchlanish (U)</div>
+  <div class="card">
+    <label>U (V) <span class="vb" id="dU">6 V</span></label>
+    <input type="range" id="sU" min="1" max="24" step="0.5" value="6" oninput="setUv(this.value)">
+  </div>
+
+  <div class="card" style="background:rgba(250,204,21,.04);border-color:rgba(250,204,21,.15);">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+      <div>
+        <div style="font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);">I = U/R</div>
+        <div style="font-size:18px;font-weight:800;color:var(--accent);" id="dI">— A</div>
+      </div>
+      <div>
+        <div style="font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);">P = U·I</div>
+        <div style="font-size:18px;font-weight:800;color:var(--green);" id="dP">— W</div>
+      </div>
+      <div>
+        <div style="font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);">R = U/I</div>
+        <div style="font-size:14px;font-weight:700;color:var(--blue);" id="dRcalc">— Ω</div>
+      </div>
+      <div>
+        <div style="font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);">Q = I²Rt</div>
+        <div style="font-size:14px;font-weight:700;color:var(--red);" id="dQ">— J</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="fbox">
+    <div class="frow"><span class="fl">I</span><span class="fe">= U / R (A)</span></div>
+    <div class="frow"><span class="fl">R</span><span class="fe">= U / I (Ω)</span></div>
+    <div class="frow"><span class="fl">P</span><span class="fe">= U·I = I²R = U²/R (W)</span></div>
+    <div class="frow"><span class="fl">Q</span><span class="fe" id="tJoul">= I²·R·t (J) Joul-Lens</div>
+  </div>
+
+  <div class="steps">
+    <div class="step active" id="st1"><div class="snum">1</div><span id="tStep1">R va U tanlang</span></div>
+    <div class="step" id="st2"><div class="snum">2</div><span id="tStep2">Zanjir yopildi</span></div>
+    <div class="step" id="st3"><div class="snum">3</div><span id="tStep3">I o'lchanyapti</span></div>
+    <div class="step" id="st4"><div class="snum">4</div><span id="tStep4">Natijani yozing</span></div>
+    <div class="step" id="st5"><div class="snum">5</div><span id="tStep5">Tahlil</span></div>
+  </div>
+
+  <button class="btn btn-p" id="runBtn" onclick="runExp()">⚡ <span id="tRunBtn">Zanjirni yopish</span></button>
+  <button class="btn btn-g" onclick="addMeas()" id="addBtn" disabled>+ <span id="tAddBtn">Natijani yozish</span></button>
+  <button class="btn btn-r" onclick="resetAll()">↺ <span id="tResetBtn">Qayta boshlash</span></button>
+</div>
+
+<div class="center">
+  <canvas id="simCanvas"></canvas>
+  <div class="instr-bar" id="tInstrBar">⚡ Omm qonuni: I = U/R · Grafik I = f(U) — to'g'ri chiziq, qiyaligi = 1/R · P = UI — elektr quvvat · Q = I²Rt — Joul-Lens issiqligi</div>
+</div>
+
+<div class="right">
+  <div class="stitle" id="tResults">O'lchov natijalari</div>
+  <div class="three">
+    <div class="rc hi"><div class="rl">U (V)</div><div class="rv" id="rU">—</div></div>
+    <div class="rc hi2"><div class="rl">I (A)</div><div class="rv" style="color:var(--blue)" id="rI">—</div></div>
+    <div class="rc hi3"><div class="rl">R (Ω)</div><div class="rv" style="color:var(--green);font-size:15px" id="rR2">—</div></div>
+  </div>
+  <div class="two">
+    <div class="rc"><div class="rl">P = UI (W)</div><div class="rv" style="font-size:14px;color:var(--accent)" id="rP">—</div><div class="ru" id="tPowerLbl">quvvat</div></div>
+    <div class="rc"><div class="rl" id="tEpsLbl">ε xatolik</div><div class="rv" style="font-size:14px;color:var(--red)" id="rEps">—</div><div class="ru">%</div></div>
+  </div>
+
+  <div class="stitle" id="tTableTitle">Jadval: I = f(U)</div>
+  <table>
+    <thead><tr><th>№</th><th>R(Ω)</th><th>U(V)</th><th id="thInaz">I_naz(A)</th><th id="thItaj">I_taj(A)</th><th>P(W)</th><th>ε%</th></tr></thead>
+    <tbody id="tbody"></tbody>
+  </table>
+
+  <div class="stitle" id="tGraphTitle">Grafik: I = f(U)</div>
+  <canvas id="graphCanvas" height="110"></canvas>
+
+  <div class="final-card" id="finalCard">
+    <div class="rl" id="tFinalTitle">Yakuniy natija — Omm qonuni</div>
+    <div style="display:flex;gap:8px;margin-top:8px;">
+      <div style="flex:1;text-align:center;">
+        <div style="font-size:9px;color:var(--muted);font-family:monospace;" id="tAvgI">O'rt. I</div>
+        <div style="font-size:20px;font-weight:800;color:var(--blue);" id="resI">—</div>
+        <div style="font-size:8px;color:var(--muted);" id="tAmpereLbl">Amper</div>
+      </div>
+      <div style="flex:1;text-align:center;">
+        <div style="font-size:9px;color:var(--muted);font-family:monospace;" id="tRstar">R* grafik</div>
+        <div style="font-size:20px;font-weight:800;color:var(--accent);" id="resR">—</div>
+        <div style="font-size:8px;color:var(--muted);" id="tOhmLbl">Om</div>
+      </div>
+    </div>
+    <div class="err-row"><span id="tGivenR">Berilgan R</span><span id="resRset">—</span></div>
+    <div class="err-row"><span id="tAvgEps">O'rt. xatolik ε</span><span id="resEps">—</span></div>
+    <div class="err-row"><span id="tMeasCnt">O'lchashlar</span><span id="resCnt">—</span></div>
+  </div>
+</div>
+</div>
+
+<div style="position:fixed;bottom:14px;right:18px;display:flex;align-items:center;gap:7px;background:rgba(7,9,15,.75);border:1px solid rgba(250,204,21,.2);border-radius:30px;padding:5px 16px;backdrop-filter:blur(10px);z-index:9999;pointer-events:none;">
+  <span>🔬</span><span style="font-family:'Space Mono',monospace;font-size:11px;font-weight:700;background:linear-gradient(90deg,#facc15,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;">Xosiyat Virtual Lab</span>
+</div>
+
+<script>
+var LANG='uz';
+var I18N={
+ uz:{badge:'ELEKTR · LAB 01',title:'Omm Qonuni — <span>I = U/R · Tok, Kuchlanish, Qarshilik</span>',hsub:'ELEKTR · FIZPRAKTIKUM · SDPI 2026',
+   statusDefault:"R va U ni tanlang → zanjirni yoping → I = U/R ni o'lchang",measLbl:"O'lchov:",
+   rLabel:'Qarshilik (R)',uLabel:'Kuchlanish (U)',joul:'= I²·R·t (J) Joul-Lens',
+   step1:'R va U tanlang',step2:'Zanjir yopildi',step3:"I o'lchanyapti",step4:'Natijani yozing',step5:'Tahlil',
+   runBtn:'Zanjirni yopish',addBtn:'Natijani yozish',resetBtn:'Qayta boshlash',
+   instrBar:"⚡ Omm qonuni: I = U/R · Grafik I = f(U) — to'g'ri chiziq, qiyaligi = 1/R · P = UI — elektr quvvat · Q = I²Rt — Joul-Lens issiqligi",
+   results:"O'lchov natijalari",powerLbl:'quvvat',epsLbl:'ε xatolik',tableTitle:'Jadval: I = f(U)',graphTitle:'Grafik: I = f(U)',
+   thInaz:'I_naz(A)',thItaj:'I_taj(A)',finalTitle:'Yakuniy natija — Omm qonuni',avgI:"O'rt. I",ampereLbl:'Amper',rstar:'R* grafik',ohmLbl:'Om',
+   givenR:'Berilgan R',avgEps:"O'rt. xatolik ε",measCnt:"O'lchashlar",
+   startTitle:'Omm Qonuni — <span style="color:#facc15;">I = U / R</span>',startSub:'U — kuchlanish (V) · I — tok kuchi (A) · R — qarshilik (Ω)',
+   procedure:'BAJARISH TARTIBI',s1:'R qarshilik va U kuchlanishni tanlang',s2:"Zanjirni yoping → I = U/R tok o'lchanadi",
+   s3:"U ni o'zgartirib I ni kuzating → chiziqli bog'liqlik",s4:"I = f(U) grafigidan R ni aniqlang (qiyalik 1/R)",
+   startBtn:'▶ Laboratoriyani boshlash',
+   statusRun:"⚡ Zanjir yopildi! Tok oqmoqda... I=",
+   statusDone:'✓ ',hot:"Q↑ issiq",unit:'ta',
+   naz:'nazariy',taj:'tajriba'
+ },
+ ru:{badge:'ЭЛЕКТРИЧЕСТВО · ЛАБ 01',title:'Закон Ома — <span>I = U/R · Ток, напряжение, сопротивление</span>',hsub:'ЭЛЕКТРИЧЕСТВО · ФИЗПРАКТИКУМ · SDPI 2026',
+   statusDefault:'Выберите R и U → замкните цепь → измерьте I = U/R',measLbl:'Измерений:',
+   rLabel:'Сопротивление (R)',uLabel:'Напряжение (U)',joul:'= I²·R·t (Дж) закон Джоуля-Ленца',
+   step1:'Выберите R и U',step2:'Цепь замкнута',step3:'Измеряется I',step4:'Запишите результат',step5:'Анализ',
+   runBtn:'Замкнуть цепь',addBtn:'Записать результат',resetBtn:'Начать заново',
+   instrBar:'⚡ Закон Ома: I = U/R · График I = f(U) — прямая линия, наклон = 1/R · P = UI — электрическая мощность · Q = I²Rt — теплота Джоуля-Ленца',
+   results:'Результаты измерений',powerLbl:'мощность',epsLbl:'ε погрешность',tableTitle:'Таблица: I = f(U)',graphTitle:'График: I = f(U)',
+   thInaz:'I_теор(A)',thItaj:'I_эксп(A)',finalTitle:'Итоговый результат — Закон Ома',avgI:'Средн. I',ampereLbl:'Ампер',rstar:'R* график',ohmLbl:'Ом',
+   givenR:'Заданное R',avgEps:'Средняя погрешность ε',measCnt:'Измерения',
+   startTitle:'Закон Ома — <span style="color:#facc15;">I = U / R</span>',startSub:'U — напряжение (В) · I — сила тока (А) · R — сопротивление (Ом)',
+   procedure:'ПОРЯДОК ВЫПОЛНЕНИЯ',s1:'Выберите сопротивление R и напряжение U',s2:'Замкните цепь → измеряется ток I = U/R',
+   s3:'Изменяя U, наблюдайте I → линейная зависимость',s4:'По графику I = f(U) определите R (наклон 1/R)',
+   startBtn:'▶ Начать лабораторную',
+   statusRun:'⚡ Цепь замкнута! Течёт ток... I=',
+   statusDone:'✓ ',hot:'Q↑ горячо',unit:'шт.',
+   naz:'теор.',taj:'эксп.'
+ },
+ en:{badge:'ELECTRICITY · LAB 01',title:"Ohm's Law — <span>I = U/R · Current, Voltage, Resistance</span>",hsub:'ELECTRICITY · PHYSICS LAB · SDPI 2026',
+   statusDefault:'Choose R and U → close the circuit → measure I = U/R',measLbl:'Measurements:',
+   rLabel:'Resistance (R)',uLabel:'Voltage (U)',joul:'= I²·R·t (J) Joule-Lenz',
+   step1:'Choose R and U',step2:'Circuit closed',step3:'Measuring I',step4:'Record result',step5:'Analysis',
+   runBtn:'Close circuit',addBtn:'Record result',resetBtn:'Restart',
+   instrBar:"⚡ Ohm's law: I = U/R · Graph I = f(U) — straight line, slope = 1/R · P = UI — electric power · Q = I²Rt — Joule-Lenz heat",
+   results:'Measurement results',powerLbl:'power',epsLbl:'ε error',tableTitle:'Table: I = f(U)',graphTitle:'Graph: I = f(U)',
+   thInaz:'I_theor(A)',thItaj:'I_exp(A)',finalTitle:"Final result — Ohm's Law",avgI:'Avg. I',ampereLbl:'Ampere',rstar:'R* graph',ohmLbl:'Ohm',
+   givenR:'Given R',avgEps:'Avg. error ε',measCnt:'Measurements',
+   startTitle:'Ohm\'s Law — <span style="color:#facc15;">I = U / R</span>',startSub:'U — voltage (V) · I — current (A) · R — resistance (Ω)',
+   procedure:'PROCEDURE',s1:'Choose resistance R and voltage U',s2:'Close the circuit → current I = U/R is measured',
+   s3:'Vary U and watch I → linear relationship',s4:'From the I = f(U) graph, find R (slope 1/R)',
+   startBtn:'▶ Start the lab',
+   statusRun:'⚡ Circuit closed! Current flowing... I=',
+   statusDone:'✓ ',hot:'Q↑ hot',unit:'',
+   naz:'theory',taj:'exp.'
+ }
+};
+function t(k){return I18N[LANG][k];}
+function setLang(l){
+  LANG=l;
+  document.getElementById('langUZ').className='langbtn'+(l==='uz'?' active':'');
+  document.getElementById('langRU').className='langbtn'+(l==='ru'?' active':'');
+  document.getElementById('langEN').className='langbtn'+(l==='en'?' active':'');
+  document.getElementById('tBadge').textContent=t('badge');
+  document.getElementById('tTitle').innerHTML=t('title');
+  document.getElementById('tHsub').textContent=t('hsub');
+  document.getElementById('tMeasLbl').textContent=t('measLbl');
+  document.getElementById('tRlabel').textContent=t('rLabel');
+  document.getElementById('tUlabel').textContent=t('uLabel');
+  document.getElementById('tJoul').textContent=t('joul');
+  document.getElementById('tStep1').textContent=t('step1');
+  document.getElementById('tStep2').textContent=t('step2');
+  document.getElementById('tStep3').textContent=t('step3');
+  document.getElementById('tStep4').textContent=t('step4');
+  document.getElementById('tStep5').textContent=t('step5');
+  document.getElementById('tRunBtn').textContent=t('runBtn');
+  document.getElementById('tAddBtn').textContent=t('addBtn');
+  document.getElementById('tResetBtn').textContent=t('resetBtn');
+  document.getElementById('tInstrBar').textContent=t('instrBar');
+  document.getElementById('tResults').textContent=t('results');
+  document.getElementById('tPowerLbl').textContent=t('powerLbl');
+  document.getElementById('tEpsLbl').textContent=t('epsLbl');
+  document.getElementById('tTableTitle').textContent=t('tableTitle');
+  document.getElementById('tGraphTitle').textContent=t('graphTitle');
+  document.getElementById('thInaz').textContent=t('thInaz');
+  document.getElementById('thItaj').textContent=t('thItaj');
+  document.getElementById('tFinalTitle').textContent=t('finalTitle');
+  document.getElementById('tAvgI').textContent=t('avgI');
+  document.getElementById('tAmpereLbl').textContent=t('ampereLbl');
+  document.getElementById('tRstar').textContent=t('rstar');
+  document.getElementById('tOhmLbl').textContent=t('ohmLbl');
+  document.getElementById('tGivenR').textContent=t('givenR');
+  document.getElementById('tAvgEps').textContent=t('avgEps');
+  document.getElementById('tMeasCnt').textContent=t('measCnt');
+  document.getElementById('tStartTitle').innerHTML=t('startTitle');
+  document.getElementById('tStartSub').textContent=t('startSub');
+  document.getElementById('tProcedure').textContent=t('procedure');
+  document.getElementById('tS1').textContent=t('s1');
+  document.getElementById('tS2').textContent=t('s2');
+  document.getElementById('tS3').textContent=t('s3');
+  document.getElementById('tS4').textContent=t('s4');
+  document.getElementById('tStartBtn').textContent=t('startBtn');
+  if(!running && lastI===0){document.getElementById('statusTxt').textContent=t('statusDefault');}
+  drawGraph();
+}
+
+var Rv=100,Uv=6,measList=[],cnt=0,animT=0;
+var running=false,electronT=0,lastI=0;
+var sc=document.getElementById('simCanvas'),ctx=sc.getContext('2d');
+var gc=document.getElementById('graphCanvas'),gctx=gc.getContext('2d');
+var electrons=[];
+
+function setRv(v){Rv=parseFloat(v);document.getElementById('dR').textContent=v+' Ω';document.getElementById('cR').textContent=v;upd();}
+function setUv(v){Uv=parseFloat(v);document.getElementById('dU').textContent=v+' V';document.getElementById('cU').textContent=v;upd();}
+
+function upd(){
+  var I=Uv/Rv,P=Uv*I,Q=I*I*Rv*1;
+  document.getElementById('dI').textContent=formatI(I)+' A';
+  document.getElementById('dP').textContent=P.toFixed(3)+' W';
+  document.getElementById('dRcalc').textContent=Rv+' Ω';
+  document.getElementById('dQ').textContent=Q.toFixed(4)+' J';
+}
+
+function formatI(I){if(I<0.001)return (I*1000000).toFixed(2)+'μ';if(I<1)return (I*1000).toFixed(2)+'m';return I.toFixed(4);}
+
+function runExp(){
+  if(running)return;
+  running=true;electronT=0;
+  document.getElementById('runBtn').disabled=true;
+  document.getElementById('dot').classList.remove('off');
+  setStep(2);
+  document.getElementById('statusTxt').textContent=t('statusRun')+formatI(Uv/Rv)+'A';
+  // Elektronlar yaratish
+  electrons=[];
+  for(var i=0;i<20;i++)electrons.push({pos:Math.random(),speed:0,visible:false});
+  setTimeout(function(){
+    var I=Uv/Rv*(1+(Math.random()-.5)*0.015);
+    lastI=I;
+    var P=Uv*I,eps=Math.abs(I-Uv/Rv)/(Uv/Rv)*100;
+    document.getElementById('rU').textContent=Uv.toFixed(1);
+    document.getElementById('rI').textContent=formatI(I);
+    document.getElementById('rR2').textContent=Rv;
+    document.getElementById('rP').textContent=P.toFixed(3);
+    document.getElementById('rEps').textContent=eps.toFixed(2);
+    document.getElementById('cI').textContent=formatI(I);
+    document.getElementById('cP').textContent=P.toFixed(2);
+    document.getElementById('runBtn').disabled=false;
+    document.getElementById('addBtn').disabled=false;
+    document.getElementById('dot').classList.add('off');
+    setStep(4);
+    document.getElementById('statusTxt').textContent=t('statusDone')+'U='+Uv+'V | I='+formatI(I)+'A | R='+Rv+'Ω | P='+P.toFixed(3)+'W | ε='+eps.toFixed(2)+'%';
+  },1000);
+}
+
+function addMeas(){
+  cnt++;
+  var I=lastI,P=Uv*I,eps=Math.abs(I-Uv/Rv)/(Uv/Rv)*100;
+  measList.push({R:Rv,U:Uv,Inaz:Uv/Rv,Itaj:I,P:P,eps:eps});
+  document.getElementById('chipCnt').textContent=cnt;
+  var tr=document.createElement('tr');
+  tr.innerHTML='<td>'+cnt+'</td><td>'+Rv+'</td><td>'+Uv+'</td><td>'+(Uv/Rv).toFixed(4)+'</td><td>'+formatI(I)+'</td><td>'+P.toFixed(3)+'</td><td>'+eps.toFixed(2)+'</td>';
+  document.getElementById('tbody').appendChild(tr);
+  if(measList.length>=2){
+    var sI=measList.reduce(function(a,b){return a+b.Itaj;},0)/measList.length;
+    var sE=measList.reduce(function(a,b){return a+b.eps;},0)/measList.length;
+    // R* grafik qiyaligi
+    var sumUU=0,sumUI=0;
+    measList.forEach(function(m){sumUU+=m.U*m.U;sumUI+=m.U*m.Itaj;});
+    var Rstar=sumUU/sumUI;
+    document.getElementById('finalCard').style.display='block';
+    document.getElementById('resI').textContent=formatI(sI);
+    document.getElementById('resR').textContent=Rstar.toFixed(1)+' Ω';
+    document.getElementById('resRset').textContent=Rv+' Ω';
+    document.getElementById('resEps').textContent=sE.toFixed(2)+'%';
+    document.getElementById('resCnt').textContent=measList.length+' '+t('unit');
+    setStep(5);
+  }
+  drawGraph();
+}
+
+function resetAll(){
+  measList=[];cnt=0;running=false;electrons=[];lastI=0;
+  document.getElementById('tbody').innerHTML='';
+  document.getElementById('finalCard').style.display='none';
+  document.getElementById('addBtn').disabled=true;
+  document.getElementById('runBtn').disabled=false;
+  document.getElementById('dot').classList.add('off');
+  document.getElementById('chipCnt').textContent=0;
+  ['rU','rI','rR2','rP','rEps'].forEach(function(id){document.getElementById(id).textContent='—';});
+  document.getElementById('cI').textContent='—';document.getElementById('cP').textContent='—';
+  document.getElementById('statusTxt').textContent=t('statusDefault');
+  setStep(1);upd();drawGraph();
+}
+function setStep(n){for(var i=1;i<=5;i++){var el=document.getElementById('st'+i);el.className='step'+(i<n?' done':i===n?' active':'');el.querySelector('.snum').textContent=i<n?'✓':i;}}
+function resize(){sc.width=sc.offsetWidth;sc.height=sc.offsetHeight;}
+window.addEventListener('resize',resize);setTimeout(resize,80);
+
+(function loop(){
+  animT+=0.016;
+  if(running){
+    electronT+=0.016;
+    var I=Uv/Rv;
+    electrons.forEach(function(e){
+      e.pos+=I*0.08+0.01;
+      if(e.pos>1)e.pos-=1;
+      e.visible=true;
+    });
+  }
+  drawSim();
+  requestAnimationFrame(loop);
+})();
+
+function drawSim(){
+  var W=sc.width,H=sc.height;if(!W||!H)return;
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#040810';ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle='rgba(250,204,21,.02)';ctx.lineWidth=1;
+  for(var xi=0;xi<W;xi+=60){ctx.beginPath();ctx.moveTo(xi,0);ctx.lineTo(xi,H);ctx.stroke();}
+  for(var yi=0;yi<H;yi+=60){ctx.beginPath();ctx.moveTo(0,yi);ctx.lineTo(W,yi);ctx.stroke();}
+
+  var cx=W/2,cy=H/2;
+  // Zanjir o'lchami — canvas hajmiga moslashadi (kattaroq va aniqroq ko'rinish uchun)
+  var pw=Math.max(260,Math.min(W*0.62,560));
+  var ph=Math.max(180,Math.min(H*0.62,400));
+  var s=Math.min(pw/260,ph/180); // komponentlar uchun masshtab koeffitsienti
+  var x0=cx-pw/2,y0=cy-ph/2,x1=cx+pw/2,y1=cy+ph/2;
+
+  // Zanjir chiziqlari
+  var active=running||lastI>0;
+  var wireCol=active?'rgba(250,204,21,.8)':'rgba(100,100,100,.4)';
+  var wireW=active?3:1.5;
+  ctx.strokeStyle=wireCol;ctx.lineWidth=wireW;
+  if(active){ctx.shadowColor='rgba(250,204,21,.4)';ctx.shadowBlur=8;}
+  // Yuqori
+  ctx.beginPath();ctx.moveTo(x0,y0);ctx.lineTo(x1,y0);ctx.stroke();
+  // Pastki
+  ctx.beginPath();ctx.moveTo(x0,y1);ctx.lineTo(x1,y1);ctx.stroke();
+  // Chap
+  ctx.beginPath();ctx.moveTo(x0,y0);ctx.lineTo(x0,y1);ctx.stroke();
+  // O'ng
+  ctx.beginPath();ctx.moveTo(x1,y0);ctx.lineTo(x1,y1);ctx.stroke();
+  ctx.shadowBlur=0;
+
+  // Manba (chap tomon o'rta)
+  drawBattery(x0,cy,active,s);
+
+  // Rezistor (yuqori o'rta)
+  drawResistor(cx,y0,active,s);
+
+  // Ampermetr (pastki tomon)
+  drawAmpermetr(cx,y1,active,s);
+
+  // Voltmetr (o'ng tomon)
+  drawVoltmetr(x1,cy,active,s);
+
+  // Elektronlar
+  if(active){
+    electrons.forEach(function(e){
+      if(!e.visible)return;
+      var ex,ey;
+      var p=e.pos%1;
+      if(p<0.25){ex=x0+(x1-x0)*p/0.25;ey=y0;}
+      else if(p<0.5){ex=x1;ey=y0+(y1-y0)*(p-0.25)/0.25;}
+      else if(p<0.75){ex=x1-(x1-x0)*(p-0.5)/0.25;ey=y1;}
+      else{ex=x0;ey=y1-(y1-y0)*(p-0.75)/0.25;}
+      ctx.shadowColor='rgba(96,165,250,.8)';ctx.shadowBlur=8;
+      ctx.fillStyle='rgba(96,165,250,.9)';
+      ctx.beginPath();ctx.arc(ex,ey,4*s,0,Math.PI*2);ctx.fill();
+      ctx.shadowBlur=0;
+    });
+    // Tok yo'nalish strelkalari
+    ctx.fillStyle='rgba(250,204,21,.4)';
+    drawArrowOnWire(cx-60*s,y0,1,0,s);
+    drawArrowOnWire(x1,cy-40*s,0,1,s);
+    drawArrowOnWire(cx+60*s,y1,-1,0,s);
+    drawArrowOnWire(x0,cy+40*s,0,-1,s);
+  }
+
+  // O'lchov ko'rsatkichlari
+  var I=Uv/Rv,P=Uv*I;
+}
+
+function drawBattery(x,y,active,s){
+  s=s||1;
+  var col=active?'rgba(250,204,21,.9)':'rgba(100,100,100,.5)';
+  ctx.fillStyle='rgba(14,20,32,.95)';rr(ctx,x-18*s,y-35*s,36*s,70*s,5*s);ctx.fill();
+  ctx.strokeStyle=col;ctx.lineWidth=2;rr(ctx,x-18*s,y-35*s,36*s,70*s,5*s);ctx.stroke();
+  // Plitalar
+  for(var i=0;i<3;i++){
+    var yy=y-20*s+i*20*s;
+    ctx.strokeStyle=active?'rgba(250,204,21,.8)':'rgba(80,80,80,.5)';
+    ctx.lineWidth=i%2===0?3:1.5;
+    ctx.beginPath();ctx.moveTo(x-12*s,yy);ctx.lineTo(x+12*s,yy);ctx.stroke();
+  }
+  ctx.fillStyle=col;ctx.font='bold '+Math.round(9*s)+'px monospace';ctx.textAlign='center';
+  ctx.fillText('+',x-5*s,y-10*s);ctx.fillText('−',x+5*s,y+15*s);
+  ctx.fillText(Uv+'V',x,y+32*s);
+  ctx.font=Math.round(7*s)+'px monospace';ctx.fillText('EMF',x,y-27*s);
+}
+
+function drawResistor(x,y,active,s){
+  s=s||1;
+  var col=active?'rgba(250,204,21,.8)':'rgba(80,80,80,.4)';
+  ctx.fillStyle='rgba(14,20,32,.9)';rr(ctx,x-40*s,y-15*s,80*s,30*s,4*s);ctx.fill();
+  ctx.strokeStyle=col;ctx.lineWidth=1.5;rr(ctx,x-40*s,y-15*s,80*s,30*s,4*s);ctx.stroke();
+  // Zigzag
+  ctx.strokeStyle=active?'rgba(250,204,21,.7)':'rgba(80,80,80,.4)';ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.moveTo(x-32*s,y);
+  for(var i=0;i<8;i++){ctx.lineTo(x-26*s+i*8*s,i%2===0?y-8*s:y+8*s);}
+  ctx.lineTo(x+32*s,y);ctx.stroke();
+  ctx.fillStyle=col;ctx.font='bold '+Math.round(8*s)+'px monospace';ctx.textAlign='center';
+  ctx.fillText('R='+Rv+'Ω',x,y-18*s);
+  if(active){
+    ctx.fillStyle='rgba(248,113,113,.7)';ctx.font=Math.round(7*s)+'px monospace';
+    ctx.fillText(t('hot'),x,y+22*s);
+  }
+}
+
+function drawAmpermetr(x,y,active,s){
+  s=s||1;
+  var I=lastI||Uv/Rv;
+  var col=active?'rgba(96,165,250,.9)':'rgba(80,80,80,.4)';
+  ctx.fillStyle='rgba(14,20,32,.9)';ctx.beginPath();ctx.arc(x,y,22*s,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle=col;ctx.lineWidth=2;ctx.beginPath();ctx.arc(x,y,22*s,0,Math.PI*2);ctx.stroke();
+  if(active){ctx.shadowColor='rgba(96,165,250,.5)';ctx.shadowBlur=10;ctx.stroke();ctx.shadowBlur=0;}
+  ctx.fillStyle=col;ctx.font='bold '+Math.round(11*s)+'px Space Mono';ctx.textAlign='center';ctx.fillText('A',x,y-4*s);
+  ctx.fillStyle='rgba(255,255,255,.7)';ctx.font=Math.round(8*s)+'px monospace';
+  ctx.fillText(active?formatI(I):'0A',x,y+10*s);
+  // Strelka
+  if(active){
+    var ang=-Math.PI/2+Math.PI*(Math.min(I*Rv/24,1));
+    ctx.strokeStyle='rgba(96,165,250,.9)';ctx.lineWidth=2;
+    ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+Math.cos(ang)*15*s,y+Math.sin(ang)*15*s);ctx.stroke();
+  }
+}
+
+function drawVoltmetr(x,y,active,s){
+  s=s||1;
+  var col=active?'rgba(111,255,92,.9)':'rgba(80,80,80,.4)';
+  ctx.fillStyle='rgba(14,20,32,.9)';ctx.beginPath();ctx.arc(x,y,22*s,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle=col;ctx.lineWidth=2;ctx.beginPath();ctx.arc(x,y,22*s,0,Math.PI*2);ctx.stroke();
+  if(active){ctx.shadowColor='rgba(111,255,92,.5)';ctx.shadowBlur=10;ctx.stroke();ctx.shadowBlur=0;}
+  ctx.fillStyle=col;ctx.font='bold '+Math.round(10*s)+'px Space Mono';ctx.textAlign='center';ctx.fillText('V',x,y-4*s);
+  ctx.fillStyle='rgba(255,255,255,.7)';ctx.font=Math.round(8*s)+'px monospace';
+  ctx.fillText(active?Uv+'V':'0V',x,y+10*s);
+}
+
+function drawArrowOnWire(x,y,dx,dy,s){
+  s=s||1;
+  ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+dx*12*s+dy*5*s,y+dy*12*s+dx*5*s);ctx.lineTo(x+dx*12*s-dy*5*s,y+dy*12*s-dx*5*s);ctx.closePath();ctx.fill();
+}
+function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.lineTo(x+w-r,y);c.quadraticCurveTo(x+w,y,x+w,y+r);c.lineTo(x+w,y+h-r);c.quadraticCurveTo(x+w,y+h,x+w-r,y+h);c.lineTo(x+r,y+h);c.quadraticCurveTo(x,y+h,x,y+h-r);c.lineTo(x,y+r);c.quadraticCurveTo(x,y,x+r,y);c.closePath();}
+
+function drawGraph(){
+  var W2=gc.offsetWidth||250;gc.width=W2;var GH=110;
+  gctx.clearRect(0,0,W2,GH);gctx.fillStyle='#070c17';gctx.fillRect(0,0,W2,GH);
+  var pad=32,gW=W2-pad*2,gHH=GH-pad-8;
+  gctx.strokeStyle='rgba(250,204,21,.3)';gctx.lineWidth=1;
+  gctx.beginPath();gctx.moveTo(pad,8);gctx.lineTo(pad,GH-pad);gctx.lineTo(W2-pad+6,GH-pad);gctx.stroke();
+  gctx.fillStyle='rgba(250,204,21,.5)';gctx.font='7px monospace';gctx.textAlign='center';gctx.fillText('U(V)',W2-pad+8,GH-pad+3);
+  gctx.textAlign='right';gctx.fillText('I(A)',pad-3,12);
+  if(!measList.length)return;
+  var uvals=measList.map(function(m){return m.U;}),ivals=measList.map(function(m){return m.Itaj;});
+  var maxU=Math.max.apply(null,uvals)*1.3,maxI=Math.max.apply(null,ivals)*1.3;
+  // Nazariy chiziq
+  gctx.strokeStyle='rgba(250,204,21,.2)';gctx.lineWidth=1;gctx.setLineDash([3,4]);
+  gctx.beginPath();gctx.moveTo(pad,GH-pad);gctx.lineTo(W2-pad,GH-pad-(maxU/Rv/maxI)*gHH);gctx.stroke();gctx.setLineDash([]);
+  // Nuqtalar
+  measList.forEach(function(m){
+    var px=pad+(m.U/maxU)*gW,py=GH-pad-(m.Itaj/maxI)*gHH;
+    gctx.shadowColor='rgba(96,165,250,.6)';gctx.shadowBlur=6;
+    gctx.fillStyle='rgba(96,165,250,.9)';gctx.beginPath();gctx.arc(px,py,5,0,Math.PI*2);gctx.fill();
+    gctx.shadowBlur=0;
+  });
+  gctx.fillStyle='rgba(96,165,250,.7)';gctx.font='7px monospace';gctx.textAlign='left';gctx.fillText('● I = U/R '+t('taj'),pad+2,GH-pad-gHH+12);
+  gctx.fillStyle='rgba(250,204,21,.4)';gctx.fillText('— '+t('naz'),pad+2,GH-pad-gHH+22);
+}
+
+window.addEventListener('load',function(){setTimeout(function(){resize();upd();drawGraph();setLang('uz');},100);});
+</script>
+</body>
+</html>
