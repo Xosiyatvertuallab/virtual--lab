@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>6-Lab — Grimzel Qurilmasi</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap');
+:root{--bg:#07090f;--panel:#0e1420;--border:#1b2840;--accent:#10b981;--green:#6fff5c;--blue:#818cf8;--yellow:#ffc947;--red:#ff6060;--text:#dde6f5;--muted:#4a6080;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;height:100vh;overflow:hidden;display:flex;flex-direction:column;}
+header{display:flex;align-items:center;gap:12px;padding:8px 20px;border-bottom:1px solid var(--border);background:linear-gradient(90deg,#07090f,#001a10,#07090f);flex-shrink:0;}
+.badge{background:var(--accent);color:#000;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:3px 9px;letter-spacing:2px;border-radius:2px;}
+.htitle{font-size:14px;font-weight:800;}.htitle span{color:var(--accent);}
+.hsub{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-left:auto;}
+.brand{display:flex;align-items:center;gap:6px;background:linear-gradient(135deg,rgba(16,185,129,.12),rgba(111,255,92,.08));border:1px solid rgba(16,185,129,.3);border-radius:20px;padding:4px 14px;margin-left:10px;flex-shrink:0;}
+.brand-txt{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;background:linear-gradient(90deg,#10b981,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;}
+.statusbar{background:#0a0f1c;border-bottom:1px solid var(--border);padding:5px 20px;display:flex;align-items:center;gap:14px;font-family:'Space Mono',monospace;font-size:11px;flex-shrink:0;}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:bl 1s infinite;flex-shrink:0;}
+.dot.off{background:var(--muted);animation:none;}
+@keyframes bl{0%,100%{opacity:1}50%{opacity:.2}}
+#statusTxt{color:var(--accent);}
+.chips{display:flex;gap:6px;margin-left:auto;flex-wrap:wrap;}
+.chip{background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2);border-radius:10px;padding:2px 9px;font-size:10px;color:var(--muted);}
+.chip span{color:var(--accent);}
+.body{display:grid;grid-template-columns:215px 1fr 270px;flex:1;overflow:hidden;}
+.left{background:var(--panel);border-right:1px solid var(--border);overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px;}
+.stitle{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--accent);text-transform:uppercase;margin-bottom:2px;opacity:.85;}
+.card{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:8px;padding:9px;}
+.card label{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:6px;}
+.vb{font-family:'Space Mono',monospace;font-size:11px;color:var(--accent);background:rgba(16,185,129,.12);padding:2px 7px;border-radius:3px;}
+input[type=range]{width:100%;-webkit-appearance:none;height:4px;background:var(--border);border-radius:2px;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;background:var(--accent);border-radius:50%;cursor:pointer;box-shadow:0 0 8px rgba(16,185,129,.7);}
+.fbox{background:rgba(16,185,129,.04);border:1px solid rgba(16,185,129,.15);border-radius:7px;padding:9px;}
+.frow{display:flex;gap:5px;margin-bottom:4px;font-family:'Space Mono',monospace;font-size:9px;flex-wrap:wrap;}
+.frow:last-child{margin-bottom:0;}
+.fl{color:var(--muted);min-width:22px;}.fe{color:var(--accent);}
+.steps{display:flex;flex-direction:column;gap:3px;}
+.step{display:flex;align-items:center;gap:7px;padding:5px 8px;border-radius:5px;font-size:10px;color:var(--muted);border:1px solid transparent;transition:all .3s;}
+.step.active{background:rgba(16,185,129,.07);border-color:rgba(16,185,129,.2);color:var(--accent);}
+.step.done{color:var(--green);}
+.snum{font-family:'Space Mono',monospace;font-size:9px;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.05);flex-shrink:0;}
+.step.active .snum{background:rgba(16,185,129,.2);}
+.step.done .snum{background:rgba(111,255,92,.12);color:var(--green);}
+.btn{width:100%;padding:9px;border:none;border-radius:7px;font-family:'Syne',sans-serif;font-weight:700;font-size:12px;cursor:pointer;transition:all .2s;}
+.btn-p{background:linear-gradient(135deg,#10b981,#059669);color:#000;}
+.btn-p:hover{transform:translateY(-1px);box-shadow:0 5px 18px rgba(16,185,129,.4);}
+.btn-p:disabled{opacity:.35;cursor:not-allowed;transform:none;}
+.btn-g{background:linear-gradient(135deg,#6fff5c,#33cc22);color:#000;margin-top:4px;}
+.btn-g:disabled{opacity:.35;cursor:not-allowed;}
+.btn-r{background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--border);margin-top:4px;font-size:11px;}
+.center{position:relative;overflow:hidden;background:#040810;}
+#simCanvas{display:block;width:100%;height:100%;}
+.instr-bar{position:absolute;bottom:0;left:0;right:0;background:rgba(4,8,16,.92);border-top:1px solid var(--border);padding:5px 18px;font-size:10px;color:var(--muted);text-align:center;}
+.right{background:var(--panel);border-left:1px solid var(--border);overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px;}
+.rc{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:8px;padding:9px;}
+.rc.hi{border-color:rgba(16,185,129,.3);background:rgba(16,185,129,.05);}
+.rc.hi2{border-color:rgba(255,201,71,.2);background:rgba(255,201,71,.04);}
+.rc.hi3{border-color:rgba(129,140,248,.2);background:rgba(129,140,248,.04);}
+.rl{font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:3px;}
+.rv{font-size:17px;font-weight:800;line-height:1;color:#fff;}
+.ru{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-top:2px;}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:5px;}
+.three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;}
+table{width:100%;border-collapse:collapse;font-family:'Space Mono',monospace;font-size:8px;}
+th{color:var(--accent);font-size:7px;letter-spacing:1px;border-bottom:1px solid var(--border);padding:4px 2px;text-align:center;}
+td{padding:3px 2px;border-bottom:1px solid rgba(255,255,255,.03);text-align:center;color:var(--text);}
+#graphCanvas{display:block;width:100%;border-radius:8px;border:1px solid var(--border);}
+.final-card{background:rgba(16,185,129,.05);border:1px solid rgba(16,185,129,.2);border-radius:8px;padding:11px;}
+.err-row{display:flex;justify-content:space-between;margin-top:5px;font-family:'Space Mono',monospace;font-size:10px;}
+.err-row span:first-child{color:var(--muted);}
+.err-row span:last-child{color:var(--yellow);}
+</style>
+
+<style>
+.lang-btns-inject{display:flex;gap:4px;margin-left:8px;flex-shrink:0;}
+.lb-inject{border:1px solid #1b2840;background:rgba(255,255,255,.04);color:#4a6080;padding:4px 10px;border-radius:5px;font-family:'Space Mono',monospace;font-size:9px;cursor:pointer;transition:all .2s;}
+.lb-inject.on{border-color:currentColor;font-weight:700;opacity:1;}
+.lb-inject:hover{opacity:.8;}
+</style>
+</head>
+<body>
+
+<!-- BOSHLASH EKRANI -->
+<div id="startScreen" style="position:fixed;inset:0;z-index:9998;background:radial-gradient(ellipse at 50% 40%,#001a10 0%,#07090f 70%);display:flex;align-items:center;justify-content:center;">
+  <canvas id="bgCanvas" style="position:absolute;inset:0;width:100%;height:100%;opacity:.4;pointer-events:none"></canvas>
+  <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:18px;max-width:600px;padding:20px;text-align:center">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div style="background:#10b981;color:#000;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:4px 14px;letter-spacing:2px;border-radius:2px">LAB · 06</div>
+      <div style="font-family:'Space Mono',monospace;font-size:10px;color:#4a6080;letter-spacing:2px">MEXANIKA · ENERGIYA SAQLANISH QONUNI</div>
+    </div>
+    <div style="width:110px;height:110px;border-radius:50%;background:radial-gradient(circle,rgba(16,185,129,.18) 0%,rgba(16,185,129,.02) 70%);border:2px solid rgba(16,185,129,.4);display:flex;align-items:center;justify-content:center;box-shadow:0 0 55px rgba(16,185,129,.3);animation:pulse06 2.5s ease-in-out infinite;"><span style="font-size:48px">⚡</span></div>
+    <div>
+      <h1 style="font-size:20px;font-weight:800;color:#fff" id="txtStartH1Full"><span id="txtStartH1">Grimzel Qurilmasi — </span><span style="color:#10b981" id="txtStartH1Span">Kinetik va Potensial Energiyalarni Aniqlash</span></h1>
+      <p style="font-size:11px;color:#4a6080;margin-top:8px;font-family:'Space Mono',monospace">E_p = mgΔH · E_k = mgl²/(4H₂) · ΔE = E_p − E_k</p>
+    </div>
+    <div style="background:rgba(16,185,129,.05);border:1px solid rgba(16,185,129,.15);border-radius:12px;padding:15px;width:100%;text-align:left">
+      <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;color:#10b981;margin-bottom:10px" id="txtOrderLabel">BAJARISH TARTIBI</div>
+      <div style="display:flex;flex-direction:column;gap:7px">
+        <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#c5d3e8"><div style="width:20px;height:20px;border-radius:50%;background:rgba(16,185,129,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#10b981;flex-shrink:0">1</div><span id="txtOrd1">Sharcha massasi m va H₁ balandligini tanlang</span></div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#c5d3e8"><div style="width:20px;height:20px;border-radius:50%;background:rgba(16,185,129,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#10b981;flex-shrink:0">2</div><span id="txtOrd2">H₂ pastki balandligini o'rnating</span></div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#c5d3e8"><div style="width:20px;height:20px;border-radius:50%;background:rgba(16,185,129,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#10b981;flex-shrink:0">3</div><span id="txtOrd3">Tajribani ishga tushiring, l gorizontal masofa o'lchanadi</span></div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#c5d3e8"><div style="width:20px;height:20px;border-radius:50%;background:rgba(16,185,129,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#10b981;flex-shrink:0">4</div><span id="txtOrd4">E_p va E_k ni solishtiring, ΔE = E_p − E_k hisoblang</span></div>
+      </div>
+    </div>
+    <button onclick="startLab()" style="background:linear-gradient(135deg,#10b981,#059669);color:#000;border:none;border-radius:12px;padding:15px 60px;font-size:16px;font-weight:800;font-family:'Syne',sans-serif;cursor:pointer;box-shadow:0 8px 30px rgba(16,185,129,.35);transition:all .2s;width:100%" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'" id="txtStartBtn">▶ Laboratoriyani boshlash</button>
+    <div style="display:flex;align-items:center;gap:6px;opacity:.6"><span>🔬</span><span style="font-family:'Space Mono',monospace;font-size:10px;font-weight:700;background:linear-gradient(90deg,#10b981,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px">Xosiyat Virtual Lab</span></div>
+  </div>
+</div>
+<style>
+@keyframes pulse06{0%,100%{box-shadow:0 0 55px rgba(16,185,129,.2)}50%{box-shadow:0 0 80px rgba(16,185,129,.5)}}
+@keyframes fadeOut{0%{opacity:1}100%{opacity:0;transform:scale(1.04)}}
+</style>
+<script>
+(function(){var c=document.getElementById('bgCanvas');var x=c.getContext('2d');var pts=[];function rs(){c.width=window.innerWidth;c.height=window.innerHeight;}rs();window.addEventListener('resize',rs);for(var i=0;i<55;i++)pts.push({x:Math.random()*1600,y:Math.random()*900,r:Math.random()*1.5+.5,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,a:Math.random()});function fr(){x.clearRect(0,0,c.width,c.height);pts.forEach(function(p){p.x+=p.vx;p.y+=p.vy;p.a+=.005;if(p.x<0)p.x=c.width;if(p.x>c.width)p.x=0;if(p.y<0)p.y=c.height;if(p.y>c.height)p.y=0;x.fillStyle='rgba(16,185,129,'+(0.15+Math.sin(p.a)*0.12)+')';x.beginPath();x.arc(p.x%c.width,p.y%c.height,p.r,0,Math.PI*2);x.fill();});requestAnimationFrame(fr);}fr();})();
+function startLab(){var s=document.getElementById('startScreen');s.style.animation='fadeOut .5s ease forwards';setTimeout(function(){s.style.display='none';},480);}
+</script>
+
+<header>
+  <div class="badge" id="txtBadge">LAB · 06</div>
+  <h1 class="htitle"><span id="txtHMain">Grimzel Qurilmasi — </span><span id="txtHSpan">Kinetik va Potensial Energiya · Saqlanish Qonuni</span></h1>
+  <div class="hsub" id="txtHsub">MEXANIKA · FIZPRAKTIKUM · SDPI 2026</div>
+  <div class="brand"><span>🔬</span><span class="brand-txt">Xosiyat Virtual Lab</span></div>
+<div class="lang-btns-inject" id="_langbtns">
+<div class="lb-inject on" id="_lbuz" onclick="window._changeLang('uz')" style="color:#10b981;">🇺🇿 UZ</div>
+<div class="lb-inject" id="_lbru" onclick="window._changeLang('ru')">🇷🇺 RU</div>
+<div class="lb-inject" id="_lben" onclick="window._changeLang('en')">🇬🇧 EN</div>
+</div></header>
+
+<div class="statusbar">
+  <div class="dot off" id="dot"></div>
+  <span id="statusTxt">m va H₁ ni tanlang → H₂ belgilang → Tajribani ishga tushiring</span>
+  <div class="chips">
+    <div class="chip">m=<span id="chipM">30</span>g</div>
+    <div class="chip">H₁=<span id="chipH1">60</span>sm</div>
+    <div class="chip">H₂=<span id="chipH2">20</span>sm</div>
+    <div class="chip"><span id="txtChipOlchov">O'lchov:</span><span id="chipCnt">0</span></div>
+  </div>
+</div>
+
+<div class="body">
+<div class="left">
+  <div class="stitle" id="txtLeft1">Sharcha massasi (m)</div>
+  <div class="card">
+    <label>m (g) <span class="vb" id="dM">30 g</span></label>
+    <input type="range" id="sM" min="10" max="80" step="5" value="30" oninput="setM(this.value)">
+  </div>
+
+  <div class="stitle" id="txtLeft2">H₁ — boshlang'ich balandlik (a holat)</div>
+  <div class="card">
+    <label>H₁ (sm) <span class="vb" id="dH1">60 sm</span></label>
+    <input type="range" id="sH1" min="30" max="90" step="5" value="60" oninput="setH1(this.value)">
+  </div>
+
+  <div class="stitle" id="txtLeft3">H₂ — pastki (b) nuqta balandligi</div>
+  <div class="card">
+    <label>H₂ (sm) <span class="vb" id="dH2">20 sm</span></label>
+    <input type="range" id="sH2" min="5" max="40" step="5" value="20" oninput="setH2(this.value)">
+  </div>
+
+  <div class="card" style="background:rgba(16,185,129,.04);border-color:rgba(16,185,129,.15)">
+    <div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--muted)">ΔH = H₁ − H₂</div>
+    <div style="font-family:'Space Mono',monospace;font-size:16px;color:var(--accent);font-weight:700" id="dDH">— sm</div>
+  </div>
+
+  <div class="fbox">
+    <div class="frow"><span class="fl">E_p</span><span class="fe">= mg·ΔH</span></div>
+    <div class="frow"><span class="fl">v</span><span class="fe">= l·√(g/2H₂)</span></div>
+    <div class="frow"><span class="fl">E_k</span><span class="fe">= mgl²/(4H₂)</span></div>
+    <div class="frow"><span class="fl">ΔE</span><span class="fe" id="txtFeDE">= E_p − E_k (yo'qotish)</span></div>
+  </div>
+
+  <div class="steps">
+    <div class="step active" id="st1"><div class="snum">1</div><span id="txtStep1">m, H₁, H₂ tanlang</span></div>
+    <div class="step" id="st2"><div class="snum">2</div><span id="txtStep2">Sharcha b nuqtaga tushmoqda</span></div>
+    <div class="step" id="st3"><div class="snum">3</div><span id="txtStep3">l masofa o'lchanyapti</span></div>
+    <div class="step" id="st4"><div class="snum">4</div><span id="txtStep4">E_p va E_k hisoblanmoqda</span></div>
+    <div class="step" id="st5"><div class="snum">5</div><span id="txtStep5">Tahlil: ΔE = f(H₁)</span></div>
+  </div>
+
+  <button class="btn btn-p" id="runBtn" onclick="runExp()">▶ <span id="txtBtnRun">Tajribani ishga tushirish</span></button>
+  <button class="btn btn-g" onclick="calcAll()" id="calcBtn" disabled>📊 <span id="txtBtnCalc">Natijalarni hisoblash</span></button>
+  <button class="btn btn-r" onclick="resetAll()">↺ <span id="txtBtnReset">Qayta boshlash</span></button>
+</div>
+
+<div class="center">
+  <canvas id="simCanvas"></canvas>
+  <div class="instr-bar" id="instrBar">⚡ Grimzel qurilmasi: sharcha a holatdan b nuqtaga tushadi → gorizontal l masofaga uchib ketadi → E_p = mgΔH va E_k = mgl²/(4H₂) solishtiring</div>
+</div>
+
+<div class="right">
+  <div class="stitle" id="txtRight1">Joriy o'lchov natijalari</div>
+  <div class="two">
+    <div class="rc hi"><div class="rl" id="txtLLabel">l (gorizontal)</div><div class="rv" id="rL">—</div><div class="ru">sm</div></div>
+    <div class="rc hi"><div class="rl" id="txtVLabel">v (tezlik b da)</div><div class="rv" style="color:var(--accent)" id="rV">—</div><div class="ru">m/s</div></div>
+  </div>
+  <div class="two">
+    <div class="rc hi2"><div class="rl" id="txtEpLabel">E_p (potensial)</div><div class="rv" style="color:var(--yellow);font-size:14px" id="rEp">—</div><div class="ru">mJ</div></div>
+    <div class="rc hi3"><div class="rl" id="txtEkLabel">E_k (kinetik)</div><div class="rv" style="color:var(--blue);font-size:14px" id="rEk">—</div><div class="ru">mJ</div></div>
+  </div>
+  <div class="two">
+    <div class="rc"><div class="rl">ΔE = E_p−E_k</div><div class="rv" style="color:var(--red);font-size:14px" id="rDE">—</div><div class="ru" id="txtDEUnit">mJ (yo'qotish)</div></div>
+    <div class="rc"><div class="rl">ε %</div><div class="rv" style="color:var(--red);font-size:14px" id="rEps">—</div><div class="ru" id="txtEpsUnit">nisbiy yo'qotish</div></div>
+  </div>
+
+  <div class="stitle" id="txtTableTitle">6.1-jadval</div>
+  <div style="overflow-x:auto">
+    <table>
+      <thead><tr><th>№</th><th>m(g)</th><th>H₁(sm)</th><th>H₂(sm)</th><th>ΔH</th><th>l(sm)</th><th>E_p(mJ)</th><th>E_k(mJ)</th><th>ΔE(mJ)</th><th>ε%</th></tr></thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+
+  <div class="stitle" id="txtGraphTitle">Grafik: E_k va E_p = f(H₁)</div>
+  <canvas id="graphCanvas" height="115"></canvas>
+
+  <div class="final-card" id="finalCard" style="display:none">
+    <div class="rl" id="txtFinalTitle">Yakuniy natija — Energiya saqlanishi</div>
+    <div class="two" style="margin-top:8px">
+      <div style="text-align:center">
+        <div style="font-size:9px;color:var(--muted);font-family:monospace" id="txtAvgEp">O'rt. E_p</div>
+        <div style="font-size:18px;font-weight:800;color:var(--yellow)" id="resEp">—</div>
+        <div style="font-size:8px;color:var(--muted);font-family:monospace">mJ</div>
+      </div>
+      <div style="text-align:center">
+        <div style="font-size:9px;color:var(--muted);font-family:monospace" id="txtAvgEk">O'rt. E_k</div>
+        <div style="font-size:18px;font-weight:800;color:var(--blue)" id="resEk">—</div>
+        <div style="font-size:8px;color:var(--muted);font-family:monospace">mJ</div>
+      </div>
+    </div>
+    <div class="err-row"><span id="txtAvgDE">O'rt. ΔE (yo'qotish)</span><span id="resDE">—</span></div>
+    <div class="err-row"><span id="txtAvgEps">O'rt. ε %</span><span id="resEps2">—</span></div>
+    <div class="err-row"><span id="txtMeasCount">O'lchashlar soni</span><span id="resCnt">—</span></div>
+    <div style="margin-top:8px;font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);text-align:center" id="txtConclusion">Xulosa: ΔE ≠ 0 — muhit qarshiligi va elastik bo'lmagan deformatsiya tufayli</div>
+  </div>
+</div>
+</div>
+
+<div style="position:fixed;bottom:14px;right:18px;display:flex;align-items:center;gap:7px;background:rgba(7,9,15,.75);border:1px solid rgba(16,185,129,.2);border-radius:30px;padding:5px 16px;backdrop-filter:blur(10px);z-index:9999;pointer-events:none">
+  <span>🔬</span><span style="font-family:'Space Mono',monospace;font-size:11px;font-weight:700;background:linear-gradient(90deg,#10b981,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px">Xosiyat Virtual Lab</span>
+</div>
+
+<script>
+var G=9.81, Mv=30, H1v=60, H2v=20;
+var measList=[], cnt=0;
+var sc=document.getElementById('simCanvas'), ctx=sc.getContext('2d');
+var gc=document.getElementById('graphCanvas'), gctx=gc.getContext('2d');
+var animT=0, running=false, phase=0, ballX=0, ballY=0, ballVx=0, ballVy=0;
+var lResult=null, done=false, trailPts=[];
+
+function setM(v){Mv=parseFloat(v);document.getElementById('dM').textContent=v+' g';document.getElementById('chipM').textContent=v;updateDH();}
+function setH1(v){H1v=parseFloat(v);document.getElementById('dH1').textContent=v+' sm';document.getElementById('chipH1').textContent=v;updateDH();}
+function setH2(v){H2v=parseFloat(v);document.getElementById('dH2').textContent=v+' sm';document.getElementById('chipH2').textContent=v;updateDH();}
+function updateDH(){var dh=H1v-H2v;document.getElementById('dDH').textContent=(dh>0?dh:'!'+Math.abs(dh)+' (H₁>H₂ kerak)')+' sm';}
+
+function calcResults(){
+  var m=Mv/1000, dH=(H1v-H2v)/100, H2=H2v/100;
+  var Ep=m*G*dH*1000; // mJ
+  var v=Math.sqrt(G*dH*2); // v = sqrt(2gΔH) taxminan
+  // l = v * sqrt(2H2/g)
+  var l=v*Math.sqrt(2*H2/G)*100*(1+(Math.random()-.5)*0.04); // sm
+  var Ek=m*G*l/100*l/100/(4*H2)*1000; // mJ = mgl²/(4H₂)
+  var dE=Ep-Ek;
+  var eps=dE/Ep*100;
+  return {Ep:Ep,Ek:Ek,dE:dE,eps:eps,l:l,v:v};
+}
+
+function runExp(){
+  if(running)return;
+  if(H1v<=H2v){alert("H₁ > H₂ bo'lishi kerak!");return;}
+  running=true; done=false; phase=0; trailPts=[];
+  lResult=null;
+  document.getElementById('runBtn').disabled=true;
+  if(window._setStatusKey)window._setStatusKey('falling');
+  setDot(true); setStep(2);
+}
+
+var simTimer=0;
+(function loop(){
+  animT+=0.016;
+  if(running){
+    simTimer+=0.016;
+    if(simTimer<0.5){
+      phase=0; // tushish
+    } else if(simTimer<1.5){
+      phase=1; // uchish
+      if(simTimer===0.5||phase===1&&trailPts.length===0) setStep(3);
+    } else {
+      running=false; done=true; simTimer=0;
+      var r=calcResults(); lResult=r;
+      showResult(r);
+    }
+  } else if(!done) simTimer=0;
+  drawSim();
+  requestAnimationFrame(loop);
+})();
+
+function showResult(r){
+  document.getElementById('rL').textContent=r.l.toFixed(1);
+  document.getElementById('rV').textContent=r.v.toFixed(3);
+  document.getElementById('rEp').textContent=r.Ep.toFixed(2);
+  document.getElementById('rEk').textContent=r.Ek.toFixed(2);
+  document.getElementById('rDE').textContent=r.dE.toFixed(2);
+  document.getElementById('rEps').textContent=r.eps.toFixed(1);
+  document.getElementById('runBtn').disabled=false;
+  document.getElementById('calcBtn').disabled=false;
+  setDot(false); setStep(4);
+  if(window._setStatusKey)window._setStatusKey('done',{l:r.l,Ep:r.Ep,Ek:r.Ek,dE:r.dE});
+}
+
+function calcAll(){
+  if(!lResult)return;
+  var r=lResult; cnt++;
+  measList.push({m:Mv,H1:H1v,H2:H2v,dH:H1v-H2v,l:r.l,Ep:r.Ep,Ek:r.Ek,dE:r.dE,eps:r.eps});
+  document.getElementById('chipCnt').textContent=cnt;
+  var tr=document.createElement('tr');
+  tr.innerHTML='<td>'+cnt+'</td><td>'+Mv+'</td><td>'+H1v+'</td><td>'+H2v+'</td><td>'+(H1v-H2v)+'</td><td>'+r.l.toFixed(1)+'</td><td>'+r.Ep.toFixed(2)+'</td><td>'+r.Ek.toFixed(2)+'</td><td>'+r.dE.toFixed(2)+'</td><td>'+r.eps.toFixed(1)+'</td>';
+  document.getElementById('tbody').appendChild(tr);
+  var n=measList.length,sEp=0,sEk=0,sDE=0,sEps=0;
+  measList.forEach(function(m){sEp+=m.Ep;sEk+=m.Ek;sDE+=m.dE;sEps+=m.eps;});
+  document.getElementById('finalCard').style.display='block';
+  document.getElementById('resEp').textContent=(sEp/n).toFixed(2);
+  document.getElementById('resEk').textContent=(sEk/n).toFixed(2);
+  document.getElementById('resDE').textContent=(sDE/n).toFixed(2)+' mJ';
+  document.getElementById('resEps2').textContent=(sEps/n).toFixed(1)+'%';
+  document.getElementById('resCnt').textContent=n+' ta';
+  setStep(5);
+  if(window._setStatusKey)window._setStatusKey('celebrate',{Ep:sEp/n,Ek:sEk/n,dE:sDE/n});
+  drawGraph();
+}
+
+function resetAll(){
+  measList=[];cnt=0;running=false;done=false;simTimer=0;lResult=null;trailPts=[];
+  document.getElementById('tbody').innerHTML='';
+  document.getElementById('finalCard').style.display='none';
+  document.getElementById('calcBtn').disabled=true;
+  document.getElementById('runBtn').disabled=false;
+  document.getElementById('chipCnt').textContent=0;
+  ['rL','rV','rEp','rEk','rDE','rEps'].forEach(function(id){document.getElementById(id).textContent='—';});
+  if(window._setStatusKey)window._setStatusKey('default');
+  setDot(false);setStep(1);drawGraph();
+}
+function setDot(on){document.getElementById('dot').classList.toggle('off',!on);}
+function setStep(n){for(var i=1;i<=5;i++){var el=document.getElementById('st'+i);el.className='step'+(i<n?' done':i===n?' active':'');el.querySelector('.snum').textContent=i<n?'✓':i;}}
+function resize(){sc.width=sc.offsetWidth;sc.height=sc.offsetHeight;}
+window.addEventListener('resize',resize);setTimeout(resize,80);
+
+function drawSim(){
+  var W=sc.width,H=sc.height;if(!W||!H)return;
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='#040810';ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle='rgba(16,185,129,.02)';ctx.lineWidth=1;
+  for(var xi=0;xi<W;xi+=60){ctx.beginPath();ctx.moveTo(xi,0);ctx.lineTo(xi,H);ctx.stroke();}
+  for(var yi=0;yi<H;yi+=60){ctx.beginPath();ctx.moveTo(0,yi);ctx.lineTo(W,yi);ctx.stroke();}
+
+  // Koordinata tizimi
+  var ox=W*0.18, oy=H*0.85;
+  var sc2=Math.min(W,H)*0.006;
+  var maxH=Math.max(H2v,H1v)+20;
+
+  // O'qlar
+  ctx.strokeStyle='rgba(16,185,129,.4)';ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.moveTo(ox,oy);ctx.lineTo(W-40,oy);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(ox,oy);ctx.lineTo(ox,40);ctx.stroke();
+  ctx.fillStyle='rgba(16,185,129,.5)';ctx.font='10px monospace';ctx.textAlign='left';
+  ctx.fillText('x (l)',W-35,oy+3);ctx.fillText('y (H)',ox+4,48);
+
+  // H₁ chiziq (a holat)
+  var h1Y=oy-H1v*sc2;
+  ctx.strokeStyle='rgba(255,201,71,.4)';ctx.lineWidth=1;ctx.setLineDash([4,6]);
+  ctx.beginPath();ctx.moveTo(ox,h1Y);ctx.lineTo(W-60,h1Y);ctx.stroke();ctx.setLineDash([]);
+  ctx.fillStyle='rgba(255,201,71,.6)';ctx.font='9px monospace';ctx.textAlign='right';
+  ctx.fillText('H₁='+H1v+'sm',ox-5,h1Y+3);
+  // a holat (elektromagnit)
+  ctx.fillStyle='rgba(255,201,71,.2)';ctx.fillRect(ox-28,h1Y-20,28,20);
+  ctx.strokeStyle='rgba(255,201,71,.5)';ctx.strokeRect(ox-28,h1Y-20,28,20);
+  ctx.fillStyle='rgba(255,201,71,.8)';ctx.font='8px monospace';ctx.textAlign='center';
+  ctx.fillText('EM',ox-14,h1Y-7);
+
+  // H₂ chiziq (b nuqta)
+  var h2Y=oy-H2v*sc2;
+  ctx.strokeStyle='rgba(129,140,248,.35)';ctx.lineWidth=1;ctx.setLineDash([4,6]);
+  ctx.beginPath();ctx.moveTo(ox,h2Y);ctx.lineTo(W-60,h2Y);ctx.stroke();ctx.setLineDash([]);
+  ctx.fillStyle='rgba(129,140,248,.6)';ctx.font='9px monospace';ctx.textAlign='right';
+  ctx.fillText('H₂='+H2v+'sm',ox-5,h2Y+3);
+
+  // ΔH strelka
+  if(H1v>H2v){
+    ctx.strokeStyle='rgba(16,185,129,.5)';ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.moveTo(ox-16,h1Y);ctx.lineTo(ox-16,h2Y);ctx.stroke();
+    arrV2(ox-16,h1Y,-1,'rgba(16,185,129,.6)');
+    arrV2(ox-16,h2Y,1,'rgba(16,185,129,.6)');
+    ctx.fillStyle='rgba(16,185,129,.7)';ctx.font='9px monospace';ctx.textAlign='right';
+    ctx.fillText('ΔH='+(H1v-H2v)+'sm',ox-22,(h1Y+h2Y)/2+3);
+  }
+
+  // Yer (qum quticha)
+  var yerY=oy;
+  ctx.fillStyle='rgba(139,90,43,.3)';ctx.fillRect(ox+10,yerY,W-ox-70,18);
+  ctx.strokeStyle='rgba(139,90,43,.5)';ctx.strokeRect(ox+10,yerY,W-ox-70,18);
+  ctx.fillStyle='rgba(180,140,80,.3)';ctx.font='8px monospace';ctx.textAlign='center';
+  ctx.fillText('QUM QUTICHA',ox+10+(W-ox-70)/2,yerY+11);
+
+  // SHARCHA va TRAYEKTORIYA
+  var bR=10;
+  if(!running&&!done){
+    // Boshlang'ich holat — a da
+    ctx.shadowColor='rgba(16,185,129,.6)';ctx.shadowBlur=12;
+    var bg=ctx.createRadialGradient(ox-14,h1Y-10,2,ox-14,h1Y-10,bR);
+    bg.addColorStop(0,'#d1fae5');bg.addColorStop(0.4,'#10b981');bg.addColorStop(1,'#065f46');
+    ctx.fillStyle=bg;ctx.beginPath();ctx.arc(ox-14,h1Y-10,bR,0,Math.PI*2);ctx.fill();
+    ctx.shadowBlur=0;
+  } else if(running||done){
+    var prog=Math.min(simTimer/1.5,1);
+    if(phase===0||simTimer<0.5){
+      // Tushish
+      var dropProg=Math.min(simTimer/0.5,1);
+      var bx=ox-14, by=h1Y-10+(h2Y-h1Y+10)*dropProg;
+      ctx.shadowColor='rgba(16,185,129,.6)';ctx.shadowBlur=12;
+      ctx.fillStyle='#10b981';ctx.beginPath();ctx.arc(bx,by,bR,0,Math.PI*2);ctx.fill();
+      ctx.shadowBlur=0;
+    } else {
+      // Uchish (parabolik)
+      var flyProg=(simTimer-0.5)/1.0;
+      var lPx=(lResult?lResult.l:40)*sc2;
+      var bx=ox+flyProg*lPx;
+      var by=h2Y-bR+G*(flyProg*1.0)*(flyProg*1.0)*sc2*0.5;
+      // Trail
+      if(trailPts.length===0||Math.abs(bx-trailPts[trailPts.length-1].x)>5)
+        trailPts.push({x:bx,y:by});
+      // Trail chizish
+      for(var ti=0;ti<trailPts.length;ti++){
+        var alpha=(ti/trailPts.length)*0.5;
+        ctx.fillStyle='rgba(16,185,129,'+alpha+')';
+        ctx.beginPath();ctx.arc(trailPts[ti].x,trailPts[ti].y,3,0,Math.PI*2);ctx.fill();
+      }
+      // l o'q strelkasi
+      if(lResult){
+        ctx.strokeStyle='rgba(255,201,71,.4)';ctx.lineWidth=1;ctx.setLineDash([3,5]);
+        ctx.beginPath();ctx.moveTo(ox,h2Y+25);ctx.lineTo(ox+lPx,h2Y+25);ctx.stroke();ctx.setLineDash([]);
+        ctx.fillStyle='rgba(255,201,71,.7)';ctx.font='9px monospace';ctx.textAlign='center';
+        ctx.fillText('l='+lResult.l.toFixed(1)+'sm',ox+lPx/2,h2Y+38);
+        arrH2(ox,h2Y+25,1,'rgba(255,201,71,.6)');
+        arrH2(ox+lPx,h2Y+25,-1,'rgba(255,201,71,.6)');
+      }
+      ctx.shadowColor='rgba(16,185,129,.6)';ctx.shadowBlur=12;
+      ctx.fillStyle='#10b981';ctx.beginPath();ctx.arc(bx,Math.min(by,oy-bR),bR,0,Math.PI*2);ctx.fill();
+      ctx.shadowBlur=0;
+    }
+  }
+
+}
+function arrV2(x,y,d,c){ctx.fillStyle=c;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x-4,y+d*8);ctx.lineTo(x+4,y+d*8);ctx.closePath();ctx.fill();}
+function arrH2(x,y,d,c){ctx.fillStyle=c;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+d*8,y-4);ctx.lineTo(x+d*8,y+4);ctx.closePath();ctx.fill();}
+function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.lineTo(x+w-r,y);c.quadraticCurveTo(x+w,y,x+w,y+r);c.lineTo(x+w,y+h-r);c.quadraticCurveTo(x+w,y+h,x+w-r,y+h);c.lineTo(x+r,y+h);c.quadraticCurveTo(x,y+h,x,y+h-r);c.lineTo(x,y+r);c.quadraticCurveTo(x,y,x+r,y);c.closePath();}
+
+function drawGraph(){
+  var W2=gc.offsetWidth||250;gc.width=W2;var GH=115;
+  gctx.clearRect(0,0,W2,GH);gctx.fillStyle='#070c17';gctx.fillRect(0,0,W2,GH);
+  var pad=34,gW=W2-pad*2,gHH=GH-pad-8;
+  gctx.strokeStyle='rgba(16,185,129,.3)';gctx.lineWidth=1;
+  gctx.beginPath();gctx.moveTo(pad,8);gctx.lineTo(pad,GH-pad);gctx.lineTo(W2-pad+6,GH-pad);gctx.stroke();
+  gctx.fillStyle='rgba(16,185,129,.5)';gctx.font='7px monospace';gctx.textAlign='center';gctx.fillText('H₁(sm)',W2-pad+14,GH-pad+3);
+  gctx.textAlign='right';gctx.fillText('E(mJ)',pad-3,12);
+  if(!measList.length)return;
+  var hvals=measList.map(function(m){return m.H1;});
+  var epvals=measList.map(function(m){return m.Ep;});
+  var ekvals=measList.map(function(m){return m.Ek;});
+  var minH=Math.min.apply(null,hvals)-3,maxH=Math.max.apply(null,hvals)+3;
+  var minE=0,maxE=Math.max.apply(null,epvals.concat(ekvals))*1.25;
+  measList.forEach(function(m){
+    var px=pad+((m.H1-minH)/(maxH-minH+0.01))*gW;
+    var pep=GH-pad-((m.Ep-minE)/(maxE-minE+0.01))*gHH;
+    var pek=GH-pad-((m.Ek-minE)/(maxE-minE+0.01))*gHH;
+    gctx.fillStyle='rgba(255,201,71,.9)';gctx.beginPath();gctx.arc(px,pep,5,0,Math.PI*2);gctx.fill();
+    gctx.fillStyle='rgba(129,140,248,.9)';gctx.beginPath();gctx.arc(px,pek,5,0,Math.PI*2);gctx.fill();
+  });
+  gctx.fillStyle='rgba(255,201,71,.7)';gctx.font='7px monospace';gctx.textAlign='left';gctx.fillText('● E_p',pad+2,GH-pad-gHH+12);
+  gctx.fillStyle='rgba(129,140,248,.7)';gctx.fillText('● E_k',pad+2,GH-pad-gHH+22);
+}
+window.addEventListener('load',function(){setTimeout(function(){resize();drawGraph();updateDH();},100);});
+</script>
+
+<script id="langScript">
+(function(){
+var _lt={
+"uz":{
+ badge:"LAB · 06", hMain:"Grimzel Qurilmasi — ", hSpan:"Kinetik va Potensial Energiya · Saqlanish Qonuni",
+ hsub:"MEXANIKA · FIZPRAKTIKUM · SDPI 2026", chipOlchov:"O'lchov:",
+ left1:"Sharcha massasi (m)", left2:"H₁ — boshlang'ich balandlik (a holat)", left3:"H₂ — pastki (b) nuqta balandligi",
+ feDE:"= E_p − E_k (yo'qotish)",
+ step1:"m, H₁, H₂ tanlang", step2:"Sharcha b nuqtaga tushmoqda", step3:"l masofa o'lchanyapti",
+ step4:"E_p va E_k hisoblanmoqda", step5:"Tahlil: ΔE = f(H₁)",
+ btnRun:"Tajribani ishga tushirish", btnCalc:"Natijalarni hisoblash", btnReset:"Qayta boshlash",
+ right1:"Joriy o'lchov natijalari", lLabel:"l (gorizontal)", vLabel:"v (tezlik b da)",
+ epLabel:"E_p (potensial)", ekLabel:"E_k (kinetik)", deUnit:"mJ (yo'qotish)", epsUnit:"nisbiy yo'qotish",
+ tableTitle:"6.1-jadval", graphTitle:"Grafik: E_k va E_p = f(H₁)",
+ finalTitle:"Yakuniy natija — Energiya saqlanishi", avgEp:"O'rt. E_p", avgEk:"O'rt. E_k",
+ avgDE:"O'rt. ΔE (yo'qotish)", avgEps:"O'rt. ε %", measCount:"O'lchashlar soni",
+ conclusion:"Xulosa: ΔE ≠ 0 — muhit qarshiligi va elastik bo'lmagan deformatsiya tufayli",
+ startH1:"Grimzel Qurilmasi — ", startH1Span:"Kinetik va Potensial Energiyalarni Aniqlash",
+ orderLabel:"BAJARISH TARTIBI",
+ ord1:"Sharcha massasi m va H₁ balandligini tanlang",
+ ord2:"H₂ pastki balandligini o'rnating",
+ ord3:"Tajribani ishga tushiring, l gorizontal masofa o'lchanadi",
+ ord4:"E_p va E_k ni solishtiring, ΔE = E_p − E_k hisoblang",
+ startBtn:"▶ Laboratoriyani boshlash",
+ status:"m va H₁ ni tanlang → H₂ belgilang → Tajribani ishga tushiring",
+ statusFalling:"⏱ Sharcha tushmoqda...",
+ statusDone:function(p){return "✓ l="+p.l.toFixed(1)+'sm | E_p='+p.Ep.toFixed(2)+'mJ | E_k='+p.Ek.toFixed(2)+'mJ | ΔE='+p.dE.toFixed(2)+'mJ';},
+ statusCelebrate:function(p){return "🎉 O'rt. E_p="+p.Ep.toFixed(2)+'mJ | E_k='+p.Ek.toFixed(2)+'mJ | ΔE='+p.dE.toFixed(2)+'mJ';},
+ instr:"⚡ Grimzel qurilmasi: sharcha a holatdan b nuqtaga tushadi → gorizontal l masofaga uchib ketadi → E_p = mgΔH va E_k = mgl²/(4H₂) solishtiring"
+},
+"ru":{
+ badge:"ЛАБ · 06", hMain:"Аппарат Гримзеля — ", hSpan:"Кинетическая и потенциальная энергия · Закон сохранения",
+ hsub:"МЕХАНИКА · ФИЗПРАКТИКУМ · SDPI 2026", chipOlchov:"Измерений:",
+ left1:"Масса шарика (m)", left2:"H₁ — начальная высота (точка a)", left3:"H₂ — высота нижней точки (b)",
+ feDE:"= E_p − E_k (потери)",
+ step1:"Выбрать m, H₁, H₂", step2:"Шарик падает в точку b", step3:"Измеряется расстояние l",
+ step4:"Вычисляются E_p и E_k", step5:"Анализ: ΔE = f(H₁)",
+ btnRun:"Запустить опыт", btnCalc:"Вычислить результаты", btnReset:"Начать заново",
+ right1:"Текущие результаты измерений", lLabel:"l (горизонтальное)", vLabel:"v (скорость в b)",
+ epLabel:"E_p (потенциальная)", ekLabel:"E_k (кинетическая)", deUnit:"мДж (потери)", epsUnit:"относительные потери",
+ tableTitle:"Таблица 6.1", graphTitle:"График: E_k и E_p = f(H₁)",
+ finalTitle:"Итог — Сохранение энергии", avgEp:"Сред. E_p", avgEk:"Сред. E_k",
+ avgDE:"Сред. ΔE (потери)", avgEps:"Сред. ε %", measCount:"Число измерений",
+ conclusion:"Вывод: ΔE ≠ 0 — из-за сопротивления среды и неупругой деформации",
+ startH1:"Аппарат Гримзеля — ", startH1Span:"Определение кинетической и потенциальной энергии",
+ orderLabel:"ПОРЯДОК ВЫПОЛНЕНИЯ",
+ ord1:"Выберите массу шарика m и высоту H₁",
+ ord2:"Установите нижнюю высоту H₂",
+ ord3:"Запустите опыт, измерится горизонтальное расстояние l",
+ ord4:"Сравните E_p и E_k, вычислите ΔE = E_p − E_k",
+ startBtn:"▶ Начать лабораторную работу",
+ status:"Выберите m и H₁ → задайте H₂ → запустите опыт",
+ statusFalling:"⏱ Шарик падает...",
+ statusDone:function(p){return "✓ l="+p.l.toFixed(1)+'см | E_p='+p.Ep.toFixed(2)+'мДж | E_k='+p.Ek.toFixed(2)+'мДж | ΔE='+p.dE.toFixed(2)+'мДж';},
+ statusCelebrate:function(p){return "🎉 Сред. E_p="+p.Ep.toFixed(2)+'мДж | E_k='+p.Ek.toFixed(2)+'мДж | ΔE='+p.dE.toFixed(2)+'мДж';},
+ instr:"⚡ Гримзель: шарик падает из точки a в точку b → измеряется горизонтальное l → сравните E_p = mgΔH и E_k = mgl²/(4H₂)"
+},
+"en":{
+ badge:"LAB · 06", hMain:"Grimsehl Apparatus — ", hSpan:"Kinetic and Potential Energy · Conservation Law",
+ hsub:"MECHANICS · PHYSICS PRACTICUM · SDPI 2026", chipOlchov:"Measurements:",
+ left1:"Ball mass (m)", left2:"H₁ — initial height (point a)", left3:"H₂ — height of lower point (b)",
+ feDE:"= E_p − E_k (loss)",
+ step1:"Choose m, H₁, H₂", step2:"Ball falls to point b", step3:"Measuring distance l",
+ step4:"Calculating E_p and E_k", step5:"Analysis: ΔE = f(H₁)",
+ btnRun:"Run experiment", btnCalc:"Calculate results", btnReset:"Reset",
+ right1:"Current measurement results", lLabel:"l (horizontal)", vLabel:"v (speed at b)",
+ epLabel:"E_p (potential)", ekLabel:"E_k (kinetic)", deUnit:"mJ (loss)", epsUnit:"relative loss",
+ tableTitle:"Table 6.1", graphTitle:"Graph: E_k and E_p = f(H₁)",
+ finalTitle:"Final result — Energy conservation", avgEp:"Avg. E_p", avgEk:"Avg. E_k",
+ avgDE:"Avg. ΔE (loss)", avgEps:"Avg. ε %", measCount:"Number of measurements",
+ conclusion:"Conclusion: ΔE ≠ 0 — due to air resistance and inelastic deformation",
+ startH1:"Grimsehl Apparatus — ", startH1Span:"Determining Kinetic and Potential Energy",
+ orderLabel:"PROCEDURE",
+ ord1:"Choose the ball mass m and height H₁",
+ ord2:"Set the lower height H₂",
+ ord3:"Run the experiment, the horizontal distance l is measured",
+ ord4:"Compare E_p and E_k, calculate ΔE = E_p − E_k",
+ startBtn:"▶ Start the lab",
+ status:"Choose m and H₁ → set H₂ → run the experiment",
+ statusFalling:"⏱ Ball is falling...",
+ statusDone:function(p){return "✓ l="+p.l.toFixed(1)+'cm | E_p='+p.Ep.toFixed(2)+'mJ | E_k='+p.Ek.toFixed(2)+'mJ | ΔE='+p.dE.toFixed(2)+'mJ';},
+ statusCelebrate:function(p){return "🎉 Avg. E_p="+p.Ep.toFixed(2)+'mJ | E_k='+p.Ek.toFixed(2)+'mJ | ΔE='+p.dE.toFixed(2)+'mJ';},
+ instr:"⚡ Grimsehl apparatus: ball falls from point a to b → travels horizontal distance l → compare E_p = mgΔH and E_k = mgl²/(4H₂)"
+}
+};
+var _lang='uz';
+var _acc='#10b981';
+var _statusState={key:'default',params:{}};
+function _renderStatus(){
+  var t=_lt[_lang],s=_statusState,el=document.getElementById('statusTxt');
+  if(!el)return;
+  if(s.key==='falling')el.textContent=t.statusFalling;
+  else if(s.key==='done')el.textContent=t.statusDone(s.params);
+  else if(s.key==='celebrate')el.textContent=t.statusCelebrate(s.params);
+  else el.textContent=t.status;
+}
+function _setLang(l){
+  _lang=l;
+  ['uz','ru','en'].forEach(function(x){
+    var el=document.getElementById('_lb'+x);
+    if(!el)return;
+    el.className='lb-inject'+(x===l?' on':'');
+    el.style.color=x===l?_acc:'#4a6080';
+    el.style.background=x===l?'rgba('+_acc.replace('#','').match(/../g).map(function(h){return parseInt(h,16);}).join(',')+',0.12)':'rgba(255,255,255,.04)';
+  });
+  var t=_lt[l];
+  if(!t)return;
+  var map={
+    txtBadge:t.badge, txtHMain:t.hMain, txtHSpan:t.hSpan, txtHsub:t.hsub, txtChipOlchov:t.chipOlchov,
+    txtLeft1:t.left1, txtLeft2:t.left2, txtLeft3:t.left3, txtFeDE:t.feDE,
+    txtStep1:t.step1, txtStep2:t.step2, txtStep3:t.step3, txtStep4:t.step4, txtStep5:t.step5,
+    txtBtnRun:t.btnRun, txtBtnCalc:t.btnCalc, txtBtnReset:t.btnReset,
+    txtRight1:t.right1, txtLLabel:t.lLabel, txtVLabel:t.vLabel, txtEpLabel:t.epLabel, txtEkLabel:t.ekLabel,
+    txtDEUnit:t.deUnit, txtEpsUnit:t.epsUnit,
+    txtTableTitle:t.tableTitle, txtGraphTitle:t.graphTitle,
+    txtFinalTitle:t.finalTitle, txtAvgEp:t.avgEp, txtAvgEk:t.avgEk, txtAvgDE:t.avgDE, txtAvgEps:t.avgEps,
+    txtMeasCount:t.measCount, txtConclusion:t.conclusion,
+    txtStartH1:t.startH1, txtStartH1Span:t.startH1Span,
+    txtOrderLabel:t.orderLabel, txtOrd1:t.ord1, txtOrd2:t.ord2, txtOrd3:t.ord3, txtOrd4:t.ord4,
+    txtStartBtn:t.startBtn, instrBar:t.instr
+  };
+  Object.keys(map).forEach(function(id){
+    var el=document.getElementById(id);
+    if(el&&map[id]!==undefined)el.textContent=map[id];
+  });
+  _renderStatus();
+}
+window._changeLang=function(l){_setLang(l);};
+window._setStatusKey=function(key,params){_statusState={key:key,params:params||{}};_renderStatus();};
+document.addEventListener('DOMContentLoaded',function(){_setLang('uz');});
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Elastiklik — Guk Qonuni</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap');
+:root{--bg:#07090f;--panel:#0e1420;--border:#1b2840;--accent:#3b82f6;--green:#6fff5c;--yellow:#ffc947;--red:#ff6060;--text:#dde6f5;--muted:#4a6080;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;height:100vh;overflow:hidden;display:flex;flex-direction:column;}
+header{display:flex;align-items:center;gap:12px;padding:8px 20px;border-bottom:1px solid var(--border);background:linear-gradient(90deg,#07090f,#00081a,#07090f);flex-shrink:0;}
+.badge{background:var(--accent);color:#fff;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:3px 9px;letter-spacing:2px;border-radius:2px;}
+.htitle{font-size:14px;font-weight:800;}.htitle span{color:var(--accent);}
+.hsub{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-left:auto;}
+.brand{display:flex;align-items:center;gap:6px;background:linear-gradient(135deg,rgba(59,130,246,.12),rgba(111,255,92,.08));border:1px solid rgba(59,130,246,.3);border-radius:20px;padding:4px 14px;margin-left:10px;flex-shrink:0;}
+.brand-txt{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;background:linear-gradient(90deg,#3b82f6,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;}
+.statusbar{background:#0a0f1c;border-bottom:1px solid var(--border);padding:5px 20px;display:flex;align-items:center;gap:14px;font-family:'Space Mono',monospace;font-size:11px;flex-shrink:0;}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:bl 1s infinite;flex-shrink:0;}
+@keyframes bl{0%,100%{opacity:1}50%{opacity:.2}}
+#statusTxt{color:var(--accent);}
+.chips{display:flex;gap:6px;margin-left:auto;}
+.chip{background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.2);border-radius:10px;padding:2px 9px;font-size:10px;color:var(--muted);}
+.chip span{color:var(--accent);}
+.body{display:grid;grid-template-columns:215px 1fr 260px;flex:1;overflow:hidden;}
+.left{background:var(--panel);border-right:1px solid var(--border);overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:9px;}
+.stitle{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--accent);text-transform:uppercase;margin-bottom:3px;}
+.card{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:8px;padding:10px;}
+.card label{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:7px;}
+.vb{font-family:'Space Mono',monospace;font-size:11px;color:var(--accent);background:rgba(59,130,246,.12);padding:2px 7px;border-radius:3px;}
+input[type=range]{width:100%;-webkit-appearance:none;height:4px;background:var(--border);border-radius:2px;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;background:var(--accent);border-radius:50%;cursor:pointer;box-shadow:0 0 8px rgba(59,130,246,.7);}
+.fbox{background:rgba(59,130,246,.04);border:1px solid rgba(59,130,246,.15);border-radius:7px;padding:9px;}
+.frow{display:flex;gap:6px;margin-bottom:4px;font-family:'Space Mono',monospace;font-size:9px;}
+.fl{color:var(--muted);min-width:22px;}.fe{color:var(--accent);}
+.steps{display:flex;flex-direction:column;gap:3px;}
+.step{display:flex;align-items:center;gap:7px;padding:5px 8px;border-radius:5px;font-size:10px;color:var(--muted);border:1px solid transparent;transition:all .3s;}
+.step.active{background:rgba(59,130,246,.07);border-color:rgba(59,130,246,.2);color:var(--accent);}
+.step.done{color:var(--green);}
+.snum{font-family:'Space Mono',monospace;font-size:9px;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.05);flex-shrink:0;}
+.step.active .snum{background:rgba(59,130,246,.2);}
+.step.done .snum{background:rgba(111,255,92,.12);color:var(--green);}
+.btn{width:100%;padding:9px;border:none;border-radius:7px;font-family:'Syne',sans-serif;font-weight:700;font-size:12px;cursor:pointer;transition:all .2s;margin-top:4px;}
+.btn-p{background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;}
+.btn-p:hover{transform:translateY(-1px);box-shadow:0 5px 18px rgba(59,130,246,.4);}
+.btn-g{background:linear-gradient(135deg,#6fff5c,#33cc22);color:#000;}
+.btn-g:disabled{opacity:.35;}
+.btn-r{background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--border);font-size:11px;}
+.center{position:relative;overflow:hidden;background:#040810;}
+#simCanvas{display:block;width:100%;height:100%;}
+.instr-bar{position:absolute;bottom:0;left:0;right:0;background:rgba(4,8,16,.92);border-top:1px solid var(--border);padding:5px 18px;font-size:10px;color:var(--muted);text-align:center;}
+.right{background:var(--panel);border-left:1px solid var(--border);overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:9px;}
+.rc{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:8px;padding:10px;}
+.rc.hi{border-color:rgba(59,130,246,.3);background:rgba(59,130,246,.05);}
+.rl{font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:3px;}
+.rv{font-size:20px;font-weight:800;line-height:1;color:#fff;}
+.ru{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-top:2px;}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+table{width:100%;border-collapse:collapse;font-family:'Space Mono',monospace;font-size:9px;}
+th{color:var(--accent);font-size:7px;letter-spacing:1px;border-bottom:1px solid var(--border);padding:4px 2px;text-align:center;}
+td{padding:3px 2px;border-bottom:1px solid rgba(255,255,255,.03);text-align:center;}
+#graphCanvas{display:block;width:100%;border-radius:8px;border:1px solid var(--border);}
+.final-card{background:rgba(59,130,246,.05);border:1px solid rgba(59,130,246,.2);border-radius:8px;padding:12px;display:none;}
+.err-row{display:flex;justify-content:space-between;margin-top:5px;font-family:'Space Mono',monospace;font-size:10px;}
+.err-row span:first-child{color:var(--muted);}
+.err-row span:last-child{color:var(--yellow);}
+</style>
+
+<style>
+.lang-btns-inject{display:flex;gap:4px;margin-left:8px;flex-shrink:0;}
+.lb-inject{border:1px solid #1b2840;background:rgba(255,255,255,.04);color:#4a6080;padding:4px 10px;border-radius:5px;font-family:'Space Mono',monospace;font-size:9px;cursor:pointer;transition:all .2s;}
+.lb-inject.on{border-color:currentColor;font-weight:700;opacity:1;}
+.lb-inject:hover{opacity:.8;}
+</style>
+</head>
+<body>
+<div id="startScreen" style="position:fixed;inset:0;z-index:9999;background:radial-gradient(ellipse at 50% 40%,#000c1f 0%,#07090f 70%);display:flex;align-items:center;justify-content:center;">
+  <canvas id="bgCanvas" style="position:absolute;inset:0;width:100%;height:100%;opacity:.4;pointer-events:none"></canvas>
+  <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:18px;max-width:560px;padding:20px;text-align:center;">
+    <div style="display:flex;align-items:center;gap:10px;"><div style="background:#3b82f6;color:#fff;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:4px 14px;letter-spacing:2px;border-radius:2px;" id="txtStartBadge">MEXANIKA · LAB</div><div style="font-family:'Space Mono',monospace;font-size:10px;color:#4a6080;letter-spacing:2px;">GUK QONUNI · ELASTIKLIK</div></div>
+    <div style="width:100px;height:100px;border-radius:50%;background:radial-gradient(circle,rgba(59,130,246,.18),rgba(59,130,246,.02));border:2px solid rgba(59,130,246,.4);display:flex;align-items:center;justify-content:center;box-shadow:0 0 55px rgba(59,130,246,.3);animation:pulseEl 2.5s ease-in-out infinite;"><span style="font-size:44px;">🌀</span></div>
+    <h1 style="font-size:20px;font-weight:800;color:#fff;"><span id="txtStartH1">Prujina Elastikligi — </span><span style="color:#3b82f6;" id="txtStartH1Span">Guk Qonuni: F = k·x</span></h1>
+    <p style="font-size:11px;color:#4a6080;font-family:'Space Mono',monospace;">F = k·x · k = mg/Δx · T = 2π√(m/k)</p>
+    <div style="background:rgba(59,130,246,.05);border:1px solid rgba(59,130,246,.15);border-radius:12px;padding:15px;width:100%;text-align:left;">
+      <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;color:#3b82f6;margin-bottom:8px;" id="txtOrderLabel">BAJARISH TARTIBI</div>
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#c5d3e8;"><div style="width:20px;height:20px;border-radius:50%;background:rgba(59,130,246,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#3b82f6;flex-shrink:0;">1</div><span id="txtOrd1">m (yuk massasi) va k (prujina qattiqligi) ni tanlang</span></div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#c5d3e8;"><div style="width:20px;height:20px;border-radius:50%;background:rgba(59,130,246,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#3b82f6;flex-shrink:0;">2</div><span id="txtOrd2">Prujina cho'zilishini Δx = mg/k formuladan hisoblang</span></div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#c5d3e8;"><div style="width:20px;height:20px;border-radius:50%;background:rgba(59,130,246,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#3b82f6;flex-shrink:0;">3</div><span id="txtOrd3">Tebranish davrini T = 2π√(m/k) aniqlang</span></div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#c5d3e8;"><div style="width:20px;height:20px;border-radius:50%;background:rgba(59,130,246,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#3b82f6;flex-shrink:0;">4</div><span id="txtOrd4">k = mg/Δx formuladan qaytadan qattiqlicni toping</span></div>
+      </div>
+    </div>
+    <button onclick="startLab()" style="background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;border:none;border-radius:12px;padding:15px 60px;font-size:15px;font-weight:800;font-family:'Syne',sans-serif;cursor:pointer;box-shadow:0 8px 30px rgba(59,130,246,.35);width:100%;" id="txtStartBtn">▶ Laboratoriyani boshlash</button>
+    <div style="display:flex;align-items:center;gap:6px;opacity:.6;"><span>🔬</span><span style="font-family:'Space Mono',monospace;font-size:10px;font-weight:700;background:linear-gradient(90deg,#3b82f6,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;">Xosiyat Virtual Lab</span></div>
+  </div>
+</div>
+<style>
+@keyframes pulseEl{0%,100%{box-shadow:0 0 55px rgba(59,130,246,.2)}50%{box-shadow:0 0 80px rgba(59,130,246,.5)}}
+@keyframes fadeOut{0%{opacity:1}100%{opacity:0;transform:scale(1.04)}}
+</style>
+<script>
+(function(){var c=document.getElementById('bgCanvas');var x=c.getContext('2d');var pts=[];function rs(){c.width=window.innerWidth;c.height=window.innerHeight;}rs();window.addEventListener('resize',rs);for(var i=0;i<50;i++)pts.push({x:Math.random()*1600,y:Math.random()*900,r:Math.random()*1.5+.5,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,a:Math.random()});function fr(){x.clearRect(0,0,c.width,c.height);pts.forEach(function(p){p.x+=p.vx;p.y+=p.vy;p.a+=.005;if(p.x<0)p.x=c.width;if(p.x>c.width)p.x=0;if(p.y<0)p.y=c.height;if(p.y>c.height)p.y=0;x.fillStyle='rgba(59,130,246,'+(0.15+Math.sin(p.a)*0.12)+')';x.beginPath();x.arc(p.x%c.width,p.y%c.height,p.r,0,Math.PI*2);x.fill();});requestAnimationFrame(fr);}fr();})();
+function startLab(){var s=document.getElementById('startScreen');s.style.animation='fadeOut .5s ease forwards';setTimeout(function(){s.style.display='none';},480);}
+</script>
+
+<header>
+  <div class="badge" id="txtBadge">MEXANIKA · LAB</div>
+  <h1 class="htitle"><span id="txtHMain">Prujina Elastikligi — </span><span id="txtHSpan">Guk Qonuni: F = k·Δx</span></h1>
+  <div class="hsub" id="txtHsub">MEXANIKA · FIZPRAKTIKUM · SDPI 2026</div>
+  <div class="brand"><span>🔬</span><span class="brand-txt">Xosiyat Virtual Lab</span></div>
+<div class="lang-btns-inject" id="_langbtns">
+<div class="lb-inject on" id="_lbuz" onclick="window._changeLang('uz')" style="color:#3b82f6;">🇺🇿 UZ</div>
+<div class="lb-inject" id="_lbru" onclick="window._changeLang('ru')">🇷🇺 RU</div>
+<div class="lb-inject" id="_lben" onclick="window._changeLang('en')">🇬🇧 EN</div>
+</div></header>
+<div class="statusbar">
+  <div class="dot" id="dot"></div>
+  <span id="statusTxt">m va k ni tanlang → Δx va F hisoblanadi → T davrini aniqlang</span>
+  <div class="chips">
+    <div class="chip">m=<span id="cM">0.5</span>kg</div>
+    <div class="chip">k=<span id="cK">20</span>N/m</div>
+    <div class="chip">Δx=<span id="cDx">—</span>m</div>
+    <div class="chip"><span id="txtChipOlchov">O'lchov:</span><span id="chipCnt">0</span></div>
+  </div>
+</div>
+<div class="body">
+<div class="left">
+  <div class="stitle" id="txtLeft1">Yuk massasi (m)</div>
+  <div class="card">
+    <label>m (kg) <span class="vb" id="dM">0.5 kg</span></label>
+    <input type="range" id="sM" min="0.1" max="2.0" step="0.1" value="0.5" oninput="setMv(this.value)">
+  </div>
+  <div class="stitle" id="txtLeft2">Prujina qattiqligi (k)</div>
+  <div class="card">
+    <label>k (N/m) <span class="vb" id="dK">20 N/m</span></label>
+    <input type="range" id="sK" min="5" max="100" step="5" value="20" oninput="setKv(this.value)">
+  </div>
+  <div class="fbox">
+    <div class="frow"><span class="fl">F</span><span class="fe">= k · Δx = mg</span></div>
+    <div class="frow"><span class="fl">Δx</span><span class="fe">= mg / k</span></div>
+    <div class="frow"><span class="fl">T</span><span class="fe">= 2π · √(m/k)</span></div>
+    <div class="frow"><span class="fl">k*</span><span class="fe" id="txtFeTajriba">= mg / Δx (tajriba)</span></div>
+  </div>
+  <div class="steps">
+    <div class="step active" id="st1"><div class="snum">1</div><span id="txtStep1">m va k tanlang</span></div>
+    <div class="step" id="st2"><div class="snum">2</div><span id="txtStep2">Δx hisoblanmoqda</span></div>
+    <div class="step" id="st3"><div class="snum">3</div><span id="txtStep3">T davri aniqlang</span></div>
+    <div class="step" id="st4"><div class="snum">4</div><span id="txtStep4">O'lchov yozing</span></div>
+    <div class="step" id="st5"><div class="snum">5</div><span id="txtStep5">Tahlil</span></div>
+  </div>
+  <button class="btn btn-p" onclick="addMeas()">+ <span id="txtBtnAdd">O'lchovni yozish</span></button>
+  <button class="btn btn-r" onclick="resetAll()">↺ <span id="txtBtnReset">Tozalash</span></button>
+</div>
+<div class="center">
+  <canvas id="simCanvas"></canvas>
+  <div class="instr-bar" id="instrBar">🌀 Prujina Guk qonuniga bo'ysunadi: F = k·Δx · Yuk ta'sirida prujina cho'ziladi · Muvozanat holatida: F_elastik = mg</div>
+</div>
+<div class="right">
+  <div class="stitle" id="txtRight1">Joriy hisob-kitob</div>
+  <div class="two">
+    <div class="rc hi"><div class="rl">F = mg (N)</div><div class="rv" id="rF">—</div><div class="ru" id="txtUnitN">Newton</div></div>
+    <div class="rc hi"><div class="rl" id="txtDxLabel">Δx cho'zilish</div><div class="rv" style="color:var(--accent)" id="rDx">—</div><div class="ru" id="txtUnitM">metr</div></div>
+  </div>
+  <div class="two">
+    <div class="rc"><div class="rl" id="txtTLabel">T (davr)</div><div class="rv" style="font-size:14px;color:var(--yellow)" id="rT">—</div><div class="ru" id="txtUnitS">sekund</div></div>
+    <div class="rc"><div class="rl" id="txtKstarLabel">k* (tajriba)</div><div class="rv" style="font-size:14px;color:var(--green)" id="rKstar">—</div><div class="ru">N/m</div></div>
+  </div>
+  <div class="stitle" id="txtTableTitle">Jadval: F = k·Δx</div>
+  <table>
+    <thead><tr><th>№</th><th>m(kg)</th><th>k(N/m)</th><th>F(N)</th><th>Δx(m)</th><th>T(s)</th><th>k*(N/m)</th></tr></thead>
+    <tbody id="tbody"></tbody>
+  </table>
+  <div class="stitle" id="txtGraphTitle">Grafik: F = f(Δx)</div>
+  <canvas id="graphCanvas" height="110"></canvas>
+  <div class="final-card" id="finalCard">
+    <div class="rl" id="txtFinalTitle">Yakuniy natija — Guk qonuni</div>
+    <div class="rv" style="color:var(--accent);font-size:16px;margin-top:6px;" id="resMain">—</div>
+    <div class="err-row"><span id="txtAvgK">O'rt. k* (tajriba)</span><span id="resK">—</span></div>
+    <div class="err-row"><span id="txtGivenK">Berilgan k</span><span id="resKth">—</span></div>
+    <div class="err-row"><span id="txtMeasCount">O'lchashlar</span><span id="resCnt">—</span></div>
+  </div>
+</div>
+</div>
+<div style="position:fixed;bottom:14px;right:18px;display:flex;align-items:center;gap:7px;background:rgba(7,9,15,.75);border:1px solid rgba(59,130,246,.2);border-radius:30px;padding:5px 16px;backdrop-filter:blur(10px);z-index:9999;pointer-events:none;">
+  <span>🔬</span><span style="font-family:'Space Mono',monospace;font-size:11px;font-weight:700;background:linear-gradient(90deg,#3b82f6,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;">Xosiyat Virtual Lab</span>
+</div>
+<script>
+var G=9.81,Mv=0.5,Kv=20,measList=[],cnt=0,animT=0;
+var sc=document.getElementById('simCanvas'),ctx=sc.getContext('2d');
+var gc=document.getElementById('graphCanvas'),gctx=gc.getContext('2d');
+function setMv(v){Mv=parseFloat(v);document.getElementById('dM').textContent=v+' kg';document.getElementById('cM').textContent=v;upd();}
+function setKv(v){Kv=parseFloat(v);document.getElementById('dK').textContent=v+' N/m';document.getElementById('cK').textContent=v;upd();}
+function upd(){
+  var F=Mv*G,dx=F/Kv,T=2*Math.PI*Math.sqrt(Mv/Kv),kstar=F/dx;
+  document.getElementById('rF').textContent=F.toFixed(3);
+  document.getElementById('rDx').textContent=dx.toFixed(4);
+  document.getElementById('cDx').textContent=dx.toFixed(3);
+  document.getElementById('rT').textContent=T.toFixed(3);
+  document.getElementById('rKstar').textContent=kstar.toFixed(2);
+  if(window._setStatusVals)window._setStatusVals(F,dx,T,kstar);
+  setStep(2);
+}
+function addMeas(){
+  cnt++;var F=Mv*G,dx=F/Kv,T=2*Math.PI*Math.sqrt(Mv/Kv),kstar=F/dx;
+  measList.push({m:Mv,k:Kv,F:F,dx:dx,T:T,kstar:kstar});
+  document.getElementById('chipCnt').textContent=cnt;
+  var tr=document.createElement('tr');
+  tr.innerHTML='<td>'+cnt+'</td><td>'+Mv+'</td><td>'+Kv+'</td><td>'+F.toFixed(3)+'</td><td>'+dx.toFixed(4)+'</td><td>'+T.toFixed(3)+'</td><td>'+kstar.toFixed(2)+'</td>';
+  document.getElementById('tbody').appendChild(tr);
+  setStep(4);
+  if(measList.length>=2){
+    var sK=measList.reduce(function(a,b){return a+b.kstar;},0)/measList.length;
+    document.getElementById('finalCard').style.display='block';
+    document.getElementById('resMain').textContent=(window._finalMainText?window._finalMainText(sK):'Guk qonuni tasdiqlandi! k*='+sK.toFixed(2)+' N/m');
+    document.getElementById('resK').textContent=sK.toFixed(2)+' N/m';
+    document.getElementById('resKth').textContent=Kv+' N/m';
+    document.getElementById('resCnt').textContent=measList.length+' ta';
+    setStep(5);
+  }
+  drawGraph();
+}
+function resetAll(){measList=[];cnt=0;document.getElementById('tbody').innerHTML='';document.getElementById('finalCard').style.display='none';document.getElementById('chipCnt').textContent=0;setStep(1);upd();drawGraph();}
+function setStep(n){for(var i=1;i<=5;i++){var el=document.getElementById('st'+i);el.className='step'+(i<n?' done':i===n?' active':'');el.querySelector('.snum').textContent=i<n?'✓':i;}}
+function resize(){sc.width=sc.offsetWidth;sc.height=sc.offsetHeight;}
+window.addEventListener('resize',resize);setTimeout(resize,80);
+(function loop(){animT+=0.016;drawSim();requestAnimationFrame(loop);})();
+function drawSim(){
+  var W=sc.width,H=sc.height;if(!W||!H)return;
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#040810';ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle='rgba(59,130,246,.02)';ctx.lineWidth=1;
+  for(var xi=0;xi<W;xi+=60){ctx.beginPath();ctx.moveTo(xi,0);ctx.lineTo(xi,H);ctx.stroke();}
+  for(var yi=0;yi<H;yi+=60){ctx.beginPath();ctx.moveTo(0,yi);ctx.lineTo(W,yi);ctx.stroke();}
+  var cx=W/2,topY=40,dx_m=Mv*G/Kv,maxDx=2.0*9.81/5;
+  var springLen=H*0.25,yukSize=50,yukY=topY+springLen+dx_m/maxDx*H*0.3;
+  // Mahkamlangan joy
+  ctx.fillStyle='#1a2840';ctx.fillRect(cx-60,topY-12,120,12);
+  ctx.strokeStyle='rgba(59,130,246,.3)';ctx.lineWidth=1.5;
+  for(var i=0;i<6;i++){ctx.beginPath();ctx.moveTo(cx-60+i*22,topY-12);ctx.lineTo(cx-60+i*22-8,topY-22);ctx.stroke();}
+  // Prujina zigzag
+  var turns=14,step2=(yukY-topY)/turns;
+  ctx.strokeStyle='rgba(59,130,246,.8)';ctx.lineWidth=2.5;ctx.beginPath();ctx.moveTo(cx,topY);
+  for(var i=0;i<=turns;i++){var px=cx+(i%2===0?18:-18);if(i===0||i===turns)px=cx;ctx.lineTo(px,topY+i*step2);}
+  ctx.stroke();
+  // Prujina glow
+  ctx.shadowColor='rgba(59,130,246,.4)';ctx.shadowBlur=10;ctx.stroke();ctx.shadowBlur=0;
+  // Yuk
+  var gr=ctx.createLinearGradient(cx-yukSize/2,yukY,cx+yukSize/2,yukY+yukSize);
+  gr.addColorStop(0,'#2040a0');gr.addColorStop(1,'#102060');
+  ctx.fillStyle=gr;rr(ctx,cx-yukSize/2,yukY,yukSize,yukSize,6);ctx.fill();
+  ctx.strokeStyle='rgba(59,130,246,.7)';ctx.lineWidth=1.5;rr(ctx,cx-yukSize/2,yukY,yukSize,yukSize,6);ctx.stroke();
+  ctx.shadowColor='rgba(59,130,246,.4)';ctx.shadowBlur=10;ctx.fill();ctx.shadowBlur=0;
+  ctx.fillStyle='#fff';ctx.font='bold 11px Syne';ctx.textAlign='center';ctx.fillText(Mv+'kg',cx,yukY+yukSize/2+5);
+  // Og'irlik strelkasi
+  ctx.strokeStyle='rgba(255,96,96,.7)';ctx.lineWidth=2;
+  ctx.beginPath();ctx.moveTo(cx+yukSize/2+15,yukY+yukSize/2);ctx.lineTo(cx+yukSize/2+15,yukY+yukSize/2+40);ctx.stroke();
+  ctx.fillStyle='rgba(255,96,96,.7)';ctx.beginPath();ctx.moveTo(cx+yukSize/2+15,yukY+yukSize/2+40);ctx.lineTo(cx+yukSize/2+9,yukY+yukSize/2+28);ctx.lineTo(cx+yukSize/2+21,yukY+yukSize/2+28);ctx.closePath();ctx.fill();
+  ctx.fillStyle='rgba(255,96,96,.7)';ctx.font='9px monospace';ctx.textAlign='left';ctx.fillText('mg='+(Mv*G).toFixed(1)+'N',cx+yukSize/2+20,yukY+yukSize/2+28);
+  // Δx strelka
+  var dx_px=(dx_m/maxDx)*H*0.3;
+  ctx.strokeStyle='rgba(111,255,92,.4)';ctx.lineWidth=1;ctx.setLineDash([3,5]);
+  ctx.beginPath();ctx.moveTo(cx-yukSize/2-20,topY+springLen);ctx.lineTo(cx-yukSize/2-20,yukY);ctx.stroke();ctx.setLineDash([]);
+  ctx.fillStyle='rgba(111,255,92,.7)';ctx.font='9px monospace';ctx.textAlign='right';
+  ctx.fillText('Δx='+(Mv*G/Kv).toFixed(3)+'m',cx-yukSize/2-25,(topY+springLen+yukY)/2+3);
+}
+function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.lineTo(x+w-r,y);c.quadraticCurveTo(x+w,y,x+w,y+r);c.lineTo(x+w,y+h-r);c.quadraticCurveTo(x+w,y+h,x+w-r,y+h);c.lineTo(x+r,y+h);c.quadraticCurveTo(x,y+h,x,y+h-r);c.lineTo(x,y+r);c.quadraticCurveTo(x,y,x+r,y);c.closePath();}
+function drawGraph(){
+  var W2=gc.offsetWidth||240;gc.width=W2;var GH=110;
+  gctx.clearRect(0,0,W2,GH);gctx.fillStyle='#070c17';gctx.fillRect(0,0,W2,GH);
+  var pad=30,gW=W2-pad*2,gHH=GH-pad-8;
+  gctx.strokeStyle='rgba(59,130,246,.3)';gctx.lineWidth=1;
+  gctx.beginPath();gctx.moveTo(pad,8);gctx.lineTo(pad,GH-pad);gctx.lineTo(W2-pad+6,GH-pad);gctx.stroke();
+  gctx.fillStyle='rgba(59,130,246,.5)';gctx.font='7px monospace';gctx.textAlign='center';gctx.fillText('Δx(m)',W2-pad+10,GH-pad+3);
+  gctx.textAlign='right';gctx.fillText('F(N)',pad-3,12);
+  if(!measList.length)return;
+  var dxv=measList.map(function(m){return m.dx;}),fv=measList.map(function(m){return m.F;});
+  var minDx=0,maxDx=Math.max.apply(null,dxv)*1.3,minF=0,maxF=Math.max.apply(null,fv)*1.3;
+  measList.forEach(function(m){
+    var px=pad+(m.dx/maxDx)*gW,py=GH-pad-(m.F/maxF)*gHH;
+    gctx.fillStyle='rgba(59,130,246,.9)';gctx.beginPath();gctx.arc(px,py,5,0,Math.PI*2);gctx.fill();
+  });
+}
+window.addEventListener('load',function(){setTimeout(function(){resize();upd();drawGraph();},100);});
+</script>
+
+<script id="langScript">
+(function(){
+var _lt={
+"uz":{
+ badge:"MEXANIKA · LAB", hMain:"Prujina Elastikligi — ", hSpan:"Guk Qonuni: F = k·Δx",
+ hsub:"MEXANIKA · FIZPRAKTIKUM · SDPI 2026", chipOlchov:"O'lchov:",
+ left1:"Yuk massasi (m)", left2:"Prujina qattiqligi (k)", feTajriba:"= mg / Δx (tajriba)",
+ step1:"m va k tanlang", step2:"Δx hisoblanmoqda", step3:"T davri aniqlang", step4:"O'lchov yozing", step5:"Tahlil",
+ btnAdd:"O'lchovni yozish", btnReset:"Tozalash",
+ right1:"Joriy hisob-kitob", dxLabel:"Δx cho'zilish", tLabel:"T (davr)", kstarLabel:"k* (tajriba)",
+ unitN:"Newton", unitM:"metr", unitS:"sekund",
+ tableTitle:"Jadval: F = k·Δx", graphTitle:"Grafik: F = f(Δx)",
+ finalTitle:"Yakuniy natija — Guk qonuni", avgK:"O'rt. k* (tajriba)", givenK:"Berilgan k", measCount:"O'lchashlar",
+ startBadge:"MEXANIKA · LAB", startH1:"Prujina Elastikligi — ", startH1Span:"Guk Qonuni: F = k·x",
+ orderLabel:"BAJARISH TARTIBI",
+ ord1:"m (yuk massasi) va k (prujina qattiqligi) ni tanlang",
+ ord2:"Prujina cho'zilishini Δx = mg/k formuladan hisoblang",
+ ord3:"Tebranish davrini T = 2π√(m/k) aniqlang",
+ ord4:"k = mg/Δx formuladan qaytadan qattiqlicni toping",
+ startBtn:"▶ Laboratoriyani boshlash",
+ status:"m va k ni tanlang → Δx va F hisoblanadi → T davrini aniqlang",
+ statusVals:function(F,dx,T,k){return 'F='+F.toFixed(3)+'N | Δx='+dx.toFixed(4)+'m | T='+T.toFixed(3)+'s | k*='+k.toFixed(2)+'N/m';},
+ finalMain:function(k){return "Guk qonuni tasdiqlandi! k*="+k.toFixed(2)+' N/m';},
+ instr:"🌀 Prujina Guk qonuniga bo'ysunadi: F = k·Δx · Yuk ta'sirida prujina cho'ziladi · Muvozanat holatida: F_elastik = mg"
+},
+"ru":{
+ badge:"МЕХАНИКА · ЛАБ", hMain:"Упругость пружины — ", hSpan:"Закон Гука: F = k·Δx",
+ hsub:"МЕХАНИКА · ФИЗПРАКТИКУМ · SDPI 2026", chipOlchov:"Измерений:",
+ left1:"Масса груза (m)", left2:"Жёсткость пружины (k)", feTajriba:"= mg / Δx (опыт)",
+ step1:"Выбрать m и k", step2:"Вычисляется Δx", step3:"Определить период T", step4:"Записать измерение", step5:"Анализ",
+ btnAdd:"Записать измерение", btnReset:"Очистить",
+ right1:"Текущий расчёт", dxLabel:"Δx удлинение", tLabel:"T (период)", kstarLabel:"k* (опыт)",
+ unitN:"Ньютон", unitM:"метр", unitS:"секунда",
+ tableTitle:"Таблица: F = k·Δx", graphTitle:"График: F = f(Δx)",
+ finalTitle:"Итог — Закон Гука", avgK:"Сред. k* (опыт)", givenK:"Заданное k", measCount:"Измерений",
+ startBadge:"МЕХАНИКА · ЛАБ", startH1:"Упругость пружины — ", startH1Span:"Закон Гука: F = k·x",
+ orderLabel:"ПОРЯДОК ВЫПОЛНЕНИЯ",
+ ord1:"Выберите m (массу груза) и k (жёсткость пружины)",
+ ord2:"Вычислите удлинение пружины по формуле Δx = mg/k",
+ ord3:"Определите период колебаний T = 2π√(m/k)",
+ ord4:"Найдите жёсткость снова по формуле k = mg/Δx",
+ startBtn:"▶ Начать лабораторную работу",
+ status:"Выберите m и k → вычисляются Δx и F → определите период T",
+ statusVals:function(F,dx,T,k){return 'F='+F.toFixed(3)+'Н | Δx='+dx.toFixed(4)+'м | T='+T.toFixed(3)+'с | k*='+k.toFixed(2)+'Н/м';},
+ finalMain:function(k){return "Закон Гука подтверждён! k*="+k.toFixed(2)+' Н/м';},
+ instr:"🌀 Пружина подчиняется закону Гука: F = k·Δx · Под грузом пружина растягивается · В равновесии: F_упр = mg"
+},
+"en":{
+ badge:"MECHANICS · LAB", hMain:"Spring Elasticity — ", hSpan:"Hooke's Law: F = k·Δx",
+ hsub:"MECHANICS · PHYSICS PRACTICUM · SDPI 2026", chipOlchov:"Measurements:",
+ left1:"Load mass (m)", left2:"Spring stiffness (k)", feTajriba:"= mg / Δx (experimental)",
+ step1:"Choose m and k", step2:"Calculating Δx", step3:"Find period T", step4:"Record measurement", step5:"Analysis",
+ btnAdd:"Record measurement", btnReset:"Reset",
+ right1:"Current calculation", dxLabel:"Δx extension", tLabel:"T (period)", kstarLabel:"k* (experimental)",
+ unitN:"Newton", unitM:"meter", unitS:"second",
+ tableTitle:"Table: F = k·Δx", graphTitle:"Graph: F = f(Δx)",
+ finalTitle:"Final result — Hooke's Law", avgK:"Avg. k* (experimental)", givenK:"Given k", measCount:"Measurements",
+ startBadge:"MECHANICS · LAB", startH1:"Spring Elasticity — ", startH1Span:"Hooke's Law: F = k·x",
+ orderLabel:"PROCEDURE",
+ ord1:"Choose m (load mass) and k (spring stiffness)",
+ ord2:"Calculate the spring extension using Δx = mg/k",
+ ord3:"Determine the oscillation period T = 2π√(m/k)",
+ ord4:"Find the stiffness again using k = mg/Δx",
+ startBtn:"▶ Start the lab",
+ status:"Choose m and k → Δx and F are calculated → find period T",
+ statusVals:function(F,dx,T,k){return 'F='+F.toFixed(3)+'N | Δx='+dx.toFixed(4)+'m | T='+T.toFixed(3)+'s | k*='+k.toFixed(2)+'N/m';},
+ finalMain:function(k){return "Hooke's Law confirmed! k*="+k.toFixed(2)+' N/m';},
+ instr:"🌀 The spring obeys Hooke's law: F = k·Δx · Under load the spring stretches · At equilibrium: F_elastic = mg"
+}
+};
+var _lang='uz';
+var _acc='#3b82f6';
+var _lastVals=null;
+function _setLang(l){
+  _lang=l;
+  ['uz','ru','en'].forEach(function(x){
+    var el=document.getElementById('_lb'+x);
+    if(!el)return;
+    el.className='lb-inject'+(x===l?' on':'');
+    el.style.color=x===l?_acc:'#4a6080';
+    el.style.background=x===l?'rgba('+_acc.replace('#','').match(/../g).map(function(h){return parseInt(h,16);}).join(',')+',0.12)':'rgba(255,255,255,.04)';
+  });
+  var t=_lt[l];
+  if(!t)return;
+  var map={
+    txtBadge:t.badge, txtHMain:t.hMain, txtHSpan:t.hSpan, txtHsub:t.hsub, txtChipOlchov:t.chipOlchov,
+    txtLeft1:t.left1, txtLeft2:t.left2, txtFeTajriba:t.feTajriba,
+    txtStep1:t.step1, txtStep2:t.step2, txtStep3:t.step3, txtStep4:t.step4, txtStep5:t.step5,
+    txtBtnAdd:t.btnAdd, txtBtnReset:t.btnReset,
+    txtRight1:t.right1, txtDxLabel:t.dxLabel, txtTLabel:t.tLabel, txtKstarLabel:t.kstarLabel,
+    txtUnitN:t.unitN, txtUnitM:t.unitM, txtUnitS:t.unitS,
+    txtTableTitle:t.tableTitle, txtGraphTitle:t.graphTitle,
+    txtFinalTitle:t.finalTitle, txtAvgK:t.avgK, txtGivenK:t.givenK, txtMeasCount:t.measCount,
+    txtStartBadge:t.startBadge, txtStartH1:t.startH1, txtStartH1Span:t.startH1Span,
+    txtOrderLabel:t.orderLabel, txtOrd1:t.ord1, txtOrd2:t.ord2, txtOrd3:t.ord3, txtOrd4:t.ord4,
+    txtStartBtn:t.startBtn, instrBar:t.instr
+  };
+  Object.keys(map).forEach(function(id){
+    var el=document.getElementById(id);
+    if(el&&map[id]!==undefined)el.textContent=map[id];
+  });
+  var st=document.getElementById('statusTxt');
+  if(st){
+    if(_lastVals)st.textContent=t.statusVals(_lastVals[0],_lastVals[1],_lastVals[2],_lastVals[3]);
+    else st.textContent=t.status;
+  }
+  var rm=document.getElementById('resMain');
+  if(rm&&rm.textContent!=='—'&&window._lastK!==undefined)rm.textContent=t.finalMain(window._lastK);
+}
+window._changeLang=function(l){_setLang(l);};
+window._setStatusVals=function(F,dx,T,k){_lastVals=[F,dx,T,k];var t=_lt[_lang];document.getElementById('statusTxt').textContent=t.statusVals(F,dx,T,k);};
+window._finalMainText=function(k){window._lastK=k;return _lt[_lang].finalMain(k);};
+document.addEventListener('DOMContentLoaded',function(){_setLang('uz');});
+})();
+</script>
+</body>
+</html>

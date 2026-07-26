@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>7-Lab — Tovush Tezligi</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap');
+:root{--bg:#07090f;--panel:#0e1420;--border:#1b2840;--accent:#a855f7;--green:#6fff5c;--blue:#818cf8;--yellow:#ffc947;--red:#ff6060;--text:#dde6f5;--muted:#4a6080;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;height:100vh;overflow:hidden;display:flex;flex-direction:column;}
+header{display:flex;align-items:center;gap:12px;padding:8px 20px;border-bottom:1px solid var(--border);background:linear-gradient(90deg,#07090f,#0f0018,#07090f);flex-shrink:0;}
+.badge{background:var(--accent);color:#fff;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:3px 9px;letter-spacing:2px;border-radius:2px;}
+.htitle{font-size:14px;font-weight:800;}.htitle span{color:var(--accent);}
+.hsub{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-left:auto;}
+.brand{display:flex;align-items:center;gap:6px;background:linear-gradient(135deg,rgba(168,85,247,.12),rgba(111,255,92,.08));border:1px solid rgba(168,85,247,.3);border-radius:20px;padding:4px 14px;margin-left:10px;flex-shrink:0;}
+.brand-txt{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;background:linear-gradient(90deg,#a855f7,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;}
+.statusbar{background:#0a0f1c;border-bottom:1px solid var(--border);padding:5px 20px;display:flex;align-items:center;gap:14px;font-family:'Space Mono',monospace;font-size:11px;flex-shrink:0;}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:bl 1s infinite;flex-shrink:0;}
+.dot.off{background:var(--muted);animation:none;}
+@keyframes bl{0%,100%{opacity:1}50%{opacity:.2}}
+#statusTxt{color:var(--accent);}
+.chips{display:flex;gap:6px;margin-left:auto;flex-wrap:wrap;}
+.chip{background:rgba(168,85,247,.08);border:1px solid rgba(168,85,247,.2);border-radius:10px;padding:2px 9px;font-size:10px;color:var(--muted);}
+.chip span{color:var(--accent);}
+.body{display:grid;grid-template-columns:215px 1fr 270px;flex:1;overflow:hidden;}
+.left{background:var(--panel);border-right:1px solid var(--border);overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px;}
+.stitle{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--accent);text-transform:uppercase;margin-bottom:2px;opacity:.85;}
+.card{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:8px;padding:9px;}
+.card label{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:6px;}
+.vb{font-family:'Space Mono',monospace;font-size:11px;color:var(--accent);background:rgba(168,85,247,.12);padding:2px 7px;border-radius:3px;}
+input[type=range]{width:100%;-webkit-appearance:none;height:4px;background:var(--border);border-radius:2px;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;background:var(--accent);border-radius:50%;cursor:pointer;box-shadow:0 0 8px rgba(168,85,247,.7);}
+.mode-row{display:flex;gap:5px;}
+.mdb{flex:1;border:1px solid var(--border);background:rgba(255,255,255,.03);color:var(--muted);padding:7px 4px;border-radius:6px;font-size:9px;font-family:'Space Mono',monospace;cursor:pointer;text-align:center;transition:all .2s;}
+.mdb.on{background:rgba(168,85,247,.12);border-color:var(--accent);color:var(--accent);}
+.fbox{background:rgba(168,85,247,.04);border:1px solid rgba(168,85,247,.15);border-radius:7px;padding:9px;}
+.frow{display:flex;gap:5px;margin-bottom:4px;font-family:'Space Mono',monospace;font-size:9px;}
+.frow:last-child{margin-bottom:0;}
+.fl{color:var(--muted);min-width:22px;}.fe{color:var(--accent);}
+.steps{display:flex;flex-direction:column;gap:3px;}
+.step{display:flex;align-items:center;gap:7px;padding:5px 8px;border-radius:5px;font-size:10px;color:var(--muted);border:1px solid transparent;transition:all .3s;}
+.step.active{background:rgba(168,85,247,.07);border-color:rgba(168,85,247,.2);color:var(--accent);}
+.step.done{color:var(--green);}
+.snum{font-family:'Space Mono',monospace;font-size:9px;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.05);flex-shrink:0;}
+.step.active .snum{background:rgba(168,85,247,.2);}
+.step.done .snum{background:rgba(111,255,92,.12);color:var(--green);}
+.btn{width:100%;padding:9px;border:none;border-radius:7px;font-family:'Syne',sans-serif;font-weight:700;font-size:12px;cursor:pointer;transition:all .2s;}
+.btn-p{background:linear-gradient(135deg,#a855f7,#7c3aed);color:#fff;}
+.btn-p:hover{transform:translateY(-1px);box-shadow:0 5px 18px rgba(168,85,247,.4);}
+.btn-p:disabled{opacity:.35;cursor:not-allowed;transform:none;}
+.btn-g{background:linear-gradient(135deg,#6fff5c,#33cc22);color:#000;margin-top:4px;}
+.btn-g:disabled{opacity:.35;cursor:not-allowed;}
+.btn-r{background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--border);margin-top:4px;font-size:11px;}
+.center{position:relative;overflow:hidden;background:#040810;}
+#simCanvas{display:block;width:100%;height:100%;}
+.instr-bar{position:absolute;bottom:0;left:0;right:0;background:rgba(4,8,16,.92);border-top:1px solid var(--border);padding:5px 18px;font-size:10px;color:var(--muted);text-align:center;}
+.right{background:var(--panel);border-left:1px solid var(--border);overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px;}
+.rc{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:8px;padding:9px;}
+.rc.hi{border-color:rgba(168,85,247,.3);background:rgba(168,85,247,.05);}
+.rc.hi2{border-color:rgba(111,255,92,.2);background:rgba(111,255,92,.04);}
+.rl{font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:3px;}
+.rv{font-size:17px;font-weight:800;line-height:1;color:#fff;}
+.ru{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-top:2px;}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:5px;}
+.three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;}
+table{width:100%;border-collapse:collapse;font-family:'Space Mono',monospace;font-size:8px;}
+th{color:var(--accent);font-size:7px;letter-spacing:1px;border-bottom:1px solid var(--border);padding:4px 2px;text-align:center;}
+td{padding:3px 2px;border-bottom:1px solid rgba(255,255,255,.03);text-align:center;color:var(--text);}
+#graphCanvas{display:block;width:100%;border-radius:8px;border:1px solid var(--border);}
+.final-card{background:rgba(168,85,247,.05);border:1px solid rgba(168,85,247,.2);border-radius:8px;padding:11px;}
+.err-row{display:flex;justify-content:space-between;margin-top:5px;font-family:'Space Mono',monospace;font-size:10px;}
+.err-row span:first-child{color:var(--muted);}
+.err-row span:last-child{color:var(--yellow);}
+</style>
+
+<style>
+.lang-btns-inject{display:flex;gap:4px;margin-left:8px;flex-shrink:0;}
+.lb-inject{border:1px solid #1b2840;background:rgba(255,255,255,.04);color:#4a6080;padding:4px 10px;border-radius:5px;font-family:'Space Mono',monospace;font-size:9px;cursor:pointer;transition:all .2s;}
+.lb-inject.on{border-color:currentColor;font-weight:700;opacity:1;}
+.lb-inject:hover{opacity:.8;}
+</style>
+</head>
+<body>
+
+<!-- BOSHLASH EKRANI -->
+<div id="startScreen" style="position:fixed;inset:0;z-index:9998;background:radial-gradient(ellipse at 50% 40%,#0f0018 0%,#07090f 70%);display:flex;align-items:center;justify-content:center;">
+  <canvas id="bgCanvas" style="position:absolute;inset:0;width:100%;height:100%;opacity:.4;pointer-events:none"></canvas>
+  <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:18px;max-width:600px;padding:20px;text-align:center">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div style="background:#a855f7;color:#fff;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:4px 14px;letter-spacing:2px;border-radius:2px">LAB · 07</div>
+      <div style="font-family:'Space Mono',monospace;font-size:10px;color:#4a6080;letter-spacing:2px">MEXANIKA · TO'LQINLAR · AKUSTIKA</div>
+    </div>
+    <div style="width:110px;height:110px;border-radius:50%;background:radial-gradient(circle,rgba(168,85,247,.18) 0%,rgba(168,85,247,.02) 70%);border:2px solid rgba(168,85,247,.4);display:flex;align-items:center;justify-content:center;box-shadow:0 0 55px rgba(168,85,247,.3);animation:pulse07 2.5s ease-in-out infinite;"><span style="font-size:48px">🔊</span></div>
+    <div>
+      <h1 style="font-size:20px;font-weight:800;color:#fff"><span id="txtStartH1">Tovushning Havodagi Tezligi — </span><span style="color:#a855f7" id="txtStartH1Span">Turg'un To'lqinlar Usuli</span></h1>
+      <p style="font-size:11px;color:#4a6080;margin-top:8px;font-family:'Space Mono',monospace">v = λ·f · λ = 2·d(tugunlar) · Δf = v/(2L) · v = 2L·Δf</p>
+    </div>
+    <div style="background:rgba(168,85,247,.05);border:1px solid rgba(168,85,247,.15);border-radius:12px;padding:15px;width:100%;text-align:left">
+      <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;color:#a855f7;margin-bottom:10px" id="txtOrderLabel">BAJARISH TARTIBI</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#c5d3e8"><div style="width:20px;height:20px;border-radius:50%;background:rgba(168,85,247,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#a855f7;flex-shrink:0">1</div><span id="txtOrd1">Usul tanlang (1-usul yoki 2-usul)</span></div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#c5d3e8"><div style="width:20px;height:20px;border-radius:50%;background:rgba(168,85,247,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#a855f7;flex-shrink:0">2</div><span id="txtOrd2">Chastota f va quvur uzunligi L ni belgilang</span></div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#c5d3e8"><div style="width:20px;height:20px;border-radius:50%;background:rgba(168,85,247,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#a855f7;flex-shrink:0">3</div><span id="txtOrd3">Rezonans chastotalarini aniqlang (Δf)</span></div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#c5d3e8"><div style="width:20px;height:20px;border-radius:50%;background:rgba(168,85,247,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#a855f7;flex-shrink:0">4</div><span id="txtOrd4">v = λ·f yoki v = 2L·Δf hisoblang</span></div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#c5d3e8"><div style="width:20px;height:20px;border-radius:50%;background:rgba(168,85,247,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#a855f7;flex-shrink:0">5</div><span id="txtOrd5">Tugunlar orasidagi masofani o'lchang (2-usul)</span></div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#c5d3e8"><div style="width:20px;height:20px;border-radius:50%;background:rgba(168,85,247,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#a855f7;flex-shrink:0">6</div><span id="txtOrd6">Nazariy v = 331 + 0.6·T m/s bilan solishtiring</span></div>
+      </div>
+    </div>
+    <button onclick="startLab()" style="background:linear-gradient(135deg,#a855f7,#7c3aed);color:#fff;border:none;border-radius:12px;padding:15px 60px;font-size:16px;font-weight:800;font-family:'Syne',sans-serif;cursor:pointer;box-shadow:0 8px 30px rgba(168,85,247,.35);transition:all .2s;width:100%" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'" id="txtStartBtn">▶ Laboratoriyani boshlash</button>
+    <div style="display:flex;align-items:center;gap:6px;opacity:.6"><span>🔬</span><span style="font-family:'Space Mono',monospace;font-size:10px;font-weight:700;background:linear-gradient(90deg,#a855f7,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px">Xosiyat Virtual Lab</span></div>
+  </div>
+</div>
+<style>
+@keyframes pulse07{0%,100%{box-shadow:0 0 55px rgba(168,85,247,.2)}50%{box-shadow:0 0 80px rgba(168,85,247,.5)}}
+@keyframes fadeOut{0%{opacity:1}100%{opacity:0;transform:scale(1.04)}}
+</style>
+<script>
+(function(){var c=document.getElementById('bgCanvas');var x=c.getContext('2d');var pts=[];function rs(){c.width=window.innerWidth;c.height=window.innerHeight;}rs();window.addEventListener('resize',rs);for(var i=0;i<55;i++)pts.push({x:Math.random()*1600,y:Math.random()*900,r:Math.random()*1.5+.5,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,a:Math.random()});function fr(){x.clearRect(0,0,c.width,c.height);pts.forEach(function(p){p.x+=p.vx;p.y+=p.vy;p.a+=.005;if(p.x<0)p.x=c.width;if(p.x>c.width)p.x=0;if(p.y<0)p.y=c.height;if(p.y>c.height)p.y=0;x.fillStyle='rgba(168,85,247,'+(0.15+Math.sin(p.a)*0.12)+')';x.beginPath();x.arc(p.x%c.width,p.y%c.height,p.r,0,Math.PI*2);x.fill();});requestAnimationFrame(fr);}fr();})();
+function startLab(){var s=document.getElementById('startScreen');s.style.animation='fadeOut .5s ease forwards';setTimeout(function(){s.style.display='none';},480);}
+</script>
+
+<header>
+  <div class="badge" id="txtBadge">LAB · 07</div>
+  <h1 class="htitle"><span id="txtHMain">Tovush Tezligi — </span><span id="txtHSpan">Akustik Quvurda Turg'un To'lqinlar</span></h1>
+  <div class="hsub" id="txtHsub">MEXANIKA · FIZPRAKTIKUM · SDPI 2026</div>
+  <div class="brand"><span>🔬</span><span class="brand-txt">Xosiyat Virtual Lab</span></div>
+<div class="lang-btns-inject" id="_langbtns">
+<div class="lb-inject on" id="_lbuz" onclick="window._changeLang('uz')" style="color:#a855f7;">🇺🇿 UZ</div>
+<div class="lb-inject" id="_lbru" onclick="window._changeLang('ru')">🇷🇺 RU</div>
+<div class="lb-inject" id="_lben" onclick="window._changeLang('en')">🇬🇧 EN</div>
+</div></header>
+
+<div class="statusbar">
+  <div class="dot off" id="dot"></div>
+  <span id="statusTxt">Usul va chastota tanlang → tajriba o'tkazing → v hisoblang</span>
+  <div class="chips">
+    <div class="chip">f=<span id="chipF">1000</span>Hz</div>
+    <div class="chip">L=<span id="chipL">100</span>sm</div>
+    <div class="chip">v=<span id="chipV">—</span>m/s</div>
+    <div class="chip"><span id="txtChipOlchov">O'lchov:</span><span id="chipCnt">0</span></div>
+  </div>
+</div>
+
+<div class="body">
+<div class="left">
+  <div class="stitle" id="txtMethodLabel">Usul tanlang</div>
+  <div class="mode-row">
+    <div class="mdb on" id="mdb1" onclick="setMode(1)"><span id="txtMdb1">1-Usul</span><br><span style="font-size:7px">Δf = v/2L</span></div>
+    <div class="mdb" id="mdb2" onclick="setMode(2)"><span id="txtMdb2">2-Usul</span><br><span style="font-size:7px">λ = 2d</span></div>
+  </div>
+
+  <div class="stitle" id="txtLeft1">Quvur uzunligi (L)</div>
+  <div class="card">
+    <label>L (sm) <span class="vb" id="dL">100 sm</span></label>
+    <input type="range" id="sL" min="50" max="150" step="10" value="100" oninput="setL(this.value)">
+  </div>
+
+  <div class="stitle" id="txtLeft2">Asosiy chastota (f)</div>
+  <div class="card">
+    <label>f (Hz) <span class="vb" id="dF">1000 Hz</span></label>
+    <input type="range" id="sF" min="200" max="3000" step="50" value="1000" oninput="setF(this.value)">
+  </div>
+
+  <div class="stitle" id="txtLeft3">Havo harorati (T)</div>
+  <div class="card">
+    <label>T (°C) <span class="vb" id="dTemp">20°C</span></label>
+    <input type="range" id="sTemp" min="0" max="40" step="5" value="20" oninput="setTemp(this.value)">
+  </div>
+
+  <div class="card" style="background:rgba(168,85,247,.04);border-color:rgba(168,85,247,.15)">
+    <div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--muted)">v_naz = 331 + 0.6·T =</div>
+    <div style="font-family:'Space Mono',monospace;font-size:15px;color:var(--accent);font-weight:700" id="dVnaz">— m/s</div>
+  </div>
+
+  <div class="fbox">
+    <div class="frow"><span class="fl" id="txtMethod1">1-usul:</span><span class="fe">v = 2L·Δf</span></div>
+    <div class="frow"><span class="fl" id="txtMethod2">2-usul:</span><span class="fe">v = λ·f = 2d·f</span></div>
+    <div class="frow"><span class="fl">Δf</span><span class="fe" id="txtFeDf">= v/(2L) — rezonans farqi</span></div>
+    <div class="frow"><span class="fl">ε</span><span class="fe">= |v−v_naz|/v_naz·100%</span></div>
+  </div>
+
+  <div class="steps">
+    <div class="step active" id="st1"><div class="snum">1</div><span id="txtStep1">Parametrlarni tanlang</span></div>
+    <div class="step" id="st2"><div class="snum">2</div><span id="txtStep2">Generator yoqilmoqda</span></div>
+    <div class="step" id="st3"><div class="snum">3</div><span id="txtStep3">Rezonans izlanmoqda</span></div>
+    <div class="step" id="st4"><div class="snum">4</div><span id="txtStep4">v hisoblanmoqda</span></div>
+    <div class="step" id="st5"><div class="snum">5</div><span id="txtStep5">Tahlil</span></div>
+  </div>
+
+  <button class="btn btn-p" id="runBtn" onclick="runExp()">▶ <span id="txtBtnRun">Tajribani ishga tushirish</span></button>
+  <button class="btn btn-g" onclick="calcAll()" id="calcBtn" disabled>📊 <span id="txtBtnCalc">Natijalarni hisoblash</span></button>
+  <button class="btn btn-r" onclick="resetAll()">↺ <span id="txtBtnReset">Qayta boshlash</span></button>
+</div>
+
+<div class="center">
+  <canvas id="simCanvas"></canvas>
+  <div class="instr-bar" id="instrBar">🔊 1-Usul: rezonans chastotalar farqi Δf=v/2L → v=2L·Δf · 2-Usul: mikrofon siljitib tugunlar d orasini o'lchang → v=2d·f</div>
+</div>
+
+<div class="right">
+  <div class="stitle" id="txtRight1">O'lchov natijalari</div>
+  <div class="two">
+    <div class="rc hi"><div class="rl" id="txtVExp">v tajriba</div><div class="rv" style="color:var(--accent)" id="rV">—</div><div class="ru">m/s</div></div>
+    <div class="rc hi"><div class="rl" id="txtVTheo">v nazariy</div><div class="rv" style="color:var(--yellow)" id="rVn">—</div><div class="ru">m/s</div></div>
+  </div>
+  <div class="two">
+    <div class="rc"><div class="rl" id="txtLambdaLabel">λ to'lqin uzunligi</div><div class="rv" style="font-size:14px;color:var(--blue)" id="rLam">—</div><div class="ru">sm</div></div>
+    <div class="rc"><div class="rl" id="txtEpsLabel">xatolik ε</div><div class="rv" style="font-size:14px;color:var(--red)" id="rEps">—</div><div class="ru">%</div></div>
+  </div>
+  <div id="res1Panel">
+    <div class="stitle" id="txtRes1Title">1-Usul: Rezonans chastotalar</div>
+    <div style="background:rgba(168,85,247,.04);border:1px solid rgba(168,85,247,.15);border-radius:8px;padding:8px;font-family:'Space Mono',monospace;font-size:9px;" id="freqList">—</div>
+    <div class="card" style="margin-top:5px">
+      <div style="font-size:9px;color:var(--muted)" id="txtAvgDf">O'rtacha Δf</div>
+      <div style="font-size:14px;color:var(--accent);font-weight:800" id="rDF">—</div>
+      <div style="font-size:8px;color:var(--muted)">Hz</div>
+    </div>
+  </div>
+  <div id="res2Panel" style="display:none">
+    <div class="stitle" id="txtRes2Title">2-Usul: Tugunlar orasidagi d</div>
+    <div style="background:rgba(168,85,247,.04);border:1px solid rgba(168,85,247,.15);border-radius:8px;padding:8px;font-family:'Space Mono',monospace;font-size:9px;" id="nodeList">—</div>
+    <div class="card" style="margin-top:5px">
+      <div style="font-size:9px;color:var(--muted)" id="txtAvgD">O'rtacha d (yarim λ)</div>
+      <div style="font-size:14px;color:var(--accent);font-weight:800" id="rD">—</div>
+      <div style="font-size:8px;color:var(--muted)">sm</div>
+    </div>
+  </div>
+
+  <div class="stitle" id="txtTableTitle">7.1-jadval</div>
+  <div style="overflow-x:auto">
+    <table>
+      <thead><tr><th>№</th><th>Usul</th><th>f(Hz)</th><th>L(sm)</th><th>T°C</th><th>v_taj(m/s)</th><th>v_naz(m/s)</th><th>ε%</th></tr></thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+
+  <div class="stitle" id="txtGraphTitle">Grafik: v = f(f_chastota)</div>
+  <canvas id="graphCanvas" height="110"></canvas>
+
+  <div class="final-card" id="finalCard" style="display:none">
+    <div class="rl" id="txtFinalTitle">Yakuniy natija — Tovush tezligi</div>
+    <div class="rv" style="color:var(--accent);font-size:24px;margin-top:6px" id="resV">—</div>
+    <div class="ru" id="txtExpVal">m/s — o'rtacha tajribaviy qiymat</div>
+    <div class="err-row"><span id="txtTheoV">Nazariy v (331+0.6T)</span><span id="resVn">—</span></div>
+    <div class="err-row"><span id="txtAvgEps">O'rtacha xatolik ε</span><span id="resEps2">—</span></div>
+    <div class="err-row"><span id="txtMeasCount">O'lchashlar soni</span><span id="resCnt">—</span></div>
+  </div>
+</div>
+</div>
+
+<div style="position:fixed;bottom:14px;right:18px;display:flex;align-items:center;gap:7px;background:rgba(7,9,15,.75);border:1px solid rgba(168,85,247,.2);border-radius:30px;padding:5px 16px;backdrop-filter:blur(10px);z-index:9999;pointer-events:none">
+  <span>🔬</span><span style="font-family:'Space Mono',monospace;font-size:11px;font-weight:700;background:linear-gradient(90deg,#a855f7,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px">Xosiyat Virtual Lab</span>
+</div>
+
+<script>
+var mode=1, Lv=100, Fv=1000, Tv=20;
+var measList=[], cnt=0;
+var sc=document.getElementById('simCanvas'), ctx=sc.getContext('2d');
+var gc=document.getElementById('graphCanvas'), gctx=gc.getContext('2d');
+var animT=0, running=false, runT=0;
+var lastResult=null;
+var wavePhase=0, resonFreqs=[], nodePositions=[];
+
+function vNaz(){return 331+0.6*Tv;}
+function setMode(m){
+  mode=m;
+  document.getElementById('mdb1').classList.toggle('on',m===1);
+  document.getElementById('mdb2').classList.toggle('on',m===2);
+  document.getElementById('res1Panel').style.display=m===1?'':'none';
+  document.getElementById('res2Panel').style.display=m===2?'':'none';
+  document.getElementById('instrBar').textContent=m===1?
+    '🔊 1-Usul: chastotani oshiring → rezonans amplitudasi oshganda f ni qayd eting → Δf orqali v=2L·Δf toping':
+    '🔊 2-Usul: mikrofon quvur bo\'ylab siljiydi → amplituda minimum bo\'lgan tugun nuqtalarni toping → v=2d·f';
+}
+function setL(v){Lv=parseFloat(v);document.getElementById('dL').textContent=v+' sm';document.getElementById('chipL').textContent=v;updateVnaz();}
+function setF(v){Fv=parseFloat(v);document.getElementById('dF').textContent=v+' Hz';document.getElementById('chipF').textContent=v;updateVnaz();}
+function setTemp(v){Tv=parseFloat(v);document.getElementById('dTemp').textContent=v+'°C';updateVnaz();}
+function updateVnaz(){var v=vNaz();document.getElementById('dVnaz').textContent=v.toFixed(1)+' m/s';document.getElementById('rVn').textContent=v.toFixed(1);}
+
+function genResonFreqs(){
+  var v=vNaz(), L=Lv/100;
+  var df=v/(2*L);
+  var freqs=[];
+  var f0=df;
+  while(f0<3500){if(f0>150) freqs.push(Math.round(f0));f0+=df;}
+  return freqs.slice(0,12);
+}
+function genNodePositions(){
+  var v=vNaz(), f=Fv;
+  var lambda=(v/f)*100; // sm
+  var halfL=lambda/2;
+  var nodes=[];
+  var pos=halfL/2;
+  while(pos<Lv){nodes.push(pos);pos+=halfL;}
+  return {nodes:nodes,lambda:lambda,halfL:halfL};
+}
+
+function runExp(){
+  if(running)return;
+  running=true; runT=0; lastResult=null;
+  resonFreqs=genResonFreqs();
+  var nd=genNodePositions();
+  nodePositions=nd.nodes;
+  document.getElementById('runBtn').disabled=true;
+  setDot(true); setStep(2);
+  if(window._setStatusKey)window._setStatusKey('searching');
+  setTimeout(function(){
+    setStep(3);
+    if(window._setStatusKey)window._setStatusKey('found');
+    setTimeout(function(){
+      computeResult();
+    },1200);
+  },800);
+}
+
+function computeResult(){
+  var v=vNaz()*(1+(Math.random()-.5)*0.025);
+  var vn=vNaz();
+  var eps=Math.abs(v-vn)/vn*100;
+  var lambda=(v/Fv)*100;
+  lastResult={v:v,vn:vn,eps:eps,lambda:lambda};
+
+  document.getElementById('rV').textContent=v.toFixed(1);
+  document.getElementById('rVn').textContent=vn.toFixed(1);
+  document.getElementById('rLam').textContent=lambda.toFixed(1);
+  document.getElementById('rEps').textContent=eps.toFixed(2);
+  document.getElementById('chipV').textContent=v.toFixed(0);
+
+  if(mode===1){
+    var df=v/(2*Lv/100);
+    document.getElementById('rDF').textContent=df.toFixed(1);
+    var html='';
+    var rfs=resonFreqs.slice(0,8);
+    rfs.forEach(function(f,i){html+='<span style="color:rgba(168,85,247,.8)">f'+(i+1)+'='+f+'Hz</span>  ';if((i+1)%3===0)html+='<br>';});
+    document.getElementById('freqList').innerHTML=html;
+  } else {
+    var nd=genNodePositions();
+    var html='';
+    nd.nodes.slice(0,6).forEach(function(p,i){html+='<span style="color:rgba(168,85,247,.8)">d'+(i+1)+'='+p.toFixed(1)+'sm</span>  ';if((i+1)%3===0)html+='<br>';});
+    document.getElementById('nodeList').innerHTML=html;
+    document.getElementById('rD').textContent=nd.halfL.toFixed(1);
+  }
+
+  running=false;
+  document.getElementById('runBtn').disabled=false;
+  document.getElementById('calcBtn').disabled=false;
+  setDot(false); setStep(4);
+  if(window._setStatusKey)window._setStatusKey('done',{v:v,lambda:lambda,eps:eps});
+}
+
+function calcAll(){
+  if(!lastResult)return;
+  cnt++;
+  var r=lastResult;
+  measList.push({mode:mode,f:Fv,L:Lv,T:Tv,v:r.v,vn:r.vn,eps:r.eps});
+  document.getElementById('chipCnt').textContent=cnt;
+  var tr=document.createElement('tr');
+  tr.innerHTML='<td>'+cnt+'</td><td>'+mode+'-usul</td><td>'+Fv+'</td><td>'+Lv+'</td><td>'+Tv+'</td><td>'+r.v.toFixed(1)+'</td><td>'+r.vn.toFixed(1)+'</td><td>'+r.eps.toFixed(2)+'</td>';
+  document.getElementById('tbody').appendChild(tr);
+  var n=measList.length,sv=0,se=0;
+  measList.forEach(function(m){sv+=m.v;se+=m.eps;});
+  document.getElementById('finalCard').style.display='block';
+  document.getElementById('resV').textContent=(sv/n).toFixed(1);
+  document.getElementById('resVn').textContent=vNaz().toFixed(1)+' m/s';
+  document.getElementById('resEps2').textContent=(se/n).toFixed(2)+'%';
+  document.getElementById('resCnt').textContent=n+' ta';
+  setStep(5);
+  if(window._setStatusKey)window._setStatusKey('celebrate',{v:sv/n,vn:vNaz(),eps:se/n});
+  drawGraph();
+}
+
+function resetAll(){
+  measList=[];cnt=0;running=false;lastResult=null;resonFreqs=[];nodePositions=[];
+  document.getElementById('tbody').innerHTML='';
+  document.getElementById('finalCard').style.display='none';
+  document.getElementById('calcBtn').disabled=true;
+  document.getElementById('runBtn').disabled=false;
+  document.getElementById('chipCnt').textContent=0;
+  document.getElementById('chipV').textContent='—';
+  ['rV','rLam','rEps','rDF','rD'].forEach(function(id){var el=document.getElementById(id);if(el)el.textContent='—';});
+  document.getElementById('freqList').textContent='—';
+  document.getElementById('nodeList').textContent='—';
+  if(window._setStatusKey)window._setStatusKey('default');
+  setDot(false);setStep(1);drawGraph();
+}
+function setDot(on){document.getElementById('dot').classList.toggle('off',!on);}
+function setStep(n){for(var i=1;i<=5;i++){var el=document.getElementById('st'+i);el.className='step'+(i<n?' done':i===n?' active':'');el.querySelector('.snum').textContent=i<n?'✓':i;}}
+function resize(){sc.width=sc.offsetWidth;sc.height=sc.offsetHeight;}
+window.addEventListener('resize',resize);setTimeout(resize,80);
+
+(function loop(){
+  animT+=0.016;
+  if(running) runT+=0.016;
+  drawSim();
+  requestAnimationFrame(loop);
+})();
+
+function drawSim(){
+  var W=sc.width,H=sc.height;if(!W||!H)return;
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#040810';ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle='rgba(168,85,247,.02)';ctx.lineWidth=1;
+  for(var xi=0;xi<W;xi+=60){ctx.beginPath();ctx.moveTo(xi,0);ctx.lineTo(xi,H);ctx.stroke();}
+  for(var yi=0;yi<H;yi+=60){ctx.beginPath();ctx.moveTo(0,yi);ctx.lineTo(W,yi);ctx.stroke();}
+
+  // Akustik quvur
+  var qLeft=60, qRight=W-60, qY=H*0.42, qH=70;
+  ctx.fillStyle='rgba(14,20,32,.9)';ctx.fillRect(qLeft,qY-qH/2,qRight-qLeft,qH);
+  ctx.strokeStyle='rgba(168,85,247,.4)';ctx.lineWidth=2;ctx.strokeRect(qLeft,qY-qH/2,qRight-qLeft,qH);
+
+  // Generator (chap)
+  var genW=50,genH=70;
+  ctx.fillStyle='rgba(30,20,50,.9)';rr(ctx,qLeft-genW-5,qY-genH/2,genW,genH,6);ctx.fill();
+  ctx.strokeStyle='rgba(168,85,247,.5)';ctx.lineWidth=1.5;rr(ctx,qLeft-genW-5,qY-genH/2,genW,genH,6);ctx.stroke();
+  ctx.fillStyle='rgba(168,85,247,.8)';ctx.font='bold 8px monospace';ctx.textAlign='center';
+  ctx.fillText('GEN',qLeft-genW/2-5,qY-12);
+  // LED
+  var ledOn=running||lastResult;
+  ctx.fillStyle=ledOn?'rgba(168,85,247,.9)':'rgba(60,20,80,.5)';
+  ctx.beginPath();ctx.arc(qLeft-genW/2-5,qY,5,0,Math.PI*2);ctx.fill();
+  // Chiqish kabeli
+  ctx.strokeStyle='rgba(168,85,247,.5)';ctx.lineWidth=2;
+  ctx.beginPath();ctx.moveTo(qLeft-5,qY);ctx.lineTo(qLeft,qY);ctx.stroke();
+  // Dinamik belgi
+  ctx.fillStyle='rgba(168,85,247,.4)';
+  for(var ki=0;ki<3;ki++){
+    ctx.beginPath();ctx.arc(qLeft+15,qY,8+ki*7,Math.PI*0.6,Math.PI*1.4);
+    ctx.strokeStyle='rgba(168,85,247,'+(0.5-ki*0.12)+')';ctx.lineWidth=1.5;ctx.stroke();
+  }
+  ctx.fillStyle='rgba(168,85,247,.7)';ctx.font='7px monospace';ctx.textAlign='center';
+  ctx.fillText('U-chiqaruvchi',qLeft+35,qY+qH/2+12);
+
+  // O'lchash moduli (o'ng)
+  ctx.fillStyle='rgba(20,30,50,.9)';rr(ctx,qRight+5,qY-genH/2,50,genH,6);ctx.fill();
+  ctx.strokeStyle='rgba(111,255,92,.4)';ctx.lineWidth=1.5;rr(ctx,qRight+5,qY-genH/2,50,genH,6);ctx.stroke();
+  ctx.fillStyle='rgba(111,255,92,.7)';ctx.font='bold 7px monospace';ctx.textAlign='center';
+  ctx.fillText('O\'LCHOV',qRight+30,qY-20);ctx.fillText('MODULI',qRight+30,qY-10);
+  // Voltmetr ko'rsatgich
+  var amp=lastResult?0.8:running?0.3+Math.sin(animT*8)*0.3:0.1;
+  ctx.fillStyle='rgba(111,255,92,'+amp+')';ctx.font='bold 11px monospace';ctx.textAlign='center';
+  ctx.fillText(lastResult?(lastResult.v/3.4).toFixed(2)+'V':'0.00V',qRight+30,qY+5);
+  ctx.fillStyle='rgba(111,255,92,.5)';ctx.font='7px monospace';
+  ctx.fillText('P-qabul',qRight+30,qY+qH/2+12);
+
+  // Turg'un to'lqin
+  var v=lastResult?lastResult.v:vNaz();
+  var lambda=(v/Fv)*(qRight-qLeft)/Lv*100;
+  var wAmp=lastResult?qH*0.35:running?qH*0.2*(0.5+Math.sin(animT*3)*0.5):qH*0.08;
+  ctx.strokeStyle='rgba(168,85,247,.7)';ctx.lineWidth=2;
+  ctx.beginPath();
+  for(var xi=qLeft;xi<=qRight;xi+=2){
+    var kx=2*Math.PI*(xi-qLeft)/lambda;
+    var y=qY+wAmp*Math.sin(kx)*Math.cos(animT*(running?8:2));
+    if(xi===qLeft) ctx.moveTo(xi,y); else ctx.lineTo(xi,y);
+  }ctx.stroke();
+  // Pastki to'lqin
+  ctx.strokeStyle='rgba(129,140,248,.4)';ctx.lineWidth=1.5;
+  ctx.beginPath();
+  for(var xi=qLeft;xi<=qRight;xi+=2){
+    var kx=2*Math.PI*(xi-qLeft)/lambda;
+    var y=qY+wAmp*Math.sin(kx)*Math.cos(animT*(running?8:2)+Math.PI);
+    if(xi===qLeft) ctx.moveTo(xi,y); else ctx.lineTo(xi,y);
+  }ctx.stroke();
+
+  // Tugunlar (minimum amplituda nuqtalari)
+  if(lastResult){
+    var nd=genNodePositions();
+    nd.nodes.forEach(function(p,i){
+      var nx=qLeft+(p/Lv)*(qRight-qLeft);
+      ctx.strokeStyle='rgba(255,201,71,.6)';ctx.lineWidth=1;ctx.setLineDash([3,4]);
+      ctx.beginPath();ctx.moveTo(nx,qY-qH/2-5);ctx.lineTo(nx,qY+qH/2+5);ctx.stroke();ctx.setLineDash([]);
+      ctx.fillStyle='rgba(255,201,71,.8)';ctx.font='7px monospace';ctx.textAlign='center';
+      ctx.fillText('T'+(i+1),nx,qY-qH/2-10);
+    });
+    // Do'ngliklarda engil doira
+    for(var di=0;di<nd.nodes.length-1;di++){
+      var dx=qLeft+((nd.nodes[di]+nd.nodes[di+1])/2/Lv)*(qRight-qLeft);
+      ctx.fillStyle='rgba(168,85,247,.15)';
+      ctx.beginPath();ctx.arc(dx,qY,qH*0.3,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='rgba(168,85,247,.5)';ctx.font='7px monospace';ctx.textAlign='center';
+      ctx.fillText('D'+(di+1),dx,qY+3);
+    }
+    // d strelka
+    if(nd.nodes.length>=2){
+      var x1=qLeft+(nd.nodes[0]/Lv)*(qRight-qLeft);
+      var x2=qLeft+(nd.nodes[1]/Lv)*(qRight-qLeft);
+      ctx.strokeStyle='rgba(111,255,92,.4)';ctx.lineWidth=1;
+      ctx.beginPath();ctx.moveTo(x1,qY+qH/2+20);ctx.lineTo(x2,qY+qH/2+20);ctx.stroke();
+      ctx.fillStyle='rgba(111,255,92,.7)';ctx.font='8px monospace';ctx.textAlign='center';
+      ctx.fillText('d='+nd.halfL.toFixed(1)+'sm',(x1+x2)/2,qY+qH/2+33);
+    }
+  }
+
+  // Mikrofon (2-usul)
+  if(mode===2){
+    var mxPos=lastResult?nodePositions[0]||20:20;
+    var mx=qLeft+(mxPos/Lv)*(qRight-qLeft);
+    ctx.fillStyle='rgba(255,201,71,.7)';
+    ctx.fillRect(mx-4,qY-qH/2-18,8,qH+36);
+    ctx.fillStyle='rgba(255,201,71,.9)';
+    ctx.beginPath();ctx.arc(mx,qY-qH/2-20,7,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='rgba(0,0,0,.7)';ctx.font='7px monospace';ctx.textAlign='center';
+    ctx.fillText('MIK',mx,qY-qH/2-30);
+  }
+
+}
+function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.lineTo(x+w-r,y);c.quadraticCurveTo(x+w,y,x+w,y+r);c.lineTo(x+w,y+h-r);c.quadraticCurveTo(x+w,y+h,x+w-r,y+h);c.lineTo(x+r,y+h);c.quadraticCurveTo(x,y+h,x,y+h-r);c.lineTo(x,y+r);c.quadraticCurveTo(x,y,x+r,y);c.closePath();}
+
+function drawGraph(){
+  var W2=gc.offsetWidth||250;gc.width=W2;var GH=110;
+  gctx.clearRect(0,0,W2,GH);gctx.fillStyle='#070c17';gctx.fillRect(0,0,W2,GH);
+  var pad=35,gW=W2-pad*2,gHH=GH-pad-8;
+  gctx.strokeStyle='rgba(168,85,247,.3)';gctx.lineWidth=1;
+  gctx.beginPath();gctx.moveTo(pad,8);gctx.lineTo(pad,GH-pad);gctx.lineTo(W2-pad+6,GH-pad);gctx.stroke();
+  gctx.fillStyle='rgba(168,85,247,.5)';gctx.font='7px monospace';gctx.textAlign='center';gctx.fillText('f(Hz)',W2-pad+10,GH-pad+3);
+  gctx.textAlign='right';gctx.fillText('v',pad-3,12);
+  if(!measList.length)return;
+  var fvals=measList.map(function(m){return m.f;});
+  var vvals=measList.map(function(m){return m.v;});
+  var vnvals=measList.map(function(m){return m.vn;});
+  var minF=Math.min.apply(null,fvals)-100,maxF=Math.max.apply(null,fvals)+100;
+  var minV=300,maxV=380;
+  // Nazariy chiziq
+  var vnav=vnvals.reduce(function(a,b){return a+b;},0)/vnvals.length;
+  var gvy=GH-pad-((vnav-minV)/(maxV-minV))*gHH;
+  gctx.strokeStyle='rgba(255,201,71,.25)';gctx.lineWidth=1;gctx.setLineDash([3,4]);
+  gctx.beginPath();gctx.moveTo(pad,gvy);gctx.lineTo(W2-pad,gvy);gctx.stroke();gctx.setLineDash([]);
+  gctx.fillStyle='rgba(255,201,71,.5)';gctx.font='7px monospace';gctx.textAlign='left';gctx.fillText('v_naz',pad+2,gvy-2);
+  // Tajriba nuqtalar
+  measList.forEach(function(m){
+    var px=pad+((m.f-minF)/(maxF-minF+1))*gW;
+    var py=GH-pad-((m.v-minV)/(maxV-minV))*gHH;
+    gctx.fillStyle='rgba(168,85,247,.9)';gctx.beginPath();gctx.arc(px,py,5,0,Math.PI*2);gctx.fill();
+    gctx.fillStyle='rgba(255,255,255,.4)';gctx.font='7px monospace';gctx.textAlign='center';gctx.fillText(m.v.toFixed(0),px,py-8);
+  });
+  gctx.fillStyle='rgba(168,85,247,.7)';gctx.font='7px monospace';gctx.textAlign='left';gctx.fillText('● v_taj',pad+2,GH-pad-gHH+12);
+}
+
+window.addEventListener('load',function(){setTimeout(function(){resize();drawGraph();updateVnaz();},100);});
+</script>
+
+<script id="langScript">
+(function(){
+var _lt={
+"uz":{
+ badge:"LAB · 07", hMain:"Tovush Tezligi — ", hSpan:"Akustik Quvurda Turg'un To'lqinlar",
+ hsub:"MEXANIKA · FIZPRAKTIKUM · SDPI 2026", chipOlchov:"O'lchov:",
+ methodLabel:"Usul tanlang", mdb1:"1-Usul", mdb2:"2-Usul",
+ left1:"Quvur uzunligi (L)", left2:"Asosiy chastota (f)", left3:"Havo harorati (T)",
+ method1:"1-usul:", method2:"2-usul:", feDf:"= v/(2L) — rezonans farqi",
+ step1:"Parametrlarni tanlang", step2:"Generator yoqilmoqda", step3:"Rezonans izlanmoqda",
+ step4:"v hisoblanmoqda", step5:"Tahlil",
+ btnRun:"Tajribani ishga tushirish", btnCalc:"Natijalarni hisoblash", btnReset:"Qayta boshlash",
+ right1:"O'lchov natijalari", vExp:"v tajriba", vTheo:"v nazariy", lambdaLabel:"λ to'lqin uzunligi", epsLabel:"xatolik ε",
+ res1Title:"1-Usul: Rezonans chastotalar", res2Title:"2-Usul: Tugunlar orasidagi d",
+ avgDf:"O'rtacha Δf", avgD:"O'rtacha d (yarim λ)",
+ tableTitle:"7.1-jadval", graphTitle:"Grafik: v = f(f_chastota)",
+ finalTitle:"Yakuniy natija — Tovush tezligi", expVal:"m/s — o'rtacha tajribaviy qiymat",
+ theoV:"Nazariy v (331+0.6T)", avgEps:"O'rtacha xatolik ε", measCount:"O'lchashlar soni",
+ startH1:"Tovushning Havodagi Tezligi — ", startH1Span:"Turg'un To'lqinlar Usuli",
+ orderLabel:"BAJARISH TARTIBI",
+ ord1:"Usul tanlang (1-usul yoki 2-usul)", ord2:"Chastota f va quvur uzunligi L ni belgilang",
+ ord3:"Rezonans chastotalarini aniqlang (Δf)", ord4:"v = λ·f yoki v = 2L·Δf hisoblang",
+ ord5:"Tugunlar orasidagi masofani o'lchang (2-usul)", ord6:"Nazariy v = 331 + 0.6·T m/s bilan solishtiring",
+ startBtn:"▶ Laboratoriyani boshlash",
+ status:"Usul va chastota tanlang → tajriba o'tkazing → v hisoblang",
+ statusSearching:"⏱ Generator yoqildi, rezonans izlanmoqda...",
+ statusFound:"🔊 Turg'un to'lqin hosil bo'ldi! Natijalar hisoblanmoqda...",
+ statusDone:function(p){return "✓ v="+p.v.toFixed(1)+' m/s | λ='+p.lambda.toFixed(1)+'sm | ε='+p.eps.toFixed(2)+'%';},
+ statusCelebrate:function(p){return "🎉 O'rt. v="+p.v.toFixed(1)+' m/s | Nazariy: '+p.vn.toFixed(1)+' m/s | ε='+p.eps.toFixed(2)+'%';},
+ instr:"🔊 1-Usul: rezonans chastotalar farqi Δf=v/2L → v=2L·Δf · 2-Usul: mikrofon siljitib tugunlar d orasini o'lchang → v=2d·f"
+},
+"ru":{
+ badge:"ЛАБ · 07", hMain:"Скорость звука — ", hSpan:"Стоячие волны в акустической трубе",
+ hsub:"МЕХАНИКА · ФИЗПРАКТИКУМ · SDPI 2026", chipOlchov:"Измерений:",
+ methodLabel:"Выберите метод", mdb1:"Метод 1", mdb2:"Метод 2",
+ left1:"Длина трубы (L)", left2:"Основная частота (f)", left3:"Температура воздуха (T)",
+ method1:"Метод 1:", method2:"Метод 2:", feDf:"= v/(2L) — разница резонансов",
+ step1:"Выбрать параметры", step2:"Генератор включается", step3:"Поиск резонанса",
+ step4:"Вычисляется v", step5:"Анализ",
+ btnRun:"Запустить опыт", btnCalc:"Вычислить результаты", btnReset:"Начать заново",
+ right1:"Результаты измерений", vExp:"v эксперимент", vTheo:"v теория", lambdaLabel:"λ длина волны", epsLabel:"ошибка ε",
+ res1Title:"Метод 1: Резонансные частоты", res2Title:"Метод 2: Расстояние между узлами d",
+ avgDf:"Средн. Δf", avgD:"Средн. d (половина λ)",
+ tableTitle:"Таблица 7.1", graphTitle:"График: v = f(частота)",
+ finalTitle:"Итог — Скорость звука", expVal:"м/с — среднее экспериментальное значение",
+ theoV:"Теор. v (331+0.6T)", avgEps:"Средняя ошибка ε", measCount:"Число измерений",
+ startH1:"Скорость звука в воздухе — ", startH1Span:"Метод стоячих волн",
+ orderLabel:"ПОРЯДОК ВЫПОЛНЕНИЯ",
+ ord1:"Выберите метод (1 или 2)", ord2:"Задайте частоту f и длину трубы L",
+ ord3:"Определите резонансные частоты (Δf)", ord4:"Вычислите v = λ·f или v = 2L·Δf",
+ ord5:"Измерьте расстояние между узлами (метод 2)", ord6:"Сравните с теорией v = 331 + 0.6·T м/с",
+ startBtn:"▶ Начать лабораторную работу",
+ status:"Выберите метод и частоту → проведите опыт → вычислите v",
+ statusSearching:"⏱ Генератор включён, поиск резонанса...",
+ statusFound:"🔊 Стоячая волна образована! Вычисляются результаты...",
+ statusDone:function(p){return "✓ v="+p.v.toFixed(1)+' м/с | λ='+p.lambda.toFixed(1)+'см | ε='+p.eps.toFixed(2)+'%';},
+ statusCelebrate:function(p){return "🎉 Сред. v="+p.v.toFixed(1)+' м/с | Теория: '+p.vn.toFixed(1)+' м/с | ε='+p.eps.toFixed(2)+'%';},
+ instr:"🔊 Метод 1: разница резонансных частот Δf=v/2L → v=2L·Δf · Метод 2: сдвигая микрофон, измерьте d между узлами → v=2d·f"
+},
+"en":{
+ badge:"LAB · 07", hMain:"Speed of Sound — ", hSpan:"Standing Waves in an Acoustic Tube",
+ hsub:"MECHANICS · PHYSICS PRACTICUM · SDPI 2026", chipOlchov:"Measurements:",
+ methodLabel:"Choose method", mdb1:"Method 1", mdb2:"Method 2",
+ left1:"Tube length (L)", left2:"Fundamental frequency (f)", left3:"Air temperature (T)",
+ method1:"Method 1:", method2:"Method 2:", feDf:"= v/(2L) — resonance difference",
+ step1:"Choose parameters", step2:"Generator turning on", step3:"Searching for resonance",
+ step4:"Calculating v", step5:"Analysis",
+ btnRun:"Run experiment", btnCalc:"Calculate results", btnReset:"Reset",
+ right1:"Measurement results", vExp:"v experimental", vTheo:"v theoretical", lambdaLabel:"λ wavelength", epsLabel:"error ε",
+ res1Title:"Method 1: Resonance frequencies", res2Title:"Method 2: Distance between nodes d",
+ avgDf:"Avg. Δf", avgD:"Avg. d (half λ)",
+ tableTitle:"Table 7.1", graphTitle:"Graph: v = f(frequency)",
+ finalTitle:"Final result — Speed of sound", expVal:"m/s — average experimental value",
+ theoV:"Theoretical v (331+0.6T)", avgEps:"Avg. error ε", measCount:"Number of measurements",
+ startH1:"Speed of Sound in Air — ", startH1Span:"Standing Wave Method",
+ orderLabel:"PROCEDURE",
+ ord1:"Choose the method (Method 1 or 2)", ord2:"Set the frequency f and tube length L",
+ ord3:"Find the resonance frequencies (Δf)", ord4:"Calculate v = λ·f or v = 2L·Δf",
+ ord5:"Measure the distance between nodes (Method 2)", ord6:"Compare with theoretical v = 331 + 0.6·T m/s",
+ startBtn:"▶ Start the lab",
+ status:"Choose method and frequency → run the experiment → calculate v",
+ statusSearching:"⏱ Generator on, searching for resonance...",
+ statusFound:"🔊 Standing wave formed! Calculating results...",
+ statusDone:function(p){return "✓ v="+p.v.toFixed(1)+' m/s | λ='+p.lambda.toFixed(1)+'cm | ε='+p.eps.toFixed(2)+'%';},
+ statusCelebrate:function(p){return "🎉 Avg. v="+p.v.toFixed(1)+' m/s | Theoretical: '+p.vn.toFixed(1)+' m/s | ε='+p.eps.toFixed(2)+'%';},
+ instr:"🔊 Method 1: resonance frequency difference Δf=v/2L → v=2L·Δf · Method 2: move the microphone to measure node distance d → v=2d·f"
+}
+};
+var _lang='uz';
+var _acc='#a855f7';
+var _statusState={key:'default',params:{}};
+function _renderStatus(){
+  var t=_lt[_lang],s=_statusState,el=document.getElementById('statusTxt');
+  if(!el)return;
+  if(s.key==='searching')el.textContent=t.statusSearching;
+  else if(s.key==='found')el.textContent=t.statusFound;
+  else if(s.key==='done')el.textContent=t.statusDone(s.params);
+  else if(s.key==='celebrate')el.textContent=t.statusCelebrate(s.params);
+  else el.textContent=t.status;
+}
+function _setLang(l){
+  _lang=l;
+  ['uz','ru','en'].forEach(function(x){
+    var el=document.getElementById('_lb'+x);
+    if(!el)return;
+    el.className='lb-inject'+(x===l?' on':'');
+    el.style.color=x===l?_acc:'#4a6080';
+    el.style.background=x===l?'rgba('+_acc.replace('#','').match(/../g).map(function(h){return parseInt(h,16);}).join(',')+',0.12)':'rgba(255,255,255,.04)';
+  });
+  var t=_lt[l];
+  if(!t)return;
+  var map={
+    txtBadge:t.badge, txtHMain:t.hMain, txtHSpan:t.hSpan, txtHsub:t.hsub, txtChipOlchov:t.chipOlchov,
+    txtMethodLabel:t.methodLabel, txtMdb1:t.mdb1, txtMdb2:t.mdb2,
+    txtLeft1:t.left1, txtLeft2:t.left2, txtLeft3:t.left3,
+    txtMethod1:t.method1, txtMethod2:t.method2, txtFeDf:t.feDf,
+    txtStep1:t.step1, txtStep2:t.step2, txtStep3:t.step3, txtStep4:t.step4, txtStep5:t.step5,
+    txtBtnRun:t.btnRun, txtBtnCalc:t.btnCalc, txtBtnReset:t.btnReset,
+    txtRight1:t.right1, txtVExp:t.vExp, txtVTheo:t.vTheo, txtLambdaLabel:t.lambdaLabel, txtEpsLabel:t.epsLabel,
+    txtRes1Title:t.res1Title, txtRes2Title:t.res2Title, txtAvgDf:t.avgDf, txtAvgD:t.avgD,
+    txtTableTitle:t.tableTitle, txtGraphTitle:t.graphTitle,
+    txtFinalTitle:t.finalTitle, txtExpVal:t.expVal, txtTheoV:t.theoV, txtAvgEps:t.avgEps, txtMeasCount:t.measCount,
+    txtStartH1:t.startH1, txtStartH1Span:t.startH1Span,
+    txtOrderLabel:t.orderLabel, txtOrd1:t.ord1, txtOrd2:t.ord2, txtOrd3:t.ord3, txtOrd4:t.ord4, txtOrd5:t.ord5, txtOrd6:t.ord6,
+    txtStartBtn:t.startBtn, instrBar:t.instr
+  };
+  Object.keys(map).forEach(function(id){
+    var el=document.getElementById(id);
+    if(el&&map[id]!==undefined)el.textContent=map[id];
+  });
+  _renderStatus();
+}
+window._changeLang=function(l){_setLang(l);};
+window._setStatusKey=function(key,params){_statusState={key:key,params:params||{}};_renderStatus();};
+document.addEventListener('DOMContentLoaded',function(){_setLang('uz');});
+})();
+</script>
+</body>
+</html>

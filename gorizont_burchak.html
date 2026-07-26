@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gorizontga Burchak Ostida Otilgan Jism</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap');
+:root{--bg:#07090f;--panel:#0e1420;--border:#1b2840;--accent:#fb923c;--green:#6fff5c;--blue:#818cf8;--yellow:#ffc947;--red:#ff6060;--text:#dde6f5;--muted:#4a6080;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;height:100vh;overflow:hidden;display:flex;flex-direction:column;}
+header{display:flex;align-items:center;gap:12px;padding:8px 20px;border-bottom:1px solid var(--border);background:linear-gradient(90deg,#07090f,#150700,#07090f);flex-shrink:0;}
+.badge{background:var(--accent);color:#000;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:3px 9px;letter-spacing:2px;border-radius:2px;}
+.htitle{font-size:13px;font-weight:800;}.htitle span{color:var(--accent);}
+.hsub{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-left:auto;}
+.brand{display:flex;align-items:center;gap:6px;background:linear-gradient(135deg,rgba(251,146,60,.12),rgba(111,255,92,.08));border:1px solid rgba(251,146,60,.3);border-radius:20px;padding:4px 14px;margin-left:10px;flex-shrink:0;}
+.brand-txt{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;background:linear-gradient(90deg,#fb923c,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;}
+.statusbar{background:#0a0f1c;border-bottom:1px solid var(--border);padding:5px 20px;display:flex;align-items:center;gap:14px;font-family:'Space Mono',monospace;font-size:11px;flex-shrink:0;}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:bl 1s infinite;flex-shrink:0;}
+.dot.off{background:var(--muted);animation:none;}
+@keyframes bl{0%,100%{opacity:1}50%{opacity:.2}}
+#statusTxt{color:var(--accent);}
+.chips{display:flex;gap:6px;margin-left:auto;}
+.chip{background:rgba(251,146,60,.08);border:1px solid rgba(251,146,60,.2);border-radius:10px;padding:2px 9px;font-size:10px;color:var(--muted);}
+.chip span{color:var(--accent);}
+.body{display:grid;grid-template-columns:215px 1fr 260px;flex:1;overflow:hidden;}
+.left{background:var(--panel);border-right:1px solid var(--border);overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:9px;}
+.stitle{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--accent);text-transform:uppercase;margin-bottom:3px;}
+.card{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:8px;padding:10px;}
+.card label{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:7px;}
+.vb{font-family:'Space Mono',monospace;font-size:11px;color:var(--accent);background:rgba(251,146,60,.12);padding:2px 7px;border-radius:3px;}
+input[type=range]{width:100%;-webkit-appearance:none;height:4px;background:var(--border);border-radius:2px;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;background:var(--accent);border-radius:50%;cursor:pointer;box-shadow:0 0 8px rgba(251,146,60,.7);}
+.fbox{background:rgba(251,146,60,.04);border:1px solid rgba(251,146,60,.15);border-radius:7px;padding:9px;}
+.frow{display:flex;gap:6px;margin-bottom:4px;font-family:'Space Mono',monospace;font-size:9px;}
+.fl{color:var(--muted);min-width:28px;}.fe{color:var(--accent);}
+.steps{display:flex;flex-direction:column;gap:3px;}
+.step{display:flex;align-items:center;gap:7px;padding:5px 8px;border-radius:5px;font-size:10px;color:var(--muted);border:1px solid transparent;transition:all .3s;}
+.step.active{background:rgba(251,146,60,.07);border-color:rgba(251,146,60,.2);color:var(--accent);}
+.step.done{color:var(--green);}
+.snum{font-family:'Space Mono',monospace;font-size:9px;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.05);flex-shrink:0;}
+.step.active .snum{background:rgba(251,146,60,.2);}
+.step.done .snum{background:rgba(111,255,92,.12);color:var(--green);}
+.btn{width:100%;padding:9px;border:none;border-radius:7px;font-family:'Syne',sans-serif;font-weight:700;font-size:12px;cursor:pointer;transition:all .2s;margin-top:4px;}
+.btn-p{background:linear-gradient(135deg,#fb923c,#ea580c);color:#000;}
+.btn-p:hover{transform:translateY(-1px);box-shadow:0 5px 18px rgba(251,146,60,.4);}
+.btn-p:disabled{opacity:.35;cursor:not-allowed;}
+.btn-g{background:linear-gradient(135deg,#6fff5c,#33cc22);color:#000;}
+.btn-g:disabled{opacity:.35;}
+.btn-r{background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--border);font-size:11px;}
+.center{position:relative;overflow:hidden;background:#040810;}
+#simCanvas{display:block;width:100%;height:100%;}
+.instr-bar{position:absolute;bottom:0;left:0;right:0;background:rgba(4,8,16,.92);border-top:1px solid var(--border);padding:5px 18px;font-size:10px;color:var(--muted);text-align:center;}
+.right{background:var(--panel);border-left:1px solid var(--border);overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:9px;}
+.rc{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:8px;padding:10px;}
+.rc.hi{border-color:rgba(251,146,60,.3);background:rgba(251,146,60,.05);}
+.rl{font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:3px;}
+.rv{font-size:18px;font-weight:800;line-height:1;color:#fff;}
+.ru{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-top:2px;}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+table{width:100%;border-collapse:collapse;font-family:'Space Mono',monospace;font-size:8.5px;}
+th{color:var(--accent);font-size:7px;letter-spacing:1px;border-bottom:1px solid var(--border);padding:4px 2px;text-align:center;}
+td{padding:3px 2px;border-bottom:1px solid rgba(255,255,255,.03);text-align:center;}
+#graphCanvas{display:block;width:100%;border-radius:8px;border:1px solid var(--border);}
+.final-card{background:rgba(251,146,60,.05);border:1px solid rgba(251,146,60,.2);border-radius:8px;padding:12px;display:none;}
+.err-row{display:flex;justify-content:space-between;margin-top:5px;font-family:'Space Mono',monospace;font-size:10px;}
+.err-row span:first-child{color:var(--muted);}
+.err-row span:last-child{color:var(--yellow);}
+</style>
+
+<style>
+.lang-btns-inject{display:flex;gap:4px;margin-left:8px;flex-shrink:0;}
+.lb-inject{border:1px solid #1b2840;background:rgba(255,255,255,.04);color:#4a6080;padding:4px 10px;border-radius:5px;font-family:'Space Mono',monospace;font-size:9px;cursor:pointer;transition:all .2s;}
+.lb-inject.on{border-color:currentColor;font-weight:700;opacity:1;}
+.lb-inject:hover{opacity:.8;}
+</style>
+</head>
+<body>
+<div id="startScreen" style="position:fixed;inset:0;z-index:9999;background:radial-gradient(ellipse at 50% 40%,#150700 0%,#07090f 70%);display:flex;align-items:center;justify-content:center;">
+  <canvas id="bgCanvas" style="position:absolute;inset:0;width:100%;height:100%;opacity:.4;pointer-events:none"></canvas>
+  <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:18px;max-width:580px;padding:20px;text-align:center;">
+    <div style="display:flex;align-items:center;gap:10px;"><div style="background:#fb923c;color:#000;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:4px 14px;letter-spacing:2px;border-radius:2px;" id="txtStartBadge">LAB · 04</div><div style="font-family:'Space Mono',monospace;font-size:10px;color:#4a6080;letter-spacing:2px;">KINEMATIKA · PARABOLIK HARAKAT</div></div>
+    <div style="width:100px;height:100px;border-radius:50%;background:radial-gradient(circle,rgba(251,146,60,.18),rgba(251,146,60,.02));border:2px solid rgba(251,146,60,.4);display:flex;align-items:center;justify-content:center;box-shadow:0 0 55px rgba(251,146,60,.3);animation:pulseGB 2.5s ease-in-out infinite;"><span style="font-size:44px;">🎯</span></div>
+    <h1 style="font-size:19px;font-weight:800;color:#fff;"><span id="txtStartH1">Gorizontga Burchak Ostida Otilgan Jism — </span><span style="color:#fb923c;" id="txtStartH1Span">Parabolik Harakat</span></h1>
+    <p style="font-size:11px;color:#4a6080;font-family:'Space Mono',monospace;">x = v₀cosα·t · y = v₀sinα·t − ½gt² · S_max = v₀²sin2α/g</p>
+    <div style="background:rgba(251,146,60,.05);border:1px solid rgba(251,146,60,.15);border-radius:12px;padding:15px;width:100%;text-align:left;">
+      <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;color:#fb923c;margin-bottom:8px;" id="txtOrderLabel">BAJARISH TARTIBI</div>
+      <div style="display:flex;flex-direction:column;gap:7px;">
+        <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#c5d3e8;"><span style="width:20px;height:20px;border-radius:50%;background:rgba(251,146,60,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#fb923c;flex-shrink:0;">1</span><span id="txtOrd1">Boshlang'ich tezlik v₀ va burchak α ni tanlang</span></div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#c5d3e8;"><span style="width:20px;height:20px;border-radius:50%;background:rgba(251,146,60,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#fb923c;flex-shrink:0;">2</span><span id="txtOrd2">Tajribani ishga tushiring → parabolik trayektoriyani kuzating</span></div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#c5d3e8;"><span style="width:20px;height:20px;border-radius:50%;background:rgba(251,146,60,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#fb923c;flex-shrink:0;">3</span><span id="txtOrd3">S_max, H_max va t_uchish ni o'lchang</span></div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#c5d3e8;"><span style="width:20px;height:20px;border-radius:50%;background:rgba(251,146,60,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#fb923c;flex-shrink:0;">4</span><span id="txtOrd4">α = 45° da maksimal uzoqlikni tasdiqlang</span></div>
+      </div>
+    </div>
+    <button onclick="startLab()" style="background:linear-gradient(135deg,#fb923c,#ea580c);color:#000;border:none;border-radius:12px;padding:15px 60px;font-size:15px;font-weight:800;font-family:'Syne',sans-serif;cursor:pointer;box-shadow:0 8px 30px rgba(251,146,60,.35);width:100%;" id="txtStartBtn">▶ Laboratoriyani boshlash</button>
+    <div style="display:flex;align-items:center;gap:6px;opacity:.6;"><span>🔬</span><span style="font-family:'Space Mono',monospace;font-size:10px;font-weight:700;background:linear-gradient(90deg,#fb923c,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;">Xosiyat Virtual Lab</span></div>
+  </div>
+</div>
+<style>@keyframes pulseGB{0%,100%{box-shadow:0 0 55px rgba(251,146,60,.2)}50%{box-shadow:0 0 80px rgba(251,146,60,.5)}}@keyframes fadeOut{0%{opacity:1}100%{opacity:0;transform:scale(1.04)}}</style>
+<script>
+(function(){var c=document.getElementById('bgCanvas');var x=c.getContext('2d');var pts=[];function rs(){c.width=window.innerWidth;c.height=window.innerHeight;}rs();window.addEventListener('resize',rs);for(var i=0;i<50;i++)pts.push({x:Math.random()*1600,y:Math.random()*900,r:Math.random()*1.5+.5,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,a:Math.random()});function fr(){x.clearRect(0,0,c.width,c.height);pts.forEach(function(p){p.x+=p.vx;p.y+=p.vy;p.a+=.005;if(p.x<0)p.x=c.width;if(p.x>c.width)p.x=0;if(p.y<0)p.y=c.height;if(p.y>c.height)p.y=0;x.fillStyle='rgba(251,146,60,'+(0.15+Math.sin(p.a)*0.12)+')';x.beginPath();x.arc(p.x%c.width,p.y%c.height,p.r,0,Math.PI*2);x.fill();});requestAnimationFrame(fr);}fr();})();
+function startLab(){var s=document.getElementById('startScreen');s.style.animation='fadeOut .5s ease forwards';setTimeout(function(){s.style.display='none';},480);}
+</script>
+
+<header>
+  <div class="badge" id="txtBadge">LAB · 04</div>
+  <h1 class="htitle"><span id="txtHMain">Gorizontga Burchak Ostida Otilgan Jism — </span><span id="txtHSpan">Parabolik Harakat</span></h1>
+  <div class="hsub" id="txtHsub">KINEMATIKA · FIZPRAKTIKUM · SDPI 2026</div>
+  <div class="brand"><span>🔬</span><span class="brand-txt">Xosiyat Virtual Lab</span></div>
+<div class="lang-btns-inject" id="_langbtns">
+<div class="lb-inject on" id="_lbuz" onclick="window._changeLang('uz')" style="color:#fb923c;">🇺🇿 UZ</div>
+<div class="lb-inject" id="_lbru" onclick="window._changeLang('ru')">🇷🇺 RU</div>
+<div class="lb-inject" id="_lben" onclick="window._changeLang('en')">🇬🇧 EN</div>
+</div></header>
+<div class="statusbar">
+  <div class="dot off" id="dot"></div>
+  <span id="statusTxt">v₀ va α ni tanlang → tajribani ishga tushiring → S_max va H_max ni o'lchang</span>
+  <div class="chips">
+    <div class="chip">v₀=<span id="cV">20</span>m/s</div>
+    <div class="chip">α=<span id="cAlpha">45</span>°</div>
+    <div class="chip">S=<span id="cS">—</span>m</div>
+    <div class="chip">H=<span id="cH">—</span>m</div>
+  </div>
+</div>
+<div class="body">
+<div class="left">
+  <div class="stitle" id="txtLeft1">Boshlang'ich tezlik (v₀)</div>
+  <div class="card">
+    <label>v₀ (m/s) <span class="vb" id="dV">20 m/s</span></label>
+    <input type="range" id="sV" min="5" max="50" step="5" value="20" oninput="setV0(this.value)">
+  </div>
+  <div class="stitle" id="txtLeft2">Otilish burchagi (α)</div>
+  <div class="card">
+    <label>α (daraja) <span class="vb" id="dAlpha">45°</span></label>
+    <input type="range" id="sAlpha" min="10" max="80" step="5" value="45" oninput="setAlpha(this.value)">
+  </div>
+  <div class="card" style="background:rgba(251,146,60,.04);border-color:rgba(251,146,60,.15)">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+      <div><div style="font-family:'Space Mono',monospace;font-size:8px;color:var(--muted)" id="txtSmaxNaz">S_max (naz)</div><div style="font-size:13px;color:var(--accent);font-weight:700" id="dSmax">—</div></div>
+      <div><div style="font-family:'Space Mono',monospace;font-size:8px;color:var(--muted)" id="txtHmaxNaz">H_max (naz)</div><div style="font-size:13px;color:var(--yellow);font-weight:700" id="dHmax">—</div></div>
+      <div><div style="font-family:'Space Mono',monospace;font-size:8px;color:var(--muted)" id="txtTuchLabel">t_uchish</div><div style="font-size:13px;color:var(--blue);font-weight:700" id="dTuch">—</div></div>
+      <div><div style="font-family:'Space Mono',monospace;font-size:8px;color:var(--muted)">v₀cosα</div><div style="font-size:13px;color:var(--green);font-weight:700" id="dVx">—</div></div>
+    </div>
+  </div>
+  <div class="fbox">
+    <div class="frow"><span class="fl">x</span><span class="fe">= v₀cosα · t</span></div>
+    <div class="frow"><span class="fl">y</span><span class="fe">= v₀sinα·t − ½g·t²</span></div>
+    <div class="frow"><span class="fl">S</span><span class="fe">= v₀²sin2α / g</span></div>
+    <div class="frow"><span class="fl">H</span><span class="fe">= v₀²sin²α / 2g</span></div>
+    <div class="frow"><span class="fl">t</span><span class="fe">= 2v₀sinα / g</span></div>
+  </div>
+  <div class="steps">
+    <div class="step active" id="st1"><div class="snum">1</div><span id="txtStep1">v₀ va α tanlang</span></div>
+    <div class="step" id="st2"><div class="snum">2</div><span id="txtStep2">Jism uchmoqda</span></div>
+    <div class="step" id="st3"><div class="snum">3</div><span id="txtStep3">S, H, t o'lchanyapti</span></div>
+    <div class="step" id="st4"><div class="snum">4</div><span id="txtStep4">Natija yozing</span></div>
+    <div class="step" id="st5"><div class="snum">5</div><span id="txtStep5">Tahlil</span></div>
+  </div>
+  <button class="btn btn-p" id="runBtn" onclick="runExp()">▶ <span id="txtBtnRun">Otish</span></button>
+  <button class="btn btn-g" onclick="addMeas()" id="addBtn" disabled>+ <span id="txtBtnAdd">Natijani yozish</span></button>
+  <button class="btn btn-r" onclick="resetAll()">↺ <span id="txtBtnReset">Qayta boshlash</span></button>
+</div>
+<div class="center">
+  <canvas id="simCanvas"></canvas>
+  <div class="instr-bar" id="instrBar">🎯 x = v₀cosα·t · y = v₀sinα·t − ½gt² · α=45° da S_max → eng katta uchish uzoqligi</div>
+</div>
+<div class="right">
+  <div class="stitle" id="txtRight1">O'lchov natijalari</div>
+  <div class="two">
+    <div class="rc hi"><div class="rl" id="txtSLabel">S (uzoqlik)</div><div class="rv" id="rS">—</div><div class="ru" id="txtUnitM">metr</div></div>
+    <div class="rc hi"><div class="rl" id="txtHLabel">H (balandlik)</div><div class="rv" style="color:var(--yellow)" id="rH">—</div><div class="ru">metr</div></div>
+  </div>
+  <div class="two">
+    <div class="rc"><div class="rl" id="txtTuchLabel2">t (uchish vaqti)</div><div class="rv" style="font-size:14px;color:var(--blue)" id="rTuch">—</div><div class="ru" id="txtUnitS">sekund</div></div>
+    <div class="rc"><div class="rl" id="txtEpsLabel">ε (xatolik)</div><div class="rv" style="font-size:14px;color:var(--red)" id="rEps">—</div><div class="ru">%</div></div>
+  </div>
+  <div class="stitle" id="txtTableTitle">Jadval: S va H = f(α)</div>
+  <table>
+    <thead><tr><th>№</th><th>v₀</th><th>α°</th><th>S_naz</th><th>H_naz</th><th>t_uch</th></tr></thead>
+    <tbody id="tbody"></tbody>
+  </table>
+  <div class="stitle" id="txtGraphTitle">Grafik: S = f(α)</div>
+  <canvas id="graphCanvas" height="110"></canvas>
+  <div class="final-card" id="finalCard">
+    <div class="rl" id="txtFinalTitle">Yakuniy tahlil</div>
+    <div class="rv" style="color:var(--accent);font-size:15px;margin-top:6px;" id="resMain">—</div>
+    <div class="err-row"><span id="txtMaxAlpha">Maksimal S burchagi</span><span id="resAlpha">—</span></div>
+    <div class="err-row"><span id="txtMeasCount">O'lchashlar soni</span><span id="resCnt">—</span></div>
+  </div>
+</div>
+</div>
+<div style="position:fixed;bottom:14px;right:18px;display:flex;align-items:center;gap:7px;background:rgba(7,9,15,.75);border:1px solid rgba(251,146,60,.2);border-radius:30px;padding:5px 16px;backdrop-filter:blur(10px);z-index:9999;pointer-events:none;">
+  <span>🔬</span><span style="font-family:'Space Mono',monospace;font-size:11px;font-weight:700;background:linear-gradient(90deg,#fb923c,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;">Xosiyat Virtual Lab</span>
+</div>
+<script>
+var G=9.81,V0=20,Alpha=45,measList=[],cnt=0;
+var sc=document.getElementById('simCanvas'),ctx=sc.getContext('2d');
+var gc=document.getElementById('graphCanvas'),gctx=gc.getContext('2d');
+var running=false,animT=0,simT=0,ballX=0,ballY=0,trail=[],done=false;
+var lastS=0,lastH=0,lastT=0,maxH=0;
+
+function setV0(v){V0=parseFloat(v);document.getElementById('dV').textContent=v+' m/s';document.getElementById('cV').textContent=v;upd();}
+function setAlpha(v){Alpha=parseFloat(v);document.getElementById('dAlpha').textContent=v+'°';document.getElementById('cAlpha').textContent=v;upd();}
+function upd(){
+  var a=Alpha*Math.PI/180;
+  var S=V0*V0*Math.sin(2*a)/G,H=V0*V0*Math.sin(a)*Math.sin(a)/(2*G),T=2*V0*Math.sin(a)/G;
+  document.getElementById('dSmax').textContent=S.toFixed(1)+'m';
+  document.getElementById('dHmax').textContent=H.toFixed(1)+'m';
+  document.getElementById('dTuch').textContent=T.toFixed(2)+'s';
+  document.getElementById('dVx').textContent=(V0*Math.cos(a)).toFixed(1)+'m/s';
+  setStep(1);
+}
+function runExp(){
+  if(running)return;
+  running=true;done=false;simT=0;trail=[];maxH=0;
+  document.getElementById('runBtn').disabled=true;
+  document.getElementById('dot').classList.remove('off');
+  if(window._setStatusKey)window._setStatusKey('running');
+  setStep(2);
+}
+var W,H_sc;
+(function loop(){
+  animT+=0.016;
+  if(running){
+    simT+=0.04;
+    var a=Alpha*Math.PI/180;
+    var x=V0*Math.cos(a)*simT,y=V0*Math.sin(a)*simT-0.5*G*simT*simT;
+    ballX=x;ballY=y;
+    if(y>maxH)maxH=y;
+    trail.push({x:x,y:y});
+    if(y<0&&simT>0.1){
+      running=false;done=true;
+      lastS=x;lastH=maxH;lastT=simT;
+      var Snaz=V0*V0*Math.sin(2*a)/G,Hnaz=V0*V0*Math.sin(a)*Math.sin(a)/(2*G);
+      var eps=Math.abs(lastS-Snaz)/Snaz*100;
+      document.getElementById('rS').textContent=lastS.toFixed(1);
+      document.getElementById('rH').textContent=lastH.toFixed(1);
+      document.getElementById('rTuch').textContent=lastT.toFixed(2);
+      document.getElementById('rEps').textContent=eps.toFixed(1);
+      document.getElementById('cS').textContent=lastS.toFixed(0);
+      document.getElementById('cH').textContent=lastH.toFixed(0);
+      document.getElementById('runBtn').disabled=false;
+      document.getElementById('addBtn').disabled=false;
+      document.getElementById('dot').classList.add('off');
+      setStep(4);
+      if(window._setStatusKey)window._setStatusKey('done',{S:lastS,H:lastH,t:lastT,eps:eps});
+    }
+  }
+  drawSim();
+  requestAnimationFrame(loop);
+})();
+
+function addMeas(){
+  cnt++;var a=Alpha*Math.PI/180;
+  var Snaz=V0*V0*Math.sin(2*a)/G,Hnaz=V0*V0*Math.sin(a)*Math.sin(a)/(2*G),T=2*V0*Math.sin(a)/G;
+  measList.push({v0:V0,alpha:Alpha,S:lastS,H:lastH,T:lastT,Snaz:Snaz,Hnaz:Hnaz});
+  document.getElementById('chipCnt')&&(document.getElementById('chipCnt').textContent=cnt);
+  var tr=document.createElement('tr');
+  tr.innerHTML='<td>'+cnt+'</td><td>'+V0+'</td><td>'+Alpha+'</td><td>'+Snaz.toFixed(1)+'</td><td>'+Hnaz.toFixed(1)+'</td><td>'+T.toFixed(2)+'</td>';
+  document.getElementById('tbody').appendChild(tr);
+  if(measList.length>=2){
+    var maxAlpha=measList.reduce(function(a,b){return a.S>b.S?a:b;}).alpha;
+    document.getElementById('finalCard').style.display='block';
+    document.getElementById('resMain').textContent=(window._finalMainText?window._finalMainText(maxAlpha):'Parabolik harakat tasdiqlandi! S_max at α='+maxAlpha+'°');
+    document.getElementById('resAlpha').textContent=(window._finalAlphaText?window._finalAlphaText(maxAlpha):maxAlpha+'° (nazariy: 45°)');
+    document.getElementById('resCnt').textContent=measList.length+' ta';
+    setStep(5);
+  }
+  drawGraph();
+}
+function resetAll(){measList=[];cnt=0;running=false;done=false;trail=[];simT=0;document.getElementById('tbody').innerHTML='';document.getElementById('finalCard').style.display='none';document.getElementById('addBtn').disabled=true;document.getElementById('runBtn').disabled=false;document.getElementById('dot').classList.add('off');['rS','rH','rTuch','rEps'].forEach(function(id){document.getElementById(id).textContent='—';});document.getElementById('cS').textContent='—';document.getElementById('cH').textContent='—';if(window._setStatusKey)window._setStatusKey('default');setStep(1);upd();drawGraph();}
+function setStep(n){for(var i=1;i<=5;i++){var el=document.getElementById('st'+i);el.className='step'+(i<n?' done':i===n?' active':'');el.querySelector('.snum').textContent=i<n?'✓':i;}}
+function resize(){sc.width=sc.offsetWidth;sc.height=sc.offsetHeight;W=sc.width;H_sc=sc.height;}
+window.addEventListener('resize',resize);setTimeout(resize,80);
+
+function drawSim(){
+  var W2=sc.width,H2=sc.height;if(!W2||!H2)return;
+  ctx.clearRect(0,0,W2,H2);ctx.fillStyle='#040810';ctx.fillRect(0,0,W2,H2);
+  ctx.strokeStyle='rgba(251,146,60,.02)';ctx.lineWidth=1;
+  for(var xi=0;xi<W2;xi+=60){ctx.beginPath();ctx.moveTo(xi,0);ctx.lineTo(xi,H2);ctx.stroke();}
+  for(var yi=0;yi<H2;yi+=60){ctx.beginPath();ctx.moveTo(0,yi);ctx.lineTo(W2,yi);ctx.stroke();}
+  var ox=60,oy=H2-60;
+  var a=Alpha*Math.PI/180;
+  var Snaz=V0*V0*Math.sin(2*a)/G,Hnaz=V0*V0*Math.sin(a)*Math.sin(a)/(2*G);
+  var scaleX=(W2-120)/Math.max(Snaz,lastS,1),scaleY=(H2-100)/Math.max(Hnaz,lastH,1);
+  var sc2=Math.min(scaleX,scaleY)*0.85;
+  // Zamin
+  ctx.fillStyle='rgba(30,40,20,.5)';ctx.fillRect(ox,oy,W2-ox-20,20);
+  ctx.strokeStyle='rgba(251,146,60,.2)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(ox,oy);ctx.lineTo(W2-20,oy);ctx.stroke();
+  // O'qlar
+  ctx.strokeStyle='rgba(251,146,60,.3)';ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.moveTo(ox,oy);ctx.lineTo(W2-20,oy);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(ox,oy);ctx.lineTo(ox,30);ctx.stroke();
+  ctx.fillStyle='rgba(251,146,60,.5)';ctx.font='9px monospace';ctx.textAlign='center';
+  ctx.fillText('x (m)',W2-15,oy+3);ctx.fillText('y',ox,28);
+  // Nazariy trayektoriya
+  ctx.strokeStyle='rgba(251,146,60,.2)';ctx.lineWidth=1;ctx.setLineDash([4,6]);
+  ctx.beginPath();
+  for(var ti=0;ti<=100;ti++){
+    var tt=Snaz/(V0*Math.cos(a))*ti/100;
+    var px=ox+V0*Math.cos(a)*tt*sc2,py=oy-(V0*Math.sin(a)*tt-0.5*G*tt*tt)*sc2;
+    if(ti===0)ctx.moveTo(px,py);else ctx.lineTo(px,py);
+  }ctx.stroke();ctx.setLineDash([]);
+  ctx.fillStyle='rgba(251,146,60,.3)';ctx.font='8px monospace';ctx.textAlign='left';
+  ctx.fillText('Naz: S='+Snaz.toFixed(1)+'m H='+Hnaz.toFixed(1)+'m',ox+8,35);
+  // Tajriba trayektoriyasi
+  if(trail.length>1){
+    ctx.strokeStyle='rgba(251,146,60,.85)';ctx.lineWidth=2.5;
+    ctx.shadowColor='rgba(251,146,60,.4)';ctx.shadowBlur=8;
+    ctx.beginPath();
+    trail.forEach(function(p,i){
+      var px=ox+p.x*sc2,py=oy-p.y*sc2;
+      if(i===0)ctx.moveTo(px,py);else ctx.lineTo(px,py);
+    });ctx.stroke();ctx.shadowBlur=0;
+  }
+  // Top (sharcha)
+  if(running||done){
+    var cx2=ox+ballX*sc2,cy2=oy-Math.max(ballY,0)*sc2;
+    ctx.shadowColor='rgba(251,146,60,.7)';ctx.shadowBlur=15;
+    ctx.fillStyle='#fb923c';ctx.beginPath();ctx.arc(cx2,cy2,9,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
+  }
+  // Burchak yoyi
+  ctx.strokeStyle='rgba(251,146,60,.4)';ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.arc(ox,oy,40,Math.PI,Math.PI-a);ctx.stroke();
+  ctx.fillStyle='rgba(251,146,60,.7)';ctx.font='10px monospace';ctx.textAlign='left';
+  ctx.fillText('α='+Alpha+'°',ox+30,oy-18);
+  // H_max strelkasi
+  if(done&&lastH>1){
+    var hpx=ox+Snaz/2*sc2;
+    ctx.strokeStyle='rgba(255,201,71,.4)';ctx.lineWidth=1;ctx.setLineDash([3,5]);
+    ctx.beginPath();ctx.moveTo(hpx,oy);ctx.lineTo(hpx,oy-lastH*sc2);ctx.stroke();ctx.setLineDash([]);
+    ctx.fillStyle='rgba(255,201,71,.7)';ctx.font='9px monospace';ctx.textAlign='left';
+    ctx.fillText('H='+lastH.toFixed(1)+'m',hpx+4,oy-lastH*sc2/2);
+  }
+  // S strelkasi
+  if(done&&lastS>1){
+    ctx.strokeStyle='rgba(129,140,248,.4)';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(ox,oy+30);ctx.lineTo(ox+lastS*sc2,oy+30);ctx.stroke();
+    ctx.fillStyle='rgba(129,140,248,.7)';ctx.font='9px monospace';ctx.textAlign='center';
+    ctx.fillText('S='+lastS.toFixed(1)+'m',ox+lastS*sc2/2,oy+42);
+  }
+}
+function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.lineTo(x+w-r,y);c.quadraticCurveTo(x+w,y,x+w,y+r);c.lineTo(x+w,y+h-r);c.quadraticCurveTo(x+w,y+h,x+w-r,y+h);c.lineTo(x+r,y+h);c.quadraticCurveTo(x,y+h,x,y+h-r);c.lineTo(x,y+r);c.quadraticCurveTo(x,y,x+r,y);c.closePath();}
+function drawGraph(){
+  var W2=gc.offsetWidth||240;gc.width=W2;var GH=110;
+  gctx.clearRect(0,0,W2,GH);gctx.fillStyle='#070c17';gctx.fillRect(0,0,W2,GH);
+  var pad=30,gW=W2-pad*2,gHH=GH-pad-8;
+  gctx.strokeStyle='rgba(251,146,60,.3)';gctx.lineWidth=1;
+  gctx.beginPath();gctx.moveTo(pad,8);gctx.lineTo(pad,GH-pad);gctx.lineTo(W2-pad+6,GH-pad);gctx.stroke();
+  gctx.fillStyle='rgba(251,146,60,.5)';gctx.font='7px monospace';gctx.textAlign='center';gctx.fillText('α°',W2-pad+8,GH-pad+3);
+  gctx.textAlign='right';gctx.fillText('S',pad-3,12);
+  if(!measList.length)return;
+  var avals=measList.map(function(m){return m.alpha;}),svals=measList.map(function(m){return m.Snaz;});
+  var maxS=Math.max.apply(null,svals)*1.2;
+  measList.forEach(function(m){
+    var px=pad+(m.alpha/90)*gW,py=GH-pad-(m.Snaz/maxS)*gHH;
+    gctx.fillStyle='rgba(251,146,60,.9)';gctx.beginPath();gctx.arc(px,py,5,0,Math.PI*2);gctx.fill();
+  });
+}
+window.addEventListener('load',function(){setTimeout(function(){resize();upd();drawGraph();},100);});
+</script>
+
+<script id="langScript">
+(function(){
+var _lt={
+"uz":{
+ badge:"LAB · 04", hMain:"Gorizontga Burchak Ostida Otilgan Jism — ", hSpan:"Parabolik Harakat",
+ hsub:"KINEMATIKA · FIZPRAKTIKUM · SDPI 2026",
+ left1:"Boshlang'ich tezlik (v₀)", left2:"Otilish burchagi (α)",
+ smaxNaz:"S_max (naz)", hmaxNaz:"H_max (naz)", tuchLabel:"t_uchish",
+ step1:"v₀ va α tanlang", step2:"Jism uchmoqda", step3:"S, H, t o'lchanyapti", step4:"Natija yozing", step5:"Tahlil",
+ btnRun:"Otish", btnAdd:"Natijani yozish", btnReset:"Qayta boshlash",
+ right1:"O'lchov natijalari", sLabel:"S (uzoqlik)", hLabel:"H (balandlik)", tuchLabel2:"t (uchish vaqti)", epsLabel:"ε (xatolik)",
+ unitM:"metr", unitS:"sekund",
+ tableTitle:"Jadval: S va H = f(α)", graphTitle:"Grafik: S = f(α)",
+ finalTitle:"Yakuniy tahlil", maxAlpha:"Maksimal S burchagi", measCount:"O'lchashlar soni",
+ startBadge:"LAB · 04", startH1:"Gorizontga Burchak Ostida Otilgan Jism — ", startH1Span:"Parabolik Harakat",
+ orderLabel:"BAJARISH TARTIBI",
+ ord1:"Boshlang'ich tezlik v₀ va burchak α ni tanlang",
+ ord2:"Tajribani ishga tushiring → parabolik trayektoriyani kuzating",
+ ord3:"S_max, H_max va t_uchish ni o'lchang",
+ ord4:"α = 45° da maksimal uzoqlikni tasdiqlang",
+ startBtn:"▶ Laboratoriyani boshlash",
+ status:"v₀ va α ni tanlang → tajribani ishga tushiring → S_max va H_max ni o'lchang",
+ statusRunning:"🎯 Jism uchmoqda...",
+ statusDone:function(p){return "✓ S="+p.S.toFixed(1)+'m | H='+p.H.toFixed(1)+'m | t='+p.t.toFixed(2)+'s | ε='+p.eps.toFixed(1)+'%';},
+ finalMain:function(a){return 'Parabolik harakat tasdiqlandi! S_max at α='+a+'°';},
+ finalAlpha:function(a){return a+'° (nazariy: 45°)';},
+ instr:"🎯 x = v₀cosα·t · y = v₀sinα·t − ½gt² · α=45° da S_max → eng katta uchish uzoqligi"
+},
+"ru":{
+ badge:"ЛАБ · 04", hMain:"Тело, брошенное под углом к горизонту — ", hSpan:"Параболическое движение",
+ hsub:"КИНЕМАТИКА · ФИЗПРАКТИКУМ · SDPI 2026",
+ left1:"Начальная скорость (v₀)", left2:"Угол броска (α)",
+ smaxNaz:"S_max (теор.)", hmaxNaz:"H_max (теор.)", tuchLabel:"t_полёта",
+ step1:"Выбрать v₀ и α", step2:"Тело летит", step3:"Измеряются S, H, t", step4:"Записать результат", step5:"Анализ",
+ btnRun:"Бросить", btnAdd:"Записать результат", btnReset:"Начать заново",
+ right1:"Результаты измерений", sLabel:"S (дальность)", hLabel:"H (высота)", tuchLabel2:"t (время полёта)", epsLabel:"ε (ошибка)",
+ unitM:"метр", unitS:"секунда",
+ tableTitle:"Таблица: S и H = f(α)", graphTitle:"График: S = f(α)",
+ finalTitle:"Итоговый анализ", maxAlpha:"Угол максимальной S", measCount:"Число измерений",
+ startBadge:"ЛАБ · 04", startH1:"Тело, брошенное под углом к горизонту — ", startH1Span:"Параболическое движение",
+ orderLabel:"ПОРЯДОК ВЫПОЛНЕНИЯ",
+ ord1:"Выберите начальную скорость v₀ и угол α",
+ ord2:"Запустите опыт → наблюдайте параболическую траекторию",
+ ord3:"Измерьте S_max, H_max и время полёта t",
+ ord4:"Подтвердите, что при α=45° дальность максимальна",
+ startBtn:"▶ Начать лабораторную работу",
+ status:"Выберите v₀ и α → запустите опыт → измерьте S_max и H_max",
+ statusRunning:"🎯 Тело летит...",
+ statusDone:function(p){return "✓ S="+p.S.toFixed(1)+'м | H='+p.H.toFixed(1)+'м | t='+p.t.toFixed(2)+'с | ε='+p.eps.toFixed(1)+'%';},
+ finalMain:function(a){return 'Параболическое движение подтверждено! S_max при α='+a+'°';},
+ finalAlpha:function(a){return a+'° (теория: 45°)';},
+ instr:"🎯 x = v₀cosα·t · y = v₀sinα·t − ½gt² · При α=45° достигается S_max — максимальная дальность"
+},
+"en":{
+ badge:"LAB · 04", hMain:"Projectile Launched at an Angle — ", hSpan:"Parabolic Motion",
+ hsub:"KINEMATICS · PHYSICS PRACTICUM · SDPI 2026",
+ left1:"Initial velocity (v₀)", left2:"Launch angle (α)",
+ smaxNaz:"S_max (theor.)", hmaxNaz:"H_max (theor.)", tuchLabel:"t_flight",
+ step1:"Choose v₀ and α", step2:"Body is in flight", step3:"Measuring S, H, t", step4:"Record result", step5:"Analysis",
+ btnRun:"Launch", btnAdd:"Record result", btnReset:"Reset",
+ right1:"Measurement results", sLabel:"S (range)", hLabel:"H (height)", tuchLabel2:"t (flight time)", epsLabel:"ε (error)",
+ unitM:"meter", unitS:"second",
+ tableTitle:"Table: S and H = f(α)", graphTitle:"Graph: S = f(α)",
+ finalTitle:"Final analysis", maxAlpha:"Angle of max S", measCount:"Number of measurements",
+ startBadge:"LAB · 04", startH1:"Projectile Launched at an Angle — ", startH1Span:"Parabolic Motion",
+ orderLabel:"PROCEDURE",
+ ord1:"Choose the initial velocity v₀ and angle α",
+ ord2:"Run the experiment → observe the parabolic trajectory",
+ ord3:"Measure S_max, H_max, and the flight time t",
+ ord4:"Confirm that the range is maximal at α = 45°",
+ startBtn:"▶ Start the lab",
+ status:"Choose v₀ and α → run the experiment → measure S_max and H_max",
+ statusRunning:"🎯 Body is in flight...",
+ statusDone:function(p){return "✓ S="+p.S.toFixed(1)+'m | H='+p.H.toFixed(1)+'m | t='+p.t.toFixed(2)+'s | ε='+p.eps.toFixed(1)+'%';},
+ finalMain:function(a){return 'Parabolic motion confirmed! S_max at α='+a+'°';},
+ finalAlpha:function(a){return a+'° (theoretical: 45°)';},
+ instr:"🎯 x = v₀cosα·t · y = v₀sinα·t − ½gt² · At α=45°, S_max is reached — the greatest range"
+}
+};
+var _lang='uz';
+var _acc='#fb923c';
+var _statusState={key:'default',params:{}};
+function _renderStatus(){
+  var t=_lt[_lang],s=_statusState,el=document.getElementById('statusTxt');
+  if(!el)return;
+  if(s.key==='running')el.textContent=t.statusRunning;
+  else if(s.key==='done')el.textContent=t.statusDone(s.params);
+  else el.textContent=t.status;
+}
+function _setLang(l){
+  _lang=l;
+  ['uz','ru','en'].forEach(function(x){
+    var el=document.getElementById('_lb'+x);
+    if(!el)return;
+    el.className='lb-inject'+(x===l?' on':'');
+    el.style.color=x===l?_acc:'#4a6080';
+    el.style.background=x===l?'rgba('+_acc.replace('#','').match(/../g).map(function(h){return parseInt(h,16);}).join(',')+',0.12)':'rgba(255,255,255,.04)';
+  });
+  var t=_lt[l];
+  if(!t)return;
+  var map={
+    txtBadge:t.badge, txtHMain:t.hMain, txtHSpan:t.hSpan, txtHsub:t.hsub,
+    txtLeft1:t.left1, txtLeft2:t.left2, txtSmaxNaz:t.smaxNaz, txtHmaxNaz:t.hmaxNaz, txtTuchLabel:t.tuchLabel,
+    txtStep1:t.step1, txtStep2:t.step2, txtStep3:t.step3, txtStep4:t.step4, txtStep5:t.step5,
+    txtBtnRun:t.btnRun, txtBtnAdd:t.btnAdd, txtBtnReset:t.btnReset,
+    txtRight1:t.right1, txtSLabel:t.sLabel, txtHLabel:t.hLabel, txtTuchLabel2:t.tuchLabel2, txtEpsLabel:t.epsLabel,
+    txtUnitM:t.unitM, txtUnitS:t.unitS,
+    txtTableTitle:t.tableTitle, txtGraphTitle:t.graphTitle,
+    txtFinalTitle:t.finalTitle, txtMaxAlpha:t.maxAlpha, txtMeasCount:t.measCount,
+    txtStartBadge:t.startBadge, txtStartH1:t.startH1, txtStartH1Span:t.startH1Span,
+    txtOrderLabel:t.orderLabel, txtOrd1:t.ord1, txtOrd2:t.ord2, txtOrd3:t.ord3, txtOrd4:t.ord4,
+    txtStartBtn:t.startBtn, instrBar:t.instr
+  };
+  Object.keys(map).forEach(function(id){
+    var el=document.getElementById(id);
+    if(el&&map[id]!==undefined)el.textContent=map[id];
+  });
+  _renderStatus();
+  var rm=document.getElementById('resMain');
+  if(rm&&rm.textContent!=='—'&&window._lastAlpha!==undefined){
+    rm.textContent=t.finalMain(window._lastAlpha);
+    document.getElementById('resAlpha').textContent=t.finalAlpha(window._lastAlpha);
+  }
+}
+window._changeLang=function(l){_setLang(l);};
+window._setStatusKey=function(key,params){_statusState={key:key,params:params||{}};_renderStatus();};
+window._finalMainText=function(a){window._lastAlpha=a;return _lt[_lang].finalMain(a);};
+window._finalAlphaText=function(a){window._lastAlpha=a;return _lt[_lang].finalAlpha(a);};
+document.addEventListener('DOMContentLoaded',function(){_setLang('uz');});
+})();
+</script>
+</body>
+</html>

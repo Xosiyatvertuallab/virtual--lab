@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>8-Lab — Sharlarning To'qnashuvi</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap');
+:root{--bg:#07090f;--panel:#0e1420;--border:#1b2840;--accent:#ec4899;--green:#6fff5c;--blue:#818cf8;--yellow:#ffc947;--red:#ff6060;--text:#dde6f5;--muted:#4a6080;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;height:100vh;overflow:hidden;display:flex;flex-direction:column;}
+header{display:flex;align-items:center;gap:12px;padding:8px 20px;border-bottom:1px solid var(--border);background:linear-gradient(90deg,#07090f,#150010,#07090f);flex-shrink:0;}
+.badge{background:var(--accent);color:#fff;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:3px 9px;letter-spacing:2px;border-radius:2px;}
+.htitle{font-size:15px;font-weight:800;}.htitle span{color:var(--accent);}
+.hsub{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-left:auto;}
+.brand{display:flex;align-items:center;gap:6px;background:linear-gradient(135deg,rgba(236,72,153,.12),rgba(111,255,92,.08));border:1px solid rgba(236,72,153,.3);border-radius:20px;padding:4px 14px;margin-left:10px;flex-shrink:0;}
+.brand-txt{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;background:linear-gradient(90deg,#ec4899,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;}
+.statusbar{background:#0a0f1c;border-bottom:1px solid var(--border);padding:5px 20px;display:flex;align-items:center;gap:14px;font-family:'Space Mono',monospace;font-size:11px;flex-shrink:0;}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:bl 1s infinite;flex-shrink:0;}
+.dot.off{background:var(--muted);animation:none;}
+@keyframes bl{0%,100%{opacity:1}50%{opacity:.2}}
+#statusTxt{color:var(--accent);}
+.chips{display:flex;gap:6px;margin-left:auto;}
+.chip{background:rgba(236,72,153,.08);border:1px solid rgba(236,72,153,.2);border-radius:10px;padding:2px 9px;font-size:10px;color:var(--muted);}
+.chip span{color:var(--accent);}
+.body{display:grid;grid-template-columns:220px 1fr 270px;flex:1;overflow:hidden;}
+.left{background:var(--panel);border-right:1px solid var(--border);overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:9px;}
+.stitle{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--accent);text-transform:uppercase;margin-bottom:3px;opacity:.85;}
+.card{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:8px;padding:10px;}
+.card label{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:7px;}
+.vb{font-family:'Space Mono',monospace;font-size:11px;color:var(--accent);background:rgba(236,72,153,.12);padding:2px 7px;border-radius:3px;}
+input[type=range]{width:100%;-webkit-appearance:none;height:4px;background:var(--border);border-radius:2px;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;background:var(--accent);border-radius:50%;cursor:pointer;box-shadow:0 0 8px rgba(236,72,153,.7);}
+.shar-btns{display:flex;flex-direction:column;gap:4px;}
+.mb{border:1px solid var(--border);background:rgba(255,255,255,.03);color:var(--muted);padding:8px 10px;border-radius:6px;font-size:10px;font-family:'Space Mono',monospace;cursor:pointer;transition:all .2s;text-align:left;}
+.mb.on{background:rgba(236,72,153,.1);border-color:var(--accent);color:var(--accent);}
+.mb .ms{display:block;font-size:9px;color:var(--muted);margin-top:2px;}
+.mb.on .ms{color:rgba(236,72,153,.6);}
+.fbox{background:rgba(236,72,153,.04);border:1px solid rgba(236,72,153,.15);border-radius:7px;padding:9px;}
+.frow{display:flex;gap:6px;margin-bottom:4px;font-family:'Space Mono',monospace;font-size:9px;flex-wrap:wrap;}
+.frow:last-child{margin-bottom:0;}
+.fl{color:var(--muted);min-width:24px;}.fe{color:var(--accent);}
+.steps{display:flex;flex-direction:column;gap:3px;}
+.step{display:flex;align-items:center;gap:7px;padding:5px 8px;border-radius:5px;font-size:10px;color:var(--muted);border:1px solid transparent;transition:all .3s;}
+.step.active{background:rgba(236,72,153,.07);border-color:rgba(236,72,153,.2);color:var(--accent);}
+.step.done{color:var(--green);}
+.snum{font-family:'Space Mono',monospace;font-size:9px;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.05);flex-shrink:0;}
+.step.active .snum{background:rgba(236,72,153,.2);}
+.step.done .snum{background:rgba(111,255,92,.12);color:var(--green);}
+.btn{width:100%;padding:10px;border:none;border-radius:7px;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;cursor:pointer;transition:all .2s;}
+.btn-p{background:linear-gradient(135deg,#ec4899,#be185d);color:#fff;}
+.btn-p:hover{transform:translateY(-1px);box-shadow:0 5px 18px rgba(236,72,153,.4);}
+.btn-p:disabled{opacity:.35;cursor:not-allowed;transform:none;}
+.btn-g{background:linear-gradient(135deg,#6fff5c,#33cc22);color:#000;margin-top:5px;}
+.btn-g:disabled{opacity:.35;cursor:not-allowed;}
+.btn-r{background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--border);margin-top:5px;font-size:11px;}
+.center{position:relative;overflow:hidden;background:#040810;}
+#simCanvas{display:block;width:100%;height:100%;}
+.instr-bar{position:absolute;bottom:0;left:0;right:0;background:rgba(4,8,16,.92);border-top:1px solid var(--border);padding:6px 18px;font-size:11px;color:var(--muted);text-align:center;}
+.right{background:var(--panel);border-left:1px solid var(--border);overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:9px;}
+.rc{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:8px;padding:10px;}
+.rc.hi{border-color:rgba(236,72,153,.25);background:rgba(236,72,153,.05);}
+.rc.hi2{border-color:rgba(129,140,248,.25);background:rgba(129,140,248,.05);}
+.rl{font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:3px;}
+.rv{font-size:18px;font-weight:800;line-height:1;color:#fff;}
+.ru{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-top:2px;}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;}
+table{width:100%;border-collapse:collapse;font-family:'Space Mono',monospace;font-size:8.5px;}
+th{color:var(--accent);font-size:7.5px;letter-spacing:1px;border-bottom:1px solid var(--border);padding:4px 2px;text-align:center;}
+td{padding:3px 2px;border-bottom:1px solid rgba(255,255,255,.03);text-align:center;color:var(--text);}
+#graphCanvas{display:block;width:100%;border-radius:8px;border:1px solid var(--border);}
+.final-card{background:rgba(236,72,153,.05);border:1px solid rgba(236,72,153,.2);border-radius:8px;padding:12px;}
+.err-row{display:flex;justify-content:space-between;margin-top:6px;font-family:'Space Mono',monospace;font-size:10px;}
+.err-row span:first-child{color:var(--muted);}
+.err-row span:last-child{color:var(--yellow);}
+.type-row{display:flex;gap:6px;}
+.tb{flex:1;border:1px solid var(--border);background:rgba(255,255,255,.03);color:var(--muted);padding:8px 6px;border-radius:6px;font-size:10px;font-family:'Space Mono',monospace;cursor:pointer;text-align:center;transition:all .2s;}
+.tb.on{background:rgba(236,72,153,.12);border-color:var(--accent);color:var(--accent);}
+</style>
+
+<style>
+.lang-btns-inject{display:flex;gap:4px;margin-left:8px;flex-shrink:0;}
+.lb-inject{border:1px solid #1b2840;background:rgba(255,255,255,.04);color:#4a6080;padding:4px 10px;border-radius:5px;font-family:'Space Mono',monospace;font-size:9px;cursor:pointer;transition:all .2s;}
+.lb-inject.on{border-color:currentColor;font-weight:700;opacity:1;}
+.lb-inject:hover{opacity:.8;}
+</style>
+</head>
+<body>
+
+<!-- BOSHLASH EKRANI -->
+<div id="startScreen" style="position:fixed;inset:0;z-index:9998;background:radial-gradient(ellipse at 50% 40%,#1a0010 0%,#07090f 70%);display:flex;align-items:center;justify-content:center;">
+  <canvas id="bgCanvas" style="position:absolute;inset:0;width:100%;height:100%;opacity:.45;pointer-events:none"></canvas>
+  <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:18px;max-width:600px;padding:20px;text-align:center">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div style="background:#ec4899;color:#fff;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:4px 14px;letter-spacing:2px;border-radius:2px">LAB · 08</div>
+      <div style="font-family:'Space Mono',monospace;font-size:10px;color:#4a6080;letter-spacing:2px">MEXANIKA · IMPULS · TO'QNASHUV</div>
+    </div>
+    <div style="width:110px;height:110px;border-radius:50%;background:radial-gradient(circle,rgba(236,72,153,.18) 0%,rgba(236,72,153,.02) 70%);border:2px solid rgba(236,72,153,.4);display:flex;align-items:center;justify-content:center;box-shadow:0 0 55px rgba(236,72,153,.3);animation:pulse08 2.5s ease-in-out infinite;"><span style="font-size:48px">⚽</span></div>
+    <div>
+      <h1 style="font-size:21px;font-weight:800;color:#fff"><span id="txtStartH1">Sharlarning to'qnashuvi</span> <span style="color:#ec4899" id="txtStartH1Span">— Impuls va energiya saqlanish qonunlari</span></h1>
+      <p style="font-size:12px;color:#4a6080;margin-top:8px;font-family:'Space Mono',monospace">ε_v = |v₂'−v₁'|/v₁ · Impuls: m₁v₁ = m₁v₁'+m₂v₂'</p>
+    </div>
+    <div style="background:rgba(236,72,153,.05);border:1px solid rgba(236,72,153,.15);border-radius:12px;padding:16px;width:100%;text-align:left">
+      <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;color:#ec4899;margin-bottom:10px" id="txtOrderLabel">BAJARISH TARTIBI</div>
+      <div style="display:flex;flex-direction:column;gap:7px">
+        <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:#c5d3e8"><div style="width:22px;height:22px;border-radius:50%;background:rgba(236,72,153,.2);display:flex;align-items:center;justify-content:center;font-size:10px;color:#ec4899;flex-shrink:0">1</div><span id="txtOrd1">Sharlar materialini tanlang (po'lat yoki alyuminiy)</span></div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:#c5d3e8"><div style="width:22px;height:22px;border-radius:50%;background:rgba(236,72,153,.2);display:flex;align-items:center;justify-content:center;font-size:10px;color:#ec4899;flex-shrink:0">2</div><span id="txtOrd2">α₁ boshlang'ich burchagini belgilang va tajribani ishga tushiring</span></div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:#c5d3e8"><div style="width:22px;height:22px;border-radius:50%;background:rgba(236,72,153,.2);display:flex;align-items:center;justify-content:center;font-size:10px;color:#ec4899;flex-shrink:0">3</div><span id="txtOrd3">To'qnashuvdan keyin α₁' va α₂' burchaklarini o'lchang</span></div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:#c5d3e8"><div style="width:22px;height:22px;border-radius:50%;background:rgba(236,72,153,.2);display:flex;align-items:center;justify-content:center;font-size:10px;color:#ec4899;flex-shrink:0">4</div><span id="txtOrd4">ε_v, ε_w va F_o'rt ni hisoblang, impuls qonunini tekshiring</span></div>
+      </div>
+    </div>
+    <button onclick="startLab()" style="background:linear-gradient(135deg,#ec4899,#be185d);color:#fff;border:none;border-radius:12px;padding:16px 60px;font-size:16px;font-weight:800;font-family:'Syne',sans-serif;cursor:pointer;box-shadow:0 8px 30px rgba(236,72,153,.4);transition:all .2s;width:100%" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'" id="txtStartBtn">▶ Laboratoriyani boshlash</button>
+    <div style="display:flex;align-items:center;gap:6px;opacity:.6"><span>🔬</span><span style="font-family:'Space Mono',monospace;font-size:10px;font-weight:700;background:linear-gradient(90deg,#ec4899,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px">Xosiyat Virtual Lab</span></div>
+  </div>
+</div>
+<style>
+@keyframes pulse08{0%,100%{box-shadow:0 0 55px rgba(236,72,153,.2)}50%{box-shadow:0 0 80px rgba(236,72,153,.5)}}
+@keyframes fadeOut{0%{opacity:1}100%{opacity:0;transform:scale(1.04)}}
+</style>
+<script>
+(function(){var c=document.getElementById('bgCanvas');var x=c.getContext('2d');var pts=[];function rs(){c.width=window.innerWidth;c.height=window.innerHeight;}rs();window.addEventListener('resize',rs);for(var i=0;i<60;i++)pts.push({x:Math.random()*1600,y:Math.random()*900,r:Math.random()*2+.5,vx:(Math.random()-.5)*.4,vy:(Math.random()-.5)*.4,a:Math.random()});function fr(){x.clearRect(0,0,c.width,c.height);pts.forEach(function(p){p.x+=p.vx;p.y+=p.vy;p.a+=.006;if(p.x<0)p.x=c.width;if(p.x>c.width)p.x=0;if(p.y<0)p.y=c.height;if(p.y>c.height)p.y=0;x.fillStyle='rgba(236,72,153,'+(0.2+Math.sin(p.a)*0.15)+')';x.beginPath();x.arc(p.x%c.width,p.y%c.height,p.r,0,Math.PI*2);x.fill();});requestAnimationFrame(fr);}fr();})();
+function startLab(){var s=document.getElementById('startScreen');s.style.animation='fadeOut .5s ease forwards';setTimeout(function(){s.style.display='none';},480);}
+</script>
+
+<!-- HEADER -->
+<header>
+  <div class="badge" id="txtBadge">LAB · 08</div>
+  <h1 class="htitle"><span id="txtHMain">Sharlarning To'qnashuvi — </span><span id="txtHSpan">Impuls va Energiya Saqlanishi</span></h1>
+  <div class="hsub" id="txtHsub">MEXANIKA · FIZPRAKTIKUM · SDPI 2026</div>
+  <div class="brand"><span>🔬</span><span class="brand-txt">Xosiyat Virtual Lab</span></div>
+<div class="lang-btns-inject" id="_langbtns">
+<div class="lb-inject on" id="_lbuz" onclick="window._changeLang('uz')" style="color:#ec4899;">🇺🇿 UZ</div>
+<div class="lb-inject" id="_lbru" onclick="window._changeLang('ru')">🇷🇺 RU</div>
+<div class="lb-inject" id="_lben" onclick="window._changeLang('en')">🇬🇧 EN</div>
+</div></header>
+
+<div class="statusbar">
+  <div class="dot off" id="dot"></div>
+  <span id="statusTxt">Sharlar materialini tanlang → α₁ belgilang → Tajribani ishga tushiring</span>
+  <div class="chips">
+    <div class="chip">m₁=<span id="chipM1">113</span>g</div>
+    <div class="chip">m₂=<span id="chipM2">113</span>g</div>
+    <div class="chip">α₁=<span id="chipA1">30</span>°</div>
+    <div class="chip"><span id="txtChipOlchov">O'lchov:</span><span id="chipCnt">0</span></div>
+  </div>
+</div>
+
+<div class="body">
+<!-- CHAP -->
+<div class="left">
+  <div class="stitle" id="txtLeft1">1-shar materiali</div>
+  <div class="shar-btns" id="s1Btns">
+    <div class="mb on" data-m="113" data-c="#e2e8f0" onclick="setShar1(this)">🔘 <span id="txtSteel1">Po'lat shar</span><span class="ms">m₁ = 113 g</span></div>
+    <div class="mb" data-m="40" data-c="#94a3b8" onclick="setShar1(this)">⚪ <span id="txtAlu1">Alyuminiy shar</span><span class="ms">m₁ = 40 g</span></div>
+  </div>
+
+  <div class="stitle" id="txtLeft2">2-shar materiali</div>
+  <div class="shar-btns" id="s2Btns">
+    <div class="mb on" data-m="113" data-c="#e2e8f0" onclick="setShar2(this)">🔘 <span id="txtSteel2">Po'lat shar</span><span class="ms">m₂ = 113 g</span></div>
+    <div class="mb" data-m="40" data-c="#94a3b8" onclick="setShar2(this)">⚪ <span id="txtAlu2">Alyuminiy shar</span><span class="ms">m₂ = 40 g</span></div>
+  </div>
+
+  <div class="stitle" id="txtLeft3">Ip uzunligi (l)</div>
+  <div class="card">
+    <label>l (sm) <span class="vb" id="dL">40 sm</span></label>
+    <input type="range" id="sL" min="20" max="60" step="5" value="40" oninput="setL(this.value)">
+  </div>
+
+  <div class="stitle" id="txtLeft4">α₁ — boshlang'ich burchak</div>
+  <div class="card">
+    <label>α₁ (daraja) <span class="vb" id="dA1">30°</span></label>
+    <input type="range" id="sA1" min="10" max="60" step="5" value="30" oninput="setA1(this.value)">
+  </div>
+
+  <div class="fbox">
+    <div class="frow"><span class="fl">v₁</span><span class="fe">= 2√(g·l)·sin(α₁/2)</span></div>
+    <div class="frow"><span class="fl">ε_v</span><span class="fe">= (v₂'+v₁')/v₁</span></div>
+    <div class="frow"><span class="fl">ε_w</span><span class="fe">= (m₁v₁'²+m₂v₂'²)/(m₁v₁²)</span></div>
+    <div class="frow"><span class="fl">F</span><span class="fe">= m₂·v₂'/τ</span></div>
+  </div>
+
+  <div class="steps">
+    <div class="step active" id="st1"><div class="snum">1</div><span id="txtStep1">Sharlar va α₁ tanlang</span></div>
+    <div class="step" id="st2"><div class="snum">2</div><span id="txtStep2">Tajriba ishlayapti</span></div>
+    <div class="step" id="st3"><div class="snum">3</div><span id="txtStep3">α₁', α₂' o'lchanmoqda</span></div>
+    <div class="step" id="st4"><div class="snum">4</div><span id="txtStep4">Hisoblash</span></div>
+    <div class="step" id="st5"><div class="snum">5</div><span id="txtStep5">Tahlil</span></div>
+  </div>
+
+  <button class="btn btn-p" id="runBtn" onclick="runExperiment()">▶ <span id="txtBtnRun">Tajribani ishga tushirish</span></button>
+  <button class="btn btn-g" onclick="calcAll()" id="calcBtn" disabled>📊 <span id="txtBtnCalc">Natijalarni hisoblash</span></button>
+  <button class="btn btn-r" onclick="resetAll()">↺ <span id="txtBtnReset">Qayta boshlash</span></button>
+</div>
+
+<!-- MARKAZ -->
+<div class="center">
+  <canvas id="simCanvas"></canvas>
+  <div class="instr-bar" id="instrBar">⚽ Birinchi shar α₁ burchakdan qo'yib yuboriladi → pastki nuqtada ikkinchi sharni uradi → ikkalasi α₁' va α₂' burchaklarga og'adi → impuls saqlanishi tekshiriladi</div>
+</div>
+
+<!-- O'NG -->
+<div class="right">
+  <div class="stitle" id="txtRight1">To'qnashuv natijalari</div>
+  <div class="two">
+    <div class="rc hi"><div class="rl" id="txtV1Label">v₁ (zarbadan oldin)</div><div class="rv" style="font-size:15px" id="rV1">—</div><div class="ru">m/s</div></div>
+    <div class="rc"><div class="rl" id="txtTauLabel">τ (ta'sir vaqti)</div><div class="rv" style="font-size:15px;color:var(--yellow)" id="rTau">—</div><div class="ru">ms</div></div>
+  </div>
+  <div class="two">
+    <div class="rc hi"><div class="rl" id="txtV1pLabel">v₁' (1-shar keyin)</div><div class="rv" style="font-size:15px;color:var(--blue)" id="rV1p">—</div><div class="ru">m/s</div></div>
+    <div class="rc hi2"><div class="rl" id="txtV2pLabel">v₂' (2-shar keyin)</div><div class="rv" style="font-size:15px;color:var(--green)" id="rV2p">—</div><div class="ru">m/s</div></div>
+  </div>
+  <div class="three">
+    <div class="rc"><div class="rl">ε_v</div><div class="rv" style="font-size:14px;color:var(--accent)" id="rEv">—</div><div class="ru" id="txtRestore">tiklanish</div></div>
+    <div class="rc"><div class="rl">ε_w</div><div class="rv" style="font-size:14px;color:var(--yellow)" id="rEw">—</div><div class="ru" id="txtEnergy">energiya</div></div>
+    <div class="rc"><div class="rl" id="txtFAvg">F o'rt (N)</div><div class="rv" style="font-size:14px;color:var(--red)" id="rF">—</div><div class="ru" id="txtForce">kuch</div></div>
+  </div>
+
+  <div class="stitle" id="txtTableTitle">8.2-jadval</div>
+  <div style="overflow-x:auto">
+    <table>
+      <thead><tr><th>№</th><th>m₁</th><th>m₂</th><th>α₁°</th><th>α₁'°</th><th>α₂'°</th><th>v₁</th><th>v₁'</th><th>v₂'</th><th>ε_v</th><th>ε_w%</th></tr></thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+
+  <div class="stitle" id="txtGraphTitle">Grafik: ε_v = f(α₁)</div>
+  <canvas id="graphCanvas" height="110"></canvas>
+
+  <div class="final-card" id="finalCard" style="display:none">
+    <div class="rl" id="txtFinalTitle">Yakuniy natija</div>
+    <div style="display:flex;gap:8px;margin-top:8px">
+      <div style="flex:1;text-align:center">
+        <div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--muted)" id="txtAvgEv">O'rt. ε_v</div>
+        <div style="font-size:20px;font-weight:800;color:var(--accent)" id="resEv">—</div>
+      </div>
+      <div style="flex:1;text-align:center">
+        <div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--muted)" id="txtAvgEw">O'rt. ε_w</div>
+        <div style="font-size:20px;font-weight:800;color:var(--yellow)" id="resEw">—</div>
+      </div>
+    </div>
+    <div class="err-row"><span id="txtImpConserv">Impuls saqlanishi</span><span id="resImp">—</span></div>
+    <div class="err-row"><span id="txtAvgF">O'rt. F (N)</span><span id="resF">—</span></div>
+    <div class="err-row"><span id="txtMeasCount">O'lchashlar soni</span><span id="resCnt">—</span></div>
+  </div>
+</div>
+</div>
+
+<div style="position:fixed;bottom:14px;right:18px;display:flex;align-items:center;gap:7px;background:rgba(7,9,15,.75);border:1px solid rgba(236,72,153,.2);border-radius:30px;padding:5px 16px;backdrop-filter:blur(10px);z-index:9999;pointer-events:none">
+  <span>🔬</span><span style="font-family:'Space Mono',monospace;font-size:11px;font-weight:700;background:linear-gradient(90deg,#ec4899,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px">Xosiyat Virtual Lab</span>
+</div>
+
+<script>
+var G=9.81;
+var M1=113, M2=113, Lv=40, A1=30;
+var C1='#e2e8f0', C2='#e2e8f0';
+var measList=[], cnt=0;
+var sc=document.getElementById('simCanvas');
+var ctx=sc.getContext('2d');
+var gc=document.getElementById('graphCanvas');
+var gctx=gc.getContext('2d');
+
+// Animatsiya holatlari
+var STATE={IDLE:0, SWING1:1, IMPACT:2, SWING2:3, DONE:4};
+var state=STATE.IDLE;
+var animT=0, phaseT=0;
+var ang1=0, ang2=0; // joriy burchaklar (rad)
+var ang1p=0, ang2p=0; // to'qnashuvdan keyingi burchaklar
+var impactFlash=0;
+var res={v1:0,v1p:0,v2p:0,a1p:0,a2p:0,tau:0,ev:0,ew:0,F:0};
+
+function deg2rad(d){return d*Math.PI/180;}
+function rad2deg(r){return r*180/Math.PI;}
+
+function calcV1(){
+  var L=Lv/100;
+  return 2*Math.sqrt(G*L)*Math.sin(deg2rad(A1)/2);
+}
+function calcAfterCollision(m1,m2,v1){
+  // Noelastik to'qnashuv: ε_v taxminiy = 0.7 (po'lat-po'lat), 0.5 (al-al)
+  var ev=0.85;
+  if(m1===40&&m2===40) ev=0.65;
+  if(m1===113&&m2===40) ev=0.75;
+  if(m1===40&&m2===113) ev=0.7;
+  // Impuls saqlanishi + tiklanish koeffitsienti:
+  // v1'=(m1-ev*m2)*v1/(m1+m2), v2'=(1+ev)*m1*v1/(m1+m2)
+  var v1p=(m1-ev*m2)*v1/(m1+m2);
+  var v2p=(1+ev)*m1*v1/(m1+m2);
+  // Burchaklar
+  var L=Lv/100;
+  var a1p=2*Math.asin(Math.abs(v1p)/(2*Math.sqrt(G*L)));
+  var a2p=2*Math.asin(Math.abs(v2p)/(2*Math.sqrt(G*L)));
+  var tau=1.2+Math.random()*0.5; // ms
+  var F=m2/1000*v2p/(tau/1000);
+  var ew=(m1/1000*v1p*v1p+m2/1000*v2p*v2p)/(m1/1000*v1*v1);
+  return {v1p:v1p,v2p:v2p,a1p:rad2deg(a1p),a2p:rad2deg(a2p),ev:ev,ew:ew,tau:tau,F:F};
+}
+
+function setShar1(el){document.querySelectorAll('#s1Btns .mb').forEach(function(b){b.classList.remove('on');});el.classList.add('on');M1=parseFloat(el.dataset.m);C1=el.dataset.c;document.getElementById('chipM1').textContent=M1;}
+function setShar2(el){document.querySelectorAll('#s2Btns .mb').forEach(function(b){b.classList.remove('on');});el.classList.add('on');M2=parseFloat(el.dataset.m);C2=el.dataset.c;document.getElementById('chipM2').textContent=M2;}
+function setL(v){Lv=parseFloat(v);document.getElementById('dL').textContent=v+' sm';}
+function setA1(v){A1=parseFloat(v);document.getElementById('dA1').textContent=v+'°';document.getElementById('chipA1').textContent=v;}
+
+function runExperiment(){
+  if(state!==STATE.IDLE&&state!==STATE.DONE)return;
+  state=STATE.SWING1; phaseT=0; impactFlash=0;
+  document.getElementById('runBtn').disabled=true;
+  if(window._setStatusKey)window._setStatusKey('moving');
+  setDot(true); setStep(2);
+}
+
+var lastState=STATE.IDLE;
+(function loop(){
+  animT+=0.016; phaseT+=0.016;
+  var L=Lv/100;
+  var period=2*Math.PI*Math.sqrt(L/G);
+
+  if(state===STATE.SWING1){
+    // 1-shar sallanadi
+    ang1=deg2rad(A1)*Math.cos(2*Math.PI*phaseT/period);
+    ang2=0;
+    if(phaseT>period*0.5){
+      // To'qnashuv
+      var v1=calcV1();
+      var r=calcAfterCollision(M1,M2,v1);
+      res={v1:v1,v1p:r.v1p,v2p:r.v2p,a1p:r.a1p,a2p:r.a2p,tau:r.tau,ev:r.ev,ew:r.ew,F:r.F};
+      state=STATE.IMPACT; phaseT=0; impactFlash=1;
+      setStep(3);
+    }
+  } else if(state===STATE.IMPACT){
+    ang1=0; ang2=0;
+    impactFlash=Math.max(0,1-phaseT*8);
+    if(phaseT>0.12){state=STATE.SWING2; phaseT=0;}
+  } else if(state===STATE.SWING2){
+    // To'qnashuvdan keyin ikkalasi tarqaladi
+    var dec=Math.exp(-phaseT*0.4);
+    ang1=-deg2rad(res.a1p)*Math.cos(2*Math.PI*phaseT/period)*dec;
+    ang2= deg2rad(res.a2p)*Math.cos(2*Math.PI*phaseT/period)*dec;
+    if(phaseT>period*1.2){
+      state=STATE.DONE;
+      onDone();
+    }
+  } else if(state===STATE.IDLE||state===STATE.DONE){
+    ang1=deg2rad(A1)*0.12*Math.sin(animT*0.5);
+    ang2=0;
+  }
+
+  drawSim();
+  requestAnimationFrame(loop);
+})();
+
+function onDone(){
+  document.getElementById('rV1').textContent=res.v1.toFixed(3);
+  document.getElementById('rV1p').textContent=Math.abs(res.v1p).toFixed(3);
+  document.getElementById('rV2p').textContent=res.v2p.toFixed(3);
+  document.getElementById('rTau').textContent=res.tau.toFixed(2);
+  document.getElementById('rEv').textContent=res.ev.toFixed(3);
+  document.getElementById('rEw').textContent=(res.ew*100).toFixed(1)+'%';
+  document.getElementById('rF').textContent=res.F.toFixed(2);
+  document.getElementById('runBtn').disabled=false;
+  setDot(false); setStep(4);
+  document.getElementById('calcBtn').disabled=false;
+  if(window._setStatusKey)window._setStatusKey('done',{v1:res.v1,v2p:res.v2p,ev:res.ev,ew:res.ew*100});
+}
+
+function calcAll(){
+  cnt++;
+  var a2p_approx=res.a2p+(Math.random()-.5)*1.5;
+  var a1p_approx=res.a1p+(Math.random()-.5)*1.5;
+  measList.push({m1:M1,m2:M2,a1:A1,a1p:a1p_approx.toFixed(1),a2p:a2p_approx.toFixed(1),v1:res.v1,v1p:Math.abs(res.v1p),v2p:res.v2p,ev:res.ev,ew:res.ew*100,F:res.F,tau:res.tau});
+  document.getElementById('chipCnt').textContent=cnt;
+
+  var tr=document.createElement('tr');
+  tr.innerHTML='<td>'+cnt+'</td><td>'+M1+'</td><td>'+M2+'</td><td>'+A1+'</td><td>'+a1p_approx.toFixed(1)+'</td><td>'+a2p_approx.toFixed(1)+'</td><td>'+res.v1.toFixed(3)+'</td><td>'+Math.abs(res.v1p).toFixed(3)+'</td><td>'+res.v2p.toFixed(3)+'</td><td>'+res.ev.toFixed(3)+'</td><td>'+(res.ew*100).toFixed(1)+'</td>';
+  document.getElementById('tbody').appendChild(tr);
+
+  var n=measList.length, sEv=0, sEw=0, sF=0, sImp=0;
+  measList.forEach(function(m){
+    sEv+=m.ev; sEw+=m.ew; sF+=m.F;
+    sImp+=Math.abs(m.m1/1000*m.v1-(m.m1/1000*m.v1p+m.m2/1000*m.v2p));
+  });
+  document.getElementById('finalCard').style.display='block';
+  document.getElementById('resEv').textContent=(sEv/n).toFixed(3);
+  document.getElementById('resEw').textContent=(sEw/n).toFixed(1)+'%';
+  document.getElementById('resF').textContent=(sF/n).toFixed(2)+' N';
+  document.getElementById('resImp').textContent='Δp ≈ '+(sImp/n*1000).toFixed(2)+' g·m/s';
+  document.getElementById('resCnt').textContent=n+' ta';
+  setStep(5);
+  drawGraph();
+}
+
+function resetAll(){
+  measList=[];cnt=0;state=STATE.IDLE;ang1=0;ang2=0;phaseT=0;
+  document.getElementById('tbody').innerHTML='';
+  document.getElementById('finalCard').style.display='none';
+  document.getElementById('calcBtn').disabled=true;
+  document.getElementById('runBtn').disabled=false;
+  document.getElementById('chipCnt').textContent=0;
+  ['rV1','rV1p','rV2p','rTau','rEv','rEw','rF'].forEach(function(id){document.getElementById(id).textContent='—';});
+  if(window._setStatusKey)window._setStatusKey('default');
+  setDot(false); setStep(1); drawGraph();
+}
+
+function setDot(on){document.getElementById('dot').classList.toggle('off',!on);}
+function setStep(n){for(var i=1;i<=5;i++){var el=document.getElementById('st'+i);el.className='step'+(i<n?' done':i===n?' active':'');el.querySelector('.snum').textContent=i<n?'✓':i;}}
+
+function resize(){sc.width=sc.offsetWidth;sc.height=sc.offsetHeight;}
+window.addEventListener('resize',resize);
+setTimeout(resize,80);
+
+// ===== SIMULYATSIYA =====
+function drawSim(){
+  var W=sc.width, H=sc.height;
+  if(!W||!H)return;
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='#040810'; ctx.fillRect(0,0,W,H);
+
+  // Grid
+  ctx.strokeStyle='rgba(236,72,153,.02)';ctx.lineWidth=1;
+  for(var xi=0;xi<W;xi+=60){ctx.beginPath();ctx.moveTo(xi,0);ctx.lineTo(xi,H);ctx.stroke();}
+  for(var yi=0;yi<H;yi+=60){ctx.beginPath();ctx.moveTo(0,yi);ctx.lineTo(W,yi);ctx.stroke();}
+
+  var cx=W/2;
+  var topY=50;
+  var L=Lv/100;
+  var scale=H*0.55/0.6; // piksel/metr
+  var Lpx=L*scale;
+  var SR=22; // shar radiusi (px)
+
+  // Shar1 — chap, Shar2 — o'ng
+  var p1x=cx-SR*1.5;
+  var p2x=cx+SR*1.5;
+  var pivotY=topY;
+
+  // Shar1 joyi
+  var x1=p1x+Math.sin(ang1)*Lpx;
+  var y1=pivotY+Math.cos(ang1)*Lpx;
+  // Shar2 joyi
+  var x2=p2x+Math.sin(ang2)*Lpx;
+  var y2=pivotY+Math.cos(ang2)*Lpx;
+
+  // CHIZIQ — tayanchlar
+  ctx.fillStyle='#1a2840';
+  ctx.fillRect(0,topY-10,W,10);
+  // tayanchlar
+  for(var ti=0;ti<6;ti++){
+    ctx.strokeStyle='rgba(129,140,248,.15)';ctx.lineWidth=2;
+    ctx.beginPath();ctx.moveTo(50+ti*(W-100)/5,topY-10);ctx.lineTo(40+ti*(W-100)/5,topY-20);ctx.stroke();
+  }
+
+  // IP 1
+  ctx.strokeStyle='rgba(220,200,150,.8)';ctx.lineWidth=2;
+  ctx.beginPath();ctx.moveTo(p1x,pivotY);ctx.lineTo(x1,y1);ctx.stroke();
+  // IP 2
+  ctx.beginPath();ctx.moveTo(p2x,pivotY);ctx.lineTo(x2,y2);ctx.stroke();
+
+  // ZAMIN
+  ctx.strokeStyle='rgba(255,255,255,.06)';ctx.lineWidth=1;ctx.setLineDash([4,8]);
+  ctx.beginPath();ctx.moveTo(cx-80,pivotY+Lpx);ctx.lineTo(cx+80,pivotY+Lpx);ctx.stroke();
+  ctx.setLineDash([]);
+
+  // BURCHAK YOYLARI
+  if(state===STATE.IDLE||state===STATE.DONE){
+    // α₁ ko'rsatish
+    ctx.strokeStyle='rgba(236,72,153,.4)';ctx.lineWidth=1;ctx.setLineDash([3,5]);
+    ctx.beginPath();ctx.moveTo(p1x,pivotY);
+    ctx.arc(p1x,pivotY,Lpx*0.3,-Math.PI/2,-Math.PI/2+deg2rad(A1));ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle='rgba(236,72,153,.6)';ctx.font='10px monospace';ctx.textAlign='left';
+    ctx.fillText('α₁='+A1+'°',p1x+Lpx*0.3*0.5,pivotY+12);
+  }
+  if(state===STATE.DONE&&res.a1p){
+    ctx.strokeStyle='rgba(129,140,248,.4)';ctx.lineWidth=1;ctx.setLineDash([3,5]);
+    ctx.beginPath();ctx.moveTo(p1x,pivotY);
+    ctx.arc(p1x,pivotY,Lpx*0.25,-Math.PI/2-deg2rad(res.a1p),-Math.PI/2);ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle='rgba(129,140,248,.7)';ctx.font='9px monospace';ctx.textAlign='right';
+    ctx.fillText('α₁\'='+parseFloat(res.a1p).toFixed(1)+'°',p1x-Lpx*0.2,pivotY+12);
+    // α₂'
+    ctx.strokeStyle='rgba(111,255,92,.4)';ctx.lineWidth=1;ctx.setLineDash([3,5]);
+    ctx.beginPath();ctx.moveTo(p2x,pivotY);
+    ctx.arc(p2x,pivotY,Lpx*0.25,-Math.PI/2,-Math.PI/2+deg2rad(res.a2p));ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle='rgba(111,255,92,.7)';ctx.font='9px monospace';ctx.textAlign='left';
+    ctx.fillText('α₂\'='+parseFloat(res.a2p).toFixed(1)+'°',p2x+Lpx*0.2,pivotY+12);
+  }
+
+  // TO'QNASHUV FLASH
+  if(impactFlash>0){
+    ctx.globalAlpha=impactFlash*0.8;
+    var rg=ctx.createRadialGradient(cx,pivotY+Lpx,0,cx,pivotY+Lpx,60);
+    rg.addColorStop(0,'rgba(255,255,255,.9)');
+    rg.addColorStop(0.4,'rgba(236,72,153,.6)');
+    rg.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle=rg;ctx.beginPath();ctx.arc(cx,pivotY+Lpx,60,0,Math.PI*2);ctx.fill();
+    ctx.globalAlpha=1;
+    // ZARBA yazuvi
+    ctx.fillStyle='rgba(255,255,255,.9)';ctx.font='bold 18px Syne,sans-serif';ctx.textAlign='center';
+    ctx.fillText('TO\'QNASHUV!',cx,pivotY+Lpx-30);
+  }
+
+  // SHAR 1
+  ctx.shadowColor='rgba(236,72,153,.5)';ctx.shadowBlur=12;
+  var g1=ctx.createRadialGradient(x1-SR*0.35,y1-SR*0.35,SR*0.1,x1,y1,SR);
+  g1.addColorStop(0,'#fff');g1.addColorStop(0.4,C1);g1.addColorStop(1,'#556070');
+  ctx.fillStyle=g1;ctx.beginPath();ctx.arc(x1,y1,SR,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle='rgba(236,72,153,.6)';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(x1,y1,SR,0,Math.PI*2);ctx.stroke();
+  ctx.shadowBlur=0;
+  ctx.fillStyle='rgba(0,0,0,.6)';ctx.font='bold 9px Syne,sans-serif';ctx.textAlign='center';
+  ctx.fillText('m₁',x1,y1+3);
+  ctx.fillStyle='rgba(255,255,255,.5)';ctx.font='7px monospace';
+  ctx.fillText(M1+'g',x1,y1+13);
+
+  // SHAR 2
+  ctx.shadowColor='rgba(129,140,248,.4)';ctx.shadowBlur=12;
+  var g2=ctx.createRadialGradient(x2-SR*0.35,y2-SR*0.35,SR*0.1,x2,y2,SR);
+  g2.addColorStop(0,'#fff');g2.addColorStop(0.4,C2);g2.addColorStop(1,'#304060');
+  ctx.fillStyle=g2;ctx.beginPath();ctx.arc(x2,y2,SR,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle='rgba(129,140,248,.6)';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(x2,y2,SR,0,Math.PI*2);ctx.stroke();
+  ctx.shadowBlur=0;
+  ctx.fillStyle='rgba(0,0,0,.6)';ctx.font='bold 9px Syne,sans-serif';ctx.textAlign='center';
+  ctx.fillText('m₂',x2,y2+3);
+  ctx.fillStyle='rgba(255,255,255,.5)';ctx.font='7px monospace';
+  ctx.fillText(M2+'g',x2,y2+13);
+
+  // TEZLIK STRELKASI
+  if(state===STATE.SWING1&&phaseT>0.1){
+    var vdir=ang1>0?1:-1;
+    arrH(x1,y1,vdir,'rgba(236,72,153,.7)','v₁');
+  }
+  if(state===STATE.SWING2&&phaseT>0.1){
+    if(Math.abs(ang1)>0.01) arrH(x1,y1,-1,'rgba(129,140,248,.7)','v₁\'');
+    if(Math.abs(ang2)>0.01) arrH(x2,y2,1,'rgba(111,255,92,.7)','v₂\'');
+  }
+
+}
+
+function arrH(x,y,dir,c,lbl){
+  var len=32;
+  ctx.strokeStyle=c;ctx.lineWidth=2;
+  ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+dir*len,y);ctx.stroke();
+  ctx.fillStyle=c;ctx.beginPath();ctx.moveTo(x+dir*len,y);ctx.lineTo(x+dir*(len-9),y-5);ctx.lineTo(x+dir*(len-9),y+5);ctx.closePath();ctx.fill();
+  ctx.fillStyle=c;ctx.font='9px monospace';ctx.textAlign=dir>0?'left':'right';
+  ctx.fillText(lbl,x+dir*(len+4),y-5);
+}
+function rr2(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.lineTo(x+w-r,y);c.quadraticCurveTo(x+w,y,x+w,y+r);c.lineTo(x+w,y+h-r);c.quadraticCurveTo(x+w,y+h,x+w-r,y+h);c.lineTo(x+r,y+h);c.quadraticCurveTo(x,y+h,x,y+h-r);c.lineTo(x,y+r);c.quadraticCurveTo(x,y,x+r,y);c.closePath();}
+
+// GRAFIK
+function drawGraph(){
+  var W2=gc.offsetWidth||250;gc.width=W2;var GH=110;
+  gctx.clearRect(0,0,W2,GH);gctx.fillStyle='#070c17';gctx.fillRect(0,0,W2,GH);
+  var pad=32,gW=W2-pad*2,gHH=GH-pad-8;
+  gctx.strokeStyle='rgba(236,72,153,.3)';gctx.lineWidth=1;
+  gctx.beginPath();gctx.moveTo(pad,8);gctx.lineTo(pad,GH-pad);gctx.lineTo(W2-pad+6,GH-pad);gctx.stroke();
+  gctx.fillStyle='rgba(236,72,153,.5)';gctx.font='7px monospace';gctx.textAlign='center';
+  gctx.fillText('α₁ (°)',W2-pad+12,GH-pad+3);
+  gctx.textAlign='right';gctx.fillText('ε_v',pad-3,12);
+  if(measList.length===0)return;
+  var avals=measList.map(function(m){return parseFloat(m.a1);});
+  var evals=measList.map(function(m){return m.ev;});
+  var minA=Math.min.apply(null,avals)-5,maxA=Math.max.apply(null,avals)+5;
+  var minE=0,maxE=1.2;
+  // Nazariy chiziq
+  gctx.strokeStyle='rgba(255,201,71,.3)';gctx.lineWidth=1;gctx.setLineDash([3,4]);
+  gctx.beginPath();
+  var eavg=evals.reduce(function(a,b){return a+b;},0)/evals.length;
+  gctx.moveTo(pad,GH-pad-(eavg-minE)/(maxE-minE)*gHH);
+  gctx.lineTo(W2-pad,GH-pad-(eavg-minE)/(maxE-minE)*gHH);
+  gctx.stroke();gctx.setLineDash([]);
+  // Nuqtalar
+  measList.forEach(function(m,i){
+    var px=pad+((m.a1-minA)/(maxA-minA+0.01))*gW;
+    var py=GH-pad-((m.ev-minE)/(maxE-minE))*gHH;
+    gctx.fillStyle='rgba(236,72,153,.9)';gctx.beginPath();gctx.arc(px,py,5,0,Math.PI*2);gctx.fill();
+    gctx.fillStyle='rgba(255,255,255,.4)';gctx.font='7px monospace';gctx.textAlign='center';
+    gctx.fillText((m.ev).toFixed(2),px,py-8);
+  });
+  gctx.fillStyle='rgba(236,72,153,.7)';gctx.font='7px monospace';gctx.textAlign='left';
+  gctx.fillText('● ε_v tajriba',pad+2,GH-pad-gHH+12);
+  gctx.fillStyle='rgba(255,201,71,.5)';gctx.fillText('— o\'rtacha',pad+2,GH-pad-gHH+22);
+}
+
+window.addEventListener('load',function(){setTimeout(function(){resize();drawGraph();},100);});
+</script>
+
+<script id="langScript">
+(function(){
+var _lt={
+"uz":{
+ badge:"LAB · 08", hMain:"Sharlarning To'qnashuvi — ", hSpan:"Impuls va Energiya Saqlanishi",
+ hsub:"MEXANIKA · FIZPRAKTIKUM · SDPI 2026", chipOlchov:"O'lchov:",
+ left1:"1-shar materiali", left2:"2-shar materiali", left3:"Ip uzunligi (l)", left4:"α₁ — boshlang'ich burchak",
+ steel:"Po'lat shar", alu:"Alyuminiy shar",
+ step1:"Sharlar va α₁ tanlang", step2:"Tajriba ishlayapti", step3:"α₁', α₂' o'lchanmoqda",
+ step4:"Hisoblash", step5:"Tahlil",
+ btnRun:"Tajribani ishga tushirish", btnCalc:"Natijalarni hisoblash", btnReset:"Qayta boshlash",
+ right1:"To'qnashuv natijalari", v1Label:"v₁ (zarbadan oldin)", tauLabel:"τ (ta'sir vaqti)",
+ v1pLabel:"v₁' (1-shar keyin)", v2pLabel:"v₂' (2-shar keyin)",
+ restore:"tiklanish", energy:"energiya", fAvg:"F o'rt (N)", force:"kuch",
+ tableTitle:"8.2-jadval", graphTitle:"Grafik: ε_v = f(α₁)",
+ finalTitle:"Yakuniy natija", avgEv:"O'rt. ε_v", avgEw:"O'rt. ε_w",
+ impConserv:"Impuls saqlanishi", avgF:"O'rt. F (N)", measCount:"O'lchashlar soni",
+ startH1:"Sharlarning to'qnashuvi", startH1Span:"— Impuls va energiya saqlanish qonunlari",
+ orderLabel:"BAJARISH TARTIBI",
+ ord1:"Sharlar materialini tanlang (po'lat yoki alyuminiy)",
+ ord2:"α₁ boshlang'ich burchagini belgilang va tajribani ishga tushiring",
+ ord3:"To'qnashuvdan keyin α₁' va α₂' burchaklarini o'lchang",
+ ord4:"ε_v, ε_w va F_o'rt ni hisoblang, impuls qonunini tekshiring",
+ startBtn:"▶ Laboratoriyani boshlash",
+ status:"Sharlar materialini tanlang → α₁ belgilang → Tajribani ishga tushiring",
+ statusMoving:"⏱ 1-shar harakatlanmoqda...",
+ statusDone:function(p){return "✓ v₁="+p.v1.toFixed(3)+' | v₂\'='+p.v2p.toFixed(3)+' m/s | ε_v='+p.ev.toFixed(3)+' | ε_w='+p.ew.toFixed(1)+'%';},
+ instr:"⚽ Birinchi shar α₁ burchakdan qo'yib yuboriladi → pastki nuqtada ikkinchi sharni uradi → ikkalasi α₁' va α₂' burchaklarga og'adi → impuls saqlanishi tekshiriladi"
+},
+"ru":{
+ badge:"ЛАБ · 08", hMain:"Столкновение Шаров — ", hSpan:"Сохранение Импульса и Энергии",
+ hsub:"МЕХАНИКА · ФИЗПРАКТИКУМ · SDPI 2026", chipOlchov:"Измерений:",
+ left1:"Материал шара 1", left2:"Материал шара 2", left3:"Длина нити (l)", left4:"α₁ — начальный угол",
+ steel:"Стальной шар", alu:"Алюминиевый шар",
+ step1:"Выбрать шары и α₁", step2:"Опыт выполняется", step3:"Измеряются α₁', α₂'",
+ step4:"Вычисление", step5:"Анализ",
+ btnRun:"Запустить опыт", btnCalc:"Вычислить результаты", btnReset:"Начать заново",
+ right1:"Результаты столкновения", v1Label:"v₁ (до удара)", tauLabel:"τ (время удара)",
+ v1pLabel:"v₁' (шар 1 после)", v2pLabel:"v₂' (шар 2 после)",
+ restore:"восстановление", energy:"энергия", fAvg:"F сред. (Н)", force:"сила",
+ tableTitle:"Таблица 8.2", graphTitle:"График: ε_v = f(α₁)",
+ finalTitle:"Итоговый результат", avgEv:"Сред. ε_v", avgEw:"Сред. ε_w",
+ impConserv:"Сохранение импульса", avgF:"Сред. F (Н)", measCount:"Число измерений",
+ startH1:"Столкновение шаров", startH1Span:"— Законы сохранения импульса и энергии",
+ orderLabel:"ПОРЯДОК ВЫПОЛНЕНИЯ",
+ ord1:"Выберите материал шаров (сталь или алюминий)",
+ ord2:"Задайте начальный угол α₁ и запустите опыт",
+ ord3:"После столкновения измерьте углы α₁' и α₂'",
+ ord4:"Вычислите ε_v, ε_w и F_ср., проверьте закон сохранения импульса",
+ startBtn:"▶ Начать лабораторную работу",
+ status:"Выберите материал шаров → задайте α₁ → запустите опыт",
+ statusMoving:"⏱ Шар 1 движется...",
+ statusDone:function(p){return "✓ v₁="+p.v1.toFixed(3)+' | v₂\'='+p.v2p.toFixed(3)+' м/с | ε_v='+p.ev.toFixed(3)+' | ε_w='+p.ew.toFixed(1)+'%';},
+ instr:"⚽ Первый шар отпускается с угла α₁ → в нижней точке ударяет второй шар → оба отклоняются на углы α₁' и α₂' → проверяется сохранение импульса"
+},
+"en":{
+ badge:"LAB · 08", hMain:"Collision of Balls — ", hSpan:"Conservation of Momentum and Energy",
+ hsub:"MECHANICS · PHYSICS PRACTICUM · SDPI 2026", chipOlchov:"Measurements:",
+ left1:"Ball 1 material", left2:"Ball 2 material", left3:"String length (l)", left4:"α₁ — initial angle",
+ steel:"Steel ball", alu:"Aluminum ball",
+ step1:"Choose balls and α₁", step2:"Experiment running", step3:"Measuring α₁', α₂'",
+ step4:"Calculating", step5:"Analysis",
+ btnRun:"Run experiment", btnCalc:"Calculate results", btnReset:"Reset",
+ right1:"Collision results", v1Label:"v₁ (before impact)", tauLabel:"τ (impact time)",
+ v1pLabel:"v₁' (ball 1 after)", v2pLabel:"v₂' (ball 2 after)",
+ restore:"restitution", energy:"energy", fAvg:"F avg. (N)", force:"force",
+ tableTitle:"Table 8.2", graphTitle:"Graph: ε_v = f(α₁)",
+ finalTitle:"Final result", avgEv:"Avg. ε_v", avgEw:"Avg. ε_w",
+ impConserv:"Momentum conservation", avgF:"Avg. F (N)", measCount:"Number of measurements",
+ startH1:"Collision of Balls", startH1Span:"— Conservation of Momentum and Energy",
+ orderLabel:"PROCEDURE",
+ ord1:"Choose the ball material (steel or aluminum)",
+ ord2:"Set the initial angle α₁ and run the experiment",
+ ord3:"After the collision, measure angles α₁' and α₂'",
+ ord4:"Calculate ε_v, ε_w and F_avg, verify momentum conservation",
+ startBtn:"▶ Start the lab",
+ status:"Choose ball material → set α₁ → run the experiment",
+ statusMoving:"⏱ Ball 1 is moving...",
+ statusDone:function(p){return "✓ v₁="+p.v1.toFixed(3)+' | v₂\'='+p.v2p.toFixed(3)+' m/s | ε_v='+p.ev.toFixed(3)+' | ε_w='+p.ew.toFixed(1)+'%';},
+ instr:"⚽ Ball 1 is released from angle α₁ → strikes ball 2 at the bottom → both deflect to angles α₁' and α₂' → momentum conservation is verified"
+}
+};
+var _lang='uz';
+var _acc='#ec4899';
+var _statusState={key:'default',params:{}};
+function _renderStatus(){
+  var t=_lt[_lang],s=_statusState,el=document.getElementById('statusTxt');
+  if(!el)return;
+  if(s.key==='moving')el.textContent=t.statusMoving;
+  else if(s.key==='done')el.textContent=t.statusDone(s.params);
+  else el.textContent=t.status;
+}
+function _setLang(l){
+  _lang=l;
+  ['uz','ru','en'].forEach(function(x){
+    var el=document.getElementById('_lb'+x);
+    if(!el)return;
+    el.className='lb-inject'+(x===l?' on':'');
+    el.style.color=x===l?_acc:'#4a6080';
+    el.style.background=x===l?'rgba('+_acc.replace('#','').match(/../g).map(function(h){return parseInt(h,16);}).join(',')+',0.12)':'rgba(255,255,255,.04)';
+  });
+  var t=_lt[l];
+  if(!t)return;
+  var map={
+    txtBadge:t.badge, txtHMain:t.hMain, txtHSpan:t.hSpan, txtHsub:t.hsub, txtChipOlchov:t.chipOlchov,
+    txtLeft1:t.left1, txtLeft2:t.left2, txtLeft3:t.left3, txtLeft4:t.left4,
+    txtSteel1:t.steel, txtAlu1:t.alu, txtSteel2:t.steel, txtAlu2:t.alu,
+    txtStep1:t.step1, txtStep2:t.step2, txtStep3:t.step3, txtStep4:t.step4, txtStep5:t.step5,
+    txtBtnRun:t.btnRun, txtBtnCalc:t.btnCalc, txtBtnReset:t.btnReset,
+    txtRight1:t.right1, txtV1Label:t.v1Label, txtTauLabel:t.tauLabel,
+    txtV1pLabel:t.v1pLabel, txtV2pLabel:t.v2pLabel,
+    txtRestore:t.restore, txtEnergy:t.energy, txtFAvg:t.fAvg, txtForce:t.force,
+    txtTableTitle:t.tableTitle, txtGraphTitle:t.graphTitle,
+    txtFinalTitle:t.finalTitle, txtAvgEv:t.avgEv, txtAvgEw:t.avgEw,
+    txtImpConserv:t.impConserv, txtAvgF:t.avgF, txtMeasCount:t.measCount,
+    txtStartH1:t.startH1, txtStartH1Span:t.startH1Span,
+    txtOrderLabel:t.orderLabel, txtOrd1:t.ord1, txtOrd2:t.ord2, txtOrd3:t.ord3, txtOrd4:t.ord4,
+    txtStartBtn:t.startBtn, instrBar:t.instr
+  };
+  Object.keys(map).forEach(function(id){
+    var el=document.getElementById(id);
+    if(el&&map[id]!==undefined)el.textContent=map[id];
+  });
+  _renderStatus();
+}
+window._changeLang=function(l){_setLang(l);};
+window._setStatusKey=function(key,params){_statusState={key:key,params:params||{}};_renderStatus();};
+document.addEventListener('DOMContentLoaded',function(){_setLang('uz');});
+})();
+</script>
+</body>
+</html>

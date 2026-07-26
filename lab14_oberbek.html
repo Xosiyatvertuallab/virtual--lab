@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>14-Lab — Oberbek Mayatnigi</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap');
+:root{--bg:#07090f;--panel:#0e1420;--border:#1b2840;--accent:#f59e0b;--green:#6fff5c;--blue:#818cf8;--red:#ff6060;--text:#dde6f5;--muted:#4a6080;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;height:100vh;overflow:hidden;display:flex;flex-direction:column;}
+header{display:flex;align-items:center;gap:12px;padding:8px 20px;border-bottom:1px solid var(--border);background:linear-gradient(90deg,#07090f,#0f0a00,#07090f);flex-shrink:0;}
+.badge{background:var(--accent);color:#000;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:3px 9px;letter-spacing:2px;border-radius:2px;}
+.htitle{font-size:15px;font-weight:800;}.htitle span{color:var(--accent);}
+.hsub{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-left:auto;}
+.brand{display:flex;align-items:center;gap:6px;background:linear-gradient(135deg,rgba(245,158,11,.12),rgba(111,255,92,.08));border:1px solid rgba(245,158,11,.3);border-radius:20px;padding:4px 14px;margin-left:10px;flex-shrink:0;}
+.brand-txt{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;background:linear-gradient(90deg,#f59e0b,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;}
+.statusbar{background:#0a0f1c;border-bottom:1px solid var(--border);padding:5px 20px;display:flex;align-items:center;gap:14px;font-family:'Space Mono',monospace;font-size:11px;flex-shrink:0;}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:bl 1s infinite;flex-shrink:0;}
+.dot.off{background:var(--muted);animation:none;}
+@keyframes bl{0%,100%{opacity:1}50%{opacity:.2}}
+#statusTxt{color:var(--accent);}
+.chips{display:flex;gap:6px;margin-left:auto;}
+.chip{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);border-radius:10px;padding:2px 9px;font-size:10px;color:var(--muted);}
+.chip span{color:var(--accent);}
+.body{display:grid;grid-template-columns:215px 1fr 265px;flex:1;overflow:hidden;}
+.left{background:var(--panel);border-right:1px solid var(--border);overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:9px;}
+.stitle{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--accent);text-transform:uppercase;margin-bottom:3px;opacity:.85;}
+.card{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:8px;padding:10px;}
+.card label{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:7px;}
+.vb{font-family:'Space Mono',monospace;font-size:11px;color:var(--accent);background:rgba(245,158,11,.12);padding:2px 7px;border-radius:3px;}
+input[type=range]{width:100%;-webkit-appearance:none;height:4px;background:var(--border);border-radius:2px;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;background:var(--accent);border-radius:50%;cursor:pointer;box-shadow:0 0 8px rgba(245,158,11,.7);}
+.fbox{background:rgba(245,158,11,.04);border:1px solid rgba(245,158,11,.15);border-radius:7px;padding:9px;}
+.frow{display:flex;gap:6px;margin-bottom:4px;font-family:'Space Mono',monospace;font-size:10px;}
+.frow:last-child{margin-bottom:0;}
+.fl{color:var(--muted);min-width:20px;}.fe{color:var(--accent);}
+.steps{display:flex;flex-direction:column;gap:3px;}
+.step{display:flex;align-items:center;gap:7px;padding:5px 8px;border-radius:5px;font-size:10px;color:var(--muted);border:1px solid transparent;transition:all .3s;}
+.step.active{background:rgba(245,158,11,.07);border-color:rgba(245,158,11,.2);color:var(--accent);}
+.step.done{color:var(--green);}
+.snum{font-family:'Space Mono',monospace;font-size:9px;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.05);flex-shrink:0;}
+.step.active .snum{background:rgba(245,158,11,.2);}
+.step.done .snum{background:rgba(111,255,92,.12);color:var(--green);}
+.btn{width:100%;padding:10px;border:none;border-radius:7px;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;cursor:pointer;transition:all .2s;}
+.btn-p{background:linear-gradient(135deg,#f59e0b,#d97706);color:#000;}
+.btn-p:hover{transform:translateY(-1px);box-shadow:0 5px 18px rgba(245,158,11,.4);}
+.btn-p:disabled{opacity:.35;cursor:not-allowed;transform:none;}
+.btn-g{background:linear-gradient(135deg,#6fff5c,#33cc22);color:#000;margin-top:5px;}
+.btn-g:disabled{opacity:.35;cursor:not-allowed;}
+.btn-r{background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--border);margin-top:5px;font-size:11px;}
+.shkiv-btns{display:flex;flex-direction:column;gap:4px;}
+.sb{border:1px solid var(--border);background:rgba(255,255,255,.03);color:var(--muted);padding:7px 10px;border-radius:6px;font-size:10px;font-family:'Space Mono',monospace;cursor:pointer;transition:all .2s;text-align:left;}
+.sb.on{background:rgba(245,158,11,.1);border-color:var(--accent);color:var(--accent);}
+.sb .ms{display:block;font-size:9px;color:var(--muted);margin-top:1px;}
+.sb.on .ms{color:rgba(245,158,11,.6);}
+.center{position:relative;overflow:hidden;background:#040810;}
+#simCanvas{display:block;width:100%;height:100%;}
+.instr-bar{position:absolute;bottom:0;left:0;right:0;background:rgba(4,8,16,.92);border-top:1px solid var(--border);padding:6px 18px;font-size:11px;color:var(--muted);text-align:center;}
+.right{background:var(--panel);border-left:1px solid var(--border);overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:9px;}
+.rc{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:8px;padding:10px;}
+.rc.hi{border-color:rgba(245,158,11,.25);background:rgba(245,158,11,.05);}
+.rl{font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:3px;}
+.rv{font-size:20px;font-weight:800;line-height:1;color:#fff;}
+.ru{font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);margin-top:2px;}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;}
+table{width:100%;border-collapse:collapse;font-family:'Space Mono',monospace;font-size:9px;}
+th{color:var(--accent);font-size:8px;letter-spacing:1px;border-bottom:1px solid var(--border);padding:4px 2px;text-align:center;}
+td{padding:3px 2px;border-bottom:1px solid rgba(255,255,255,.03);text-align:center;color:var(--text);}
+tr.avg-r td{color:var(--accent);border-top:1px solid var(--border);font-weight:700;}
+#graphCanvas{display:block;width:100%;border-radius:8px;border:1px solid var(--border);}
+.final-card{background:rgba(245,158,11,.05);border:1px solid rgba(245,158,11,.2);border-radius:8px;padding:12px;}
+.err-row{display:flex;justify-content:space-between;margin-top:6px;font-family:'Space Mono',monospace;font-size:10px;}
+.err-row span:first-child{color:var(--muted);}
+.err-row span:last-child{color:var(--accent);}
+</style>
+
+<style>
+.lang-btns-inject{display:flex;gap:4px;margin-left:8px;flex-shrink:0;}
+.lb-inject{border:1px solid #1b2840;background:rgba(255,255,255,.04);color:#4a6080;padding:4px 10px;border-radius:5px;font-family:'Space Mono',monospace;font-size:9px;cursor:pointer;transition:all .2s;}
+.lb-inject.on{border-color:currentColor;font-weight:700;opacity:1;}
+.lb-inject:hover{opacity:.8;}
+</style>
+</head>
+<body>
+
+<!-- BOSHLASH EKRANI -->
+<div id="startScreen" style="position:fixed;inset:0;z-index:9998;background:radial-gradient(ellipse at 50% 40%,#140800 0%,#07090f 70%);display:flex;align-items:center;justify-content:center;">
+  <canvas id="bgCanvas" style="position:absolute;inset:0;width:100%;height:100%;opacity:.4;pointer-events:none"></canvas>
+  <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:20px;max-width:600px;padding:20px;text-align:center">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div style="background:#f59e0b;color:#000;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:4px 14px;letter-spacing:2px;border-radius:2px">LAB · 14</div>
+      <div style="font-family:'Space Mono',monospace;font-size:10px;color:#4a6080;letter-spacing:2px">MEXANIKA · AYLANMA HARAKAT</div>
+    </div>
+    <div style="width:100px;height:100px;border-radius:50%;background:radial-gradient(circle,rgba(245,158,11,.18) 0%,rgba(245,158,11,.02) 70%);border:2px solid rgba(245,158,11,.4);display:flex;align-items:center;justify-content:center;box-shadow:0 0 50px rgba(245,158,11,.25);animation:pulse14 2.5s ease-in-out infinite;"><span style="font-size:44px">🔄</span></div>
+    <div>
+      <h1 style="font-size:22px;font-weight:800;color:#fff" id="tStartTitle">Oberbek mayatnigi yordamida <span style="color:#f59e0b">aylanma harakat qonunlarini o'rganish</span></h1>
+      <p style="font-size:12px;color:#4a6080;margin-top:8px;font-family:'Space Mono',monospace">J = R²(m₂−m₁)g·t₁²·t₂² / [(t₁²−t₂²)·2h]</p>
+    </div>
+    <div style="background:rgba(245,158,11,.05);border:1px solid rgba(245,158,11,.15);border-radius:12px;padding:16px;width:100%;text-align:left">
+      <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;color:#f59e0b;margin-bottom:10px">BAJARISH TARTIBI</div>
+      <div style="display:flex;flex-direction:column;gap:7px">
+        <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:#c5d3e8"><div style="width:22px;height:22px;border-radius:50%;background:rgba(245,158,11,.2);display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:10px;color:#f59e0b;flex-shrink:0">1</div>Shkiv radiusi (R) va tushish balandligi (h) ni tanlang</div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:#c5d3e8"><div style="width:22px;height:22px;border-radius:50%;background:rgba(245,158,11,.2);display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:10px;color:#f59e0b;flex-shrink:0">2</div>m₁ va m₂ yuklar massasini belgilang (m₂ > m₁)</div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:#c5d3e8"><div style="width:22px;height:22px;border-radius:50%;background:rgba(245,158,11,.2);display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:10px;color:#f59e0b;flex-shrink:0">3</div>Tajribani ishga tushiring, t₁ va t₂ vaqtlarni o'lchang</div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:#c5d3e8"><div style="width:22px;height=22px;border-radius:50%;background:rgba(245,158,11,.2);display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:10px;color:#f59e0b;flex-shrink:0">4</div>J inersiya momentini hisoblab, natijani tahlil qiling</div>
+      </div>
+    </div>
+    <button onclick="startLab()" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:#000;border:none;border-radius:12px;padding:16px 60px;font-size:16px;font-weight:800;font-family:'Syne',sans-serif;cursor:pointer;box-shadow:0 8px 30px rgba(245,158,11,.35);transition:all .2s;width:100%" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'"><span id="tStartBtn">▶ Laboratoriyani boshlash</span></button>
+    <div style="display:flex;align-items:center;gap:6px;opacity:.6"><span>🔬</span><span style="font-family:'Space Mono',monospace;font-size:10px;font-weight:700;background:linear-gradient(90deg,#f59e0b,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px">Xosiyat Virtual Lab</span></div>
+  </div>
+</div>
+<style>
+@keyframes pulse14{0%,100%{box-shadow:0 0 50px rgba(245,158,11,.2)}50%{box-shadow:0 0 70px rgba(245,158,11,.45)}}
+@keyframes fadeOut{0%{opacity:1}100%{opacity:0;transform:scale(1.04)}}
+</style>
+<script>
+(function(){var c=document.getElementById('bgCanvas');var x=c.getContext('2d');var pts=[];function rs(){c.width=window.innerWidth;c.height=window.innerHeight;}rs();window.addEventListener('resize',rs);for(var i=0;i<50;i++)pts.push({x:Math.random()*1600,y:Math.random()*900,r:Math.random()*1.5+.5,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,a:Math.random()});function fr(){x.clearRect(0,0,c.width,c.height);pts.forEach(function(p){p.x+=p.vx;p.y+=p.vy;p.a+=.005;if(p.x<0)p.x=c.width;if(p.x>c.width)p.x=0;if(p.y<0)p.y=c.height;if(p.y>c.height)p.y=0;x.fillStyle='rgba(245,158,11,'+(0.15+Math.sin(p.a)*0.12)+')';x.beginPath();x.arc(p.x%c.width,p.y%c.height,p.r,0,Math.PI*2);x.fill();});requestAnimationFrame(fr);}fr();})();
+function startLab(){var s=document.getElementById('startScreen');s.style.animation='fadeOut .5s ease forwards';setTimeout(function(){s.style.display='none';},480);}
+</script>
+
+<!-- MAIN -->
+<header>
+  <div class="badge" id="tBadge">LAB · 14</div>
+  <h1 class="htitle" id="tTitle">Oberbek Mayatnigi — <span>Aylanma Harakat Dinamikasi</span></h1>
+  <div class="hsub" id="tHsub">MEXANIKA · FIZPRAKTIKUM · SDPI 2026</div>
+  <div class="brand"><span>🔬</span><span class="brand-txt">Xosiyat Virtual Lab</span></div>
+<div class="lang-btns-inject" id="_langbtns">
+<div class="lb-inject on" id="_lbuz" onclick="window._changeLang('uz')" style="color:#f59e0b;">🇺🇿 UZ</div>
+<div class="lb-inject" id="_lbru" onclick="window._changeLang('ru')">🇷🇺 RU</div>
+<div class="lb-inject" id="_lben" onclick="window._changeLang('en')">🇬🇧 EN</div>
+</div></header>
+
+<div class="statusbar">
+  <div class="dot off" id="dot"></div>
+  <span id="statusTxt">R va h tanlang → m₁, m₂ belgilang → Tajribani ishga tushiring</span>
+  <div class="chips">
+    <div class="chip">R = <span id="chipR">15</span> mm</div>
+    <div class="chip">m₁ = <span id="chipM1">50</span> g</div>
+    <div class="chip">m₂ = <span id="chipM2">80</span> g</div>
+    <div class="chip">O'lchov: <span id="chipCnt">0</span></div>
+  </div>
+</div>
+
+<div class="body">
+<!-- CHAP PANEL -->
+<div class="left">
+  <div class="stitle" id="tSt1">Shkiv Radiusi (R)</div>
+  <div class="shkiv-btns" id="rBtns">
+    <div class="sb on" data-r="15" onclick="setR(this)">R = 15 mm (kichik)<span class="ms" id="tRa">J kichroq chiqadi</span></div>
+    <div class="sb" data-r="30" onclick="setR(this)">R = 30 mm (katta)<span class="ms" id="tRb">J kattaroq chiqadi</span></div>
+  </div>
+
+  <div class="stitle" id="tSt2">Tushish balandligi (h)</div>
+  <div class="card">
+    <label>h (sm) <span class="vb" id="dH">40 sm</span></label>
+    <input type="range" id="sH" min="20" max="80" step="5" value="40" oninput="setH(this.value)">
+  </div>
+
+  <div class="stitle" id="tSt3">1-yuk massasi m₁</div>
+  <div class="card">
+    <label>m₁ (g) <span class="vb" id="dM1">50 g</span></label>
+    <input type="range" id="sM1" min="20" max="150" step="10" value="50" oninput="setM1(this.value)">
+  </div>
+
+  <div class="stitle" id="tSt4">2-yuk massasi m₂ (m₂ > m₁)</div>
+  <div class="card">
+    <label>m₂ (g) <span class="vb" id="dM2">80 g</span></label>
+    <input type="range" id="sM2" min="30" max="200" step="10" value="80" oninput="setM2(this.value)">
+  </div>
+
+  <div class="fbox">
+    <div class="frow"><span class="fl">β</span><span class="fe">= 2h/(R·t²)</span></div>
+    <div class="frow"><span class="fl">J</span><span class="fe">= R²(m₂−m₁)g·t₁²t₂²/[(t₁²−t₂²)2h]</span></div>
+    <div class="frow"><span class="fl">ε</span><span class="fe">= |J−J_naz|/J_naz·100%</span></div>
+  </div>
+
+  <div class="steps">
+    <div class="step active" id="st1"><div class="snum">1</div><span id="tStep1">R, h, m₁, m₂ tanlang</span></div>
+    <div class="step" id="st2"><div class="snum">2</div><span id="tStep2">m₁ bilan tajriba (t₁)</span></div>
+    <div class="step" id="st3"><div class="snum">3</div><span id="tStep3">m₂ bilan tajriba (t₂)</span></div>
+    <div class="step" id="st4"><div class="snum">4</div><span id="tStep4">J ni hisoblang</span></div>
+  </div>
+
+  <button class="btn btn-p" id="run1Btn" onclick="runExp(1)"><span id="tRun1Btn">▶ m₁ bilan tajriba (t₁)</span></button>
+  <button class="btn btn-p" id="run2Btn" onclick="runExp(2)" style="margin-top:5px;background:linear-gradient(135deg,#818cf8,#4f46e5);color:#fff" disabled><span id="tRun2Btn">▶ m₂ bilan tajriba (t₂)</span></button>
+  <button class="btn btn-g" onclick="calcAll()" id="calcBtn" disabled><span id="tCalcBtn">📊 J ni hisoblash</span></button>
+  <button class="btn btn-r" onclick="resetAll()"><span id="tResetBtn">↺ Qayta boshlash</span></button>
+</div>
+
+<!-- MARKAZ -->
+<div class="center">
+  <canvas id="simCanvas"></canvas>
+  <div class="instr-bar"><span id="tInstr">⚙️ Oberbek mayatnigi: ip shkivga o'ralgan, m₁ va m₂ yuklar pastga tushadi → β burchak tezlanishi → J = Mr² formulasi yordamida inersiya momenti topiladi</span></div>
+</div>
+
+<!-- O'NG PANEL -->
+<div class="right">
+  <div class="stitle" id="tSt5">O'lchov natijalari</div>
+  <div class="two">
+    <div class="rc hi"><div class="rl">t₁ (m₁ bilan)</div><div class="rv" id="rT1">—</div><div class="ru">sekund</div></div>
+    <div class="rc hi"><div class="rl">t₂ (m₂ bilan)</div><div class="rv" id="rT2">—</div><div class="ru">sekund</div></div>
+  </div>
+  <div class="two">
+    <div class="rc"><div class="rl">β₁ (rad/s²)</div><div class="rv" style="font-size:13px;color:var(--accent)" id="rB1">—</div><div class="ru">burchak tezlanish</div></div>
+    <div class="rc"><div class="rl">β₂ (rad/s²)</div><div class="rv" style="font-size:13px;color:var(--blue)" id="rB2">—</div><div class="ru">burchak tezlanish</div></div>
+  </div>
+  <div class="three">
+    <div class="rc hi"><div class="rl">J tajriba</div><div class="rv" style="font-size:13px;color:var(--green)" id="rJ">—</div><div class="ru">kg·m²</div></div>
+    <div class="rc"><div class="rl">J nazariy</div><div class="rv" style="font-size:13px;color:var(--accent)" id="rJn">—</div><div class="ru">kg·m²</div></div>
+    <div class="rc"><div class="rl">ε %</div><div class="rv" style="font-size:13px;color:var(--red)" id="rErr">—</div><div class="ru">xatolik</div></div>
+  </div>
+
+  <div class="stitle" id="tTableTitle">14.1-jadval</div>
+  <div style="overflow-x:auto">
+    <table>
+      <thead>
+        <tr><th>№</th><th>m₁(g)</th><th>m₂(g)</th><th>R(mm)</th><th>h(sm)</th><th>t₁(s)</th><th>t₂(s)</th><th>J(kg·m²)</th><th>ε%</th></tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+
+  <div class="stitle" id="tGraphTitle">Grafik: J = f(R)</div>
+  <canvas id="graphCanvas" height="110"></canvas>
+
+  <div class="final-card" id="finalCard" style="display:none">
+    <div class="rl" id="tFinalTitle">Inersiya momenti — yakuniy natija</div>
+    <div class="rv" style="color:var(--green);font-size:22px" id="resJ">—</div>
+    <div class="ru">kg·m²</div>
+    <div class="err-row"><span id="tJn">J nazariy</span><span id="resJn">—</span></div>
+    <div class="err-row"><span id="tEps">O'rtacha xatolik</span><span id="resEps">—</span></div>
+    <div class="err-row"><span id="tMeasCnt">O'lchashlar soni</span><span id="resCnt">—</span></div>
+  </div>
+</div>
+</div>
+
+<div style="position:fixed;bottom:14px;right:18px;display:flex;align-items:center;gap:7px;background:rgba(7,9,15,.75);border:1px solid rgba(245,158,11,.2);border-radius:30px;padding:5px 16px;backdrop-filter:blur(10px);z-index:9999;pointer-events:none">
+  <span>🔬</span><span style="font-family:'Space Mono',monospace;font-size:11px;font-weight:700;background:linear-gradient(90deg,#f59e0b,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px">Xosiyat Virtual Lab</span>
+</div>
+
+<script>
+var g=9.81;
+var Rv=15, Hv=40, M1v=50, M2v=80;
+var t1Res=null, t2Res=null;
+var animAngle=0, running=false, runPhase=0;
+var yukPos=0, tElapsed=0;
+var measList=[], cnt=0;
+var sc=document.getElementById('simCanvas');
+var sctx=sc.getContext('2d');
+var gc=document.getElementById('graphCanvas');
+var gctx=gc.getContext('2d');
+
+function calcA(mass){
+  var R=Rv/1000, h=Hv/100, mkg=mass/1000;
+  // a = 2h/t² => t = sqrt(2h/a)
+  // Tezlanish: a = m*g*R² / (J + m*R²) — soddalashtirilgan: a ≈ mg/(m+J/R²)
+  // Nazariy J uchun: J = 0.5*M*R_disk² taxminiy
+  var Jnaz=calcJNaz();
+  var a=mkg*g*R*R/(Jnaz+mkg*R*R); // tangensial tezlanish R dan
+  // Lekin a = lineer => β = a/R
+  return a;
+}
+function calcJNaz(){
+  // Taxminiy: disk massasi 0.5 kg, radius R
+  var R=Rv/1000;
+  return 0.5*0.5*R*R + 4*0.1*R*R; // disk + 4 ta spitsa
+}
+function calcTfromA(a){return Math.sqrt(2*(Hv/100)/a);}
+function calcJexp(t1,t2){
+  var R=Rv/1000, h=Hv/100;
+  var m1=M1v/1000, m2=M2v/1000;
+  var num=R*R*(m2-m1)*g*t1*t1*t2*t2;
+  var den=(t1*t1-t2*t2)*2*h;
+  return num/den;
+}
+
+function resize(){sc.width=sc.offsetWidth;sc.height=sc.offsetHeight;drawSim();}
+window.addEventListener('resize',resize);
+setTimeout(resize,80);
+
+var animT=0;
+(function loop(){
+  animT+=0.016;
+  if(running){
+    tElapsed+=0.016;
+    var a=calcA(runPhase===1?M1v:M2v);
+    var s=0.5*a*tElapsed*tElapsed;
+    var Sm=Hv/100;
+    yukPos=Math.min(s/Sm,1);
+    if(s>=Sm){
+      running=false;
+      var tReal=calcTfromA(a)+(Math.random()-.5)*0.05;
+      onExpDone(runPhase,tReal);
+    }
+  }
+  drawSim();
+  requestAnimationFrame(loop);
+})();
+
+function setR(el){document.querySelectorAll('#rBtns .sb').forEach(function(b){b.classList.remove('on');});el.classList.add('on');Rv=parseFloat(el.dataset.r);document.getElementById('chipR').textContent=Rv;updateInfo();}
+function setH(v){Hv=parseFloat(v);document.getElementById('dH').textContent=v+' sm';updateInfo();}
+function setM1(v){M1v=parseFloat(v);document.getElementById('dM1').textContent=v+' g';document.getElementById('chipM1').textContent=v;updateInfo();}
+function setM2(v){M2v=parseFloat(v);document.getElementById('dM2').textContent=v+' g';document.getElementById('chipM2').textContent=v;updateInfo();}
+
+function updateInfo(){
+  var Jn=calcJNaz();
+  document.getElementById('rJn').textContent=(Jn*1000).toFixed(3)+' ×10⁻³';
+}
+
+function runExp(phase){
+  if(running)return;
+  if(phase===2&&t1Res===null){alert("Avval m₁ bilan tajriba o'tkazing!");return;}
+  if(M2v<=M1v&&phase===2){alert("m₂ > m₁ bo'lishi kerak!");return;}
+  running=true; runPhase=phase; tElapsed=0; yukPos=0;
+  document.getElementById('run1Btn').disabled=true;
+  document.getElementById('run2Btn').disabled=true;
+  document.getElementById('statusTxt').textContent='⏱ m'+phase+' bilan harakat boshlandi... vaqt o\'lchanyapti';
+  setDot(true);
+  if(phase===1) setStep(2); else setStep(3);
+}
+
+function onExpDone(phase,t){
+  if(phase===1){
+    t1Res=t;
+    document.getElementById('rT1').textContent=t.toFixed(3);
+    var a=calcA(M1v), b=2*(Hv/100)/((Rv/1000)*t*t);
+    document.getElementById('rB1').textContent=b.toFixed(3);
+    document.getElementById('run1Btn').disabled=false;
+    document.getElementById('run2Btn').disabled=false;
+    document.getElementById('statusTxt').textContent='✓ t₁='+t.toFixed(3)+' s | β₁='+b.toFixed(3)+' rad/s² — endi m₂ bilan tajriba o\'tkaring';
+  } else {
+    t2Res=t;
+    document.getElementById('rT2').textContent=t.toFixed(3);
+    var b2=2*(Hv/100)/((Rv/1000)*t*t);
+    document.getElementById('rB2').textContent=b2.toFixed(3);
+    document.getElementById('run1Btn').disabled=false;
+    document.getElementById('run2Btn').disabled=false;
+    document.getElementById('calcBtn').disabled=false;
+    document.getElementById('statusTxt').textContent='✓ t₂='+t.toFixed(3)+' s | β₂='+b2.toFixed(3)+' rad/s² — endi J ni hisoblang!';
+    setStep(4);
+  }
+  setDot(false); yukPos=1;
+}
+
+function calcAll(){
+  if(!t1Res||!t2Res){return;}
+  var Jexp=calcJexp(t1Res,t2Res);
+  var Jnaz=calcJNaz();
+  var err=Math.abs(Jexp-Jnaz)/Jnaz*100;
+  cnt++;
+  document.getElementById('rJ').textContent=(Jexp*1000).toFixed(3)+'×10⁻³';
+  document.getElementById('rJn').textContent=(Jnaz*1000).toFixed(3)+'×10⁻³';
+  document.getElementById('rErr').textContent=err.toFixed(1);
+  document.getElementById('chipCnt').textContent=cnt;
+
+  measList.push({m1:M1v,m2:M2v,R:Rv,h:Hv,t1:t1Res,t2:t2Res,J:Jexp,Jn:Jnaz,err:err});
+
+  var tr=document.createElement('tr');
+  tr.innerHTML='<td>'+cnt+'</td><td>'+M1v+'</td><td>'+M2v+'</td><td>'+Rv+'</td><td>'+Hv+'</td><td>'+t1Res.toFixed(3)+'</td><td>'+t2Res.toFixed(3)+'</td><td>'+(Jexp*1000).toFixed(3)+'e-3</td><td>'+err.toFixed(1)+'</td>';
+  document.getElementById('tbody').appendChild(tr);
+
+  document.getElementById('finalCard').style.display='block';
+  var sumJ=0,sumE=0;
+  measList.forEach(function(m){sumJ+=m.J;sumE+=m.err;});
+  var n=measList.length;
+  document.getElementById('resJ').textContent=(sumJ/n*1000).toFixed(3)+'×10⁻³';
+  document.getElementById('resJn').textContent=(Jnaz*1000).toFixed(3)+'×10⁻³ kg·m²';
+  document.getElementById('resEps').textContent=(sumE/n).toFixed(1)+'%';
+  document.getElementById('resCnt').textContent=n+' ta';
+
+  document.getElementById('statusTxt').textContent='🎉 J='+( Jexp*1000).toFixed(3)+'×10⁻³ kg·m², ε='+err.toFixed(1)+'%';
+  drawGraph();
+}
+
+function resetAll(){
+  t1Res=null; t2Res=null; measList=[]; cnt=0; running=false; yukPos=0; tElapsed=0;
+  document.getElementById('tbody').innerHTML='';
+  document.getElementById('finalCard').style.display='none';
+  document.getElementById('calcBtn').disabled=true;
+  document.getElementById('run1Btn').disabled=false;
+  document.getElementById('run2Btn').disabled=true;
+  document.getElementById('chipCnt').textContent=0;
+  ['rT1','rT2','rB1','rB2','rJ','rErr'].forEach(function(id){document.getElementById(id).textContent='—';});
+  document.getElementById('statusTxt').textContent='R va h tanlang → m₁, m₂ belgilang → Tajribani ishga tushiring';
+  setDot(false); setStep(1); drawGraph();
+}
+
+function setDot(on){document.getElementById('dot').classList.toggle('off',!on);}
+function setStep(n){for(var i=1;i<=4;i++){var el=document.getElementById('st'+i);el.className='step'+(i<n?' done':i===n?' active':'');el.querySelector('.snum').textContent=i<n?'✓':i;}}
+
+// ===== SIMULYATSIYA =====
+function drawSim(){
+  var W=sc.width, H=sc.height;
+  if(!W||!H)return;
+  sctx.clearRect(0,0,W,H);
+  sctx.fillStyle='#040810';sctx.fillRect(0,0,W,H);
+
+  // Grid
+  sctx.strokeStyle='rgba(245,158,11,.02)';sctx.lineWidth=1;
+  for(var xi=0;xi<W;xi+=60){sctx.beginPath();sctx.moveTo(xi,0);sctx.lineTo(xi,H);sctx.stroke();}
+  for(var yi=0;yi<H;yi+=60){sctx.beginPath();sctx.moveTo(0,yi);sctx.lineTo(W,yi);sctx.stroke();}
+
+  var cx=W/2, cy=H*0.28;
+  var Rsk=Rv===15?32:55;
+  var yukW=38, yukH=28;
+  var maxFall=H-cy-Rsk-yukH-40;
+  var ipX=cx;
+  var yukY=cy+Rsk+maxFall*yukPos;
+
+  // USTUN
+  sctx.fillStyle='#1a2840';
+  sctx.fillRect(cx-6, 20, 12, H-30);
+
+  // SHKIV
+  // Aylanish burchagi
+  var rotA = (yukPos * maxFall) / (Rsk/1000 * 1000) * (running ? 1 : 0);
+  // shkiv soyasi
+  sctx.shadowColor='rgba(245,158,11,.3)'; sctx.shadowBlur=18;
+  // Tashqi aylana
+  var sgr=sctx.createRadialGradient(cx,cy,3,cx,cy,Rsk);
+  sgr.addColorStop(0,'#3a2800'); sgr.addColorStop(1,'#1a1000');
+  sctx.fillStyle=sgr;
+  sctx.beginPath();sctx.arc(cx,cy,Rsk,0,Math.PI*2);sctx.fill();
+  sctx.strokeStyle='rgba(245,158,11,.7)';sctx.lineWidth=2.5;
+  sctx.beginPath();sctx.arc(cx,cy,Rsk,0,Math.PI*2);sctx.stroke();
+  sctx.shadowBlur=0;
+  // Ichki aylana
+  sctx.strokeStyle='rgba(245,158,11,.3)';sctx.lineWidth=1;
+  sctx.beginPath();sctx.arc(cx,cy,Rsk*0.55,0,Math.PI*2);sctx.stroke();
+  // Spitsalar (4 ta)
+  sctx.strokeStyle='rgba(245,158,11,.5)';sctx.lineWidth=2;
+  for(var sp=0;sp<4;sp++){
+    var sa=animT*0.8*(running?1:0.2)+sp*Math.PI/2;
+    sctx.beginPath();sctx.moveTo(cx,cy);
+    sctx.lineTo(cx+Math.cos(sa)*Rsk*0.85,cy+Math.sin(sa)*Rsk*0.85);sctx.stroke();
+  }
+  // O'q
+  sctx.fillStyle='rgba(245,158,11,.6)';sctx.beginPath();sctx.arc(cx,cy,7,0,Math.PI*2);sctx.fill();
+  // Shkiv nomi
+  sctx.fillStyle='rgba(245,158,11,.5)';sctx.font='8px monospace';sctx.textAlign='center';
+  sctx.fillText('R='+Rv+'mm',cx,cy+Rsk+14);
+
+  // IP
+  sctx.strokeStyle='rgba(220,200,150,.75)';sctx.lineWidth=2;
+  sctx.beginPath();sctx.moveTo(ipX,cy+Rsk);sctx.lineTo(ipX,yukY);sctx.stroke();
+
+  // YUK 1 yoki 2
+  var isP2=runPhase===2&&running;
+  var yukColor1=isP2?'#2a2860':'#1a3060';
+  var yukColor2=isP2?'#3030a0':'#2040a0';
+  var yukBorder=isP2?'rgba(129,140,248,.6)':'rgba(245,158,11,.6)';
+  var yukLbl=isP2?'m₂':'m₁';
+  var yukG=sctx.createLinearGradient(ipX-yukW/2,yukY,ipX+yukW/2,yukY+yukH);
+  yukG.addColorStop(0,yukColor2); yukG.addColorStop(1,yukColor1);
+  sctx.fillStyle=yukG;
+  rr(sctx,ipX-yukW/2,yukY,yukW,yukH,5);sctx.fill();
+  sctx.strokeStyle=yukBorder;sctx.lineWidth=1.5;
+  rr(sctx,ipX-yukW/2,yukY,yukW,yukH,5);sctx.stroke();
+  sctx.fillStyle='#fff';sctx.font='bold 10px Syne,sans-serif';sctx.textAlign='center';
+  sctx.fillText(yukLbl,ipX,yukY+yukH/2+4);
+  sctx.fillStyle='rgba(200,200,255,.6)';sctx.font='8px monospace';
+  sctx.fillText((isP2?M2v:M1v)+'g',ipX,yukY+yukH/2+15);
+
+  // Shkala (o'ng tomon)
+  var scX=ipX+yukW/2+35;
+  var scTop=cy+Rsk, scBot=cy+Rsk+maxFall;
+  sctx.strokeStyle='rgba(245,158,11,.25)';sctx.lineWidth=1;
+  sctx.beginPath();sctx.moveTo(scX,scTop);sctx.lineTo(scX,scBot);sctx.stroke();
+  for(var si=0;si<=5;si++){
+    var sy=scTop+(scBot-scTop)*si/5;
+    sctx.beginPath();sctx.moveTo(scX-5,sy);sctx.lineTo(scX+5,sy);sctx.stroke();
+    sctx.fillStyle='rgba(245,158,11,.4)';sctx.font='7px monospace';sctx.textAlign='left';
+    sctx.fillText((Hv*si/5).toFixed(0),scX+8,sy+3);
+  }
+  sctx.fillStyle='rgba(245,158,11,.5)';sctx.font='8px monospace';sctx.textAlign='center';
+  sctx.fillText('h(sm)',scX,scTop-8);
+
+  // Tushgan yo'l strelkasi
+  if(yukPos>0.02){
+    var yTop=cy+Rsk, yBot=yukY;
+    sctx.strokeStyle='rgba(111,255,92,.4)';sctx.lineWidth=1;sctx.setLineDash([3,4]);
+    sctx.beginPath();sctx.moveTo(ipX-yukW/2-12,yTop);sctx.lineTo(ipX-yukW/2-12,yBot);sctx.stroke();
+    sctx.setLineDash([]);
+    arrV(ipX-yukW/2-12,yTop,-1,'rgba(111,255,92,.6)');
+    arrV(ipX-yukW/2-12,yBot,1,'rgba(111,255,92,.6)');
+    sctx.fillStyle='rgba(111,255,92,.7)';sctx.font='8px monospace';sctx.textAlign='right';
+    sctx.fillText((Hv*yukPos).toFixed(1)+'sm',ipX-yukW/2-16,(yTop+yBot)/2+3);
+  }
+
+  // INFO paneli olib tashlandi (toza ko'rinish uchun)
+}
+
+function arrV(x,y,d,c){sctx.fillStyle=c;sctx.beginPath();sctx.moveTo(x,y);sctx.lineTo(x-4,y+d*8);sctx.lineTo(x+4,y+d*8);sctx.closePath();sctx.fill();}
+function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.lineTo(x+w-r,y);c.quadraticCurveTo(x+w,y,x+w,y+r);c.lineTo(x+w,y+h-r);c.quadraticCurveTo(x+w,y+h,x+w-r,y+h);c.lineTo(x+r,y+h);c.quadraticCurveTo(x,y+h,x,y+h-r);c.lineTo(x,y+r);c.quadraticCurveTo(x,y,x+r,y);c.closePath();}
+
+// GRAFIK
+function drawGraph(){
+  var W2=gc.offsetWidth||240;gc.width=W2;var GH=110;
+  gctx.clearRect(0,0,W2,GH);gctx.fillStyle='#070c17';gctx.fillRect(0,0,W2,GH);
+  var pad=32,gW=W2-pad*2,gHH=GH-pad-8;
+  gctx.strokeStyle='rgba(245,158,11,.3)';gctx.lineWidth=1;
+  gctx.beginPath();gctx.moveTo(pad,8);gctx.lineTo(pad,GH-pad);gctx.lineTo(W2-pad+6,GH-pad);gctx.stroke();
+  gctx.fillStyle='rgba(245,158,11,.5)';gctx.font='7px monospace';gctx.textAlign='center';
+  gctx.fillText('R(mm)',W2-pad+12,GH-pad+3);
+  gctx.textAlign='right';gctx.fillText('J',pad-3,12);
+  if(measList.length===0)return;
+  var rvals=measList.map(function(m){return m.R;});
+  var jvals=measList.map(function(m){return m.J;});
+  var jnvals=measList.map(function(m){return m.Jn;});
+  var minR=Math.min.apply(null,rvals)-3,maxR=Math.max.apply(null,rvals)+3;
+  var minJ=0,maxJ=Math.max.apply(null,jvals.concat(jnvals))*1.3;
+  measList.forEach(function(m){
+    var px=pad+((m.R-minR)/(maxR-minR+0.01))*gW;
+    var py=GH-pad-((m.J-minJ)/(maxJ-minJ+0.0001))*gHH;
+    gctx.fillStyle='rgba(111,255,92,.9)';gctx.beginPath();gctx.arc(px,py,5,0,Math.PI*2);gctx.fill();
+    var pyn=GH-pad-((m.Jn-minJ)/(maxJ-minJ+0.0001))*gHH;
+    gctx.fillStyle='rgba(245,158,11,.7)';gctx.beginPath();gctx.arc(px,pyn,4,0,Math.PI*2);gctx.fill();
+  });
+  gctx.fillStyle='rgba(111,255,92,.7)';gctx.font='7px monospace';gctx.textAlign='left';
+  gctx.fillText('● tajriba',pad+2,GH-pad-gHH+12);
+  gctx.fillStyle='rgba(245,158,11,.6)';gctx.fillText('● nazariy',pad+2,GH-pad-gHH+22);
+}
+
+window.addEventListener('load',function(){setTimeout(function(){resize();drawGraph();updateInfo();},100);});
+</script>
+
+<script id="langScript">
+(function(){
+var _lt={
+ uz:{badge:"LAB · 14",title:'Oberbek Mayatnigi — <span>Aylanma Harakat Dinamikasi</span>',hsub:"MEXANIKA · FIZPRAKTIKUM · SDPI 2026",
+   startTitle:'Oberbek mayatnigi yordamida <span style="color:#f59e0b">aylanma harakat qonunlarini o\'rganish</span>',
+   st1:"Shkiv Radiusi (R)",st2:"Tushish balandligi (h)",st3:"1-yuk massasi m₁",st4:"2-yuk massasi m₂ (m₂ > m₁)",st5:"O'lchov natijalari",
+   ra:"J kichroq chiqadi",rb:"J kattaroq chiqadi",
+   step1:"R, h, m₁, m₂ tanlang",step2:"m₁ bilan tajriba (t₁)",step3:"m₂ bilan tajriba (t₂)",step4:"J ni hisoblang",
+   run1Btn:"▶ m₁ bilan tajriba (t₁)",run2Btn:"▶ m₂ bilan tajriba (t₂)",calcBtn:"📊 J ni hisoblash",resetBtn:"↺ Qayta boshlash",startBtn:"▶ Laboratoriyani boshlash",
+   tableTitle:"14.1-jadval",graphTitle:"Grafik: J = f(R)",finalTitle:"Inersiya momenti — yakuniy natija",
+   jn:"J nazariy",eps:"O'rtacha xatolik",measCnt:"O'lchashlar soni",
+   status:"R va h tanlang → m₁, m₂ belgilang → Tajribani ishga tushiring",
+   instr:"⚙️ Oberbek mayatnigi: ip shkivga o'ralgan, m₁ va m₂ yuklar pastga tushadi → β burchak tezlanishi → J = Mr² formulasi yordamida inersiya momenti topiladi"},
+ ru:{badge:"ЛАБ · 14",title:'Маятник Обербека — <span>динамика вращательного движения</span>',hsub:"МЕХАНИКА · ФИЗПРАКТИКУМ · SDPI 2026",
+   startTitle:'С помощью маятника Обербека — <span style="color:#f59e0b">изучение законов вращательного движения</span>',
+   st1:"Радиус шкива (R)",st2:"Высота падения (h)",st3:"Масса груза 1 (m₁)",st4:"Масса груза 2 (m₂ > m₁)",st5:"Результаты измерений",
+   ra:"J получится меньше",rb:"J получится больше",
+   step1:"Выберите R, h, m₁, m₂",step2:"Опыт с m₁ (t₁)",step3:"Опыт с m₂ (t₂)",step4:"Вычислите J",
+   run1Btn:"▶ Опыт с m₁ (t₁)",run2Btn:"▶ Опыт с m₂ (t₂)",calcBtn:"📊 Вычислить J",resetBtn:"↺ Начать заново",startBtn:"▶ Начать лабораторную",
+   tableTitle:"Таблица 14.1",graphTitle:"График: J = f(R)",finalTitle:"Момент инерции — итоговый результат",
+   jn:"J теоретический",eps:"Средняя погрешность",measCnt:"Число измерений",
+   status:"Задайте R и h → задайте m₁, m₂ → запустите опыт",
+   instr:"⚙️ Маятник Обербека: нить намотана на шкив, грузы m₁ и m₂ опускаются → находим угловое ускорение β → J = Mr² момент инерции"},
+ en:{badge:"LAB · 14",title:'Oberbeck Pendulum — <span>Rotational Motion Dynamics</span>',hsub:"MECHANICS · PHYSICS LAB · SDPI 2026",
+   startTitle:'Using the Oberbeck pendulum — <span style="color:#f59e0b">studying rotational motion laws</span>',
+   st1:"Pulley radius (R)",st2:"Drop height (h)",st3:"Mass 1 (m₁)",st4:"Mass 2 (m₂ > m₁)",st5:"Measurement results",
+   ra:"J will be smaller",rb:"J will be larger",
+   step1:"Choose R, h, m₁, m₂",step2:"Experiment with m₁ (t₁)",step3:"Experiment with m₂ (t₂)",step4:"Calculate J",
+   run1Btn:"▶ Run with m₁ (t₁)",run2Btn:"▶ Run with m₂ (t₂)",calcBtn:"📊 Calculate J",resetBtn:"↺ Restart",startBtn:"▶ Start the Lab",
+   tableTitle:"Table 14.1",graphTitle:"Graph: J = f(R)",finalTitle:"Moment of inertia — final result",
+   jn:"Theoretical J",eps:"Average error",measCnt:"Number of measurements",
+   status:"Set R and h → set m₁, m₂ → run the experiment",
+   instr:"⚙️ Oberbeck pendulum: string wound on pulley, masses m₁ and m₂ descend → find angular acceleration β → J = Mr² moment of inertia"}
+};
+var _lang='uz';
+var _acc='#f59e0b';
+function _setLang(l){
+  _lang=l;
+  ['uz','ru','en'].forEach(function(x){
+    var el=document.getElementById('_lb'+x);
+    if(!el)return;
+    el.className='lb-inject'+(x===l?' on':'');
+    el.style.color=x===l?_acc:'#4a6080';
+    el.style.background=x===l?'rgba('+_acc.replace('#','').match(/../g).map(function(h){return parseInt(h,16);}).join(',')+',0.12)':'rgba(255,255,255,.04)';
+  });
+  var t=_lt[l];
+  if(!t)return;
+  var map={tBadge:t.badge,tHsub:t.hsub,tSt1:t.st1,tSt2:t.st2,tSt3:t.st3,tSt4:t.st4,tSt5:t.st5,
+    tRa:t.ra,tRb:t.rb,
+    tStep1:t.step1,tStep2:t.step2,tStep3:t.step3,tStep4:t.step4,
+    tRun1Btn:t.run1Btn,tRun2Btn:t.run2Btn,tCalcBtn:t.calcBtn,tResetBtn:t.resetBtn,tStartBtn:t.startBtn,
+    tTableTitle:t.tableTitle,tGraphTitle:t.graphTitle,tFinalTitle:t.finalTitle,
+    tJn:t.jn,tEps:t.eps,tMeasCnt:t.measCnt,tInstr:t.instr,
+    statusTxt:(cnt===0?t.status:null)};
+  Object.keys(map).forEach(function(id){
+    var el=document.getElementById(id);
+    if(el&&map[id])el.textContent=map[id];
+  });
+  var tt=document.getElementById('tTitle'); if(tt)tt.innerHTML=t.title;
+  var ts=document.getElementById('tStartTitle'); if(ts)ts.innerHTML=t.startTitle;
+}
+window._changeLang=function(l){_setLang(l);};
+document.addEventListener('DOMContentLoaded',function(){_setLang('uz');});
+})();
+</script>
+</body>
+</html>

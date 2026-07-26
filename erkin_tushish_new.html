@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Erkin Tushish — g ni Aniqlash</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap');
+:root{--bg:#07090f;--panel:#0e1420;--border:#1b2840;--accent:#c084fc;--green:#6fff5c;--blue:#818cf8;--yellow:#ffc947;--red:#ff6060;--text:#dde6f5;--muted:#4a6080;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;height:100vh;overflow:hidden;display:flex;flex-direction:column;}
+header{display:flex;align-items:center;gap:12px;padding:8px 20px;border-bottom:1px solid var(--border);background:linear-gradient(90deg,#07090f,#0d0018,#07090f);flex-shrink:0;}
+.badge{background:var(--accent);color:#000;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:3px 9px;letter-spacing:2px;border-radius:2px;}
+.htitle{font-size:14px;font-weight:800;}.htitle span{color:var(--accent);}
+.hsub{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-left:auto;}
+.brand{display:flex;align-items:center;gap:6px;background:linear-gradient(135deg,rgba(192,132,252,.12),rgba(111,255,92,.08));border:1px solid rgba(192,132,252,.3);border-radius:20px;padding:4px 14px;margin-left:10px;flex-shrink:0;}
+.brand-txt{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;background:linear-gradient(90deg,#c084fc,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;}
+.statusbar{background:#0a0f1c;border-bottom:1px solid var(--border);padding:5px 20px;display:flex;align-items:center;gap:14px;font-family:'Space Mono',monospace;font-size:11px;flex-shrink:0;}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:bl 1s infinite;flex-shrink:0;}
+.dot.off{background:var(--muted);animation:none;}
+@keyframes bl{0%,100%{opacity:1}50%{opacity:.2}}
+#statusTxt{color:var(--accent);}
+.chips{display:flex;gap:6px;margin-left:auto;}
+.chip{background:rgba(192,132,252,.08);border:1px solid rgba(192,132,252,.2);border-radius:10px;padding:2px 9px;font-size:10px;color:var(--muted);}
+.chip span{color:var(--accent);}
+.body{display:grid;grid-template-columns:215px 1fr 260px;flex:1;overflow:hidden;}
+.left{background:var(--panel);border-right:1px solid var(--border);overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:9px;}
+.stitle{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--accent);text-transform:uppercase;margin-bottom:3px;}
+.card{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:8px;padding:10px;}
+.card label{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:7px;}
+.vb{font-family:'Space Mono',monospace;font-size:11px;color:var(--accent);background:rgba(192,132,252,.12);padding:2px 7px;border-radius:3px;}
+input[type=range]{width:100%;-webkit-appearance:none;height:4px;background:var(--border);border-radius:2px;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;background:var(--accent);border-radius:50%;cursor:pointer;box-shadow:0 0 8px rgba(192,132,252,.7);}
+.fbox{background:rgba(192,132,252,.04);border:1px solid rgba(192,132,252,.15);border-radius:7px;padding:9px;}
+.frow{display:flex;gap:6px;margin-bottom:4px;font-family:'Space Mono',monospace;font-size:9px;}
+.fl{color:var(--muted);min-width:22px;}.fe{color:var(--accent);}
+.steps{display:flex;flex-direction:column;gap:3px;}
+.step{display:flex;align-items:center;gap:7px;padding:5px 8px;border-radius:5px;font-size:10px;color:var(--muted);border:1px solid transparent;transition:all .3s;}
+.step.active{background:rgba(192,132,252,.07);border-color:rgba(192,132,252,.2);color:var(--accent);}
+.step.done{color:var(--green);}
+.snum{font-family:'Space Mono',monospace;font-size:9px;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.05);flex-shrink:0;}
+.step.active .snum{background:rgba(192,132,252,.2);}
+.step.done .snum{background:rgba(111,255,92,.12);color:var(--green);}
+.btn{width:100%;padding:9px;border:none;border-radius:7px;font-family:'Syne',sans-serif;font-weight:700;font-size:12px;cursor:pointer;transition:all .2s;margin-top:4px;}
+.btn-p{background:linear-gradient(135deg,#c084fc,#9333ea);color:#fff;}
+.btn-p:hover{transform:translateY(-1px);box-shadow:0 5px 18px rgba(192,132,252,.4);}
+.btn-p:disabled{opacity:.35;cursor:not-allowed;}
+.btn-g{background:linear-gradient(135deg,#6fff5c,#33cc22);color:#000;}
+.btn-g:disabled{opacity:.35;}
+.btn-r{background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--border);font-size:11px;}
+.center{position:relative;overflow:hidden;background:#040810;}
+#simCanvas{display:block;width:100%;height:100%;}
+.instr-bar{position:absolute;bottom:0;left:0;right:0;background:rgba(4,8,16,.92);border-top:1px solid var(--border);padding:5px 18px;font-size:10px;color:var(--muted);text-align:center;}
+.right{background:var(--panel);border-left:1px solid var(--border);overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:9px;}
+.rc{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:8px;padding:10px;}
+.rc.hi{border-color:rgba(192,132,252,.3);background:rgba(192,132,252,.05);}
+.rl{font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:3px;}
+.rv{font-size:20px;font-weight:800;line-height:1;color:#fff;}
+.ru{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-top:2px;}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+table{width:100%;border-collapse:collapse;font-family:'Space Mono',monospace;font-size:9px;}
+th{color:var(--accent);font-size:7px;letter-spacing:1px;border-bottom:1px solid var(--border);padding:4px 2px;text-align:center;}
+td{padding:3px 2px;border-bottom:1px solid rgba(255,255,255,.03);text-align:center;}
+#graphCanvas{display:block;width:100%;border-radius:8px;border:1px solid var(--border);}
+.final-card{background:rgba(192,132,252,.05);border:1px solid rgba(192,132,252,.2);border-radius:8px;padding:12px;display:none;}
+.err-row{display:flex;justify-content:space-between;margin-top:5px;font-family:'Space Mono',monospace;font-size:10px;}
+.err-row span:first-child{color:var(--muted);}
+.err-row span:last-child{color:var(--yellow);}
+</style>
+
+<style>
+.lang-btns-inject{display:flex;gap:4px;margin-left:8px;flex-shrink:0;}
+.lb-inject{border:1px solid #1b2840;background:rgba(255,255,255,.04);color:#4a6080;padding:4px 10px;border-radius:5px;font-family:'Space Mono',monospace;font-size:9px;cursor:pointer;transition:all .2s;}
+.lb-inject.on{border-color:currentColor;font-weight:700;opacity:1;}
+.lb-inject:hover{opacity:.8;}
+</style>
+</head>
+<body>
+<div id="startScreen" style="position:fixed;inset:0;z-index:9999;background:radial-gradient(ellipse at 50% 40%,#0d0018 0%,#07090f 70%);display:flex;align-items:center;justify-content:center;">
+  <canvas id="bgCanvas" style="position:absolute;inset:0;width:100%;height:100%;opacity:.4;pointer-events:none"></canvas>
+  <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:18px;max-width:580px;padding:20px;text-align:center;">
+    <div style="display:flex;align-items:center;gap:10px;"><div style="background:#c084fc;color:#000;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:4px 14px;letter-spacing:2px;border-radius:2px;" id="txtStartBadge">LAB · 05</div><div style="font-family:'Space Mono',monospace;font-size:10px;color:#4a6080;letter-spacing:2px;">ERKIN TUSHISH · g = 2s/t²</div></div>
+    <div style="width:100px;height:100px;border-radius:50%;background:radial-gradient(circle,rgba(192,132,252,.18),rgba(192,132,252,.02));border:2px solid rgba(192,132,252,.4);display:flex;align-items:center;justify-content:center;box-shadow:0 0 55px rgba(192,132,252,.3);animation:pulseET 2.5s ease-in-out infinite;"><span style="font-size:44px;">🟣</span></div>
+    <h1 style="font-size:20px;font-weight:800;color:#fff;"><span id="txtStartH1">Erkin Tushish — </span><span style="color:#c084fc;" id="txtStartH1Span">g = 2s/t²</span></h1>
+    <p style="font-size:11px;color:#4a6080;font-family:'Space Mono',monospace;">s = ½·g·t² · v = g·t · g_jadval = 9.81 m/s²</p>
+    <div style="background:rgba(192,132,252,.05);border:1px solid rgba(192,132,252,.15);border-radius:12px;padding:15px;width:100%;text-align:left;">
+      <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;color:#c084fc;margin-bottom:8px;" id="txtOrderLabel">BAJARISH TARTIBI</div>
+      <div style="display:flex;flex-direction:column;gap:7px;">
+        <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#c5d3e8;"><span style="width:20px;height:20px;border-radius:50%;background:rgba(192,132,252,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#c084fc;flex-shrink:0;">1</span><span id="txtOrd1">Tushish balandligi s ni tanlang</span></div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#c5d3e8;"><span style="width:20px;height:20px;border-radius:50%;background:rgba(192,132,252,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#c084fc;flex-shrink:0;">2</span><span id="txtOrd2">Tajribani ishga tushiring → jism tushish vaqti t o'lchanadi</span></div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#c5d3e8;"><span style="width:20px;height:20px;border-radius:50%;background:rgba(192,132,252,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#c084fc;flex-shrink:0;">3</span><span id="txtOrd3">g = 2s/t² dan erkin tushish tezlanishini hisoblang</span></div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#c5d3e8;"><span style="width:20px;height:20px;border-radius:50%;background:rgba(192,132,252,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#c084fc;flex-shrink:0;">4</span><span id="txtOrd4">9.81 m/s² bilan solishtiring, xatolikni hisoblang</span></div>
+      </div>
+    </div>
+    <button onclick="startLab()" style="background:linear-gradient(135deg,#c084fc,#9333ea);color:#fff;border:none;border-radius:12px;padding:15px 60px;font-size:15px;font-weight:800;font-family:'Syne',sans-serif;cursor:pointer;box-shadow:0 8px 30px rgba(192,132,252,.35);width:100%;" id="txtStartBtn">▶ Laboratoriyani boshlash</button>
+    <div style="display:flex;align-items:center;gap:6px;opacity:.6;"><span>🔬</span><span style="font-family:'Space Mono',monospace;font-size:10px;font-weight:700;background:linear-gradient(90deg,#c084fc,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;">Xosiyat Virtual Lab</span></div>
+  </div>
+</div>
+<style>@keyframes pulseET{0%,100%{box-shadow:0 0 55px rgba(192,132,252,.2)}50%{box-shadow:0 0 80px rgba(192,132,252,.5)}}@keyframes fadeOut{0%{opacity:1}100%{opacity:0;transform:scale(1.04)}}</style>
+<script>
+(function(){var c=document.getElementById('bgCanvas');var x=c.getContext('2d');var pts=[];function rs(){c.width=window.innerWidth;c.height=window.innerHeight;}rs();window.addEventListener('resize',rs);for(var i=0;i<50;i++)pts.push({x:Math.random()*1600,y:Math.random()*900,r:Math.random()*1.5+.5,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,a:Math.random()});function fr(){x.clearRect(0,0,c.width,c.height);pts.forEach(function(p){p.x+=p.vx;p.y+=p.vy;p.a+=.005;if(p.x<0)p.x=c.width;if(p.x>c.width)p.x=0;if(p.y<0)p.y=c.height;if(p.y>c.height)p.y=0;x.fillStyle='rgba(192,132,252,'+(0.15+Math.sin(p.a)*0.12)+')';x.beginPath();x.arc(p.x%c.width,p.y%c.height,p.r,0,Math.PI*2);x.fill();});requestAnimationFrame(fr);}fr();})();
+function startLab(){var s=document.getElementById('startScreen');s.style.animation='fadeOut .5s ease forwards';setTimeout(function(){s.style.display='none';},480);}
+</script>
+
+<header>
+  <div class="badge" id="txtBadge">LAB · 05</div>
+  <h1 class="htitle"><span id="txtHMain">Erkin Tushish — </span><span id="txtHSpan">g = 2s/t² · Galiley Tajribasi</span></h1>
+  <div class="hsub" id="txtHsub">MEXANIKA · FIZPRAKTIKUM · SDPI 2026</div>
+  <div class="brand"><span>🔬</span><span class="brand-txt">Xosiyat Virtual Lab</span></div>
+<div class="lang-btns-inject" id="_langbtns">
+<div class="lb-inject on" id="_lbuz" onclick="window._changeLang('uz')" style="color:#c084fc;">🇺🇿 UZ</div>
+<div class="lb-inject" id="_lbru" onclick="window._changeLang('ru')">🇷🇺 RU</div>
+<div class="lb-inject" id="_lben" onclick="window._changeLang('en')">🇬🇧 EN</div>
+</div></header>
+<div class="statusbar">
+  <div class="dot off" id="dot"></div>
+  <span id="statusTxt">s balandlikni tanlang → tajribani ishga tushiring → g ni hisoblang</span>
+  <div class="chips">
+    <div class="chip">s=<span id="cS">1.0</span>m</div>
+    <div class="chip">t=<span id="cT">—</span>s</div>
+    <div class="chip">g=<span id="cG">—</span>m/s²</div>
+    <div class="chip"><span id="txtChipOlchov">O'lchov:</span><span id="chipCnt">0</span></div>
+  </div>
+</div>
+<div class="body">
+<div class="left">
+  <div class="stitle" id="txtLeft1">Tushish balandligi (s)</div>
+  <div class="card">
+    <label>s (m) <span class="vb" id="dS">1.0 m</span></label>
+    <input type="range" id="sS" min="0.5" max="4.0" step="0.1" value="1.0" oninput="setSv(this.value)">
+  </div>
+  <div class="stitle" id="txtLeft2">Tajriba takrori soni</div>
+  <div class="card">
+    <label>n (marta) <span class="vb" id="dN">5</span></label>
+    <input type="range" id="sNr" min="1" max="10" step="1" value="5" oninput="setNr(this.value)">
+  </div>
+  <div class="card" style="background:rgba(192,132,252,.04);border-color:rgba(192,132,252,.15)">
+    <div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--muted)">t_nazariy = √(2s/g)</div>
+    <div style="font-size:16px;color:var(--accent);font-weight:700" id="dTnaz">— s</div>
+    <div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-top:4px">v_max = g·t</div>
+    <div style="font-size:16px;color:var(--green);font-weight:700" id="dVmax">— m/s</div>
+  </div>
+  <div class="fbox">
+    <div class="frow"><span class="fl">s</span><span class="fe">= ½·g·t²</span></div>
+    <div class="frow"><span class="fl">g</span><span class="fe">= 2s / t²</span></div>
+    <div class="frow"><span class="fl">v</span><span class="fe" id="txtFeV">= g·t (yerga etganda)</span></div>
+    <div class="frow"><span class="fl">ε</span><span class="fe">= |g−9.81|/9.81·100%</span></div>
+  </div>
+  <div class="steps">
+    <div class="step active" id="st1"><div class="snum">1</div><span id="txtStep1">s va n tanlang</span></div>
+    <div class="step" id="st2"><div class="snum">2</div><span id="txtStep2">Jism tushmoqda</span></div>
+    <div class="step" id="st3"><div class="snum">3</div><span id="txtStep3">t o'lchanyapti</span></div>
+    <div class="step" id="st4"><div class="snum">4</div><span id="txtStep4">g hisoblanmoqda</span></div>
+    <div class="step" id="st5"><div class="snum">5</div><span id="txtStep5">Tahlil</span></div>
+  </div>
+  <button class="btn btn-p" id="runBtn" onclick="runExp()">▶ <span id="txtBtnRun">Jismni qo'yib yuborish</span></button>
+  <button class="btn btn-g" onclick="addMeas()" id="addBtn" disabled>+ <span id="txtBtnAdd">Natijani yozish</span></button>
+  <button class="btn btn-r" onclick="resetAll()">↺ <span id="txtBtnReset">Qayta boshlash</span></button>
+</div>
+<div class="center">
+  <canvas id="simCanvas"></canvas>
+  <div class="instr-bar" id="instrBar">🟣 Erkin tushish: s = ½gt² · v = gt · Hamma jismlar bir xil g=9.81 m/s² tezlanish bilan tushadi (Galiley)</div>
+</div>
+<div class="right">
+  <div class="stitle" id="txtRight1">O'lchov natijalari</div>
+  <div class="two">
+    <div class="rc hi"><div class="rl" id="txtTMeasLabel">t (o'lchov)</div><div class="rv" id="rT">—</div><div class="ru" id="txtUnitS">sekund</div></div>
+    <div class="rc hi"><div class="rl">g = 2s/t²</div><div class="rv" style="color:var(--accent)" id="rG">—</div><div class="ru">m/s²</div></div>
+  </div>
+  <div class="two">
+    <div class="rc"><div class="rl" id="txtVLabel">v (yerga etganda)</div><div class="rv" style="font-size:14px;color:var(--green)" id="rV">—</div><div class="ru">m/s</div></div>
+    <div class="rc"><div class="rl" id="txtEpsLabel">ε xatolik</div><div class="rv" style="font-size:14px;color:var(--red)" id="rEps">—</div><div class="ru">%</div></div>
+  </div>
+  <div class="stitle" id="txtTableTitle">5.1-jadval: g = f(s)</div>
+  <table>
+    <thead><tr><th>№</th><th>s(m)</th><th>n</th><th>t_o'rt(s)</th><th>g(m/s²)</th><th>ε%</th></tr></thead>
+    <tbody id="tbody"></tbody>
+  </table>
+  <div class="stitle" id="txtGraphTitle">Grafik: s = f(t²)</div>
+  <canvas id="graphCanvas" height="110"></canvas>
+  <div class="final-card" id="finalCard">
+    <div class="rl" id="txtFinalTitle">Yakuniy natija — g erkin tushish tezlanishi</div>
+    <div class="rv" style="color:var(--accent);font-size:24px;margin-top:6px;" id="resG">—</div>
+    <div class="ru" id="txtExpVal">m/s² — tajribaviy qiymat</div>
+    <div class="err-row"><span id="txtTableVal">Jadval qiymati</span><span>9.81 m/s²</span></div>
+    <div class="err-row"><span id="txtAvgEps">O'rt. xatolik ε</span><span id="resEps">—</span></div>
+    <div class="err-row"><span id="txtMeasCount">O'lchashlar</span><span id="resCnt">—</span></div>
+    <div style="margin-top:8px;font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);text-align:center;" id="txtGalileo">Galiley: hamma jismlar bir xil tezlanish bilan tushadi!</div>
+  </div>
+</div>
+</div>
+<div style="position:fixed;bottom:14px;right:18px;display:flex;align-items:center;gap:7px;background:rgba(7,9,15,.75);border:1px solid rgba(192,132,252,.2);border-radius:30px;padding:5px 16px;backdrop-filter:blur(10px);z-index:9999;pointer-events:none;">
+  <span>🔬</span><span style="font-family:'Space Mono',monospace;font-size:11px;font-weight:700;background:linear-gradient(90deg,#c084fc,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;">Xosiyat Virtual Lab</span>
+</div>
+<script>
+var G_real=9.81,Sv=1.0,Nr=5,measList=[],cnt=0;
+var sc=document.getElementById('simCanvas'),ctx=sc.getContext('2d');
+var gc=document.getElementById('graphCanvas'),gctx=gc.getContext('2d');
+var running=false,animT=0,fallT=0,ballY=0,done=false,lastT=0,lastG=0;
+var multiRes=[],curRun=0;
+
+function setSv(v){Sv=parseFloat(v);document.getElementById('dS').textContent=v+' m';document.getElementById('cS').textContent=v;upd();}
+function setNr(v){Nr=parseFloat(v);document.getElementById('dN').textContent=v;}
+function upd(){
+  var T=Math.sqrt(2*Sv/G_real),Vm=G_real*T;
+  document.getElementById('dTnaz').textContent=T.toFixed(4)+' s';
+  document.getElementById('dVmax').textContent=Vm.toFixed(3)+' m/s';
+  setStep(1);
+}
+function runExp(){
+  if(running)return;
+  running=true;done=false;fallT=0;ballY=0;multiRes=[];curRun=0;
+  document.getElementById('runBtn').disabled=true;
+  document.getElementById('dot').classList.remove('off');
+  setStep(2);
+  if(window._setStatusKey)window._setStatusKey('running');
+}
+(function loop(){
+  animT+=0.016;
+  if(running){
+    fallT+=0.016;
+    ballY=0.5*G_real*fallT*fallT;
+    if(ballY>=Sv){
+      var tMeas=Math.sqrt(2*Sv/G_real)*(1+(Math.random()-.5)*0.015);
+      multiRes.push(tMeas);curRun++;
+      if(curRun>=Nr){
+        running=false;done=true;
+        var tAvg=multiRes.reduce(function(a,b){return a+b;},0)/multiRes.length;
+        var gExp=2*Sv/(tAvg*tAvg);
+        var eps=Math.abs(gExp-G_real)/G_real*100;
+        lastT=tAvg;lastG=gExp;
+        document.getElementById('rT').textContent=tAvg.toFixed(4);
+        document.getElementById('rG').textContent=gExp.toFixed(4);
+        document.getElementById('rV').textContent=(gExp*tAvg).toFixed(3);
+        document.getElementById('rEps').textContent=eps.toFixed(2);
+        document.getElementById('cT').textContent=tAvg.toFixed(3);
+        document.getElementById('cG').textContent=gExp.toFixed(3);
+        document.getElementById('runBtn').disabled=false;
+        document.getElementById('addBtn').disabled=false;
+        document.getElementById('dot').classList.add('off');
+        setStep(4);
+        if(window._setStatusKey)window._setStatusKey('done',{t:tAvg,g:gExp,eps:eps});
+        ballY=Sv;
+      } else {
+        fallT=0;ballY=0;
+        if(window._setStatusKey)window._setStatusKey('progress',{cur:curRun,n:Nr,t:tMeas});
+      }
+    }
+  }
+  drawSim();
+  requestAnimationFrame(loop);
+})();
+
+function addMeas(){
+  cnt++;
+  var eps=Math.abs(lastG-G_real)/G_real*100;
+  measList.push({s:Sv,n:Nr,t:lastT,g:lastG,eps:eps});
+  document.getElementById('chipCnt').textContent=cnt;
+  var tr=document.createElement('tr');
+  tr.innerHTML='<td>'+cnt+'</td><td>'+Sv+'</td><td>'+Nr+'</td><td>'+lastT.toFixed(4)+'</td><td>'+lastG.toFixed(4)+'</td><td>'+eps.toFixed(2)+'</td>';
+  document.getElementById('tbody').appendChild(tr);
+  if(measList.length>=2){
+    var sG=measList.reduce(function(a,b){return a+b.g;},0)/measList.length;
+    var sE=measList.reduce(function(a,b){return a+b.eps;},0)/measList.length;
+    document.getElementById('finalCard').style.display='block';
+    document.getElementById('resG').textContent=sG.toFixed(4);
+    document.getElementById('resEps').textContent=sE.toFixed(2)+'%';
+    document.getElementById('resCnt').textContent=measList.length+' ta';
+    setStep(5);
+    if(window._setStatusKey)window._setStatusKey('celebrate',{g:sG,eps:sE});
+  }
+  drawGraph();
+}
+function resetAll(){measList=[];cnt=0;running=false;done=false;ballY=0;fallT=0;multiRes=[];curRun=0;document.getElementById('tbody').innerHTML='';document.getElementById('finalCard').style.display='none';document.getElementById('addBtn').disabled=true;document.getElementById('runBtn').disabled=false;document.getElementById('dot').classList.add('off');['rT','rG','rV','rEps'].forEach(function(id){document.getElementById(id).textContent='—';});document.getElementById('cT').textContent='—';document.getElementById('cG').textContent='—';if(window._setStatusKey)window._setStatusKey('default');setStep(1);upd();drawGraph();}
+function setStep(n){for(var i=1;i<=5;i++){var el=document.getElementById('st'+i);el.className='step'+(i<n?' done':i===n?' active':'');el.querySelector('.snum').textContent=i<n?'✓':i;}}
+function resize(){sc.width=sc.offsetWidth;sc.height=sc.offsetHeight;}
+window.addEventListener('resize',resize);setTimeout(resize,80);
+
+function drawSim(){
+  var W=sc.width,H=sc.height;if(!W||!H)return;
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#040810';ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle='rgba(192,132,252,.02)';ctx.lineWidth=1;
+  for(var xi=0;xi<W;xi+=60){ctx.beginPath();ctx.moveTo(xi,0);ctx.lineTo(xi,H);ctx.stroke();}
+  for(var yi=0;yi<H;yi+=60){ctx.beginPath();ctx.moveTo(0,yi);ctx.lineTo(W,yi);ctx.stroke();}
+  var cx=W/2;
+  var topY=H*0.08;
+  var scale=(H*0.78)/Math.max(Sv,1);
+  var botY=topY+Sv*scale;
+  // Shkala (chap)
+  var scX=cx-90;
+  ctx.strokeStyle='rgba(192,132,252,.25)';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(scX,topY);ctx.lineTo(scX,botY);ctx.stroke();
+  for(var i=0;i<=10;i++){
+    var sy=topY+(botY-topY)*i/10;
+    ctx.beginPath();ctx.moveTo(scX-5,sy);ctx.lineTo(scX+5,sy);ctx.stroke();
+    ctx.fillStyle='rgba(192,132,252,.4)';ctx.font='7px monospace';ctx.textAlign='right';
+    ctx.fillText((Sv*i/10).toFixed(1),scX-8,sy+3);
+  }
+  ctx.fillStyle='rgba(192,132,252,.5)';ctx.font='8px monospace';ctx.textAlign='center';ctx.fillText('s(m)',scX,topY-10);
+  // Tayanchlar
+  ctx.fillStyle='#1a2840';ctx.fillRect(cx-50,topY-15,100,15);
+  ctx.strokeStyle='rgba(192,132,252,.3)';ctx.lineWidth=1.5;
+  for(var i2=0;i2<5;i2++){ctx.beginPath();ctx.moveTo(cx-40+i2*20,topY-15);ctx.lineTo(cx-48+i2*20,topY-25);ctx.stroke();}
+  // Elektromagnit
+  ctx.fillStyle='rgba(30,20,50,.9)';rr(ctx,cx-20,topY-15,40,20,4);ctx.fill();
+  ctx.strokeStyle='rgba(192,132,252,.5)';ctx.lineWidth=1;rr(ctx,cx-20,topY-15,40,20,4);ctx.stroke();
+  ctx.fillStyle='rgba(192,132,252,.7)';ctx.font='7px monospace';ctx.textAlign='center';ctx.fillText('EM',cx,topY-3);
+  // Datchiklar
+  ctx.fillStyle='rgba(111,255,92,.6)';ctx.font='7px monospace';ctx.textAlign='right';
+  ctx.fillText('📡 D1',cx-55,topY+5);
+  ctx.fillText('📡 D2',cx-55,botY+5);
+  ctx.strokeStyle='rgba(111,255,92,.15)';ctx.lineWidth=1;ctx.setLineDash([3,6]);
+  ctx.beginPath();ctx.moveTo(cx-52,topY);ctx.lineTo(cx+52,topY);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(cx-52,botY);ctx.lineTo(cx+52,botY);ctx.stroke();
+  ctx.setLineDash([]);
+  // s strelkasi
+  ctx.strokeStyle='rgba(192,132,252,.4)';ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.moveTo(cx+60,topY);ctx.lineTo(cx+60,botY);ctx.stroke();
+  arrV(cx+60,topY,-1,'rgba(192,132,252,.6)');
+  arrV(cx+60,botY,1,'rgba(192,132,252,.6)');
+  ctx.fillStyle='rgba(192,132,252,.7)';ctx.font='10px monospace';ctx.textAlign='left';
+  ctx.fillText('s='+Sv+'m',cx+66,(topY+botY)/2);
+  // Yer
+  ctx.fillStyle='rgba(50,30,70,.5)';ctx.fillRect(cx-80,botY,160,18);
+  ctx.strokeStyle='rgba(192,132,252,.3)';ctx.lineWidth=1;ctx.strokeRect(cx-80,botY,160,18);
+  ctx.fillStyle='rgba(192,132,252,.5)';ctx.font='7px monospace';ctx.textAlign='center';ctx.fillText('DATCHIK',cx,botY+12);
+  // Jism (shar)
+  var by2=topY+Math.min(ballY,Sv)*scale;
+  ctx.shadowColor='rgba(192,132,252,.7)';ctx.shadowBlur=18;
+  var bg=ctx.createRadialGradient(cx-6,by2-6,3,cx,by2,16);
+  bg.addColorStop(0,'#f0d0ff');bg.addColorStop(0.4,'#c084fc');bg.addColorStop(1,'#4a1070');
+  ctx.fillStyle=bg;ctx.beginPath();ctx.arc(cx,by2,16,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle='rgba(192,132,252,.8)';ctx.lineWidth=2;ctx.beginPath();ctx.arc(cx,by2,16,0,Math.PI*2);ctx.stroke();
+  ctx.shadowBlur=0;
+  // Tezlik vektori
+  if(running&&ballY>0.01){
+    var v=G_real*fallT,arrowLen=Math.min(v*15,60);
+    ctx.strokeStyle='rgba(255,201,71,.7)';ctx.lineWidth=2;
+    ctx.beginPath();ctx.moveTo(cx+20,by2);ctx.lineTo(cx+20,by2+arrowLen);ctx.stroke();
+    arrV(cx+20,by2+arrowLen,1,'rgba(255,201,71,.7)');
+    ctx.fillStyle='rgba(255,201,71,.6)';ctx.font='8px monospace';ctx.textAlign='left';
+    ctx.fillText('v='+v.toFixed(2)+'m/s',cx+25,by2+arrowLen/2);
+  }
+  // Takrorlar ko'rsatgich
+  if(running&&curRun>0){
+    ctx.fillStyle='rgba(14,20,32,.85)';rr(ctx,cx-80,H-50,160,34,6);ctx.fill();
+    ctx.strokeStyle='rgba(192,132,252,.3)';ctx.lineWidth=1;rr(ctx,cx-80,H-50,160,34,6);ctx.stroke();
+    ctx.fillStyle='rgba(192,132,252,.8)';ctx.font='bold 10px Syne';ctx.textAlign='center';
+    ctx.fillText(curRun+'/'+Nr+' tajriba bajarildi',cx,H-29);
+  }
+}
+function arrV(x,y,d,c){ctx.fillStyle=c;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x-4,y+d*8);ctx.lineTo(x+4,y+d*8);ctx.closePath();ctx.fill();}
+function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.lineTo(x+w-r,y);c.quadraticCurveTo(x+w,y,x+w,y+r);c.lineTo(x+w,y+h-r);c.quadraticCurveTo(x+w,y+h,x+w-r,y+h);c.lineTo(x+r,y+h);c.quadraticCurveTo(x,y+h,x,y+h-r);c.lineTo(x,y+r);c.quadraticCurveTo(x,y,x+r,y);c.closePath();}
+function drawGraph(){
+  var W2=gc.offsetWidth||240;gc.width=W2;var GH=110;
+  gctx.clearRect(0,0,W2,GH);gctx.fillStyle='#070c17';gctx.fillRect(0,0,W2,GH);
+  var pad=30,gW=W2-pad*2,gHH=GH-pad-8;
+  gctx.strokeStyle='rgba(192,132,252,.3)';gctx.lineWidth=1;
+  gctx.beginPath();gctx.moveTo(pad,8);gctx.lineTo(pad,GH-pad);gctx.lineTo(W2-pad+6,GH-pad);gctx.stroke();
+  gctx.fillStyle='rgba(192,132,252,.5)';gctx.font='7px monospace';gctx.textAlign='center';gctx.fillText('t²(s²)',W2-pad+10,GH-pad+3);
+  gctx.textAlign='right';gctx.fillText('s(m)',pad-3,12);
+  if(!measList.length)return;
+  var t2vals=measList.map(function(m){return m.t*m.t;}),svals=measList.map(function(m){return m.s;});
+  var maxT2=Math.max.apply(null,t2vals)*1.3,maxS=Math.max.apply(null,svals)*1.3;
+  // Nazariy chiziq: s = g/2 * t²
+  gctx.strokeStyle='rgba(255,201,71,.25)';gctx.lineWidth=1;gctx.setLineDash([3,4]);
+  gctx.beginPath();gctx.moveTo(pad,GH-pad);gctx.lineTo(W2-pad,GH-pad-(G_real/2*maxT2/maxS)*gHH);gctx.stroke();gctx.setLineDash([]);
+  measList.forEach(function(m){
+    var px=pad+(m.t*m.t/maxT2)*gW,py=GH-pad-(m.s/maxS)*gHH;
+    gctx.fillStyle='rgba(192,132,252,.9)';gctx.beginPath();gctx.arc(px,py,5,0,Math.PI*2);gctx.fill();
+  });
+  gctx.fillStyle='rgba(192,132,252,.7)';gctx.font='7px monospace';gctx.textAlign='left';gctx.fillText('● tajriba',pad+2,GH-pad-gHH+12);
+  gctx.fillStyle='rgba(255,201,71,.5)';gctx.fillText('— nazariy',pad+2,GH-pad-gHH+22);
+}
+window.addEventListener('load',function(){setTimeout(function(){resize();upd();drawGraph();},100);});
+</script>
+
+<script id="langScript">
+(function(){
+var _lt={
+"uz":{
+ badge:"LAB · 05", hMain:"Erkin Tushish — ", hSpan:"g = 2s/t² · Galiley Tajribasi",
+ hsub:"MEXANIKA · FIZPRAKTIKUM · SDPI 2026", chipOlchov:"O'lchov:",
+ left1:"Tushish balandligi (s)", left2:"Tajriba takrori soni", feV:"= g·t (yerga etganda)",
+ step1:"s va n tanlang", step2:"Jism tushmoqda", step3:"t o'lchanyapti", step4:"g hisoblanmoqda", step5:"Tahlil",
+ btnRun:"Jismni qo'yib yuborish", btnAdd:"Natijani yozish", btnReset:"Qayta boshlash",
+ right1:"O'lchov natijalari", tMeasLabel:"t (o'lchov)", vLabel:"v (yerga etganda)", epsLabel:"ε xatolik", unitS:"sekund",
+ tableTitle:"5.1-jadval: g = f(s)", graphTitle:"Grafik: s = f(t²)",
+ finalTitle:"Yakuniy natija — g erkin tushish tezlanishi", expVal:"m/s² — tajribaviy qiymat",
+ tableVal:"Jadval qiymati", avgEps:"O'rt. xatolik ε", measCount:"O'lchashlar",
+ galileo:"Galiley: hamma jismlar bir xil tezlanish bilan tushadi!",
+ startBadge:"LAB · 05", startH1:"Erkin Tushish — ", startH1Span:"g = 2s/t²",
+ orderLabel:"BAJARISH TARTIBI",
+ ord1:"Tushish balandligi s ni tanlang",
+ ord2:"Tajribani ishga tushiring → jism tushish vaqti t o'lchanadi",
+ ord3:"g = 2s/t² dan erkin tushish tezlanishini hisoblang",
+ ord4:"9.81 m/s² bilan solishtiring, xatolikni hisoblang",
+ startBtn:"▶ Laboratoriyani boshlash",
+ status:"s balandlikni tanlang → tajribani ishga tushiring → g ni hisoblang",
+ statusRunning:"⏱ Jism tushmoqda...",
+ statusProgress:function(p){return '▶ '+p.cur+'/'+p.n+' tajriba | t='+p.t.toFixed(4)+'s';},
+ statusDone:function(p){return "✓ t_o'rt="+p.t.toFixed(4)+'s | g='+p.g.toFixed(4)+' m/s² | ε='+p.eps.toFixed(2)+'%';},
+ statusCelebrate:function(p){return "🎉 O'rt. g="+p.g.toFixed(4)+' m/s² | Jadval: 9.81 m/s² | ε='+p.eps.toFixed(2)+'%';},
+ instr:"🟣 Erkin tushish: s = ½gt² · v = gt · Hamma jismlar bir xil g=9.81 m/s² tezlanish bilan tushadi (Galiley)"
+},
+"ru":{
+ badge:"ЛАБ · 05", hMain:"Свободное падение — ", hSpan:"g = 2s/t² · Опыт Галилея",
+ hsub:"МЕХАНИКА · ФИЗПРАКТИКУМ · SDPI 2026", chipOlchov:"Измерений:",
+ left1:"Высота падения (s)", left2:"Число повторов опыта", feV:"= g·t (при падении)",
+ step1:"Выбрать s и n", step2:"Тело падает", step3:"Измеряется t", step4:"Вычисляется g", step5:"Анализ",
+ btnRun:"Отпустить тело", btnAdd:"Записать результат", btnReset:"Начать заново",
+ right1:"Результаты измерений", tMeasLabel:"t (измерено)", vLabel:"v (при ударе)", epsLabel:"ε ошибка", unitS:"секунда",
+ tableTitle:"Таблица 5.1: g = f(s)", graphTitle:"График: s = f(t²)",
+ finalTitle:"Итог — ускорение свободного падения g", expVal:"м/с² — экспериментальное значение",
+ tableVal:"Табличное значение", avgEps:"Сред. ошибка ε", measCount:"Измерений",
+ galileo:"Галилей: все тела падают с одинаковым ускорением!",
+ startBadge:"ЛАБ · 05", startH1:"Свободное падение — ", startH1Span:"g = 2s/t²",
+ orderLabel:"ПОРЯДОК ВЫПОЛНЕНИЯ",
+ ord1:"Выберите высоту падения s",
+ ord2:"Запустите опыт → измерится время падения t",
+ ord3:"Вычислите g = 2s/t²",
+ ord4:"Сравните с 9.81 м/с², вычислите ошибку",
+ startBtn:"▶ Начать лабораторную работу",
+ status:"Выберите высоту s → запустите опыт → вычислите g",
+ statusRunning:"⏱ Тело падает...",
+ statusProgress:function(p){return '▶ '+p.cur+'/'+p.n+' опыт | t='+p.t.toFixed(4)+'с';},
+ statusDone:function(p){return "✓ t_ср="+p.t.toFixed(4)+'с | g='+p.g.toFixed(4)+' м/с² | ε='+p.eps.toFixed(2)+'%';},
+ statusCelebrate:function(p){return "🎉 Сред. g="+p.g.toFixed(4)+' м/с² | Табл.: 9.81 м/с² | ε='+p.eps.toFixed(2)+'%';},
+ instr:"🟣 Свободное падение: s = ½gt² · v = gt · Все тела падают с одинаковым g=9.81 м/с² (Галилей)"
+},
+"en":{
+ badge:"LAB · 05", hMain:"Free Fall — ", hSpan:"g = 2s/t² · Galileo's Experiment",
+ hsub:"MECHANICS · PHYSICS PRACTICUM · SDPI 2026", chipOlchov:"Measurements:",
+ left1:"Drop height (s)", left2:"Number of trials", feV:"= g·t (upon landing)",
+ step1:"Choose s and n", step2:"Body is falling", step3:"Measuring t", step4:"Calculating g", step5:"Analysis",
+ btnRun:"Release the body", btnAdd:"Record result", btnReset:"Reset",
+ right1:"Measurement results", tMeasLabel:"t (measured)", vLabel:"v (upon landing)", epsLabel:"ε error", unitS:"second",
+ tableTitle:"Table 5.1: g = f(s)", graphTitle:"Graph: s = f(t²)",
+ finalTitle:"Final result — free-fall acceleration g", expVal:"m/s² — experimental value",
+ tableVal:"Reference value", avgEps:"Avg. error ε", measCount:"Measurements",
+ galileo:"Galileo: all bodies fall with the same acceleration!",
+ startBadge:"LAB · 05", startH1:"Free Fall — ", startH1Span:"g = 2s/t²",
+ orderLabel:"PROCEDURE",
+ ord1:"Choose the drop height s",
+ ord2:"Run the experiment → the fall time t is measured",
+ ord3:"Calculate the free-fall acceleration from g = 2s/t²",
+ ord4:"Compare with 9.81 m/s² and calculate the error",
+ startBtn:"▶ Start the lab",
+ status:"Choose height s → run the experiment → calculate g",
+ statusRunning:"⏱ Body is falling...",
+ statusProgress:function(p){return '▶ '+p.cur+'/'+p.n+' trial | t='+p.t.toFixed(4)+'s';},
+ statusDone:function(p){return "✓ t_avg="+p.t.toFixed(4)+'s | g='+p.g.toFixed(4)+' m/s² | ε='+p.eps.toFixed(2)+'%';},
+ statusCelebrate:function(p){return "🎉 Avg. g="+p.g.toFixed(4)+' m/s² | Reference: 9.81 m/s² | ε='+p.eps.toFixed(2)+'%';},
+ instr:"🟣 Free fall: s = ½gt² · v = gt · All bodies fall with the same g=9.81 m/s² (Galileo)"
+}
+};
+var _lang='uz';
+var _acc='#c084fc';
+var _statusState={key:'default',params:{}};
+function _renderStatus(){
+  var t=_lt[_lang],s=_statusState,el=document.getElementById('statusTxt');
+  if(!el)return;
+  if(s.key==='running')el.textContent=t.statusRunning;
+  else if(s.key==='progress')el.textContent=t.statusProgress(s.params);
+  else if(s.key==='done')el.textContent=t.statusDone(s.params);
+  else if(s.key==='celebrate')el.textContent=t.statusCelebrate(s.params);
+  else el.textContent=t.status;
+}
+function _setLang(l){
+  _lang=l;
+  ['uz','ru','en'].forEach(function(x){
+    var el=document.getElementById('_lb'+x);
+    if(!el)return;
+    el.className='lb-inject'+(x===l?' on':'');
+    el.style.color=x===l?_acc:'#4a6080';
+    el.style.background=x===l?'rgba('+_acc.replace('#','').match(/../g).map(function(h){return parseInt(h,16);}).join(',')+',0.12)':'rgba(255,255,255,.04)';
+  });
+  var t=_lt[l];
+  if(!t)return;
+  var map={
+    txtBadge:t.badge, txtHMain:t.hMain, txtHSpan:t.hSpan, txtHsub:t.hsub, txtChipOlchov:t.chipOlchov,
+    txtLeft1:t.left1, txtLeft2:t.left2, txtFeV:t.feV,
+    txtStep1:t.step1, txtStep2:t.step2, txtStep3:t.step3, txtStep4:t.step4, txtStep5:t.step5,
+    txtBtnRun:t.btnRun, txtBtnAdd:t.btnAdd, txtBtnReset:t.btnReset,
+    txtRight1:t.right1, txtTMeasLabel:t.tMeasLabel, txtVLabel:t.vLabel, txtEpsLabel:t.epsLabel, txtUnitS:t.unitS,
+    txtTableTitle:t.tableTitle, txtGraphTitle:t.graphTitle,
+    txtFinalTitle:t.finalTitle, txtExpVal:t.expVal, txtTableVal:t.tableVal, txtAvgEps:t.avgEps,
+    txtMeasCount:t.measCount, txtGalileo:t.galileo,
+    txtStartBadge:t.startBadge, txtStartH1:t.startH1, txtStartH1Span:t.startH1Span,
+    txtOrderLabel:t.orderLabel, txtOrd1:t.ord1, txtOrd2:t.ord2, txtOrd3:t.ord3, txtOrd4:t.ord4,
+    txtStartBtn:t.startBtn, instrBar:t.instr
+  };
+  Object.keys(map).forEach(function(id){
+    var el=document.getElementById(id);
+    if(el&&map[id]!==undefined)el.textContent=map[id];
+  });
+  _renderStatus();
+}
+window._changeLang=function(l){_setLang(l);};
+window._setStatusKey=function(key,params){_statusState={key:key,params:params||{}};_renderStatus();};
+document.addEventListener('DOMContentLoaded',function(){_setLang('uz');});
+})();
+</script>
+</body>
+</html>
