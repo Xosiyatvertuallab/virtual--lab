@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title id="pageTitle">Qovushqoqlik — Stoks Qonuni</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap');
+:root{--bg:#07090f;--panel:#0e1420;--border:#1b2840;--accent:#34d399;--green:#6fff5c;--blue:#60a5fa;--yellow:#ffc947;--red:#f87171;--text:#dde6f5;--muted:#4a6080;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;height:100vh;overflow:hidden;display:flex;flex-direction:column;}
+header{display:flex;align-items:center;gap:10px;padding:8px 18px;border-bottom:1px solid var(--border);background:linear-gradient(90deg,#07090f,#001a0e,#07090f);flex-shrink:0;}
+.badge{background:var(--accent);color:#000;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:3px 9px;letter-spacing:2px;border-radius:2px;}
+.htitle{font-size:13px;font-weight:800;}.htitle span{color:var(--accent);}
+.hsub{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-left:auto;}
+.brand{display:flex;align-items:center;gap:5px;background:linear-gradient(135deg,rgba(52,211,153,.12),rgba(111,255,92,.08));border:1px solid rgba(52,211,153,.3);border-radius:20px;padding:3px 12px;margin-left:8px;flex-shrink:0;}
+.brand-txt{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;background:linear-gradient(90deg,#34d399,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;}
+/* TIL TUGMALARI */
+.lang-btns{display:flex;gap:4px;margin-left:8px;flex-shrink:0;}
+.lb{border:1px solid var(--border);background:rgba(255,255,255,.04);color:var(--muted);padding:4px 10px;border-radius:5px;font-family:'Space Mono',monospace;font-size:9px;cursor:pointer;transition:all .2s;font-weight:400;}
+.lb.on{background:rgba(52,211,153,.15);border-color:var(--accent);color:var(--accent);font-weight:700;}
+.statusbar{background:#0a0f1c;border-bottom:1px solid var(--border);padding:5px 18px;display:flex;align-items:center;gap:12px;font-family:'Space Mono',monospace;font-size:11px;flex-shrink:0;}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--accent);animation:bl 1.2s infinite;flex-shrink:0;}
+.dot.off{background:var(--muted);animation:none;}
+@keyframes bl{0%,100%{opacity:1}50%{opacity:.2}}
+#statusTxt{color:var(--accent);}
+.chips{display:flex;gap:5px;margin-left:auto;flex-wrap:wrap;}
+.chip{background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.2);border-radius:10px;padding:2px 8px;font-size:10px;color:var(--muted);}
+.chip span{color:var(--accent);}
+.body{display:grid;grid-template-columns:230px 1fr;flex:1;overflow:hidden;}
+.left{background:var(--panel);border-right:1px solid var(--border);overflow-y:auto;padding:13px;display:flex;flex-direction:column;gap:8px;}
+.stitle{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--accent);text-transform:uppercase;margin-bottom:3px;}
+.card{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:8px;padding:10px;}
+.card label{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:6px;}
+.vb{font-family:'Space Mono',monospace;font-size:11px;color:var(--accent);background:rgba(52,211,153,.12);padding:2px 7px;border-radius:3px;}
+input[type=range]{width:100%;-webkit-appearance:none;height:4px;background:var(--border);border-radius:2px;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;background:var(--accent);border-radius:50%;cursor:pointer;box-shadow:0 0 8px rgba(52,211,153,.7);}
+select{width:100%;background:#0e1420;color:var(--text);border:1px solid var(--border);border-radius:6px;padding:7px 8px;font-family:'Space Mono',monospace;font-size:10px;cursor:pointer;outline:none;}
+select option{background:#0e1420;}
+.fbox{background:rgba(52,211,153,.04);border:1px solid rgba(52,211,153,.15);border-radius:7px;padding:9px;}
+.frow{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:4px;display:flex;gap:4px;}
+.frow span{color:var(--accent);}
+.steps{display:flex;flex-direction:column;gap:3px;}
+.step{display:flex;align-items:center;gap:7px;padding:5px 8px;border-radius:5px;font-size:10px;color:var(--muted);border:1px solid transparent;transition:all .3s;}
+.step.active{background:rgba(52,211,153,.07);border-color:rgba(52,211,153,.2);color:var(--accent);}
+.step.done{color:var(--green);}
+.snum{font-family:'Space Mono',monospace;font-size:9px;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.05);flex-shrink:0;}
+.step.active .snum{background:rgba(52,211,153,.2);}
+.step.done .snum{background:rgba(111,255,92,.12);color:var(--green);}
+.btn{width:100%;padding:9px;border:none;border-radius:7px;font-family:'Syne',sans-serif;font-weight:700;font-size:12px;cursor:pointer;transition:all .2s;margin-top:4px;}
+.btn-p{background:linear-gradient(135deg,#34d399,#059669);color:#000;}
+.btn-p:hover{transform:translateY(-1px);box-shadow:0 5px 18px rgba(52,211,153,.4);}
+.btn-p:disabled{opacity:.35;cursor:not-allowed;transform:none;}
+.btn-g{background:linear-gradient(135deg,#6fff5c,#33cc22);color:#000;}
+.btn-g:disabled{opacity:.35;}
+.btn-r{background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--border);font-size:11px;}
+.res-box{background:rgba(52,211,153,.05);border:1px solid rgba(52,211,153,.2);border-radius:8px;padding:10px;}
+.res-row{display:flex;justify-content:space-between;margin-bottom:5px;font-family:'Space Mono',monospace;font-size:10px;}
+.res-row span:first-child{color:var(--muted);}
+.center{position:relative;overflow:hidden;background:#020609;}
+#simCanvas{display:block;width:100%;height:100%;}
+.instr-bar{position:absolute;bottom:0;left:0;right:0;background:rgba(2,6,9,.92);border-top:1px solid var(--border);padding:5px 18px;font-size:10px;color:var(--muted);text-align:center;}
+table{width:100%;border-collapse:collapse;font-family:'Space Mono',monospace;font-size:9px;}
+th{color:var(--accent);font-size:7px;letter-spacing:1px;border-bottom:1px solid var(--border);padding:4px 2px;text-align:center;}
+td{padding:3px 2px;border-bottom:1px solid rgba(255,255,255,.03);text-align:center;}
+</style>
+</head>
+<body>
+
+<!-- BOSHLASH EKRANI -->
+<div id="startScreen" style="position:fixed;inset:0;z-index:9999;background:radial-gradient(ellipse at 50% 40%,#001a0e 0%,#07090f 70%);display:flex;align-items:center;justify-content:center;">
+  <canvas id="bgCanvas" style="position:absolute;inset:0;width:100%;height:100%;opacity:.4;pointer-events:none"></canvas>
+  <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:16px;max-width:580px;padding:20px;text-align:center;">
+
+    <!-- Til tanlash -->
+    <div style="display:flex;gap:8px;">
+      <button onclick="setStartLang('uz')" id="slUZ" style="background:rgba(52,211,153,.2);border:1px solid #34d399;color:#34d399;padding:5px 16px;border-radius:6px;font-family:'Space Mono',monospace;font-size:10px;cursor:pointer;font-weight:700;">🇺🇿 UZ</button>
+      <button onclick="setStartLang('ru')" id="slRU" style="background:rgba(255,255,255,.04);border:1px solid #1b2840;color:#4a6080;padding:5px 16px;border-radius:6px;font-family:'Space Mono',monospace;font-size:10px;cursor:pointer;">🇷🇺 RU</button>
+      <button onclick="setStartLang('en')" id="slEN" style="background:rgba(255,255,255,.04);border:1px solid #1b2840;color:#4a6080;padding:5px 16px;border-radius:6px;font-family:'Space Mono',monospace;font-size:10px;cursor:pointer;">🇬🇧 EN</button>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div style="background:#34d399;color:#000;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:4px 14px;letter-spacing:2px;border-radius:2px;">МОЛ-ФИЗ · LAB 03</div>
+      <div id="ss_sub" style="font-family:'Space Mono',monospace;font-size:10px;color:#4a6080;"></div>
+    </div>
+
+    <div style="width:100px;height:100px;border-radius:50%;background:radial-gradient(circle,rgba(52,211,153,.18),rgba(52,211,153,.02));border:2px solid rgba(52,211,153,.4);display:flex;align-items:center;justify-content:center;box-shadow:0 0 55px rgba(52,211,153,.3);animation:pSt 2.5s ease-in-out infinite;"><span style="font-size:44px;">💧</span></div>
+
+    <h1 style="font-size:20px;font-weight:800;color:#fff;" id="ss_title"></h1>
+    <p style="font-size:11px;color:#4a6080;font-family:'Space Mono',monospace;" id="ss_formula">η = 2r²(ρ₁−ρ₂)g / 9v</p>
+
+    <div style="background:rgba(52,211,153,.05);border:1px solid rgba(52,211,153,.15);border-radius:12px;padding:15px;width:100%;text-align:left;">
+      <div id="ss_stepTitle" style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;color:#34d399;margin-bottom:10px;"></div>
+      <div id="ss_stepList" style="display:flex;flex-direction:column;gap:7px;"></div>
+    </div>
+
+    <button onclick="startLab()" id="ss_btn" style="background:linear-gradient(135deg,#34d399,#059669);color:#000;border:none;border-radius:12px;padding:15px 60px;font-size:15px;font-weight:800;font-family:'Syne',sans-serif;cursor:pointer;box-shadow:0 8px 30px rgba(52,211,153,.35);width:100%;"></button>
+
+    <div style="display:flex;align-items:center;gap:6px;opacity:.6;"><span>🔬</span><span style="font-family:'Space Mono',monospace;font-size:10px;font-weight:700;background:linear-gradient(90deg,#34d399,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;">Xosiyat Virtual Lab</span></div>
+  </div>
+</div>
+<style>
+@keyframes pSt{0%,100%{box-shadow:0 0 55px rgba(52,211,153,.2)}50%{box-shadow:0 0 80px rgba(52,211,153,.5)}}
+@keyframes fadeOut{0%{opacity:1}100%{opacity:0;transform:scale(1.04)}}
+</style>
+
+<!-- HEADER -->
+<header>
+  <div class="badge">МОЛ-ФИЗ · LAB 03</div>
+  <h1 class="htitle" id="hTitle"><span id="hSpan"></span></h1>
+  <div class="hsub" id="hSub"></div>
+  <div class="lang-btns">
+    <div class="lb on" id="lbUZ" onclick="setLang('uz')">🇺🇿 UZ</div>
+    <div class="lb" id="lbRU" onclick="setLang('ru')">🇷🇺 RU</div>
+    <div class="lb" id="lbEN" onclick="setLang('en')">🇬🇧 EN</div>
+  </div>
+  <div class="brand"><span>🔬</span><span class="brand-txt">Xosiyat Virtual Lab</span></div>
+</header>
+
+<div class="statusbar">
+  <div class="dot off" id="dot"></div>
+  <span id="statusTxt"></span>
+  <div class="chips">
+    <div class="chip" id="chip_r">r=<span id="cR">1.0</span>mm</div>
+    <div class="chip" id="chip_l">L=<span id="cL">20</span>sm</div>
+    <div class="chip" id="chip_t">t=<span id="cT">—</span>s</div>
+    <div class="chip" id="chip_eta">η=<span id="cEta">—</span></div>
+    <div class="chip" id="chip_cnt"><span id="chipCnt">0</span></div>
+  </div>
+</div>
+
+<div class="body">
+<!-- CHAP PANEL -->
+<div class="left">
+  <div class="stitle" id="st_liquid"></div>
+  <div class="card">
+    <select id="sLiquid" onchange="setLiquid(this.value)">
+      <option value="glycerin">🫙 Glitserin (η≈1.49 Pa·s)</option>
+      <option value="oil">🛢️ Mashina moyi (η≈0.1 Pa·s)</option>
+      <option value="water">💧 Suv (η≈0.001 Pa·s)</option>
+      <option value="honey">🍯 Asal (η≈5.0 Pa·s)</option>
+    </select>
+  </div>
+
+  <div class="stitle" id="st_ball"></div>
+  <div class="card">
+    <select id="sBall" onchange="setBall(this.value)">
+      <option value="steel">⚙️ Po'lat (ρ=7800 kg/m³)</option>
+      <option value="lead">🔵 Qo'rg'oshin (ρ=11340 kg/m³)</option>
+      <option value="glass">⚪ Shisha (ρ=2500 kg/m³)</option>
+      <option value="rubber">🟤 Rezina (ρ=1200 kg/m³)</option>
+    </select>
+  </div>
+
+  <div class="stitle" id="st_radius"></div>
+  <div class="card">
+    <label id="lbl_r">r (mm) <span class="vb" id="dR">1.0 mm</span></label>
+    <input type="range" id="sR" min="0.5" max="5" step="0.5" value="1" oninput="setR(this.value)">
+  </div>
+
+  <div class="stitle" id="st_dist"></div>
+  <div class="card">
+    <label id="lbl_l">L (sm) <span class="vb" id="dL">20 sm</span></label>
+    <input type="range" id="sL" min="5" max="40" step="5" value="20" oninput="setLv(this.value)">
+  </div>
+
+  <div class="res-box">
+    <div class="stitle" id="st_results" style="margin-bottom:6px;"></div>
+    <div class="res-row"><span id="r_v_lbl"></span><span id="rV" style="color:var(--blue);">—</span></div>
+    <div class="res-row"><span id="r_Re_lbl"></span><span id="rRe" style="color:var(--yellow);">—</span></div>
+    <div class="res-row"><span id="r_F_lbl"></span><span id="rF" style="color:var(--accent);">—</span></div>
+    <div class="res-row"><span id="r_eta_lbl"></span><span id="rEta" style="color:var(--green);font-size:13px;font-weight:800;">—</span></div>
+    <div class="res-row"><span id="r_etanaz_lbl"></span><span id="rEtaNaz" style="color:var(--muted);">—</span></div>
+    <div class="res-row"><span id="r_err_lbl"></span><span id="rErr" style="color:var(--red);">—</span></div>
+  </div>
+
+  <div class="fbox">
+    <div class="frow"><span id="f1"></span></div>
+    <div class="frow"><span id="f2"></span></div>
+    <div class="frow"><span id="f3"></span></div>
+    <div class="frow"><span id="f4"></span></div>
+    <div class="frow"><span id="f5"></span></div>
+  </div>
+
+  <div class="steps">
+    <div class="step active" id="st1"><div class="snum" id="sn1">1</div><span id="step1_txt"></span></div>
+    <div class="step" id="st2"><div class="snum" id="sn2">2</div><span id="step2_txt"></span></div>
+    <div class="step" id="st3"><div class="snum" id="sn3">3</div><span id="step3_txt"></span></div>
+    <div class="step" id="st4"><div class="snum" id="sn4">4</div><span id="step4_txt"></span></div>
+    <div class="step" id="st5"><div class="snum" id="sn5">5</div><span id="step5_txt"></span></div>
+  </div>
+
+  <button class="btn btn-p" id="runBtn" onclick="runExp()"><span id="btn_run_txt"></span></button>
+  <button class="btn btn-g" id="addBtn" onclick="addMeas()" disabled><span id="btn_add_txt"></span></button>
+  <button class="btn btn-r" onclick="resetAll()"><span id="btn_reset_txt"></span></button>
+</div>
+
+<!-- MARKAZ -->
+<div class="center">
+  <canvas id="simCanvas"></canvas>
+  <div class="instr-bar" id="instrBar"></div>
+</div>
+</div>
+
+<div style="position:fixed;bottom:14px;right:18px;display:flex;align-items:center;gap:7px;background:rgba(7,9,15,.75);border:1px solid rgba(52,211,153,.2);border-radius:30px;padding:5px 16px;backdrop-filter:blur(10px);z-index:9999;pointer-events:none;">
+  <span>🔬</span><span style="font-family:'Space Mono',monospace;font-size:11px;font-weight:700;background:linear-gradient(90deg,#34d399,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;">Xosiyat Virtual Lab</span>
+</div>
+
+<script>
+// ========== TARJIMALAR ==========
+var TR = {
+  uz: {
+    pageTitle: "Qovushqoqlik — Stoks Qonuni",
+    hTitle: "Qovushqoqlik — ",
+    hSpan: "Stoks Qonuni: η = 2r²(ρ₁−ρ₂)g / 9v",
+    hSub: "МОЛ-ФИЗ · QOVUSHQOQLIK · SDPI 2026",
+    ss_sub: "MOLEKULYAR FIZIKA · STOKS",
+    ss_title: "Qovushqoqlik Koeffitsientini Aniqlash — Stoks Qonuni",
+    ss_stepTitle: "BAJARISH TARTIBI",
+    ss_steps: [
+      "Suyuqlik va shar materialini tanlang",
+      "Shar radiusi r va L masofani belgilang",
+      "Tajribani ishga tushiring → t vaqt o'lchang",
+      "η = 2r²(ρ₁−ρ₂)g/9v formuladan hisoblang",
+      "Jadval tuzib, o'rtacha qiymat toping"
+    ],
+    ss_btn: "▶ Laboratoriyani boshlash",
+    st_liquid: "Suyuqlik turi",
+    st_ball: "Shar materiali",
+    st_radius: "Shar radiusi (r)",
+    st_dist: "O'lchov masofasi (L)",
+    lbl_r: "r (mm)",
+    lbl_l: "L (sm)",
+    st_results: "Natijalar",
+    r_v: "v (cheklangan tezlik)",
+    r_Re: "Re (Reynolds soni)",
+    r_F: "F_Stoks = 6πηrv",
+    r_eta: "η (tajriba)",
+    r_etanaz: "η (nazariy)",
+    r_err: "ε (xatolik)",
+    f1: "η = 2r²(ρ₁−ρ₂)g / 9v",
+    f2: "v = L / t (terminal tezlik)",
+    f3: "F_Arx = ρ₂·V·g (Arximed)",
+    f4: "F_Stoks = 6π·η·r·v",
+    f5: "Re = ρ₂·v·2r/η < 0.5 (Stoks shart)",
+    steps: ["Suyuqlik va shar tanlang", "r va L belgilang", "Tajriba o'tkazing", "η hisoblang", "Tahlil"],
+    btn_run: "▶ Sharni qo'yib yuborish",
+    btn_add: "+ Natijani yozish",
+    btn_reset: "↺ Qayta boshlash",
+    instrBar: "💧 Stoks qonuni: shar suyuqlikda terminal tezlikka erishganda F_og'irlik = F_Arximed + F_Stoks → η = 2r²(ρ₁−ρ₂)g/9v",
+    status0: "Suyuqlik va shar tanlang → r va L belgilang → tajribani ishga tushiring",
+    statusRun: "⏱ Shar tushmoqda...",
+    statusDone: "✓ Tajriba tugadi",
+    chip_r: "r=", chip_l: "L=", chip_t: "t=", chip_eta: "η=", chip_cnt: "O'lchov:",
+    liquids: {glycerin:"Glitserin",oil:"Mashina moyi",water:"Suv",honey:"Asal"},
+    balls: {steel:"Po'lat",lead:"Qo'rg'oshin",glass:"Shisha",rubber:"Rezina"},
+    tblHead: ["№","Suyuqlik","r(mm)","L(sm)","t(s)","v(m/s)","η(Pa·s)","η_naz","ε%"],
+    Re_ok: "Stoks qonuni o'rinli ✅",
+    Re_err: "Re > 0.5 ⚠️ Stoks o'rinli emas",
+  },
+  ru: {
+    pageTitle: "Вязкость — Закон Стокса",
+    hTitle: "Вязкость — ",
+    hSpan: "Закон Стокса: η = 2r²(ρ₁−ρ₂)g / 9v",
+    hSub: "МОЛ-ФИЗ · ВЯЗКОСТЬ · SDPI 2026",
+    ss_sub: "МОЛЕКУЛЯРНАЯ ФИЗИКА · СТОКС",
+    ss_title: "Определение Коэффициента Вязкости — Закон Стокса",
+    ss_stepTitle: "ПОРЯДОК ВЫПОЛНЕНИЯ",
+    ss_steps: [
+      "Выберите жидкость и материал шарика",
+      "Задайте радиус r и расстояние L",
+      "Запустите опыт → измерьте время t",
+      "Вычислите η = 2r²(ρ₁−ρ₂)g/9v",
+      "Составьте таблицу, найдите среднее"
+    ],
+    ss_btn: "▶ Начать лабораторную работу",
+    st_liquid: "Тип жидкости",
+    st_ball: "Материал шарика",
+    st_radius: "Радиус шарика (r)",
+    st_dist: "Измерительное расстояние (L)",
+    lbl_r: "r (мм)",
+    lbl_l: "L (см)",
+    st_results: "Результаты",
+    r_v: "v (предельная скорость)",
+    r_Re: "Re (число Рейнольдса)",
+    r_F: "F_Стокса = 6πηrv",
+    r_eta: "η (опыт)",
+    r_etanaz: "η (теория)",
+    r_err: "ε (погрешность)",
+    f1: "η = 2r²(ρ₁−ρ₂)g / 9v",
+    f2: "v = L / t (предельная скорость)",
+    f3: "F_Арх = ρ₂·V·g (Архимед)",
+    f4: "F_Стокс = 6π·η·r·v",
+    f5: "Re = ρ₂·v·2r/η < 0.5 (условие Стокса)",
+    steps: ["Выбор жидкости и шарика", "Задать r и L", "Провести опыт", "Вычислить η", "Анализ"],
+    btn_run: "▶ Отпустить шарик",
+    btn_add: "+ Записать результат",
+    btn_reset: "↺ Начать заново",
+    instrBar: "💧 Закон Стокса: шарик достигает предельной скорости → F_тяж = F_Архимед + F_Стокса → η = 2r²(ρ₁−ρ₂)g/9v",
+    status0: "Выберите жидкость и шарик → задайте r и L → запустите опыт",
+    statusRun: "⏱ Шарик падает...",
+    statusDone: "✓ Опыт завершён",
+    chip_r: "r=", chip_l: "L=", chip_t: "t=", chip_eta: "η=", chip_cnt: "Опыт:",
+    liquids: {glycerin:"Глицерин",oil:"Машинное масло",water:"Вода",honey:"Мёд"},
+    balls: {steel:"Сталь",lead:"Свинец",glass:"Стекло",rubber:"Резина"},
+    tblHead: ["№","Жидкость","r(мм)","L(см)","t(с)","v(м/с)","η(Па·с)","η_нaz","ε%"],
+    Re_ok: "Закон Стокса применим ✅",
+    Re_err: "Re > 0.5 ⚠️ Закон не применим",
+  },
+  en: {
+    pageTitle: "Viscosity — Stokes' Law",
+    hTitle: "Viscosity — ",
+    hSpan: "Stokes' Law: η = 2r²(ρ₁−ρ₂)g / 9v",
+    hSub: "MOL-PHYS · VISCOSITY · SDPI 2026",
+    ss_sub: "MOLECULAR PHYSICS · STOKES",
+    ss_title: "Determination of Viscosity Coefficient — Stokes' Law",
+    ss_stepTitle: "PROCEDURE",
+    ss_steps: [
+      "Select the liquid and ball material",
+      "Set ball radius r and measurement distance L",
+      "Run experiment → measure time t",
+      "Calculate η = 2r²(ρ₁−ρ₂)g/9v",
+      "Build data table, find average value"
+    ],
+    ss_btn: "▶ Start Laboratory",
+    st_liquid: "Liquid type",
+    st_ball: "Ball material",
+    st_radius: "Ball radius (r)",
+    st_dist: "Measurement distance (L)",
+    lbl_r: "r (mm)",
+    lbl_l: "L (cm)",
+    st_results: "Results",
+    r_v: "v (terminal velocity)",
+    r_Re: "Re (Reynolds number)",
+    r_F: "F_Stokes = 6πηrv",
+    r_eta: "η (experiment)",
+    r_etanaz: "η (theoretical)",
+    r_err: "ε (error)",
+    f1: "η = 2r²(ρ₁−ρ₂)g / 9v",
+    f2: "v = L / t (terminal velocity)",
+    f3: "F_buoy = ρ₂·V·g (Archimedes)",
+    f4: "F_Stokes = 6π·η·r·v",
+    f5: "Re = ρ₂·v·2r/η < 0.5 (Stokes condition)",
+    steps: ["Select liquid & ball", "Set r and L", "Run experiment", "Calculate η", "Analysis"],
+    btn_run: "▶ Drop the ball",
+    btn_add: "+ Record result",
+    btn_reset: "↺ Reset",
+    instrBar: "💧 Stokes' law: ball reaches terminal velocity → F_gravity = F_buoyancy + F_Stokes → η = 2r²(ρ₁−ρ₂)g/9v",
+    status0: "Select liquid and ball → set r and L → run experiment",
+    statusRun: "⏱ Ball falling...",
+    statusDone: "✓ Experiment complete",
+    chip_r: "r=", chip_l: "L=", chip_t: "t=", chip_eta: "η=", chip_cnt: "Meas:",
+    liquids: {glycerin:"Glycerin",oil:"Machine oil",water:"Water",honey:"Honey"},
+    balls: {steel:"Steel",lead:"Lead",glass:"Glass",rubber:"Rubber"},
+    tblHead: ["№","Liquid","r(mm)","L(cm)","t(s)","v(m/s)","η(Pa·s)","η_th","ε%"],
+    Re_ok: "Stokes' law valid ✅",
+    Re_err: "Re > 0.5 ⚠️ Stokes invalid",
+  }
+};
+
+// Suyuqlik va shar ma'lumotlari
+var LIQUIDS = {
+  glycerin: {rho: 1260, eta: 1.490, color:'rgba(180,220,120,.85)', name:'Glitserin'},
+  oil:      {rho: 900,  eta: 0.100, color:'rgba(180,140,50,.85)',  name:'Yog\''},
+  water:    {rho: 1000, eta: 0.001, color:'rgba(80,160,220,.6)',   name:'Suv'},
+  honey:    {rho: 1400, eta: 5.000, color:'rgba(210,170,40,.9)',   name:'Asal'},
+};
+var BALLS = {
+  steel:  {rho: 7800,  color:'#94a3b8'},
+  lead:   {rho: 11340, color:'#64748b'},
+  glass:  {rho: 2500,  color:'#e0f2fe'},
+  rubber: {rho: 1200,  color:'#78350f'},
+};
+
+var lang='uz', liquidKey='glycerin', ballKey='steel', Rv=1.0, Lv=20;
+var measList=[], cnt=0, animT=0, running=false, ballY=0, simT=0, done=false, lastResult=null;
+var sc=document.getElementById('simCanvas'), ctx=sc.getContext('2d');
+
+// ========== TIL FUNKSIYALARI ==========
+function setStartLang(l){
+  lang=l;
+  ['UZ','RU','EN'].forEach(function(x){
+    var el=document.getElementById('sl'+x);
+    var on=x.toLowerCase()===l;
+    el.style.background=on?'rgba(52,211,153,.2)':'rgba(255,255,255,.04)';
+    el.style.borderColor=on?'#34d399':'#1b2840';
+    el.style.color=on?'#34d399':'#4a6080';
+    el.style.fontWeight=on?'700':'400';
+  });
+  var t=TR[l];
+  document.getElementById('ss_sub').textContent=t.ss_sub;
+  document.getElementById('ss_title').textContent=t.ss_title;
+  document.getElementById('ss_stepTitle').textContent=t.ss_stepTitle;
+  document.getElementById('ss_btn').textContent=t.ss_btn;
+  var sl=document.getElementById('ss_stepList'); sl.innerHTML='';
+  t.ss_steps.forEach(function(s,i){
+    sl.innerHTML+='<div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#c5d3e8;"><span style="width:20px;height:20px;border-radius:50%;background:rgba(52,211,153,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#34d399;flex-shrink:0;">'+(i+1)+'</span>'+s+'</div>';
+  });
+}
+
+function setLang(l){
+  lang=l;
+  ['UZ','RU','EN'].forEach(function(x){
+    document.getElementById('lb'+x).className='lb'+(x.toLowerCase()===l?' on':'');
+  });
+  applyLang();
+  upd();
+}
+
+function applyLang(){
+  var t=TR[lang];
+  document.title=t.pageTitle;
+  document.getElementById('hTitle').innerHTML=t.hTitle+'<span style="color:var(--accent)">'+t.hSpan+'</span>';
+  document.getElementById('hSub').textContent=t.hSub;
+  document.getElementById('st_liquid').textContent=t.st_liquid;
+  document.getElementById('st_ball').textContent=t.st_ball;
+  document.getElementById('st_radius').textContent=t.st_radius;
+  document.getElementById('st_dist').textContent=t.st_dist;
+  document.getElementById('lbl_r').firstChild.textContent=t.lbl_r+' ';
+  document.getElementById('lbl_l').firstChild.textContent=t.lbl_l+' ';
+  document.getElementById('st_results').textContent=t.st_results;
+  document.getElementById('r_v_lbl').textContent=t.r_v;
+  document.getElementById('r_Re_lbl').textContent=t.r_Re;
+  document.getElementById('r_F_lbl').textContent=t.r_F;
+  document.getElementById('r_eta_lbl').textContent=t.r_eta;
+  document.getElementById('r_etanaz_lbl').textContent=t.r_etanaz;
+  document.getElementById('r_err_lbl').textContent=t.r_err;
+  document.getElementById('f1').textContent=t.f1;
+  document.getElementById('f2').textContent=t.f2;
+  document.getElementById('f3').textContent=t.f3;
+  document.getElementById('f4').textContent=t.f4;
+  document.getElementById('f5').textContent=t.f5;
+  t.steps.forEach(function(s,i){
+    var el=document.getElementById('step'+(i+1)+'_txt');
+    if(el) el.textContent=s;
+  });
+  document.getElementById('btn_run_txt').textContent=t.btn_run;
+  document.getElementById('btn_add_txt').textContent=t.btn_add;
+  document.getElementById('btn_reset_txt').textContent=t.btn_reset;
+  document.getElementById('instrBar').textContent=t.instrBar;
+  document.getElementById('statusTxt').textContent=t.status0;
+  // Chip labels
+  document.getElementById('chip_r').childNodes[0].textContent=t.chip_r;
+  document.getElementById('chip_l').childNodes[0].textContent=t.chip_l;
+  document.getElementById('chip_t').childNodes[0].textContent=t.chip_t;
+  document.getElementById('chip_eta').childNodes[0].textContent=t.chip_eta;
+  document.getElementById('chip_cnt').childNodes[0].textContent=t.chip_cnt;
+  // Select options
+  updateSelectOptions();
+}
+
+function updateSelectOptions(){
+  var t=TR[lang];
+  var liqSel=document.getElementById('sLiquid');
+  var liqVals=['glycerin','oil','water','honey'];
+  var liqIcons=['🫙','🛢️','💧','🍯'];
+  var liqEtas=['η≈1.49','η≈0.1','η≈0.001','η≈5.0'];
+  liqSel.innerHTML='';
+  liqVals.forEach(function(k,i){
+    var opt=document.createElement('option');
+    opt.value=k; opt.selected=k===liquidKey;
+    opt.textContent=liqIcons[i]+' '+t.liquids[k]+' ('+liqEtas[i]+' Pa·s)';
+    liqSel.appendChild(opt);
+  });
+  var ballSel=document.getElementById('sBall');
+  var ballVals=['steel','lead','glass','rubber'];
+  var ballIcons=['⚙️','🔵','⚪','🟤'];
+  var ballRhos=['ρ=7800','ρ=11340','ρ=2500','ρ=1200'];
+  ballSel.innerHTML='';
+  ballVals.forEach(function(k,i){
+    var opt=document.createElement('option');
+    opt.value=k; opt.selected=k===ballKey;
+    opt.textContent=ballIcons[i]+' '+t.balls[k]+' ('+ballRhos[i]+' kg/m³)';
+    ballSel.appendChild(opt);
+  });
+}
+
+function startLab(){
+  var s=document.getElementById('startScreen');
+  s.style.animation='fadeOut .5s ease forwards';
+  setTimeout(function(){s.style.display='none'; applyLang(); upd();}, 480);
+}
+
+// Particles
+(function(){
+  var c=document.getElementById('bgCanvas');var x=c.getContext('2d');
+  function rs(){c.width=window.innerWidth;c.height=window.innerHeight;}rs();
+  window.addEventListener('resize',rs);
+  var pts=[];
+  for(var i=0;i<55;i++) pts.push({x:Math.random()*1600,y:Math.random()*900,r:Math.random()*1.5+.5,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,a:Math.random()});
+  function fr(){x.clearRect(0,0,c.width,c.height);pts.forEach(function(p){p.x+=p.vx;p.y+=p.vy;p.a+=.005;if(p.x<0)p.x=c.width;if(p.x>c.width)p.x=0;if(p.y<0)p.y=c.height;if(p.y>c.height)p.y=0;x.fillStyle='rgba(52,211,153,'+(0.15+Math.sin(p.a)*0.12)+')';x.beginPath();x.arc(p.x%c.width,p.y%c.height,p.r,0,Math.PI*2);x.fill();});requestAnimationFrame(fr);}
+  fr();
+})();
+
+// ========== FIZIKA ==========
+function setLiquid(v){liquidKey=v; upd();}
+function setBall(v){ballKey=v; upd();}
+function setR(v){Rv=parseFloat(v);document.getElementById('dR').textContent=v+' mm';document.getElementById('cR').textContent=v; upd();}
+function setLv(v){Lv=parseFloat(v);document.getElementById('dL').textContent=v+' sm';document.getElementById('cL').textContent=v; upd();}
+
+function calcEta(){
+  var liq=LIQUIDS[liquidKey], ball=BALLS[ballKey];
+  var r=Rv/1000, g=9.81;
+  var rho1=ball.rho, rho2=liq.rho;
+  var eta=liq.eta;
+  // Terminal tezlik: v = 2r²(ρ1-ρ2)g / (9η)
+  var v=2*r*r*(rho1-rho2)*g/(9*eta);
+  // t = L/v
+  var t=(Lv/100)/Math.max(v,0.0001);
+  var Re=rho2*v*2*r/eta;
+  var F_stokes=6*Math.PI*eta*r*v;
+  return {v:v, t:t, eta:eta, Re:Re, F:F_stokes, rho1:rho1, rho2:rho2};
+}
+
+function upd(){
+  var c=calcEta();
+  document.getElementById('rV').textContent=c.v.toExponential(3)+' m/s';
+  document.getElementById('rRe').textContent=c.Re.toExponential(3);
+  document.getElementById('rF').textContent=c.F.toExponential(3)+' N';
+  document.getElementById('rEtaNaz').textContent=LIQUIDS[liquidKey].eta+' Pa·s';
+}
+
+function runExp(){
+  if(running) return;
+  if(BALLS[ballKey].rho <= LIQUIDS[liquidKey].rho){
+    alert(lang==='uz'?'Shar suyuqlikda suzadi! ρ_shar > ρ_suyuqlik bo\'lishi kerak':
+          lang==='ru'?'Шарик плавает! ρ_шар должно быть > ρ_жидкости':'Ball floats! ρ_ball must be > ρ_liquid');
+    return;
+  }
+  running=true; done=false; simT=0; ballY=0; lastResult=null;
+  document.getElementById('runBtn').disabled=true;
+  document.getElementById('dot').classList.remove('off');
+  document.getElementById('statusTxt').textContent=TR[lang].statusRun;
+  setStep(2);
+}
+
+var physT=0;
+(function loop(){
+  animT+=0.016;
+  if(running){
+    var c=calcEta();
+    var tReal=c.t;
+    physT+=0.016;
+    ballY=Math.min(physT/tReal, 1);
+    if(physT>=tReal){
+      running=false; done=true;
+      var tMeas=tReal*(1+(Math.random()-.5)*0.02);
+      var etaExp=2*(Rv/1000)*(Rv/1000)*(BALLS[ballKey].rho-LIQUIDS[liquidKey].rho)*9.81/(9*(c.v+(Math.random()-.5)*c.v*0.01));
+      var eps=Math.abs(etaExp-LIQUIDS[liquidKey].eta)/LIQUIDS[liquidKey].eta*100;
+      lastResult={t:tMeas, v:Lv/100/tMeas, eta:etaExp, etaNaz:LIQUIDS[liquidKey].eta, Re:c.Re, F:c.F, eps:eps};
+      document.getElementById('rV').textContent=(Lv/100/tMeas).toExponential(3)+' m/s';
+      document.getElementById('rEta').textContent=etaExp.toFixed(4)+' Pa·s';
+      document.getElementById('rErr').textContent=eps.toFixed(2)+'%';
+      document.getElementById('rRe').textContent=c.Re.toExponential(3)+(c.Re<0.5?' ✅':' ⚠️');
+      document.getElementById('cT').textContent=tMeas.toFixed(2);
+      document.getElementById('cEta').textContent=etaExp.toFixed(4);
+      document.getElementById('runBtn').disabled=false;
+      document.getElementById('addBtn').disabled=false;
+      document.getElementById('dot').classList.add('off');
+      setStep(4);
+      document.getElementById('statusTxt').textContent=TR[lang].statusDone+' | t='+tMeas.toFixed(3)+'s | η='+etaExp.toFixed(4)+' Pa·s | ε='+eps.toFixed(2)+'%';
+      physT=0;
+    }
+  }
+  drawSim();
+  requestAnimationFrame(loop);
+})();
+
+function addMeas(){
+  if(!lastResult) return;
+  cnt++;
+  var r=lastResult;
+  var t=TR[lang];
+  measList.push({liquid:liquidKey, ball:ballKey, r:Rv, L:Lv, t:r.t, v:r.v, eta:r.eta, etaNaz:r.etaNaz, eps:r.eps});
+  document.getElementById('chipCnt').textContent=cnt;
+  // Jadval
+  var tbody=document.getElementById('tbody');
+  if(!tbody){
+    // Jadval yaratish
+    var tbl=document.createElement('div');
+    tbl.style.cssText='padding:0 14px 10px;overflow-x:auto;';
+    var h='<div class="stitle" style="padding:8px 0 4px;letter-spacing:3px;font-size:8px;color:var(--accent);font-family:monospace;">'+t.st_results+'</div><table><thead><tr>';
+    t.tblHead.forEach(function(th){h+='<th>'+th+'</th>';});
+    h+='</tr></thead><tbody id="tbody"></tbody></table>';
+    tbl.innerHTML=h;
+    document.querySelector('.body').after(tbl);
+    tbody=document.getElementById('tbody');
+  }
+  var liqName=t.liquids[r.liquid]||liquidKey;
+  var tr=document.createElement('tr');
+  tr.innerHTML='<td>'+cnt+'</td><td>'+liqName+'</td><td>'+Rv+'</td><td>'+Lv+'</td><td>'+r.t.toFixed(3)+'</td><td>'+r.v.toExponential(2)+'</td><td>'+r.eta.toFixed(4)+'</td><td>'+r.etaNaz+'</td><td>'+r.eps.toFixed(2)+'</td>';
+  tbody.appendChild(tr);
+  setStep(5);
+  document.getElementById('statusTxt').textContent='✅ '+cnt+' ta o\'lchov | o\'rt. η='+(measList.reduce(function(a,b){return a+b.eta;},0)/measList.length).toFixed(4)+' Pa·s';
+}
+
+function resetAll(){
+  measList=[];cnt=0;running=false;done=false;ballY=0;physT=0;lastResult=null;
+  document.getElementById('addBtn').disabled=true;
+  document.getElementById('runBtn').disabled=false;
+  document.getElementById('dot').classList.add('off');
+  document.getElementById('chipCnt').textContent=0;
+  document.getElementById('cT').textContent='—';
+  document.getElementById('cEta').textContent='—';
+  ['rEta','rErr'].forEach(function(id){document.getElementById(id).textContent='—';});
+  var tbody=document.getElementById('tbody');
+  if(tbody) tbody.innerHTML='';
+  setStep(1);
+  document.getElementById('statusTxt').textContent=TR[lang].status0;
+}
+
+function setStep(n){
+  for(var i=1;i<=5;i++){
+    var el=document.getElementById('st'+i);
+    var sn=document.getElementById('sn'+i);
+    el.className='step'+(i<n?' done':i===n?' active':'');
+    sn.textContent=i<n?'✓':i;
+  }
+}
+
+function resize(){sc.width=sc.offsetWidth;sc.height=sc.offsetHeight;}
+window.addEventListener('resize',resize);
+setTimeout(function(){resize(); setStartLang('uz'); applyLang();}, 80);
+
+// ========== SIMULYATSIYA ==========
+function drawSim(){
+  var W=sc.width, H=sc.height;
+  if(!W||!H) return;
+  ctx.clearRect(0,0,W,H);
+
+  var liq=LIQUIDS[liquidKey], ball=BALLS[ballKey];
+  var tubW=Math.min(W*0.28,180), tubH=H*0.78;
+  var tubX=W*0.35, tubY=H*0.11;
+
+  // Fon
+  ctx.fillStyle='#020609'; ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle='rgba(52,211,153,.02)'; ctx.lineWidth=1;
+  for(var xi=0;xi<W;xi+=50){ctx.beginPath();ctx.moveTo(xi,0);ctx.lineTo(xi,H);ctx.stroke();}
+  for(var yi=0;yi<H;yi+=50){ctx.beginPath();ctx.moveTo(0,yi);ctx.lineTo(W,yi);ctx.stroke();}
+
+  // Idish soya
+  ctx.shadowColor='rgba(52,211,153,.15)'; ctx.shadowBlur=20;
+
+  // Suyuqlik
+  ctx.fillStyle=liq.color;
+  rr(ctx, tubX, tubY+10, tubW, tubH-10, 0);
+  ctx.fill();
+
+  // Idish chegarasi
+  ctx.strokeStyle='rgba(200,230,220,.5)'; ctx.lineWidth=3;
+  ctx.shadowBlur=0;
+  rr(ctx, tubX, tubY, tubW, tubH, 6);
+  ctx.stroke();
+
+  // Idish ichki yaltiroq
+  ctx.strokeStyle='rgba(255,255,255,.08)'; ctx.lineWidth=1;
+  rr(ctx, tubX+4, tubY+4, tubW-8, tubH-8, 4);
+  ctx.stroke();
+
+  // Suyuqlik to'lqin animatsiyasi (yuqori sirt)
+  ctx.strokeStyle='rgba(255,255,255,.2)'; ctx.lineWidth=1;
+  ctx.beginPath();
+  for(var xi=tubX;xi<tubX+tubW;xi+=3){
+    var yy=tubY+10+Math.sin((xi-tubX)*0.15+animT*2)*3;
+    if(xi===tubX) ctx.moveTo(xi,yy); else ctx.lineTo(xi,yy);
+  }
+  ctx.stroke();
+
+  // L masofasi belgilar
+  var measTop=tubY+tubH*0.15;
+  var measBot=tubY+tubH*0.15+Lv/40*tubH*0.7;
+  ctx.strokeStyle='rgba(255,201,71,.5)'; ctx.lineWidth=1.5; ctx.setLineDash([4,6]);
+  ctx.beginPath();ctx.moveTo(tubX+tubW+10,measTop);ctx.lineTo(tubX+tubW+10,measBot);ctx.stroke();
+  ctx.setLineDash([]);
+  arrV(tubX+tubW+10,measTop,-1,'rgba(255,201,71,.6)');
+  arrV(tubX+tubW+10,measBot,1,'rgba(255,201,71,.6)');
+  ctx.fillStyle='rgba(255,201,71,.7)'; ctx.font='10px Space Mono'; ctx.textAlign='left';
+  ctx.fillText('L='+Lv+'sm',tubX+tubW+16,(measTop+measBot)/2+3);
+
+  // Shkala (chap tomon)
+  ctx.strokeStyle='rgba(52,211,153,.3)'; ctx.lineWidth=1;
+  for(var si=0;si<=10;si++){
+    var sy=tubY+si*tubH/10;
+    ctx.beginPath();ctx.moveTo(tubX-15,sy);ctx.lineTo(tubX-5,sy);ctx.stroke();
+    ctx.fillStyle='rgba(52,211,153,.4)'; ctx.font='7px monospace'; ctx.textAlign='right';
+    ctx.fillText((si*10)+'%',tubX-18,sy+3);
+  }
+
+  // SHAR
+  var ballR=Math.min(Rv*8, tubW*0.22);
+  var ballXc=tubX+tubW/2;
+  var ballTopY=tubY+ballR*1.5;
+  var ballBotY=tubY+tubH-ballR*1.5;
+  var ballCY=ballTopY+(ballBotY-ballTopY)*ballY;
+
+  // Iz (trail)
+  if(ballY>0.02){
+    var trailLen=ballY*(ballBotY-ballTopY);
+    var trailGr=ctx.createLinearGradient(ballXc,ballTopY,ballXc,ballCY);
+    trailGr.addColorStop(0,'rgba(52,211,153,0)');
+    trailGr.addColorStop(1,'rgba(52,211,153,.15)');
+    ctx.fillStyle=trailGr;
+    ctx.fillRect(ballXc-ballR*0.3,ballTopY,ballR*0.6,trailLen);
+  }
+
+  // Kuch vektorlari (harakatda)
+  if(running&&ballY>0.05){
+    var c2=calcEta();
+    // mg pastga
+    ctx.strokeStyle='rgba(248,113,113,.8)'; ctx.lineWidth=2; ctx.shadowColor='rgba(248,113,113,.4)'; ctx.shadowBlur=8;
+    ctx.beginPath();ctx.moveTo(ballXc,ballCY+ballR);ctx.lineTo(ballXc,ballCY+ballR+40);ctx.stroke();
+    arrV(ballXc,ballCY+ballR+40,1,'rgba(248,113,113,.8)');
+    ctx.fillStyle='rgba(248,113,113,.7)'; ctx.font='9px monospace'; ctx.textAlign='left';
+    ctx.fillText('mg',ballXc+4,ballCY+ballR+28);
+    // F_arximed yuqoriga
+    ctx.strokeStyle='rgba(96,165,250,.8)'; ctx.lineWidth=2; ctx.shadowColor='rgba(96,165,250,.4)'; ctx.shadowBlur=8;
+    ctx.beginPath();ctx.moveTo(ballXc,ballCY-ballR);ctx.lineTo(ballXc,ballCY-ballR-25);ctx.stroke();
+    arrV(ballXc,ballCY-ballR-25,-1,'rgba(96,165,250,.8)');
+    ctx.fillStyle='rgba(96,165,250,.7)'; ctx.font='8px monospace'; ctx.textAlign='left';
+    ctx.fillText('Farx',ballXc+4,ballCY-ballR-12);
+    // F_stoks yuqoriga
+    ctx.strokeStyle='rgba(52,211,153,.8)'; ctx.lineWidth=2; ctx.shadowColor='rgba(52,211,153,.4)'; ctx.shadowBlur=8;
+    ctx.beginPath();ctx.moveTo(ballXc-8,ballCY-ballR);ctx.lineTo(ballXc-8,ballCY-ballR-18);ctx.stroke();
+    arrV(ballXc-8,ballCY-ballR-18,-1,'rgba(52,211,153,.8)');
+    ctx.fillStyle='rgba(52,211,153,.7)'; ctx.font='8px monospace'; ctx.textAlign='right';
+    ctx.fillText('FStr',ballXc-12,ballCY-ballR-8);
+    ctx.shadowBlur=0;
+  }
+
+  // Shar
+  var bg=ctx.createRadialGradient(ballXc-ballR*0.35,ballCY-ballR*0.35,ballR*0.05,ballXc,ballCY,ballR);
+  bg.addColorStop(0,'rgba(255,255,255,.3)');
+  bg.addColorStop(0.3,ball.color);
+  bg.addColorStop(1,'rgba(0,0,0,.4)');
+  ctx.shadowColor='rgba(52,211,153,.4)'; ctx.shadowBlur=15;
+  ctx.fillStyle=bg; ctx.beginPath(); ctx.arc(ballXc,ballCY,ballR,0,Math.PI*2); ctx.fill();
+  ctx.strokeStyle='rgba(52,211,153,.6)'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.arc(ballXc,ballCY,ballR,0,Math.PI*2); ctx.stroke();
+  ctx.shadowBlur=0;
+
+  // Tezlik ko'rsatgich
+  if(running&&ballY>0.1){
+    var c3=calcEta();
+    var vNorm=Math.min(c3.v*5,1);
+    ctx.strokeStyle='rgba(255,255,255,.4)'; ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.moveTo(ballXc+ballR+4,ballCY);ctx.lineTo(ballXc+ballR+4+vNorm*25,ballCY);ctx.stroke();
+    ctx.fillStyle='rgba(255,255,255,.4)'; ctx.font='7px monospace'; ctx.textAlign='left';
+    ctx.fillText('v='+c3.v.toExponential(2),ballXc+ballR+6,ballCY-6);
+  }
+
+  // Suyuqlik nomi
+  ctx.fillStyle='rgba(255,255,255,.5)'; ctx.font='bold 11px Syne'; ctx.textAlign='center';
+  ctx.fillText(TR[lang].liquids[liquidKey]||liquidKey, tubX+tubW/2, tubY+tubH-10);
+
+  // t vaqt progressi
+  if(running){
+    var c4=calcEta();
+    var prog=Math.min(physT/c4.t,1);
+    ctx.fillStyle='rgba(14,20,32,.85)'; rr(ctx,tubX,tubY-35,tubW,24,5); ctx.fill();
+    ctx.fillStyle='rgba(52,211,153,.4)'; rr(ctx,tubX,tubY-35,tubW*prog,24,5); ctx.fill();
+    ctx.strokeStyle='rgba(52,211,153,.3)'; ctx.lineWidth=1; rr(ctx,tubX,tubY-35,tubW,24,5); ctx.stroke();
+    ctx.fillStyle='rgba(255,255,255,.8)'; ctx.font='bold 10px Space Mono'; ctx.textAlign='center';
+    ctx.fillText('t = '+physT.toFixed(2)+' s',tubX+tubW/2,tubY-18);
+  }
+
+}
+
+function arrV(x,y,d,c){ctx.fillStyle=c;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x-5,y+d*10);ctx.lineTo(x+5,y+d*10);ctx.closePath();ctx.fill();}
+function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.lineTo(x+w-r,y);c.quadraticCurveTo(x+w,y,x+w,y+r);c.lineTo(x+w,y+h-r);c.quadraticCurveTo(x+w,y+h,x+w-r,y+h);c.lineTo(x+r,y+h);c.quadraticCurveTo(x,y+h,x,y+h-r);c.lineTo(x,y+r);c.quadraticCurveTo(x,y,x+r,y);c.closePath();}
+</script>
+</body>
+</html>

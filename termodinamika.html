@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Termodinamika qonunlari</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap');
+:root{
+  --bg:#07090f;--panel:#0e1420;--border:#1b2840;
+  --accent:#5b8cff;--green:#6fff5c;--yellow:#ffc947;
+  --red:#ff6b6b;--text:#dde6f5;--muted:#4a6080;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;height:100vh;overflow:hidden;display:flex;flex-direction:column;}
+
+header{display:flex;align-items:center;gap:12px;padding:8px 20px;border-bottom:1px solid var(--border);background:linear-gradient(90deg,#07090f,#0a1533,#07090f);flex-shrink:0;}
+.badge{background:var(--accent);color:#000;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:3px 9px;letter-spacing:2px;border-radius:2px;}
+.htitle{font-size:15px;font-weight:800;}
+.htitle span{color:var(--accent);}
+.hsub{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-left:auto;}
+.brand{display:flex;align-items:center;gap:6px;background:linear-gradient(135deg,rgba(91,140,255,.15),rgba(111,255,92,.1));border:1px solid rgba(91,140,255,.3);border-radius:20px;padding:4px 14px;margin-left:10px;flex-shrink:0;}
+.brand-txt{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;background:linear-gradient(90deg,#5b8cff,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;}
+
+.tabs{display:flex;border-bottom:1px solid var(--border);background:#0a0f1c;flex-shrink:0;}
+.tab{padding:8px 18px;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap;}
+.tab:hover{color:var(--text);}
+.tab.on{color:var(--accent);border-bottom-color:var(--accent);}
+
+.statusbar{background:#0a0f1c;border-bottom:1px solid var(--border);padding:5px 20px;display:flex;align-items:center;gap:14px;font-family:'Space Mono',monospace;font-size:11px;flex-shrink:0;}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:bl 1s infinite;flex-shrink:0;}
+.dot.off{background:var(--muted);animation:none;}
+@keyframes bl{0%,100%{opacity:1}50%{opacity:.2}}
+#statusTxt{color:var(--accent);}
+.chips{display:flex;gap:6px;margin-left:auto;}
+.chip{background:rgba(91,140,255,.08);border:1px solid rgba(91,140,255,.2);border-radius:10px;padding:2px 9px;font-size:10px;color:var(--muted);}
+.chip span{color:var(--accent);}
+
+.body{display:grid;grid-template-columns:210px 1fr 255px;flex:1;overflow:hidden;}
+
+.left{background:var(--panel);border-right:1px solid var(--border);overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:9px;}
+.stitle{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--accent);text-transform:uppercase;margin-bottom:3px;opacity:.85;}
+.card{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:8px;padding:10px;}
+.card label{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:7px;}
+.vb{font-family:'Space Mono',monospace;font-size:11px;color:var(--accent);background:rgba(91,140,255,.12);padding:2px 7px;border-radius:3px;}
+input[type=range]{width:100%;-webkit-appearance:none;height:4px;background:var(--border);border-radius:2px;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;background:var(--accent);border-radius:50%;cursor:pointer;box-shadow:0 0 8px rgba(91,140,255,.7);}
+
+.fixedcard{background:rgba(111,255,92,.05);border:1px solid rgba(111,255,92,.2);border-radius:8px;padding:9px;font-family:'Space Mono',monospace;font-size:11px;display:flex;justify-content:space-between;align-items:center;}
+.fixedcard b{color:var(--green);}
+
+.fbox{background:rgba(91,140,255,.04);border:1px solid rgba(91,140,255,.15);border-radius:7px;padding:9px;}
+.frow{display:flex;gap:6px;margin-bottom:4px;font-family:'Space Mono',monospace;font-size:10px;}
+.frow:last-child{margin-bottom:0;}
+.fl{color:var(--muted);min-width:30px;}
+.fe{color:var(--yellow);}
+
+.steps{display:flex;flex-direction:column;gap:3px;}
+.step{display:flex;align-items:center;gap:7px;padding:5px 8px;border-radius:5px;font-size:10px;color:var(--muted);border:1px solid transparent;transition:all .3s;}
+.step.active{background:rgba(91,140,255,.07);border-color:rgba(91,140,255,.2);color:var(--accent);}
+.step.done{color:var(--green);}
+.snum{font-family:'Space Mono',monospace;font-size:9px;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.05);flex-shrink:0;}
+.step.active .snum{background:rgba(91,140,255,.2);}
+.step.done .snum{background:rgba(111,255,92,.12);color:var(--green);}
+
+.btn{width:100%;padding:10px;border:none;border-radius:7px;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;cursor:pointer;transition:all .2s;}
+.btn-p{background:linear-gradient(135deg,#5b8cff,#1f3f9e);color:#000;}
+.btn-p:hover{transform:translateY(-1px);box-shadow:0 5px 18px rgba(91,140,255,.4);}
+.btn-p:disabled{opacity:.35;cursor:not-allowed;transform:none;}
+.btn-g{background:linear-gradient(135deg,#6fff5c,#33cc22);color:#000;margin-top:5px;}
+.btn-g:disabled{opacity:.35;cursor:not-allowed;}
+.btn-r{background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--border);margin-top:5px;font-size:11px;}
+
+.center{position:relative;overflow:hidden;background:var(--bg);display:flex;flex-direction:column;}
+#simCanvas{flex:1;display:block;width:100%;}
+.instr-bar{background:rgba(7,9,15,.92);border-top:1px solid var(--border);padding:6px 18px;font-size:11px;color:var(--muted);text-align:center;flex-shrink:0;}
+
+.right{background:var(--panel);border-left:1px solid var(--border);overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:9px;}
+.rc{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:8px;padding:10px;}
+.rc.hi{border-color:rgba(91,140,255,.25);background:rgba(91,140,255,.05);}
+.rl{font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:3px;}
+.rv{font-size:22px;font-weight:800;line-height:1;color:#fff;}
+.ru{font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);margin-top:2px;}
+.three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;}
+
+table{width:100%;border-collapse:collapse;font-family:'Space Mono',monospace;font-size:9px;}
+th{color:var(--accent);font-size:8px;letter-spacing:1px;border-bottom:1px solid var(--border);padding:4px 2px;text-align:center;}
+td{padding:3px 2px;border-bottom:1px solid rgba(255,255,255,.03);text-align:center;}
+tr.avg-r td{color:var(--yellow);border-top:1px solid var(--border);font-weight:700;}
+tr:last-child td{border-bottom:none;}
+
+#graphCanvas{display:block;width:100%;border-radius:8px;border:1px solid var(--border);}
+
+.final-card{background:rgba(91,140,255,.05);border:1px solid rgba(91,140,255,.2);border-radius:8px;padding:12px;}
+.err-row{display:flex;justify-content:space-between;margin-top:6px;font-family:'Space Mono',monospace;font-size:10px;}
+.err-row span:first-child{color:var(--muted);}
+.err-row span:last-child{color:var(--yellow);}
+.langsw{display:flex;gap:3px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;padding:3px;margin-left:10px;}
+.langbtn{background:transparent;border:none;color:var(--muted);font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:4px 9px;border-radius:5px;cursor:pointer;letter-spacing:1px;}
+.langbtn.active{background:var(--accent);color:#000;}
+</style>
+</head>
+<body>
+
+<!-- BOSHLASH EKRANI -->
+<div id="startScreen" style="position:fixed;inset:0;z-index:9998;background:radial-gradient(ellipse at 40% 50%,#050e26 0%,#07090f 70%);display:flex;align-items:center;justify-content:center;">
+  <canvas id="bgCanvas" style="position:absolute;inset:0;width:100%;height:100%;opacity:.5;pointer-events:none"></canvas>
+  <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:20px;max-width:580px;padding:20px;text-align:center">
+    <div style="display:flex;align-items:center;gap:10px">
+      <div style="background:#5b8cff;color:#000;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:4px 14px;letter-spacing:2px;border-radius:2px">LAB · TD</div>
+      <div style="font-family:'Space Mono',monospace;font-size:10px;color:#4a6080;letter-spacing:2px" id="tKicker">MOLEKULYAR FIZIKA · TERMODINAMIKA</div>
+    </div>
+    <div style="width:100px;height:100px;border-radius:50%;background:radial-gradient(circle,rgba(91,140,255,.18) 0%,rgba(91,140,255,.02) 70%);border:2px solid rgba(91,140,255,.4);display:flex;align-items:center;justify-content:center;box-shadow:0 0 50px rgba(91,140,255,.3);animation:pulseG 2.5s ease-in-out infinite;">
+      <span style="font-size:44px">⚡</span>
+    </div>
+    <div>
+      <h1 style="font-size:24px;font-weight:800;line-height:1.2;color:#fff" id="tStartTitle">Termodinamikaning <span style="color:#5b8cff">birinchi qonuni</span></h1>
+      <p style="font-size:13px;color:#4a6080;margin-top:8px;font-family:'Space Mono',monospace" id="tStartSub">Q = ΔU + A energiya balansini tekshirish</p>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;width:100%">
+      <div style="background:rgba(255,255,255,.04);border:1px solid #1b2840;border-radius:10px;padding:12px"><div style="font-size:20px;margin-bottom:4px">⏱</div><div style="font-size:11px;color:#4a6080;font-family:monospace" id="tInfoTime">Vaqt</div><div style="font-size:13px;font-weight:700;color:#dde6f5;margin-top:2px">45-60 min</div></div>
+      <div style="background:rgba(255,255,255,.04);border:1px solid #1b2840;border-radius:10px;padding:12px"><div style="font-size:20px;margin-bottom:4px">🔥</div><div style="font-size:11px;color:#4a6080;font-family:monospace" id="tInfoEx">Mashq</div><div style="font-size:13px;font-weight:700;color:#dde6f5;margin-top:2px" id="tInfoExVal">3 ta</div></div>
+      <div style="background:rgba(255,255,255,.04);border:1px solid #1b2840;border-radius:10px;padding:12px"><div style="font-size:20px;margin-bottom:4px">🎯</div><div style="font-size:11px;color:#4a6080;font-family:monospace" id="tInfoGoal">Maqsad</div><div style="font-size:13px;font-weight:700;color:#dde6f5;margin-top:2px" id="tInfoGoalVal">Q=ΔU+A</div></div>
+    </div>
+    <div style="background:rgba(91,140,255,.05);border:1px solid rgba(91,140,255,.18);border-radius:12px;padding:16px;width:100%;text-align:left">
+      <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;color:#5b8cff;margin-bottom:10px" id="tProcedure">BAJARISH TARTIBI</div>
+      <div style="display:flex;flex-direction:column;gap:7px">
+        <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:#c5d3e8"><div style="width:22px;height:22px;border-radius:50%;background:rgba(91,140,255,.2);display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:10px;color:#5b8cff;flex-shrink:0">1</div><span id="tPS1">Jarayonni tanlang: izoxorik / izobarik / adiabatik</span></div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:#c5d3e8"><div style="width:22px;height:22px;border-radius:50%;background:rgba(91,140,255,.2);display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:10px;color:#5b8cff;flex-shrink:0">2</div><span id="tPS2">Parametrni (ΔT yoki V₂) slayder bilan tanlang</span></div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:#c5d3e8"><div style="width:22px;height:22px;border-radius:50%;background:rgba(91,140,255,.2);display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:10px;color:#5b8cff;flex-shrink:0">3</div><span id="tPS3"><b style="color:#5b8cff">"O'lchov olish"</b> — A, ΔU, Q avtomatik hisoblanadi (kamida 5 marta)</span></div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:#c5d3e8"><div style="width:22px;height:22px;border-radius:50%;background:rgba(91,140,255,.2);display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:10px;color:#5b8cff;flex-shrink:0">4</div><span id="tPS4">Q va ΔU+A ni solishtirib, energiya balansini tasdiqlang</span></div>
+      </div>
+    </div>
+    <button onclick="startLab()" style="background:linear-gradient(135deg,#5b8cff,#1f3f9e);color:#000;border:none;border-radius:12px;padding:16px 60px;font-size:16px;font-weight:800;font-family:'Syne',sans-serif;cursor:pointer;box-shadow:0 8px 30px rgba(91,140,255,.4);transition:all .2s;width:100%"
+    onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 12px 40px rgba(91,140,255,.6)'"
+    onmouseout="this.style.transform='none';this.style.boxShadow='0 8px 30px rgba(91,140,255,.4)'">
+      <span id="tStartBtn">▶ Laboratoriyani boshlash</span>
+    </button>
+    <div style="display:flex;align-items:center;gap:6px;opacity:.6">
+      <span style="font-size:13px">🔬</span>
+      <span style="font-family:'Space Mono',monospace;font-size:10px;background:linear-gradient(90deg,#5b8cff,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;font-weight:700">Xosiyat Virtual Lab</span>
+    </div>
+  </div>
+</div>
+<style>
+@keyframes pulseG{0%,100%{box-shadow:0 0 50px rgba(91,140,255,.25)}50%{box-shadow:0 0 70px rgba(91,140,255,.5)}}
+@keyframes fadeOut{0%{opacity:1}100%{opacity:0;transform:scale(1.04)}}
+</style>
+<script>
+(function(){var c=document.getElementById('bgCanvas');var x=c.getContext('2d');var pts=[];function resize(){c.width=window.innerWidth;c.height=window.innerHeight;}resize();window.addEventListener('resize',resize);for(var i=0;i<60;i++)pts.push({x:Math.random()*1600,y:Math.random()*900,r:Math.random()*1.5+.5,vx:(Math.random()-.5)*.35,vy:(Math.random()-.5)*.35,a:Math.random()});function frame(){x.clearRect(0,0,c.width,c.height);pts.forEach(function(p){p.x+=p.vx;p.y+=p.vy;p.a+=.005;if(p.x<0)p.x=c.width;if(p.x>c.width)p.x=0;if(p.y<0)p.y=c.height;if(p.y>c.height)p.y=0;x.fillStyle='rgba(91,140,255,'+(0.25+Math.sin(p.a)*0.18)+')';x.beginPath();x.arc(p.x%c.width,p.y%c.height,p.r,0,Math.PI*2);x.fill();});requestAnimationFrame(frame);}frame();})();
+function startLab(){var s=document.getElementById('startScreen');s.style.animation='fadeOut .5s ease forwards';setTimeout(function(){s.style.display='none';},480);}
+</script>
+
+<!-- MAIN -->
+<header>
+  <div class="badge">LAB · TD</div>
+  <h1 class="htitle" id="tTitle">Termodinamikaning <span>birinchi qonuni</span></h1>
+  <div class="hsub" id="tHsub">MOLEKULYAR FIZIKA · FIZPRAKTIKUM · SDPI 2026</div>
+  <div class="langsw">
+    <button class="langbtn active" id="langUZ" onclick="setLang('uz')">UZ</button>
+    <button class="langbtn" id="langRU" onclick="setLang('ru')">RU</button>
+    <button class="langbtn" id="langEN" onclick="setLang('en')">EN</button>
+  </div>
+  <div class="brand"><span style="font-size:12px">🔬</span><span class="brand-txt">Xosiyat Virtual Lab</span></div>
+</header>
+
+<div class="tabs">
+  <div class="tab on" id="t1" onclick="switchTab(1)"><span id="tTab1">a) Izoxorik jarayon</span></div>
+  <div class="tab" id="t2" onclick="switchTab(2)"><span id="tTab2">b) Izobarik jarayon</span></div>
+  <div class="tab" id="t3" onclick="switchTab(3)"><span id="tTab3">v) Adiabatik jarayon</span></div>
+</div>
+
+<div class="statusbar">
+  <div class="dot off" id="dot"></div>
+  <span id="statusTxt">Parametrni sozlang va o'lchov oling</span>
+  <div class="chips">
+    <div class="chip">Q = <span id="chipQ">—</span> J</div>
+    <div class="chip"><span id="tMeasLbl">O'lchov:</span> <span id="chipCnt">0</span>/5</div>
+  </div>
+</div>
+
+<div class="body">
+  <!-- LEFT -->
+  <div class="left">
+    <div class="stitle" id="paramTitle">a-mashq: Izoxorik jarayon</div>
+
+    <div class="fixedcard"><span id="tFixLbl">V (hajm)</span> <b id="fixVal">10.0 L</b></div>
+
+    <div class="card" id="cardDT">
+      <label><span id="tDTlbl">ΔT — qizdirish</span> <span class="vb" id="dDT">40 K</span></label>
+      <input type="range" id="sDT" min="20" max="100" step="10" value="40" oninput="setParam(this.value)">
+    </div>
+    <div class="card" id="cardV2" style="display:none">
+      <label><span id="tV2lbl">V₂ — kengaygan hajm</span> <span class="vb" id="dV2">14.0 L</span></label>
+      <input type="range" id="sV2" min="11" max="20" step="0.5" value="14" oninput="setParam(this.value)">
+    </div>
+
+    <div class="fbox">
+      <div class="frow"><span class="fl">A</span><span class="fe" id="tFormA">= 0</span></div>
+      <div class="frow"><span class="fl">ΔU</span><span class="fe" id="tFormU">= nCᵥΔT</span></div>
+      <div class="frow"><span class="fl">Q</span><span class="fe" id="tFormQ">= ΔU</span></div>
+    </div>
+
+    <div class="steps">
+      <div class="step active" id="st1"><div class="snum">1</div><span id="tStep1">Parametrni sozlang</span></div>
+      <div class="step" id="st2"><div class="snum">2</div><span id="tStep2">O'lchovlarni yig'ing (≥5)</span></div>
+      <div class="step" id="st3"><div class="snum">3</div><span id="tStep3">Q va ΔU+A ni solishtiring</span></div>
+      <div class="step" id="st4"><div class="snum">4</div><span id="tStep4">Balansni tasdiqlang</span></div>
+    </div>
+
+    <button class="btn btn-p" id="measBtn" onclick="takeMeasure()">🔥 <span id="tMeasBtn">O'lchov olish</span></button>
+    <button class="btn btn-g" id="calcBtn" onclick="calcBalance()" disabled>📊 <span id="tCalcBtn">Balansni hisoblash</span></button>
+    <button class="btn btn-r" onclick="resetAll()">↺ <span id="tResetBtn">Qayta boshlash</span></button>
+  </div>
+
+  <!-- CENTER -->
+  <div class="center">
+    <canvas id="simCanvas"></canvas>
+    <div class="instr-bar" id="instrBar">🔥 Gazni qizdiring — ichki energiya va bajarilgan ish o'zgarishini kuzating</div>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="right">
+    <div class="stitle" id="tResultsSec">Joriy holat</div>
+    <div class="three">
+      <div class="rc hi">
+        <div class="rl">A</div>
+        <div class="rv" style="font-size:16px" id="rA">—</div>
+        <div class="ru">J</div>
+      </div>
+      <div class="rc hi">
+        <div class="rl">ΔU</div>
+        <div class="rv" style="font-size:16px" id="rU">—</div>
+        <div class="ru">J</div>
+      </div>
+      <div class="rc hi">
+        <div class="rl">Q</div>
+        <div class="rv" style="font-size:16px;color:var(--accent)" id="rQ">—</div>
+        <div class="ru">J</div>
+      </div>
+    </div>
+
+    <div class="stitle" id="tGraphSec">Grafik: Q va ΔU+A</div>
+    <canvas id="graphCanvas" height="130"></canvas>
+
+    <div class="stitle" id="tTableSec">Jadval</div>
+    <div style="overflow-x:auto">
+      <table>
+        <thead><tr><th>№</th><th>A(J)</th><th>ΔU(J)</th><th>Q(J)</th></tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+
+    <div class="final-card" id="finalCard" style="display:none">
+      <div class="rl" id="tAvgLbl">O'rtacha: Q̄ va (ΔU+A)̄</div>
+      <div class="rv" style="color:var(--green);font-size:20px" id="avgQ">—</div>
+      <div class="ru" id="avgUA">—</div>
+      <div class="err-row"><span id="tAbsErr">Absolyut farq</span><span id="absErr">—</span></div>
+      <div class="err-row"><span id="tRelErr">Nisbiy xatolik ε</span><span id="relErr">—</span></div>
+      <div class="err-row"><span id="tTrueVal">Xulosa</span><span style="color:rgba(91,140,255,.9)" id="theoValF">—</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- Watermark -->
+<div style="position:fixed;bottom:14px;right:18px;display:flex;align-items:center;gap:7px;background:rgba(7,9,15,.75);border:1px solid rgba(91,140,255,.2);border-radius:30px;padding:5px 16px;backdrop-filter:blur(10px);z-index:9999;pointer-events:none">
+  <span style="font-size:13px">🔬</span>
+  <span style="font-family:'Space Mono',monospace;font-size:11px;font-weight:700;background:linear-gradient(90deg,#5b8cff,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px">Xosiyat Virtual Lab</span>
+</div>
+
+<script>
+// ===== I18N =====
+var LANG='uz';
+var I18N={
+ uz:{title:"Termodinamikaning <span>birinchi qonuni</span>",hsub:'MOLEKULYAR FIZIKA · FIZPRAKTIKUM · SDPI 2026',measLbl:"O'lchov:",kicker:'MOLEKULYAR FIZIKA · TERMODINAMIKA',
+   tab1:'a) Izoxorik jarayon',tab2:'b) Izobarik jarayon',tab3:'v) Adiabatik jarayon',
+   paramTitleA:'a-mashq: Izoxorik jarayon (V=const)',paramTitleB:'b-mashq: Izobarik jarayon (P=const)',paramTitleC:'v-mashq: Adiabatik jarayon (Q=0)',
+   fixLblA:'V (hajm)',fixLblB:'P (bosim)',fixLblC:'V₁ (boshlang\'ich hajm)',
+   dtLbl:'ΔT — qizdirish',v2Lbl:'V₂ — kengaygan hajm',
+   formA_A:'= 0',formU_A:'= nCᵥΔT',formQ_A:'= ΔU',
+   formA_B:'= nRΔT',formU_B:'= nCᵥΔT',formQ_B:'= ΔU + A',
+   formA_C:'= −ΔU',formU_C:'= nCᵥΔT',formQ_C:'= 0',
+   step1:'Parametrni sozlang',step2:"O'lchovlarni yig'ing (≥5)",step3:'Q va ΔU+A ni solishtiring',step4:'Balansni tasdiqlang',
+   measBtn:"O'lchov olish",calcBtn:'Balansni hisoblash',resetBtn:'Qayta boshlash',resultsSec:'Joriy holat',
+   graphSec:'Grafik: Q va ΔU+A',tableSec:'Jadval',
+   avgLbl:"O'rtacha: Q̄ va (ΔU+A)̄",absErr:'Absolyut farq',relErr:'Nisbiy xatolik ε',trueVal:'Xulosa',
+   startTitle:"Termodinamikaning <span style=\"color:#5b8cff\">birinchi qonuni</span>",startSub:'Q = ΔU + A energiya balansini tekshirish',
+   infoTime:'Vaqt',infoEx:'Mashq',infoExVal:'3 ta',infoGoal:'Maqsad',infoGoalVal:'Q=ΔU+A',
+   procedure:'BAJARISH TARTIBI',ps1:'Jarayonni tanlang: izoxorik / izobarik / adiabatik',
+   ps2:"Parametrni (ΔT yoki V₂) slayder bilan tanlang",
+   ps3:'<b style="color:#5b8cff">"O\'lchov olish"</b> — A, ΔU, Q avtomatik hisoblanadi (kamida 5 marta)',
+   ps4:"Q va ΔU+A ni solishtirib, energiya balansini tasdiqlang",
+   startBtn:'▶ Laboratoriyani boshlash',
+   statusDefault:"Parametrni sozlang va o'lchov oling",
+   statusHeatA:'🔥 Gaz izoxorik qizdirilmoqda (A=0)...',statusHeatB:'🔥 Gaz izobarik qizdirilmoqda, porshen suriladi...',statusExpand:'💨 Adiabatik kengayish — issiqlik almashinuvi yo\'q...',
+   instrA:"🔥 Gazni qizdiring — ichki energiya oshadi, ish bajarilmaydi (V=const)",
+   instrB:"🔥 Gazni qizdiring — porshen suriladi, gaz ish bajaradi (P=const)",
+   instrC:"💨 Izolyatsiyalangan silindrda gaz kengayadi — issiqlik kirmaydi/chiqmaydi (Q=0)",
+   instrEnough:'✅ Yetarli o\'lchov. "Balansni hisoblash" tugmasini bosing',avgRowLbl:'O\'rt =',
+   finalStatus:'🎉 Energiya balansi tasdiqlandi: ε = ',finalStatus2:'',
+   concl_ok:'Q ≈ ΔU + A ✓ tasdiqlandi',concl_bad:'Farq katta — o\'lchovni tekshiring'
+ },
+ ru:{title:'Первый закон <span>термодинамики</span>',hsub:'МОЛЕКУЛЯРНАЯ ФИЗИКА · ФИЗПРАКТИКУМ · SDPI 2026',measLbl:'Измерений:',kicker:'МОЛЕКУЛЯРНАЯ ФИЗИКА · ТЕРМОДИНАМИКА',
+   tab1:'а) Изохорный процесс',tab2:'б) Изобарный процесс',tab3:'в) Адиабатный процесс',
+   paramTitleA:'Упр. а: Изохорный процесс (V=const)',paramTitleB:'Упр. б: Изобарный процесс (P=const)',paramTitleC:'Упр. в: Адиабатный процесс (Q=0)',
+   fixLblA:'V (объём)',fixLblB:'P (давление)',fixLblC:'V₁ (начальный объём)',
+   dtLbl:'ΔT — нагрев',v2Lbl:'V₂ — конечный объём',
+   formA_A:'= 0',formU_A:'= nCᵥΔT',formQ_A:'= ΔU',
+   formA_B:'= nRΔT',formU_B:'= nCᵥΔT',formQ_B:'= ΔU + A',
+   formA_C:'= −ΔU',formU_C:'= nCᵥΔT',formQ_C:'= 0',
+   step1:'Настройте параметр',step2:'Соберите измерения (≥5)',step3:'Сравните Q и ΔU+A',step4:'Подтвердите баланс',
+   measBtn:'Сделать измерение',calcBtn:'Вычислить баланс',resetBtn:'Начать заново',resultsSec:'Текущее состояние',
+   graphSec:'График: Q и ΔU+A',tableSec:'Таблица',
+   avgLbl:'Среднее: Q̄ и (ΔU+A)̄',absErr:'Абс. разница',relErr:'Отн. погрешность ε',trueVal:'Вывод',
+   startTitle:'Первый закон <span style="color:#5b8cff">термодинамики</span>',startSub:'Проверка баланса энергии Q = ΔU + A',
+   infoTime:'Время',infoEx:'Упражнения',infoExVal:'3 шт.',infoGoal:'Цель',infoGoalVal:'Q=ΔU+A',
+   procedure:'ПОРЯДОК ВЫПОЛНЕНИЯ',ps1:'Выберите процесс: изохорный / изобарный / адиабатный',
+   ps2:'Настройте параметр (ΔT или V₂) ползунком',
+   ps3:'<b style="color:#5b8cff">"Сделать измерение"</b> — A, ΔU, Q вычисляются автоматически (не менее 5 раз)',
+   ps4:'Сравните Q и ΔU+A, подтвердите баланс энергии',
+   startBtn:'▶ Начать лабораторную',
+   statusDefault:'Настройте параметр и сделайте измерение',
+   statusHeatA:'🔥 Изохорный нагрев газа (A=0)...',statusHeatB:'🔥 Изобарный нагрев, поршень движется...',statusExpand:'💨 Адиабатное расширение — теплообмена нет...',
+   instrA:'🔥 Нагрейте газ — внутренняя энергия растёт, работа не совершается (V=const)',
+   instrB:'🔥 Нагрейте газ — поршень движется, газ совершает работу (P=const)',
+   instrC:'💨 В изолированном цилиндре газ расширяется — теплота не поступает и не уходит (Q=0)',
+   instrEnough:'✅ Достаточно данных. Нажмите "Вычислить баланс"',avgRowLbl:'Ср =',
+   finalStatus:'🎉 Энергетический баланс подтверждён: ε = ',finalStatus2:'',
+   concl_ok:'Q ≈ ΔU + A ✓ подтверждено',concl_bad:'Большое расхождение — проверьте измерения'
+ },
+ en:{title:'First Law <span>of Thermodynamics</span>',hsub:'MOLECULAR PHYSICS · PHYSICS LAB · SDPI 2026',measLbl:'Measurements:',kicker:'MOLECULAR PHYSICS · THERMODYNAMICS',
+   tab1:'a) Isochoric process',tab2:'b) Isobaric process',tab3:'c) Adiabatic process',
+   paramTitleA:'Exercise a: Isochoric process (V=const)',paramTitleB:'Exercise b: Isobaric process (P=const)',paramTitleC:'Exercise c: Adiabatic process (Q=0)',
+   fixLblA:'V (volume)',fixLblB:'P (pressure)',fixLblC:'V₁ (initial volume)',
+   dtLbl:'ΔT — heating',v2Lbl:'V₂ — final volume',
+   formA_A:'= 0',formU_A:'= nCᵥΔT',formQ_A:'= ΔU',
+   formA_B:'= nRΔT',formU_B:'= nCᵥΔT',formQ_B:'= ΔU + A',
+   formA_C:'= −ΔU',formU_C:'= nCᵥΔT',formQ_C:'= 0',
+   step1:'Set the parameter',step2:'Collect measurements (≥5)',step3:'Compare Q and ΔU+A',step4:'Confirm the balance',
+   measBtn:'Take measurement',calcBtn:'Calculate balance',resetBtn:'Restart',resultsSec:'Current state',
+   graphSec:'Graph: Q and ΔU+A',tableSec:'Table',
+   avgLbl:'Average: Q̄ and (ΔU+A)̄',absErr:'Absolute difference',relErr:'Relative error ε',trueVal:'Conclusion',
+   startTitle:'First Law <span style="color:#5b8cff">of Thermodynamics</span>',startSub:'Verifying the energy balance Q = ΔU + A',
+   infoTime:'Time',infoEx:'Exercises',infoExVal:'3',infoGoal:'Goal',infoGoalVal:'Q=ΔU+A',
+   procedure:'PROCEDURE',ps1:'Choose the process: isochoric / isobaric / adiabatic',
+   ps2:'Set the parameter (ΔT or V₂) with the slider',
+   ps3:'<b style="color:#5b8cff">"Take measurement"</b> — A, ΔU, Q are computed automatically (at least 5 times)',
+   ps4:'Compare Q and ΔU+A to confirm the energy balance',
+   startBtn:'▶ Start the lab',
+   statusDefault:'Set the parameter and take a measurement',
+   statusHeatA:'🔥 Isochoric heating of the gas (A=0)...',statusHeatB:'🔥 Isobaric heating, piston moving...',statusExpand:'💨 Adiabatic expansion — no heat exchange...',
+   instrA:'🔥 Heat the gas — internal energy rises, no work is done (V=const)',
+   instrB:'🔥 Heat the gas — the piston moves, the gas does work (P=const)',
+   instrC:'💨 In the insulated cylinder the gas expands — no heat enters or leaves (Q=0)',
+   instrEnough:'✅ Enough data. Press "Calculate balance"',avgRowLbl:'Avg =',
+   finalStatus:'🎉 Energy balance confirmed: ε = ',finalStatus2:'',
+   concl_ok:'Q ≈ ΔU + A ✓ confirmed',concl_bad:'Large discrepancy — check measurements'
+ }
+};
+function t(k){return I18N[LANG][k];}
+
+function setLang(l){
+  LANG=l;
+  document.getElementById('langUZ').className='langbtn'+(l==='uz'?' active':'');
+  document.getElementById('langRU').className='langbtn'+(l==='ru'?' active':'');
+  document.getElementById('langEN').className='langbtn'+(l==='en'?' active':'');
+  document.getElementById('tTitle').innerHTML=t('title');
+  document.getElementById('tHsub').textContent=t('hsub');
+  document.getElementById('tMeasLbl').textContent=t('measLbl');
+  document.getElementById('tKicker').textContent=t('kicker');
+  document.getElementById('tTab1').textContent=t('tab1');
+  document.getElementById('tTab2').textContent=t('tab2');
+  document.getElementById('tTab3').textContent=t('tab3');
+  document.getElementById('tDTlbl').textContent=t('dtLbl');
+  document.getElementById('tV2lbl').textContent=t('v2Lbl');
+  document.getElementById('tStep1').textContent=t('step1');
+  document.getElementById('tStep2').textContent=t('step2');
+  document.getElementById('tStep3').textContent=t('step3');
+  document.getElementById('tStep4').textContent=t('step4');
+  document.getElementById('tMeasBtn').textContent=t('measBtn');
+  document.getElementById('tCalcBtn').textContent=t('calcBtn');
+  document.getElementById('tResetBtn').textContent=t('resetBtn');
+  document.getElementById('tResultsSec').textContent=t('resultsSec');
+  document.getElementById('tGraphSec').textContent=t('graphSec');
+  document.getElementById('tTableSec').textContent=t('tableSec');
+  document.getElementById('tAvgLbl').textContent=t('avgLbl');
+  document.getElementById('tAbsErr').textContent=t('absErr');
+  document.getElementById('tRelErr').textContent=t('relErr');
+  document.getElementById('tTrueVal').textContent=t('trueVal');
+  document.getElementById('tStartTitle').innerHTML=t('startTitle');
+  document.getElementById('tStartSub').textContent=t('startSub');
+  document.getElementById('tInfoTime').textContent=t('infoTime');
+  document.getElementById('tInfoExVal').textContent=t('infoExVal');
+  document.getElementById('tInfoEx').textContent=t('infoEx');
+  document.getElementById('tInfoGoal').textContent=t('infoGoal');
+  document.getElementById('tInfoGoalVal').textContent=t('infoGoalVal');
+  document.getElementById('tProcedure').textContent=t('procedure');
+  document.getElementById('tPS1').textContent=t('ps1');
+  document.getElementById('tPS2').textContent=t('ps2');
+  document.getElementById('tPS3').innerHTML=t('ps3');
+  document.getElementById('tPS4').textContent=t('ps4');
+  document.getElementById('tStartBtn').textContent=t('startBtn');
+  updateTabTexts();
+  if(!statusOverridden) document.getElementById('statusTxt').textContent=t('statusDefault');
+  if(phase==='idle') document.getElementById('instrBar').textContent=t(curTab===1?'instrA':curTab===2?'instrB':'instrC');
+}
+
+// ===== STATE / PHYSICS =====
+var n=0.5, R=8.314, Cv=2.5*R, Cp=3.5*R, gamma=1.4;
+var FIX={1:{V:10.0,T1:280}, 2:{P:100,T1:280}, 3:{V1:10.0,T1:300}};
+var curTab=1;
+var statusOverridden=false;
+var dT={1:40,2:40}, V2s=14;
+var meas={1:[],2:[],3:[]};
+var cnt={1:0,2:0,3:0};
+var phase='idle';
+var live={frac:0}; // 0..1 progress of piston/heat animation for visuals
+
+function paramTitleKey(){return curTab===1?'paramTitleA':curTab===2?'paramTitleB':'paramTitleC';}
+function updateTabTexts(){
+  document.getElementById('paramTitle').textContent=t(paramTitleKey());
+  var suf=curTab===1?'A':curTab===2?'B':'C';
+  document.getElementById('tFixLbl').textContent=t('fixLbl'+suf);
+  document.getElementById('fixVal').textContent = curTab===1? FIX[1].V.toFixed(1)+' L' : curTab===2? FIX[2].P.toFixed(0)+' kPa' : FIX[3].V1.toFixed(1)+' L';
+  document.getElementById('tFormA').textContent=t('formA_'+suf);
+  document.getElementById('tFormU').textContent=t('formU_'+suf);
+  document.getElementById('tFormQ').textContent=t('formQ_'+suf);
+  document.getElementById('cardDT').style.display = curTab<3? 'block':'none';
+  document.getElementById('cardV2').style.display = curTab===3? 'block':'none';
+}
+
+function switchTab(n_){
+  if(phase!=='idle')return;
+  curTab=n_;
+  document.getElementById('t1').className='tab'+(n_===1?' on':'');
+  document.getElementById('t2').className='tab'+(n_===2?' on':'');
+  document.getElementById('t3').className='tab'+(n_===3?' on':'');
+  if(n_<3){document.getElementById('sDT').value=dT[n_];document.getElementById('dDT').textContent=dT[n_]+' K';}
+  else {document.getElementById('sV2').value=V2s;document.getElementById('dV2').textContent=V2s.toFixed(1)+' L';}
+  updateTabTexts();
+  statusOverridden=false;
+  document.getElementById('statusTxt').textContent=t('statusDefault');
+  document.getElementById('instrBar').textContent=t(n_===1?'instrA':n_===2?'instrB':'instrC');
+  rebuildTable();
+  document.getElementById('chipCnt').textContent=cnt[curTab];
+  document.getElementById('calcBtn').disabled = cnt[curTab]<5;
+  document.getElementById('finalCard').style.display='none';
+  setStep(cnt[curTab]>=5?3:1);
+  document.getElementById('rA').textContent='—';
+  document.getElementById('rU').textContent='—';
+  document.getElementById('rQ').textContent='—';
+  document.getElementById('chipQ').textContent='—';
+  live.frac=0;
+  drawSim();
+  drawGraph();
+}
+
+function setParam(val){
+  if(curTab<3){dT[curTab]=parseFloat(val);document.getElementById('dDT').textContent=dT[curTab]+' K';}
+  else {V2s=parseFloat(val);document.getElementById('dV2').textContent=V2s.toFixed(1)+' L';}
+}
+
+function computeRow(target,noiseSeed){
+  // noiseSeed provides independent randomness for "measured" Q vs computed dU/A
+  var A,dU,Qtheo,dTactual;
+  if(curTab===1){
+    dTactual=target*(1+(Math.random()-0.5)*0.03);
+    A=0;
+    dU=n*Cv*dTactual;
+    Qtheo=dU;
+  } else if(curTab===2){
+    dTactual=target*(1+(Math.random()-0.5)*0.03);
+    A=n*R*dTactual;
+    dU=n*Cv*dTactual;
+    Qtheo=dU+A;
+  } else {
+    var V1=FIX[3].V1, T1=FIX[3].T1;
+    var V2n=target*(1+(Math.random()-0.5)*0.015);
+    var T2=T1*Math.pow(V1/V2n,gamma-1);
+    dTactual=T2-T1;
+    dU=n*Cv*dTactual;
+    A=-dU;
+    Qtheo=0;
+  }
+  var Qmeas = curTab===3 ? Qtheo + (Math.random()-0.5)*0.02*Math.abs(dU) : Qtheo*(1+(Math.random()-0.5)*0.03);
+  return {A:A,dU:dU,Q:Qmeas};
+}
+
+// ===== TABLE =====
+function rebuildTable(){
+  var arr=meas[curTab];
+  var tb=document.getElementById('tbody');
+  tb.innerHTML='';
+  arr.forEach(function(m,i){
+    var tr=document.createElement('tr');
+    tr.innerHTML='<td>'+(i+1)+'</td><td>'+m.A.toFixed(1)+'</td><td>'+m.dU.toFixed(1)+'</td><td>'+m.Q.toFixed(1)+'</td>';
+    tb.appendChild(tr);
+  });
+}
+
+// ===== MEASUREMENT (animated) =====
+function animateFrac(from,to,duration,onDone){
+  var start=null;
+  function step(ts){
+    if(!start)start=ts;
+    var p=Math.min(1,(ts-start)/duration);
+    live.frac=from+(to-from)*p;
+    drawSim();
+    if(p<1){requestAnimationFrame(step);} else {live.frac=to;drawSim();if(onDone)onDone();}
+  }
+  requestAnimationFrame(step);
+}
+
+function takeMeasure(){
+  if(phase!=='idle')return;
+  document.getElementById('measBtn').disabled=true;
+  document.getElementById('calcBtn').disabled=true;
+  setDot(true);
+  statusOverridden=true;
+  setStep(1);
+  var target = curTab<3? dT[curTab] : V2s;
+  var row=computeRow(target);
+
+  phase = curTab===3? 'expand':'heat';
+  var stKey = curTab===1?'statusHeatA':curTab===2?'statusHeatB':'statusExpand';
+  document.getElementById('statusTxt').textContent=t(stKey);
+  document.getElementById('instrBar').textContent=t(stKey);
+
+  animateFrac(0,1,900,function(){
+    document.getElementById('rA').textContent=row.A.toFixed(1);
+    document.getElementById('rU').textContent=row.dU.toFixed(1);
+    document.getElementById('rQ').textContent=row.Q.toFixed(1);
+    document.getElementById('chipQ').textContent=row.Q.toFixed(1);
+    meas[curTab].push(row);
+    cnt[curTab]++;
+    document.getElementById('chipCnt').textContent=cnt[curTab];
+    rebuildTable();
+    drawGraph();
+    phase='idle';
+    setDot(false);
+    document.getElementById('measBtn').disabled=false;
+    document.getElementById('statusTxt').textContent='✓ #'+cnt[curTab]+' Q='+row.Q.toFixed(1)+'J';
+    if(cnt[curTab]>=5){
+      document.getElementById('calcBtn').disabled=false;
+      document.getElementById('instrBar').textContent=t('instrEnough');
+      setStep(3);
+    } else {
+      document.getElementById('instrBar').textContent=t(curTab===1?'instrA':curTab===2?'instrB':'instrC');
+      setStep(2);
+    }
+  });
+}
+
+function calcBalance(){
+  var arr=meas[curTab];
+  var avgQ=arr.reduce(function(a,b){return a+b.Q;},0)/arr.length;
+  var avgUA=arr.reduce(function(a,b){return a+(b.dU+b.A);},0)/arr.length;
+  var diff=Math.abs(avgQ-avgUA);
+  var re=Math.abs(diff)/Math.max(1e-6,Math.abs(avgUA))*100;
+
+  var ar=document.createElement('tr');ar.className='avg-r';
+  ar.innerHTML='<td style="text-align:right">'+t('avgRowLbl')+'</td><td colspan="2">ΔU+A='+avgUA.toFixed(1)+'</td><td>Q='+avgQ.toFixed(1)+'</td>';
+  document.getElementById('tbody').appendChild(ar);
+
+  document.getElementById('finalCard').style.display='block';
+  document.getElementById('avgQ').textContent='Q̄ = '+avgQ.toFixed(1)+' J';
+  document.getElementById('avgUA').textContent='(ΔU+A)̄ = '+avgUA.toFixed(1)+' J';
+  document.getElementById('absErr').textContent='± '+diff.toFixed(2)+' J';
+  document.getElementById('relErr').textContent=re.toFixed(2)+'%';
+  document.getElementById('theoValF').textContent = re<5 ? t('concl_ok') : t('concl_bad');
+  setStep(4);
+  statusOverridden=true;
+  document.getElementById('statusTxt').textContent=t('finalStatus')+re.toFixed(2)+'%';
+}
+
+function resetAll(){
+  meas={1:[],2:[],3:[]};cnt={1:0,2:0,3:0};dT={1:40,2:40};V2s=14;
+  phase='idle';live.frac=0;
+  document.getElementById('sDT').value=40;document.getElementById('dDT').textContent='40 K';
+  document.getElementById('sV2').value=14;document.getElementById('dV2').textContent='14.0 L';
+  document.getElementById('finalCard').style.display='none';
+  document.getElementById('calcBtn').disabled=true;
+  document.getElementById('measBtn').disabled=false;
+  statusOverridden=false;
+  document.getElementById('statusTxt').textContent=t('statusDefault');
+  setDot(false);
+  switchTab(curTab);
+}
+
+function setDot(on){document.getElementById('dot').classList.toggle('off',!on);}
+function setStep(n_){for(var i=1;i<=4;i++){var el=document.getElementById('st'+i);el.className='step'+(i<n_?' done':i===n_?' active':'');el.querySelector('.snum').textContent=i<n_?'✓':i;}}
+
+// ===== SIMULATION CANVAS =====
+var simC=document.getElementById('simCanvas'), sctx=simC.getContext('2d');
+var particles=[];
+var NP=30;
+for(var i=0;i<NP;i++){particles.push({x:Math.random(),y:Math.random(),vx:(Math.random()-.5),vy:(Math.random()-.5)});}
+
+function resizeSim(){simC.width=simC.offsetWidth; simC.height=simC.offsetHeight; drawSim();}
+
+function drawSim(){
+  var W=simC.width||600, H=simC.height||400;
+  sctx.clearRect(0,0,W,H);
+  sctx.fillStyle='#030608';sctx.fillRect(0,0,W,H);
+
+  var boxW=Math.min(240,W*0.3);
+  var f=live.frac;
+  var boxH;
+  if(curTab===1){ boxH=H*0.42; } // fixed volume
+  else if(curTab===2){ boxH=H*0.32+f*H*0.22; } // volume grows
+  else { boxH=H*0.28+f*(H*0.28); } // adiabatic: expands more
+
+  var boxX=W/2-boxW/2, boxYbottom=H*0.82, boxY=boxYbottom-boxH;
+
+  // temperature color: heating tabs 1/2 -> hue warms; tab3 -> cools
+  var hue;
+  if(curTab<3){ hue=45-f*45; } else { hue=10+f*190; } // cyan-ish as it cools
+
+  sctx.fillStyle='hsla('+hue+',85%,55%,.10)';
+  sctx.fillRect(boxX,boxY,boxW,boxH);
+  sctx.strokeStyle='rgba(255,255,255,.25)';sctx.lineWidth=2;
+  sctx.strokeRect(boxX,boxY,boxW,boxH);
+
+  // insulation jacket for adiabatic
+  if(curTab===3){
+    sctx.strokeStyle='rgba(255,255,255,.12)';sctx.lineWidth=8;
+    sctx.strokeRect(boxX-6,boxY-6,boxW+12,boxH+12);
+    sctx.fillStyle='rgba(255,255,255,.35)';sctx.font='9px monospace';sctx.textAlign='center';
+    sctx.fillText('🧊 izolyatsiya',boxX+boxW/2,boxY-14);
+  }
+
+  // piston top
+  if(curTab!==1){
+    sctx.fillStyle='#8a94a8';
+    sctx.fillRect(boxX-6,boxY-10,boxW+12,10);
+  } else {
+    sctx.fillStyle='#556';
+    sctx.fillRect(boxX-6,boxY-10,boxW+12,10);
+  }
+
+  // heater glow under box for tabs 1/2
+  if(curTab<3){
+    var glowH=50;
+    var grad=sctx.createLinearGradient(0,boxYbottom,0,boxYbottom+glowH);
+    grad.addColorStop(0,'hsla('+hue+',90%,55%,'+(0.08+f*0.4)+')');
+    grad.addColorStop(1,'hsla('+hue+',90%,55%,0)');
+    sctx.fillStyle=grad;
+    sctx.fillRect(boxX-20,boxYbottom,boxW+40,glowH);
+    sctx.fillStyle='rgba(255,255,255,.4)';sctx.font='16px sans-serif';sctx.textAlign='center';
+    if(f>0.05) sctx.fillText('🔥',boxX+boxW/2,boxYbottom+glowH+14);
+  }
+
+  // particles
+  var speed = curTab<3 ? (0.5+f*2.0) : (2.5-f*1.6);
+  particles.forEach(function(p){
+    p.x+=p.vx*speed*0.004; p.y+=p.vy*speed*0.004;
+    if(p.x<0){p.x=0;p.vx*=-1;} if(p.x>1){p.x=1;p.vx*=-1;}
+    if(p.y<0){p.y=0;p.vy*=-1;} if(p.y>1){p.y=1;p.vy*=-1;}
+    var px=boxX+p.x*boxW, py=boxY+p.y*boxH;
+    sctx.fillStyle='hsl('+hue+',90%,60%)';
+    sctx.beginPath();sctx.arc(px,py,3,0,Math.PI*2);sctx.fill();
+  });
+
+  sctx.fillStyle='rgba(255,255,255,.5)';sctx.font='10px monospace';sctx.textAlign='center';
+  var lbl = curTab===1? 'A=0' : curTab===2? 'A=nRΔT' : 'Q=0';
+  sctx.fillText(lbl, W/2, boxYbottom+ (curTab<3?70:24));
+}
+
+// ===== GRAPH CANVAS =====
+var gC=document.getElementById('graphCanvas'), gctx=gC.getContext('2d');
+function drawGraph(){
+  var W=gC.offsetWidth||220; gC.width=W; var H=130; gC.height=H;
+  gctx.clearRect(0,0,W,H);
+  gctx.fillStyle='#030608';gctx.fillRect(0,0,W,H);
+  var pad=28;
+  var arr=meas[curTab];
+  var allVals=[];
+  arr.forEach(function(m){allVals.push(m.Q);allVals.push(m.dU+m.A);});
+  var ymax=Math.max(50,...allVals.map(Math.abs))*1.3;
+  var ymin=-ymax*0.15;
+  if(Math.min(0,...allVals)>=0) ymin=0;
+
+  function mapX(i){return pad+(i-0.5)/Math.max(5,arr.length)*(W-pad-8);}
+  function mapY(y){return H-18-(y-ymin)/(ymax-ymin)*(H-18-8);}
+
+  gctx.strokeStyle='rgba(255,255,255,.2)';gctx.lineWidth=1;
+  gctx.beginPath();gctx.moveTo(pad,8);gctx.lineTo(pad,H-18);gctx.lineTo(W-8,H-18);gctx.stroke();
+  gctx.fillStyle='rgba(255,255,255,.4)';gctx.font='8px monospace';gctx.textAlign='center';
+  gctx.fillText('№',W/2,H-6);
+  gctx.save();gctx.translate(9,H/2);gctx.rotate(-Math.PI/2);gctx.fillText('J',0,0);gctx.restore();
+
+  // legend dots
+  gctx.fillStyle='#22d3ee';gctx.beginPath();gctx.arc(W-70,12,3,0,Math.PI*2);gctx.fill();
+  gctx.fillStyle='rgba(255,255,255,.5)';gctx.font='7px monospace';gctx.textAlign='left';gctx.fillText('Q',W-64,15);
+  gctx.fillStyle='#ffc947';gctx.beginPath();gctx.arc(W-40,12,3,0,Math.PI*2);gctx.fill();
+  gctx.fillText('ΔU+A',W-34,15);
+
+  arr.forEach(function(m,i){
+    var px=mapX(i+1);
+    gctx.fillStyle='#22d3ee';gctx.beginPath();gctx.arc(px,mapY(m.Q),3,0,Math.PI*2);gctx.fill();
+    gctx.fillStyle='#ffc947';gctx.beginPath();gctx.arc(px+4,mapY(m.dU+m.A),3,0,Math.PI*2);gctx.fill();
+  });
+}
+
+window.addEventListener('resize',resizeSim);
+window.addEventListener('load',function(){setTimeout(function(){resizeSim();drawGraph();setLang('uz');},100);});
+</script>
+</body>
+</html>

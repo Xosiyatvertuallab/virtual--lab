@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sirt tarangligi koeffitsienti</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap');
+:root{
+  --bg:#07090f;--panel:#0e1420;--border:#1b2840;
+  --accent:#38bdf8;--green:#6fff5c;--yellow:#ffc947;
+  --red:#ff6b6b;--text:#dde6f5;--muted:#4a6080;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;height:100vh;overflow:hidden;display:flex;flex-direction:column;}
+
+header{display:flex;align-items:center;gap:12px;padding:8px 20px;border-bottom:1px solid var(--border);background:linear-gradient(90deg,#07090f,#061a26,#07090f);flex-shrink:0;}
+.badge{background:var(--accent);color:#000;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:3px 9px;letter-spacing:2px;border-radius:2px;}
+.htitle{font-size:15px;font-weight:800;}
+.htitle span{color:var(--accent);}
+.hsub{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-left:auto;}
+.brand{display:flex;align-items:center;gap:6px;background:linear-gradient(135deg,rgba(56,189,248,.15),rgba(111,255,92,.1));border:1px solid rgba(56,189,248,.3);border-radius:20px;padding:4px 14px;margin-left:10px;flex-shrink:0;}
+.brand-txt{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;background:linear-gradient(90deg,#38bdf8,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;}
+
+.tabs{display:flex;border-bottom:1px solid var(--border);background:#0a0f1c;flex-shrink:0;}
+.tab{padding:8px 18px;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap;}
+.tab:hover{color:var(--text);}
+.tab.on{color:var(--accent);border-bottom-color:var(--accent);}
+
+.statusbar{background:#0a0f1c;border-bottom:1px solid var(--border);padding:5px 20px;display:flex;align-items:center;gap:14px;font-family:'Space Mono',monospace;font-size:11px;flex-shrink:0;}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:bl 1s infinite;flex-shrink:0;}
+.dot.off{background:var(--muted);animation:none;}
+@keyframes bl{0%,100%{opacity:1}50%{opacity:.2}}
+#statusTxt{color:var(--accent);}
+.chips{display:flex;gap:6px;margin-left:auto;}
+.chip{background:rgba(56,189,248,.08);border:1px solid rgba(56,189,248,.2);border-radius:10px;padding:2px 9px;font-size:10px;color:var(--muted);}
+.chip span{color:var(--accent);}
+
+.body{display:grid;grid-template-columns:210px 1fr 255px;flex:1;overflow:hidden;}
+
+.left{background:var(--panel);border-right:1px solid var(--border);overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:9px;}
+.stitle{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--accent);text-transform:uppercase;margin-bottom:3px;opacity:.85;}
+.card{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:8px;padding:10px;}
+.card label{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:7px;}
+.vb{font-family:'Space Mono',monospace;font-size:11px;color:var(--accent);background:rgba(56,189,248,.12);padding:2px 7px;border-radius:3px;}
+input[type=range]{width:100%;-webkit-appearance:none;height:4px;background:var(--border);border-radius:2px;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;background:var(--accent);border-radius:50%;cursor:pointer;box-shadow:0 0 8px rgba(56,189,248,.7);}
+
+.fixedcard{background:rgba(111,255,92,.05);border:1px solid rgba(111,255,92,.2);border-radius:8px;padding:9px;font-family:'Space Mono',monospace;font-size:11px;display:flex;justify-content:space-between;align-items:center;}
+.fixedcard b{color:var(--green);}
+.fixedcard2{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:8px;padding:9px;font-family:'Space Mono',monospace;font-size:10px;display:flex;flex-direction:column;gap:4px;}
+.fixedcard2 .row{display:flex;justify-content:space-between;}
+.fixedcard2 b{color:var(--accent);}
+
+.fbox{background:rgba(56,189,248,.04);border:1px solid rgba(56,189,248,.15);border-radius:7px;padding:9px;}
+.frow{display:flex;gap:6px;margin-bottom:4px;font-family:'Space Mono',monospace;font-size:10px;}
+.frow:last-child{margin-bottom:0;}
+.fl{color:var(--muted);min-width:30px;}
+.fe{color:var(--yellow);}
+
+.steps{display:flex;flex-direction:column;gap:3px;}
+.step{display:flex;align-items:center;gap:7px;padding:5px 8px;border-radius:5px;font-size:10px;color:var(--muted);border:1px solid transparent;transition:all .3s;}
+.step.active{background:rgba(56,189,248,.07);border-color:rgba(56,189,248,.2);color:var(--accent);}
+.step.done{color:var(--green);}
+.snum{font-family:'Space Mono',monospace;font-size:9px;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.05);flex-shrink:0;}
+.step.active .snum{background:rgba(56,189,248,.2);}
+.step.done .snum{background:rgba(111,255,92,.12);color:var(--green);}
+
+.btn{width:100%;padding:10px;border:none;border-radius:7px;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;cursor:pointer;transition:all .2s;}
+.btn-p{background:linear-gradient(135deg,#38bdf8,#0b6fa3);color:#000;}
+.btn-p:hover{transform:translateY(-1px);box-shadow:0 5px 18px rgba(56,189,248,.4);}
+.btn-p:disabled{opacity:.35;cursor:not-allowed;transform:none;}
+.btn-g{background:linear-gradient(135deg,#6fff5c,#33cc22);color:#000;margin-top:5px;}
+.btn-g:disabled{opacity:.35;cursor:not-allowed;}
+.btn-r{background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--border);margin-top:5px;font-size:11px;}
+
+.center{position:relative;overflow:hidden;background:var(--bg);display:flex;flex-direction:column;}
+#simCanvas{flex:1;display:block;width:100%;}
+.instr-bar{background:rgba(7,9,15,.92);border-top:1px solid var(--border);padding:6px 18px;font-size:11px;color:var(--muted);text-align:center;flex-shrink:0;}
+
+.right{background:var(--panel);border-left:1px solid var(--border);overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:9px;}
+.rc{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:8px;padding:10px;}
+.rc.hi{border-color:rgba(56,189,248,.25);background:rgba(56,189,248,.05);}
+.rl{font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:3px;}
+.rv{font-size:22px;font-weight:800;line-height:1;color:#fff;}
+.ru{font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);margin-top:2px;}
+.three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;}
+
+table{width:100%;border-collapse:collapse;font-family:'Space Mono',monospace;font-size:9px;}
+th{color:var(--accent);font-size:8px;letter-spacing:1px;border-bottom:1px solid var(--border);padding:4px 2px;text-align:center;}
+td{padding:3px 2px;border-bottom:1px solid rgba(255,255,255,.03);text-align:center;}
+tr.avg-r td{color:var(--yellow);border-top:1px solid var(--border);font-weight:700;}
+tr:last-child td{border-bottom:none;}
+
+#graphCanvas{display:block;width:100%;border-radius:8px;border:1px solid var(--border);}
+
+.final-card{background:rgba(56,189,248,.05);border:1px solid rgba(56,189,248,.2);border-radius:8px;padding:12px;}
+.err-row{display:flex;justify-content:space-between;margin-top:6px;font-family:'Space Mono',monospace;font-size:10px;}
+.err-row span:first-child{color:var(--muted);}
+.err-row span:last-child{color:var(--yellow);}
+.langsw{display:flex;gap:3px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;padding:3px;margin-left:10px;}
+.langbtn{background:transparent;border:none;color:var(--muted);font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:4px 9px;border-radius:5px;cursor:pointer;letter-spacing:1px;}
+.langbtn.active{background:var(--accent);color:#000;}
+</style>
+</head>
+<body>
+
+<!-- BOSHLASH EKRANI -->
+<div id="startScreen" style="position:fixed;inset:0;z-index:9998;background:radial-gradient(ellipse at 40% 50%,#05202e 0%,#07090f 70%);display:flex;align-items:center;justify-content:center;">
+  <canvas id="bgCanvas" style="position:absolute;inset:0;width:100%;height:100%;opacity:.5;pointer-events:none"></canvas>
+  <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:20px;max-width:580px;padding:20px;text-align:center">
+    <div style="display:flex;align-items:center;gap:10px">
+      <div style="background:#38bdf8;color:#000;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:4px 14px;letter-spacing:2px;border-radius:2px">LAB · ST</div>
+      <div style="font-family:'Space Mono',monospace;font-size:10px;color:#4a6080;letter-spacing:2px" id="tKicker">MOLEKULYAR FIZIKA · SIRT HODISALARI</div>
+    </div>
+    <div style="width:100px;height:100px;border-radius:50%;background:radial-gradient(circle,rgba(56,189,248,.18) 0%,rgba(56,189,248,.02) 70%);border:2px solid rgba(56,189,248,.4);display:flex;align-items:center;justify-content:center;box-shadow:0 0 50px rgba(56,189,248,.3);animation:pulseG 2.5s ease-in-out infinite;">
+      <span style="font-size:44px">💧</span>
+    </div>
+    <div>
+      <h1 style="font-size:24px;font-weight:800;line-height:1.2;color:#fff" id="tStartTitle">Sirt tarangligi <span style="color:#38bdf8">koeffitsientini aniqlash</span></h1>
+      <p style="font-size:13px;color:#4a6080;margin-top:8px;font-family:'Space Mono',monospace" id="tStartSub">Kapillyar, tomchilar va halqa uzish usullari</p>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;width:100%">
+      <div style="background:rgba(255,255,255,.04);border:1px solid #1b2840;border-radius:10px;padding:12px"><div style="font-size:20px;margin-bottom:4px">⏱</div><div style="font-size:11px;color:#4a6080;font-family:monospace" id="tInfoTime">Vaqt</div><div style="font-size:13px;font-weight:700;color:#dde6f5;margin-top:2px">40-55 min</div></div>
+      <div style="background:rgba(255,255,255,.04);border:1px solid #1b2840;border-radius:10px;padding:12px"><div style="font-size:20px;margin-bottom:4px">🫧</div><div style="font-size:11px;color:#4a6080;font-family:monospace" id="tInfoEx">Mashq</div><div style="font-size:13px;font-weight:700;color:#dde6f5;margin-top:2px" id="tInfoExVal">3 ta</div></div>
+      <div style="background:rgba(255,255,255,.04);border:1px solid #1b2840;border-radius:10px;padding:12px"><div style="font-size:20px;margin-bottom:4px">🎯</div><div style="font-size:11px;color:#4a6080;font-family:monospace" id="tInfoGoal">Maqsad</div><div style="font-size:13px;font-weight:700;color:#dde6f5;margin-top:2px" id="tInfoGoalVal">σ topish</div></div>
+    </div>
+    <div style="background:rgba(56,189,248,.05);border:1px solid rgba(56,189,248,.18);border-radius:12px;padding:16px;width:100%;text-align:left">
+      <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;color:#38bdf8;margin-bottom:10px" id="tProcedure">BAJARISH TARTIBI</div>
+      <div style="display:flex;flex-direction:column;gap:7px">
+        <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:#c5d3e8"><div style="width:22px;height:22px;border-radius:50%;background:rgba(56,189,248,.2);display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:10px;color:#38bdf8;flex-shrink:0">1</div><span id="tPS1">Usulni tanlang: kapillyar / tomchilar / halqa uzish</span></div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:#c5d3e8"><div style="width:22px;height:22px;border-radius:50%;background:rgba(56,189,248,.2);display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:10px;color:#38bdf8;flex-shrink:0">2</div><span id="tPS2">Parametrni slayder bilan tanlang</span></div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:#c5d3e8"><div style="width:22px;height:22px;border-radius:50%;background:rgba(56,189,248,.2);display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:10px;color:#38bdf8;flex-shrink:0">3</div><span id="tPS3"><b style="color:#38bdf8">"O'lchov olish"</b> — asbob avtomatik o'qiladi (5 marta)</span></div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:#c5d3e8"><div style="width:22px;height:22px;border-radius:50%;background:rgba(56,189,248,.2);display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:10px;color:#38bdf8;flex-shrink:0">4</div><span id="tPS4">σ ni hisoblab, jadval qiymati bilan solishtiring</span></div>
+      </div>
+    </div>
+    <button onclick="startLab()" style="background:linear-gradient(135deg,#38bdf8,#0b6fa3);color:#000;border:none;border-radius:12px;padding:16px 60px;font-size:16px;font-weight:800;font-family:'Syne',sans-serif;cursor:pointer;box-shadow:0 8px 30px rgba(56,189,248,.4);transition:all .2s;width:100%"
+    onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 12px 40px rgba(56,189,248,.6)'"
+    onmouseout="this.style.transform='none';this.style.boxShadow='0 8px 30px rgba(56,189,248,.4)'">
+      <span id="tStartBtn">▶ Laboratoriyani boshlash</span>
+    </button>
+    <div style="display:flex;align-items:center;gap:6px;opacity:.6">
+      <span style="font-size:13px">🔬</span>
+      <span style="font-family:'Space Mono',monospace;font-size:10px;background:linear-gradient(90deg,#38bdf8,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;font-weight:700">Xosiyat Virtual Lab</span>
+    </div>
+  </div>
+</div>
+<style>
+@keyframes pulseG{0%,100%{box-shadow:0 0 50px rgba(56,189,248,.25)}50%{box-shadow:0 0 70px rgba(56,189,248,.5)}}
+@keyframes fadeOut{0%{opacity:1}100%{opacity:0;transform:scale(1.04)}}
+</style>
+<script>
+(function(){var c=document.getElementById('bgCanvas');var x=c.getContext('2d');var pts=[];function resize(){c.width=window.innerWidth;c.height=window.innerHeight;}resize();window.addEventListener('resize',resize);for(var i=0;i<60;i++)pts.push({x:Math.random()*1600,y:Math.random()*900,r:Math.random()*1.5+.5,vx:(Math.random()-.5)*.35,vy:(Math.random()-.5)*.35,a:Math.random()});function frame(){x.clearRect(0,0,c.width,c.height);pts.forEach(function(p){p.x+=p.vx;p.y+=p.vy;p.a+=.005;if(p.x<0)p.x=c.width;if(p.x>c.width)p.x=0;if(p.y<0)p.y=c.height;if(p.y>c.height)p.y=0;x.fillStyle='rgba(56,189,248,'+(0.25+Math.sin(p.a)*0.18)+')';x.beginPath();x.arc(p.x%c.width,p.y%c.height,p.r,0,Math.PI*2);x.fill();});requestAnimationFrame(frame);}frame();})();
+function startLab(){var s=document.getElementById('startScreen');s.style.animation='fadeOut .5s ease forwards';setTimeout(function(){s.style.display='none';},480);}
+</script>
+
+<!-- MAIN -->
+<header>
+  <div class="badge">LAB · ST</div>
+  <h1 class="htitle" id="tTitle">Sirt tarangligi <span>koeffitsienti</span></h1>
+  <div class="hsub" id="tHsub">MOLEKULYAR FIZIKA · FIZPRAKTIKUM · SDPI 2026</div>
+  <div class="langsw">
+    <button class="langbtn active" id="langUZ" onclick="setLang('uz')">UZ</button>
+    <button class="langbtn" id="langRU" onclick="setLang('ru')">RU</button>
+    <button class="langbtn" id="langEN" onclick="setLang('en')">EN</button>
+  </div>
+  <div class="brand"><span style="font-size:12px">🔬</span><span class="brand-txt">Xosiyat Virtual Lab</span></div>
+</header>
+
+<div class="tabs">
+  <div class="tab on" id="t1" onclick="switchTab(1)"><span id="tTab1">a) Kapillyar usul</span></div>
+  <div class="tab" id="t2" onclick="switchTab(2)"><span id="tTab2">b) Tomchilar usuli</span></div>
+  <div class="tab" id="t3" onclick="switchTab(3)"><span id="tTab3">v) Halqa uzish usuli</span></div>
+</div>
+
+<div class="statusbar">
+  <div class="dot off" id="dot"></div>
+  <span id="statusTxt">"O'lchov olish" tugmasini bosing</span>
+  <div class="chips">
+    <div class="chip">σ = <span id="chipSigma">—</span> mN/m</div>
+    <div class="chip"><span id="tMeasLbl">O'lchov:</span> <span id="chipCnt">0</span>/5</div>
+  </div>
+</div>
+
+<div class="body">
+  <!-- LEFT -->
+  <div class="left">
+    <div class="stitle" id="paramTitle">a-mashq: Kapillyar usul</div>
+
+    <div class="fixedcard"><span id="tLiqLbl">Suyuqlik:</span> <b>Suv (20°C)</b></div>
+
+    <div class="card">
+      <label><span id="tPlbl">Parametr</span> <span class="vb" id="dP">0.30 mm</span></label>
+      <input type="range" id="sP" min="0.2" max="0.5" step="0.05" value="0.3" oninput="setParam(this.value)">
+    </div>
+
+    <div class="fbox" id="fboxA">
+      <div class="frow"><span class="fl">σ</span><span class="fe">= ρghr / 2</span></div>
+    </div>
+    <div class="fbox" id="fboxB" style="display:none">
+      <div class="frow"><span class="fl">σ</span><span class="fe">= ρVg / (2πr₀n)</span></div>
+    </div>
+    <div class="fbox" id="fboxC" style="display:none">
+      <div class="frow"><span class="fl">σ</span><span class="fe">= F / (4πR)</span></div>
+    </div>
+
+    <div class="fixedcard2">
+      <div class="row"><span id="tTheoLbl">Jadval σ (suv):</span><b>72.8 mN/m</b></div>
+    </div>
+
+    <div class="steps">
+      <div class="step active" id="st1"><div class="snum">1</div><span id="tStep1">O'lchov oling</span></div>
+      <div class="step" id="st2"><div class="snum">2</div><span id="tStep2">5 marta takrorlang</span></div>
+      <div class="step" id="st3"><div class="snum">3</div><span id="tStep3">σ ni hisoblang</span></div>
+      <div class="step" id="st4"><div class="snum">4</div><span id="tStep4">Xatoni baholang</span></div>
+    </div>
+
+    <button class="btn btn-p" id="measBtn" onclick="takeMeasure()">💧 <span id="tMeasBtn">O'lchov olish</span></button>
+    <button class="btn btn-g" id="calcBtn" onclick="calcSigma()" disabled>📊 <span id="tCalcBtn">σ Hisoblash</span></button>
+    <button class="btn btn-r" onclick="resetAll()">↺ <span id="tResetBtn">Qayta boshlash</span></button>
+  </div>
+
+  <!-- CENTER -->
+  <div class="center">
+    <canvas id="simCanvas"></canvas>
+    <div class="instr-bar" id="instrBar">💧 Kapillyar trubkada suyuqlik ko'tarilishini kuzating</div>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="right">
+    <div class="stitle" id="tResultsSec">Joriy holat</div>
+    <div class="three">
+      <div class="rc hi">
+        <div class="rl" id="c1lbl">r</div>
+        <div class="rv" style="font-size:16px" id="rC1">—</div>
+        <div class="ru" id="c1u">mm</div>
+      </div>
+      <div class="rc hi">
+        <div class="rl" id="c2lbl">h</div>
+        <div class="rv" style="font-size:16px" id="rC2">—</div>
+        <div class="ru" id="c2u">mm</div>
+      </div>
+      <div class="rc hi">
+        <div class="rl">σ</div>
+        <div class="rv" style="font-size:16px;color:var(--accent)" id="rC3">—</div>
+        <div class="ru">mN/m</div>
+      </div>
+    </div>
+
+    <div class="stitle" id="tGraphSec">Grafik: σ (o'lchovlar)</div>
+    <canvas id="graphCanvas" height="130"></canvas>
+
+    <div class="stitle" id="tTableSec">Jadval</div>
+    <div style="overflow-x:auto">
+      <table>
+        <thead><tr><th>№</th><th id="thC1">r(mm)</th><th id="thC2">h(mm)</th><th>σ(mN/m)</th></tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+
+    <div class="final-card" id="finalCard" style="display:none">
+      <div class="rl" id="tAvgSigma">O'rtacha σ̄</div>
+      <div class="rv" style="color:var(--green);font-size:28px" id="avgS">—</div>
+      <div class="ru">mN/m</div>
+      <div class="err-row"><span id="tAbsErr">Absolyut xatolik Δσ</span><span id="absErr">—</span></div>
+      <div class="err-row"><span id="tRelErr">Nisbiy xatolik ε</span><span id="relErr">—</span></div>
+      <div class="err-row"><span id="tTrueVal">Jadval qiymati</span><span style="color:rgba(56,189,248,.9)" id="theoValF">—</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- Watermark -->
+<div style="position:fixed;bottom:14px;right:18px;display:flex;align-items:center;gap:7px;background:rgba(7,9,15,.75);border:1px solid rgba(56,189,248,.2);border-radius:30px;padding:5px 16px;backdrop-filter:blur(10px);z-index:9999;pointer-events:none">
+  <span style="font-size:13px">🔬</span>
+  <span style="font-family:'Space Mono',monospace;font-size:11px;font-weight:700;background:linear-gradient(90deg,#38bdf8,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px">Xosiyat Virtual Lab</span>
+</div>
+
+<script>
+// ===== I18N =====
+var LANG='uz';
+var I18N={
+ uz:{title:'Sirt tarangligi <span>koeffitsienti</span>',hsub:'MOLEKULYAR FIZIKA · FIZPRAKTIKUM · SDPI 2026',measLbl:"O'lchov:",kicker:'MOLEKULYAR FIZIKA · SIRT HODISALARI',
+   tab1:'a) Kapillyar usul',tab2:'b) Tomchilar usuli',tab3:'v) Halqa uzish usuli',
+   paramTitleA:'a-mashq: Kapillyar usul',paramTitleB:'b-mashq: Tomchilar usuli',paramTitleC:'v-mashq: Halqa uzish usuli',
+   liqLbl:'Suyuqlik:',theoLbl:'Jadval σ (suv):',
+   pLblA:'r — kapillyar radiusi',pLblB:'V — suyuqlik hajmi',pLblC:'R — halqa radiusi',
+   step1:"O'lchov oling",step2:'5 marta takrorlang',step3:'σ ni hisoblang',step4:'Xatoni baholang',
+   measBtn:"O'lchov olish",calcBtn:'σ Hisoblash',resetBtn:'Qayta boshlash',resultsSec:'Joriy holat',
+   graphSec:"Grafik: σ (o'lchovlar)",tableSec:'Jadval',
+   avgSigma:"O'rtacha σ̄",absErr:'Absolyut xatolik Δσ',relErr:'Nisbiy xatolik ε',trueVal:'Jadval qiymati',
+   c1A:'r',c2A:'h',c1uA:'mm',c2uA:'mm',
+   c1B:'V',c2B:'n',c1uB:'cm³',c2uB:'tomchi',
+   c1C:'R',c2C:'F',c1uC:'cm',c2uC:'mN',
+   startTitle:'Sirt tarangligi <span style="color:#38bdf8">koeffitsientini aniqlash</span>',startSub:'Kapillyar, tomchilar va halqa uzish usullari',
+   infoTime:'Vaqt',infoEx:'Mashq',infoExVal:'3 ta',infoGoal:'Maqsad',infoGoalVal:'σ topish',
+   procedure:'BAJARISH TARTIBI',ps1:'Usulni tanlang: kapillyar / tomchilar / halqa uzish',
+   ps2:'Parametrni slayder bilan tanlang',
+   ps3:'<b style="color:#38bdf8">"O\'lchov olish"</b> — asbob avtomatik o\'qiladi (5 marta)',
+   ps4:"σ ni hisoblab, jadval qiymati bilan solishtiring",
+   startBtn:'▶ Laboratoriyani boshlash',
+   statusDefault:'"O\'lchov olish" tugmasini bosing',
+   statusRise:'💧 Kapillyarda suyuqlik ko\'tarilmoqda...',statusDrip:'💧 Tomchilar sanalmoqda...',statusPull:'⬆️ Halqa yuqoriga tortilmoqda...',
+   instrA:"💧 Kapillyar trubkada suyuqlik ko'tarilishini kuzating",
+   instrB:'💧 Stalagmometrdan tomchilar sanaladi',
+   instrC:"⬆️ Halqa sirtdan uzilguncha tortiladi, kuch o'lchanadi",
+   instrEnough:'✅ Yetarli o\'lchov. "σ Hisoblash" tugmasini bosing',avgRowLbl:'σ̄ =',
+   finalStatus:'🎉 Sirt tarangligi: σ̄ = ',finalStatus2:' mN/m | ε = '
+ },
+ ru:{title:'Коэффициент <span>поверхностного натяжения</span>',hsub:'МОЛЕКУЛЯРНАЯ ФИЗИКА · ФИЗПРАКТИКУМ · SDPI 2026',measLbl:'Измерений:',kicker:'МОЛЕКУЛЯРНАЯ ФИЗИКА · ПОВЕРХНОСТНЫЕ ЯВЛЕНИЯ',
+   tab1:'а) Метод капилляра',tab2:'б) Метод капель',tab3:'в) Метод отрыва кольца',
+   paramTitleA:'Упр. а: Метод капилляра',paramTitleB:'Упр. б: Метод капель',paramTitleC:'Упр. в: Метод отрыва кольца',
+   liqLbl:'Жидкость:',theoLbl:'Табличное σ (вода):',
+   pLblA:'r — радиус капилляра',pLblB:'V — объём жидкости',pLblC:'R — радиус кольца',
+   step1:'Сделайте измерение',step2:'Повторите 5 раз',step3:'Вычислите σ',step4:'Оцените погрешность',
+   measBtn:'Сделать измерение',calcBtn:'Вычислить σ',resetBtn:'Начать заново',resultsSec:'Текущее состояние',
+   graphSec:'График: σ (измерения)',tableSec:'Таблица',
+   avgSigma:'Среднее σ̄',absErr:'Абс. погрешность Δσ',relErr:'Отн. погрешность ε',trueVal:'Табличное значение',
+   c1A:'r',c2A:'h',c1uA:'мм',c2uA:'мм',
+   c1B:'V',c2B:'n',c1uB:'см³',c2uB:'капель',
+   c1C:'R',c2C:'F',c1uC:'см',c2uC:'мН',
+   startTitle:'Коэффициент <span style="color:#38bdf8">поверхностного натяжения</span>',startSub:'Методы капилляра, капель и отрыва кольца',
+   infoTime:'Время',infoEx:'Упражнения',infoExVal:'3 шт.',infoGoal:'Цель',infoGoalVal:'найти σ',
+   procedure:'ПОРЯДОК ВЫПОЛНЕНИЯ',ps1:'Выберите метод: капилляр / капли / отрыв кольца',
+   ps2:'Выберите параметр ползунком',
+   ps3:'<b style="color:#38bdf8">"Сделать измерение"</b> — прибор считывается автоматически (5 раз)',
+   ps4:'Вычислите σ и сравните с табличным значением',
+   startBtn:'▶ Начать лабораторную',
+   statusDefault:'Нажмите "Сделать измерение"',
+   statusRise:'💧 Жидкость поднимается в капилляре...',statusDrip:'💧 Подсчёт капель...',statusPull:'⬆️ Кольцо поднимается...',
+   instrA:'💧 Наблюдайте подъём жидкости в капиллярной трубке',
+   instrB:'💧 Капли считаются со сталагмометра',
+   instrC:'⬆️ Кольцо тянут вверх до отрыва от поверхности, измеряется сила',
+   instrEnough:'✅ Достаточно данных. Нажмите "Вычислить σ"',avgRowLbl:'σ̄ =',
+   finalStatus:'🎉 Поверхностное натяжение: σ̄ = ',finalStatus2:' мН/м | ε = '
+ },
+ en:{title:'Surface Tension <span>Coefficient</span>',hsub:'MOLECULAR PHYSICS · PHYSICS LAB · SDPI 2026',measLbl:'Measurements:',kicker:'MOLECULAR PHYSICS · SURFACE PHENOMENA',
+   tab1:'a) Capillary method',tab2:'b) Drop counting method',tab3:'c) Ring detachment method',
+   paramTitleA:'Exercise a: Capillary method',paramTitleB:'Exercise b: Drop counting method',paramTitleC:'Exercise c: Ring detachment method',
+   liqLbl:'Liquid:',theoLbl:'Reference σ (water):',
+   pLblA:'r — capillary radius',pLblB:'V — liquid volume',pLblC:'R — ring radius',
+   step1:'Take a measurement',step2:'Repeat 5 times',step3:'Calculate σ',step4:'Assess the error',
+   measBtn:'Take measurement',calcBtn:'Calculate σ',resetBtn:'Restart',resultsSec:'Current state',
+   graphSec:'Graph: σ (trials)',tableSec:'Table',
+   avgSigma:'Average σ̄',absErr:'Absolute error Δσ',relErr:'Relative error ε',trueVal:'Reference value',
+   c1A:'r',c2A:'h',c1uA:'mm',c2uA:'mm',
+   c1B:'V',c2B:'n',c1uB:'cm³',c2uB:'drops',
+   c1C:'R',c2C:'F',c1uC:'cm',c2uC:'mN',
+   startTitle:'Surface Tension <span style="color:#38bdf8">Coefficient</span>',startSub:'Capillary, drop-counting, and ring detachment methods',
+   infoTime:'Time',infoEx:'Exercises',infoExVal:'3',infoGoal:'Goal',infoGoalVal:'find σ',
+   procedure:'PROCEDURE',ps1:'Choose the method: capillary / drops / ring detachment',
+   ps2:'Choose the parameter with the slider',
+   ps3:'<b style="color:#38bdf8">"Take measurement"</b> — the instrument is read automatically (5 times)',
+   ps4:'Calculate σ and compare with the reference value',
+   startBtn:'▶ Start the lab',
+   statusDefault:'Press "Take measurement"',
+   statusRise:'💧 Liquid rising in the capillary...',statusDrip:'💧 Counting drops...',statusPull:'⬆️ Lifting the ring...',
+   instrA:'💧 Watch the liquid rise in the capillary tube',
+   instrB:'💧 Drops are counted from the stalagmometer',
+   instrC:'⬆️ The ring is pulled up until it detaches from the surface; the force is measured',
+   instrEnough:'✅ Enough data. Press "Calculate σ"',avgRowLbl:'Avg =',
+   finalStatus:'🎉 Surface tension: σ̄ = ',finalStatus2:' mN/m | ε = '
+ }
+};
+function t(k){return I18N[LANG][k];}
+
+function setLang(l){
+  LANG=l;
+  document.getElementById('langUZ').className='langbtn'+(l==='uz'?' active':'');
+  document.getElementById('langRU').className='langbtn'+(l==='ru'?' active':'');
+  document.getElementById('langEN').className='langbtn'+(l==='en'?' active':'');
+  document.getElementById('tTitle').innerHTML=t('title');
+  document.getElementById('tHsub').textContent=t('hsub');
+  document.getElementById('tMeasLbl').textContent=t('measLbl');
+  document.getElementById('tKicker').textContent=t('kicker');
+  document.getElementById('tTab1').textContent=t('tab1');
+  document.getElementById('tTab2').textContent=t('tab2');
+  document.getElementById('tTab3').textContent=t('tab3');
+  document.getElementById('tLiqLbl').textContent=t('liqLbl');
+  document.getElementById('tTheoLbl').textContent=t('theoLbl');
+  document.getElementById('tStep1').textContent=t('step1');
+  document.getElementById('tStep2').textContent=t('step2');
+  document.getElementById('tStep3').textContent=t('step3');
+  document.getElementById('tStep4').textContent=t('step4');
+  document.getElementById('tMeasBtn').textContent=t('measBtn');
+  document.getElementById('tCalcBtn').textContent=t('calcBtn');
+  document.getElementById('tResetBtn').textContent=t('resetBtn');
+  document.getElementById('tResultsSec').textContent=t('resultsSec');
+  document.getElementById('tGraphSec').textContent=t('graphSec');
+  document.getElementById('tTableSec').textContent=t('tableSec');
+  document.getElementById('tAvgSigma').textContent=t('avgSigma');
+  document.getElementById('tAbsErr').textContent=t('absErr');
+  document.getElementById('tRelErr').textContent=t('relErr');
+  document.getElementById('tTrueVal').textContent=t('trueVal');
+  document.getElementById('tStartTitle').innerHTML=t('startTitle');
+  document.getElementById('tStartSub').textContent=t('startSub');
+  document.getElementById('tInfoTime').textContent=t('infoTime');
+  document.getElementById('tInfoExVal').textContent=t('infoExVal');
+  document.getElementById('tInfoEx').textContent=t('infoEx');
+  document.getElementById('tInfoGoal').textContent=t('infoGoal');
+  document.getElementById('tInfoGoalVal').textContent=t('infoGoalVal');
+  document.getElementById('tProcedure').textContent=t('procedure');
+  document.getElementById('tPS1').textContent=t('ps1');
+  document.getElementById('tPS2').textContent=t('ps2');
+  document.getElementById('tPS3').innerHTML=t('ps3');
+  document.getElementById('tPS4').textContent=t('ps4');
+  document.getElementById('tStartBtn').textContent=t('startBtn');
+  updateTabTexts();
+  if(!statusOverridden) document.getElementById('statusTxt').textContent=t('statusDefault');
+  if(phase==='idle') document.getElementById('instrBar').textContent=t(curTab===1?'instrA':curTab===2?'instrB':'instrC');
+}
+
+// ===== PHYSICS DATA =====
+var sigmaTrue=0.0728; // N/m, water at ~20C
+var rho=1000, g=9.8;
+var rTip=0.001; // stalagmometer tip radius, m (fixed)
+var curTab=1;
+var statusOverridden=false;
+var P={1:0.3,2:1.0,3:1.5}; // slider value per tab: r(mm) / V(cm3) / R(cm)
+var meas={1:[],2:[],3:[]};
+var cnt={1:0,2:0,3:0};
+var phase='idle';
+var live={frac:0};
+
+var sliderCfg={1:{min:0.2,max:0.5,step:0.05,unit:'mm'},2:{min:0.5,max:2.0,step:0.25,unit:'cm³'},3:{min:1.0,max:2.5,step:0.25,unit:'cm'}};
+
+function paramTitleKey(){return curTab===1?'paramTitleA':curTab===2?'paramTitleB':'paramTitleC';}
+function updateTabTexts(){
+  document.getElementById('paramTitle').textContent=t(paramTitleKey());
+  document.getElementById('tPlbl').textContent=t(curTab===1?'pLblA':curTab===2?'pLblB':'pLblC');
+  document.getElementById('fboxA').style.display=curTab===1?'block':'none';
+  document.getElementById('fboxB').style.display=curTab===2?'block':'none';
+  document.getElementById('fboxC').style.display=curTab===3?'block':'none';
+  var suf=curTab===1?'A':curTab===2?'B':'C';
+  document.getElementById('c1lbl').textContent=t('c1'+suf);
+  document.getElementById('c2lbl').textContent=t('c2'+suf);
+  document.getElementById('c1u').textContent=t('c1u'+suf);
+  document.getElementById('c2u').textContent=t('c2u'+suf);
+  document.getElementById('thC1').textContent=t('c1'+suf)+'('+t('c1u'+suf)+')';
+  document.getElementById('thC2').textContent=t('c2'+suf)+'('+t('c2u'+suf)+')';
+  var cfg=sliderCfg[curTab];
+  document.getElementById('sP').min=cfg.min; document.getElementById('sP').max=cfg.max; document.getElementById('sP').step=cfg.step;
+  document.getElementById('sP').value=P[curTab];
+  document.getElementById('dP').textContent=P[curTab].toFixed(2)+' '+cfg.unit;
+}
+
+function switchTab(n_){
+  if(phase!=='idle')return;
+  curTab=n_;
+  document.getElementById('t1').className='tab'+(n_===1?' on':'');
+  document.getElementById('t2').className='tab'+(n_===2?' on':'');
+  document.getElementById('t3').className='tab'+(n_===3?' on':'');
+  updateTabTexts();
+  statusOverridden=false;
+  document.getElementById('statusTxt').textContent=t('statusDefault');
+  document.getElementById('instrBar').textContent=t(n_===1?'instrA':n_===2?'instrB':'instrC');
+  rebuildTable();
+  document.getElementById('chipCnt').textContent=cnt[curTab];
+  document.getElementById('calcBtn').disabled = cnt[curTab]<5;
+  document.getElementById('finalCard').style.display='none';
+  setStep(cnt[curTab]>=5?3:1);
+  live.frac=0;
+  document.getElementById('rC1').textContent='—';
+  document.getElementById('rC2').textContent='—';
+  document.getElementById('rC3').textContent='—';
+  document.getElementById('chipSigma').textContent='—';
+  drawSim();
+  drawGraph();
+}
+
+function setParam(val){
+  P[curTab]=parseFloat(val);
+  document.getElementById('dP').textContent=P[curTab].toFixed(2)+' '+sliderCfg[curTab].unit;
+}
+
+// row: {p1,p2} where meaning depends on tab: A:{r_m,h_m} B:{V_m3,n} C:{R_m,F_N}
+function rowSigma(m_){
+  if(curTab===1) return rho*g*m_.h*m_.r/2; // N/m
+  if(curTab===2) return (rho*m_.V*g)/(2*Math.PI*rTip*m_.n);
+  return m_.F/(4*Math.PI*m_.R);
+}
+
+// ===== TABLE =====
+function rebuildTable(){
+  var arr=meas[curTab];
+  var tb=document.getElementById('tbody');
+  tb.innerHTML='';
+  arr.forEach(function(m_,i){
+    var s=rowSigma(m_)*1000; // mN/m
+    var c1,c2;
+    if(curTab===1){c1=(m_.r*1000).toFixed(2);c2=(m_.h*1000).toFixed(2);}
+    else if(curTab===2){c1=(m_.V*1e6).toFixed(2);c2=m_.n.toFixed(1);}
+    else {c1=(m_.R*100).toFixed(2);c2=(m_.F*1000).toFixed(2);}
+    var tr=document.createElement('tr');
+    tr.innerHTML='<td>'+(i+1)+'</td><td>'+c1+'</td><td>'+c2+'</td><td>'+s.toFixed(1)+'</td>';
+    tb.appendChild(tr);
+  });
+}
+
+// ===== ANIMATION =====
+function animateVal(setter,from,to,duration,onDone){
+  var start=null;
+  function step(ts){
+    if(!start)start=ts;
+    var p=Math.min(1,(ts-start)/duration);
+    setter(from+(to-from)*p);
+    drawSim();
+    if(p<1){requestAnimationFrame(step);} else {setter(to);drawSim();if(onDone)onDone();}
+  }
+  requestAnimationFrame(step);
+}
+function noise(v,pct){return v*(1+(Math.random()-0.5)*pct);}
+
+function takeMeasure(){
+  if(phase!=='idle')return;
+  document.getElementById('measBtn').disabled=true;
+  document.getElementById('calcBtn').disabled=true;
+  setDot(true);
+  statusOverridden=true;
+  setStep(1);
+
+  if(curTab===1){
+    var r_m=P[1]/1000;
+    var hTrue=2*sigmaTrue/(rho*g*r_m);
+    var hMeas=noise(hTrue,0.02);
+    phase='rise';
+    document.getElementById('statusTxt').textContent=t('statusRise');
+    document.getElementById('instrBar').textContent=t('statusRise');
+    document.getElementById('rC1').textContent=(r_m*1000).toFixed(2);
+    animateVal(function(v){live.frac=v;},0,hMeas,800,function(){
+      document.getElementById('rC2').textContent=(hMeas*1000).toFixed(2);
+      finishMeasure({r:r_m,h:hMeas});
+    });
+  } else if(curTab===2){
+    var V_m3=P[2]*1e-6;
+    var nTrue=(rho*V_m3*g)/(2*Math.PI*rTip*sigmaTrue);
+    var nMeas=noise(nTrue,0.03);
+    phase='drip';
+    document.getElementById('statusTxt').textContent=t('statusDrip');
+    document.getElementById('instrBar').textContent=t('statusDrip');
+    document.getElementById('rC1').textContent=(V_m3*1e6).toFixed(2);
+    animateVal(function(v){live.frac=v;},0,1,900,function(){
+      document.getElementById('rC2').textContent=nMeas.toFixed(1);
+      finishMeasure({V:V_m3,n:nMeas});
+    });
+  } else {
+    var R_m=P[3]/100;
+    var FTrue=4*Math.PI*R_m*sigmaTrue;
+    var FMeas=noise(FTrue,0.02);
+    phase='pull';
+    document.getElementById('statusTxt').textContent=t('statusPull');
+    document.getElementById('instrBar').textContent=t('statusPull');
+    document.getElementById('rC1').textContent=(R_m*100).toFixed(2);
+    animateVal(function(v){live.frac=v;},0,1,800,function(){
+      document.getElementById('rC2').textContent=(FMeas*1000).toFixed(2);
+      finishMeasure({R:R_m,F:FMeas});
+    });
+  }
+}
+
+function finishMeasure(row){
+  var s=rowSigma(row)*1000;
+  document.getElementById('rC3').textContent=s.toFixed(1);
+  document.getElementById('chipSigma').textContent=s.toFixed(1);
+  meas[curTab].push(row);
+  cnt[curTab]++;
+  document.getElementById('chipCnt').textContent=cnt[curTab];
+  rebuildTable();
+  drawGraph();
+  phase='idle';
+  live.frac=0;
+  setDot(false);
+  document.getElementById('measBtn').disabled=false;
+  document.getElementById('statusTxt').textContent='✓ #'+cnt[curTab]+' σ='+s.toFixed(1)+' mN/m';
+  if(cnt[curTab]>=5){
+    document.getElementById('calcBtn').disabled=false;
+    document.getElementById('instrBar').textContent=t('instrEnough');
+    setStep(3);
+  } else {
+    document.getElementById('instrBar').textContent=t(curTab===1?'instrA':curTab===2?'instrB':'instrC');
+    setStep(2);
+  }
+  drawSim();
+}
+
+function calcSigma(){
+  var arr=meas[curTab];
+  var vals=arr.map(function(m_){return rowSigma(m_)*1000;});
+  var avg=vals.reduce(function(a,b){return a+b;},0)/vals.length;
+  var v=vals.reduce(function(a,b){return a+Math.pow(b-avg,2);},0);
+  var de=Math.sqrt(v/Math.max(1,vals.length*(vals.length-1)));
+  var theo=sigmaTrue*1000;
+  var re=Math.abs(avg-theo)/theo*100;
+
+  var ar=document.createElement('tr');ar.className='avg-r';
+  ar.innerHTML='<td colspan="3" style="text-align:right">'+t('avgRowLbl')+'</td><td>'+avg.toFixed(1)+'</td>';
+  document.getElementById('tbody').appendChild(ar);
+
+  document.getElementById('finalCard').style.display='block';
+  document.getElementById('avgS').textContent=avg.toFixed(1);
+  document.getElementById('absErr').textContent='± '+de.toFixed(2);
+  document.getElementById('relErr').textContent=re.toFixed(2)+'%';
+  document.getElementById('theoValF').textContent=theo.toFixed(1)+' mN/m';
+  setStep(4);
+  statusOverridden=true;
+  document.getElementById('statusTxt').textContent=t('finalStatus')+avg.toFixed(1)+t('finalStatus2')+re.toFixed(2)+'%';
+}
+
+function resetAll(){
+  meas={1:[],2:[],3:[]};cnt={1:0,2:0,3:0};P={1:0.3,2:1.0,3:1.5};
+  phase='idle';live.frac=0;
+  document.getElementById('finalCard').style.display='none';
+  document.getElementById('calcBtn').disabled=true;
+  document.getElementById('measBtn').disabled=false;
+  statusOverridden=false;
+  document.getElementById('statusTxt').textContent=t('statusDefault');
+  setDot(false);
+  switchTab(curTab);
+}
+
+function setDot(on){document.getElementById('dot').classList.toggle('off',!on);}
+function setStep(n_){for(var i=1;i<=4;i++){var el=document.getElementById('st'+i);el.className='step'+(i<n_?' done':i===n_?' active':'');el.querySelector('.snum').textContent=i<n_?'✓':i;}}
+
+// ===== SIMULATION CANVAS =====
+var simC=document.getElementById('simCanvas'), sctx=simC.getContext('2d');
+function resizeSim(){simC.width=simC.offsetWidth; simC.height=simC.offsetHeight; drawSim();}
+
+function drawSim(){
+  var W=simC.width||600, H=simC.height||400;
+  sctx.clearRect(0,0,W,H);
+  sctx.fillStyle='#030608';sctx.fillRect(0,0,W,H);
+
+  // scale factor for the drawn objects only (fonts stay untouched) so the
+  // simulation fills the canvas nicely on larger windows too
+  var S=Math.max(1, Math.min(2.2, H/380));
+
+  if(curTab===1){
+    // beaker with liquid
+    var bx=W*0.35, by=H*0.78, bw=180*S, bh=90*S;
+    sctx.strokeStyle='rgba(255,255,255,.3)';sctx.lineWidth=2*S;
+    sctx.beginPath();sctx.moveTo(bx-bw/2,by-bh);sctx.lineTo(bx-bw/2,by);sctx.lineTo(bx+bw/2,by);sctx.lineTo(bx+bw/2,by-bh);sctx.stroke();
+    sctx.fillStyle='rgba(56,189,248,.28)';
+    sctx.fillRect(bx-bw/2+2*S,by-bh*0.5,bw-4*S,bh*0.5);
+    // capillary tube
+    var tx=bx, tTop=by-bh*0.5-150*S, tBot=by-10*S;
+    sctx.strokeStyle='rgba(255,255,255,.4)';sctx.lineWidth=1.5*S;
+    sctx.beginPath();sctx.moveTo(tx-6*S,tTop);sctx.lineTo(tx-6*S,tBot);sctx.moveTo(tx+6*S,tTop);sctx.lineTo(tx+6*S,tBot);sctx.stroke();
+    var hpx=live.frac*1500*S; // exaggerate mm->px
+    var liqTop=by-bh*0.5-hpx;
+    sctx.fillStyle='rgba(56,189,248,.6)';
+    sctx.fillRect(tx-5*S,Math.max(tTop,liqTop),10*S,(by-bh*0.5)-Math.max(tTop,liqTop));
+    sctx.fillStyle='rgba(255,255,255,.5)';sctx.font='10px monospace';sctx.textAlign='center';
+    sctx.fillText('h = '+(live.frac*1000).toFixed(2)+' mm', tx+40*S, Math.max(tTop+10,liqTop));
+    sctx.fillText('r = '+P[1].toFixed(2)+' mm', tx, tTop-10);
+  }
+  else if(curTab===2){
+    // stalagmometer (vertical pipette) dripping into beaker
+    var sx=W*0.45, sTop=H*0.18, sBot=H*0.55;
+    sctx.strokeStyle='rgba(255,255,255,.35)';sctx.lineWidth=2*S;
+    sctx.beginPath();sctx.moveTo(sx-14*S,sTop);sctx.lineTo(sx-14*S,sBot-20*S);sctx.lineTo(sx-3*S,sBot);sctx.lineTo(sx+3*S,sBot);sctx.lineTo(sx+14*S,sBot-20*S);sctx.lineTo(sx+14*S,sTop);sctx.stroke();
+    sctx.fillStyle='rgba(56,189,248,.25)';sctx.fillRect(sx-12*S,sTop+4*S,24*S,sBot-sTop-24*S);
+    // beaker below
+    var bx=sx, by=H*0.82, bw=110*S,bh=60*S;
+    sctx.strokeStyle='rgba(255,255,255,.3)';sctx.lineWidth=2*S;
+    sctx.beginPath();sctx.moveTo(bx-bw/2,by-bh);sctx.lineTo(bx-bw/2,by);sctx.lineTo(bx+bw/2,by);sctx.lineTo(bx+bw/2,by-bh);sctx.stroke();
+    var fillFrac=live.frac;
+    sctx.fillStyle='rgba(56,189,248,.3)';
+    sctx.fillRect(bx-bw/2+2*S,by-bh*0.6*fillFrac,bw-4*S,bh*0.6*fillFrac);
+    // drop animation: show a falling drop cyclically based on progress
+    var totalN = curTab===2 ? Math.max(1,Math.round((rho*(P[2]*1e-6)*g)/(2*Math.PI*rTip*sigmaTrue))) : 0;
+    var dropsShown = Math.floor(live.frac*totalN);
+    var dropPhase = (live.frac*totalN)%1;
+    var dy = sBot + dropPhase*(by-bh-sBot);
+    if(phase==='drip' && dropsShown<totalN){
+      sctx.fillStyle='rgba(56,189,248,.7)';
+      sctx.beginPath();sctx.arc(sx,dy,3.5*S,0,Math.PI*2);sctx.fill();
+    }
+    sctx.fillStyle='rgba(255,255,255,.6)';sctx.font='11px monospace';sctx.textAlign='center';
+    sctx.fillText('n = '+dropsShown+' / '+totalN, sx, by+18);
+    sctx.fillText('V = '+P[2].toFixed(2)+' cm³', sx, sTop-10);
+  }
+  else {
+    // liquid surface with ring being pulled
+    var cx=W*0.4, surfY=H*0.62, dishW=200*S;
+    sctx.strokeStyle='rgba(255,255,255,.3)';sctx.lineWidth=2*S;
+    sctx.beginPath();sctx.ellipse(cx,surfY+6*S,dishW/2,14*S,0,0,Math.PI);sctx.stroke();
+    sctx.fillStyle='rgba(56,189,248,.25)';
+    sctx.beginPath();sctx.ellipse(cx,surfY,dishW/2,14*S,0,0,Math.PI*2);sctx.fill();
+
+    var ringY=surfY-live.frac*70*S;
+    var stretch=Math.min(1,live.frac*1.3);
+    // meniscus (stretched film) before detachment
+    if(live.frac<0.92){
+      sctx.strokeStyle='rgba(56,189,248,.5)';sctx.lineWidth=1.5*S;
+      sctx.beginPath();sctx.moveTo(cx-38*S,ringY);sctx.quadraticCurveTo(cx-30*S,surfY-4*S,cx-38*S,surfY);sctx.stroke();
+      sctx.beginPath();sctx.moveTo(cx+38*S,ringY);sctx.quadraticCurveTo(cx+30*S,surfY-4*S,cx+38*S,surfY);sctx.stroke();
+    }
+    // ring
+    sctx.strokeStyle='rgba(255,255,255,.7)';sctx.lineWidth=3*S;
+    sctx.beginPath();sctx.ellipse(cx,ringY,38*S,8*S,0,0,Math.PI*2);sctx.stroke();
+    // arm holding ring
+    sctx.strokeStyle='rgba(255,255,255,.35)';sctx.lineWidth=2*S;
+    sctx.beginPath();sctx.moveTo(cx,ringY-8*S);sctx.lineTo(cx,H*0.12);sctx.stroke();
+
+    // force meter on right
+    var mx=W*0.75, my0=H*0.2, my1=H*0.6;
+    sctx.strokeStyle='rgba(255,255,255,.3)';sctx.lineWidth=2*S;
+    sctx.strokeRect(mx-14*S,my0,28*S,my1-my0);
+    var Ffrac=live.frac;
+    sctx.fillStyle='rgba(255,201,71,.6)';
+    sctx.fillRect(mx-12*S,my1-(my1-my0)*Ffrac,24*S,(my1-my0)*Ffrac);
+    sctx.fillStyle='rgba(255,255,255,.5)';sctx.font='10px monospace';sctx.textAlign='center';
+    sctx.fillText('F', mx, my0-8);
+    sctx.fillText('R = '+P[3].toFixed(2)+' cm', cx, H*0.1);
+  }
+
+  sctx.fillStyle='rgba(255,255,255,.35)';sctx.font='10px monospace';sctx.textAlign='center';
+  sctx.fillText('Suv (20°C)', W/2, H*0.95);
+}
+
+// ===== GRAPH CANVAS =====
+var gC=document.getElementById('graphCanvas'), gctx=gC.getContext('2d');
+function drawGraph(){
+  var W=gC.offsetWidth||220; gC.width=W; var H=130; gC.height=H;
+  gctx.clearRect(0,0,W,H);
+  gctx.fillStyle='#030608';gctx.fillRect(0,0,W,H);
+  var pad=26;
+  var arr=meas[curTab];
+  var vals=arr.map(function(m_){return rowSigma(m_)*1000;});
+  var theo=sigmaTrue*1000;
+  var ymin=theo*0.8, ymax=theo*1.2;
+  var xmax=Math.max(5,vals.length);
+
+  function mapX(i){return pad+(i-0.5)/xmax*(W-pad-8);}
+  function mapY(y){return H-18-(y-ymin)/(ymax-ymin)*(H-18-8);}
+
+  gctx.strokeStyle='rgba(255,255,255,.2)';gctx.lineWidth=1;
+  gctx.beginPath();gctx.moveTo(pad,8);gctx.lineTo(pad,H-18);gctx.lineTo(W-8,H-18);gctx.stroke();
+  gctx.fillStyle='rgba(255,255,255,.4)';gctx.font='8px monospace';gctx.textAlign='center';
+  gctx.fillText('№',W/2,H-6);
+  gctx.save();gctx.translate(9,H/2);gctx.rotate(-Math.PI/2);gctx.fillText('σ(mN/m)',0,0);gctx.restore();
+
+  gctx.strokeStyle='rgba(56,189,248,.5)';gctx.lineWidth=1.4;gctx.setLineDash([4,3]);
+  gctx.beginPath();gctx.moveTo(pad,mapY(theo));gctx.lineTo(W-8,mapY(theo));gctx.stroke();
+  gctx.setLineDash([]);
+
+  if(vals.length>0){
+    var avg=vals.reduce(function(a,b){return a+b;},0)/vals.length;
+    gctx.strokeStyle='rgba(111,255,92,.5)';gctx.lineWidth=1.2;
+    gctx.beginPath();gctx.moveTo(pad,mapY(avg));gctx.lineTo(W-8,mapY(avg));gctx.stroke();
+  }
+
+  gctx.fillStyle='#ffc947';
+  vals.forEach(function(v,i){
+    var px=mapX(i+1), py=mapY(v);
+    gctx.beginPath();gctx.arc(px,py,3,0,Math.PI*2);gctx.fill();
+  });
+}
+
+window.addEventListener('resize',resizeSim);
+window.addEventListener('load',function(){setTimeout(function(){resizeSim();drawGraph();setLang('uz');},100);});
+</script>
+</body>
+</html>

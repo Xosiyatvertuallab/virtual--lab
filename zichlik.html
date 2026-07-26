@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Qattiq va suyuq jismlarning zichligi</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap');
+:root{
+  --bg:#07090f;--panel:#0e1420;--border:#1b2840;
+  --accent:#facc15;--green:#6fff5c;--yellow:#ffc947;
+  --red:#ff6b6b;--text:#dde6f5;--muted:#4a6080;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;height:100vh;overflow:hidden;display:flex;flex-direction:column;}
+
+header{display:flex;align-items:center;gap:12px;padding:8px 20px;border-bottom:1px solid var(--border);background:linear-gradient(90deg,#07090f,#1f1a00,#07090f);flex-shrink:0;}
+.badge{background:var(--accent);color:#000;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:3px 9px;letter-spacing:2px;border-radius:2px;}
+.htitle{font-size:15px;font-weight:800;}
+.htitle span{color:var(--accent);}
+.hsub{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-left:auto;}
+.brand{display:flex;align-items:center;gap:6px;background:linear-gradient(135deg,rgba(250,204,21,.15),rgba(111,255,92,.1));border:1px solid rgba(250,204,21,.3);border-radius:20px;padding:4px 14px;margin-left:10px;flex-shrink:0;}
+.brand-txt{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;background:linear-gradient(90deg,#facc15,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;}
+
+.tabs{display:flex;border-bottom:1px solid var(--border);background:#0a0f1c;flex-shrink:0;}
+.tab{padding:8px 18px;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap;}
+.tab:hover{color:var(--text);}
+.tab.on{color:var(--accent);border-bottom-color:var(--accent);}
+
+.statusbar{background:#0a0f1c;border-bottom:1px solid var(--border);padding:5px 20px;display:flex;align-items:center;gap:14px;font-family:'Space Mono',monospace;font-size:11px;flex-shrink:0;}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:bl 1s infinite;flex-shrink:0;}
+.dot.off{background:var(--muted);animation:none;}
+@keyframes bl{0%,100%{opacity:1}50%{opacity:.2}}
+#statusTxt{color:var(--accent);}
+.chips{display:flex;gap:6px;margin-left:auto;}
+.chip{background:rgba(250,204,21,.08);border:1px solid rgba(250,204,21,.2);border-radius:10px;padding:2px 9px;font-size:10px;color:var(--muted);}
+.chip span{color:var(--accent);}
+
+.body{display:grid;grid-template-columns:210px 1fr 255px;flex:1;overflow:hidden;}
+
+.left{background:var(--panel);border-right:1px solid var(--border);overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:9px;}
+.stitle{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--accent);text-transform:uppercase;margin-bottom:3px;opacity:.85;}
+.card{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:8px;padding:10px;}
+
+.fixedcard{background:rgba(111,255,92,.05);border:1px solid rgba(111,255,92,.2);border-radius:8px;padding:9px;font-family:'Space Mono',monospace;font-size:11px;display:flex;justify-content:space-between;align-items:center;}
+.fixedcard b{color:var(--green);}
+.fixedcard2{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:8px;padding:9px;font-family:'Space Mono',monospace;font-size:10px;display:flex;flex-direction:column;gap:4px;}
+.fixedcard2 .row{display:flex;justify-content:space-between;}
+.fixedcard2 b{color:var(--accent);}
+
+.fbox{background:rgba(250,204,21,.04);border:1px solid rgba(250,204,21,.15);border-radius:7px;padding:9px;}
+.frow{display:flex;gap:6px;margin-bottom:4px;font-family:'Space Mono',monospace;font-size:10px;}
+.frow:last-child{margin-bottom:0;}
+.fl{color:var(--muted);min-width:30px;}
+.fe{color:var(--yellow);}
+
+.steps{display:flex;flex-direction:column;gap:3px;}
+.step{display:flex;align-items:center;gap:7px;padding:5px 8px;border-radius:5px;font-size:10px;color:var(--muted);border:1px solid transparent;transition:all .3s;}
+.step.active{background:rgba(250,204,21,.07);border-color:rgba(250,204,21,.2);color:var(--accent);}
+.step.done{color:var(--green);}
+.snum{font-family:'Space Mono',monospace;font-size:9px;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.05);flex-shrink:0;}
+.step.active .snum{background:rgba(250,204,21,.2);}
+.step.done .snum{background:rgba(111,255,92,.12);color:var(--green);}
+
+.btn{width:100%;padding:10px;border:none;border-radius:7px;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;cursor:pointer;transition:all .2s;}
+.btn-p{background:linear-gradient(135deg,#facc15,#b38b00);color:#000;}
+.btn-p:hover{transform:translateY(-1px);box-shadow:0 5px 18px rgba(250,204,21,.4);}
+.btn-p:disabled{opacity:.35;cursor:not-allowed;transform:none;}
+.btn-g{background:linear-gradient(135deg,#6fff5c,#33cc22);color:#000;margin-top:5px;}
+.btn-g:disabled{opacity:.35;cursor:not-allowed;}
+.btn-r{background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--border);margin-top:5px;font-size:11px;}
+
+.center{position:relative;overflow:hidden;background:var(--bg);display:flex;flex-direction:column;}
+#simCanvas{flex:1;display:block;width:100%;}
+.instr-bar{background:rgba(7,9,15,.92);border-top:1px solid var(--border);padding:6px 18px;font-size:11px;color:var(--muted);text-align:center;flex-shrink:0;}
+
+.right{background:var(--panel);border-left:1px solid var(--border);overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:9px;}
+.rc{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:8px;padding:10px;}
+.rc.hi{border-color:rgba(250,204,21,.25);background:rgba(250,204,21,.05);}
+.rl{font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:3px;}
+.rv{font-size:22px;font-weight:800;line-height:1;color:#fff;}
+.ru{font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);margin-top:2px;}
+.three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;}
+
+table{width:100%;border-collapse:collapse;font-family:'Space Mono',monospace;font-size:9px;}
+th{color:var(--accent);font-size:8px;letter-spacing:1px;border-bottom:1px solid var(--border);padding:4px 2px;text-align:center;}
+td{padding:3px 2px;border-bottom:1px solid rgba(255,255,255,.03);text-align:center;}
+tr.avg-r td{color:var(--yellow);border-top:1px solid var(--border);font-weight:700;}
+tr:last-child td{border-bottom:none;}
+
+#graphCanvas{display:block;width:100%;border-radius:8px;border:1px solid var(--border);}
+
+.final-card{background:rgba(250,204,21,.05);border:1px solid rgba(250,204,21,.2);border-radius:8px;padding:12px;}
+.err-row{display:flex;justify-content:space-between;margin-top:6px;font-family:'Space Mono',monospace;font-size:10px;}
+.err-row span:first-child{color:var(--muted);}
+.err-row span:last-child{color:var(--yellow);}
+.langsw{display:flex;gap:3px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;padding:3px;margin-left:10px;}
+.langbtn{background:transparent;border:none;color:var(--muted);font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:4px 9px;border-radius:5px;cursor:pointer;letter-spacing:1px;}
+.langbtn.active{background:var(--accent);color:#000;}
+</style>
+</head>
+<body>
+
+<!-- BOSHLASH EKRANI -->
+<div id="startScreen" style="position:fixed;inset:0;z-index:9998;background:radial-gradient(ellipse at 40% 50%,#1a1600 0%,#07090f 70%);display:flex;align-items:center;justify-content:center;">
+  <canvas id="bgCanvas" style="position:absolute;inset:0;width:100%;height:100%;opacity:.5;pointer-events:none"></canvas>
+  <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:20px;max-width:580px;padding:20px;text-align:center">
+    <div style="display:flex;align-items:center;gap:10px">
+      <div style="background:#facc15;color:#000;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:4px 14px;letter-spacing:2px;border-radius:2px">LAB · ZICHLIK</div>
+      <div style="font-family:'Space Mono',monospace;font-size:10px;color:#4a6080;letter-spacing:2px" id="tKicker">MEXANIKA · MODDA ZICHLIGI</div>
+    </div>
+    <div style="width:100px;height:100px;border-radius:50%;background:radial-gradient(circle,rgba(250,204,21,.18) 0%,rgba(250,204,21,.02) 70%);border:2px solid rgba(250,204,21,.4);display:flex;align-items:center;justify-content:center;box-shadow:0 0 50px rgba(250,204,21,.3);animation:pulseG 2.5s ease-in-out infinite;">
+      <span style="font-size:44px">⚖️</span>
+    </div>
+    <div>
+      <h1 style="font-size:24px;font-weight:800;line-height:1.2;color:#fff" id="tStartTitle">Qattiq va suyuq jismlarning <span style="color:#facc15">zichligini aniqlash</span></h1>
+      <p style="font-size:13px;color:#4a6080;margin-top:8px;font-family:'Space Mono',monospace" id="tStartSub">Geometrik, Arximed va piknometr usullari</p>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;width:100%">
+      <div style="background:rgba(255,255,255,.04);border:1px solid #1b2840;border-radius:10px;padding:12px"><div style="font-size:20px;margin-bottom:4px">⏱</div><div style="font-size:11px;color:#4a6080;font-family:monospace" id="tInfoTime">Vaqt</div><div style="font-size:13px;font-weight:700;color:#dde6f5;margin-top:2px">40-55 min</div></div>
+      <div style="background:rgba(255,255,255,.04);border:1px solid #1b2840;border-radius:10px;padding:12px"><div style="font-size:20px;margin-bottom:4px">🧱</div><div style="font-size:11px;color:#4a6080;font-family:monospace" id="tInfoEx">Mashq</div><div style="font-size:13px;font-weight:700;color:#dde6f5;margin-top:2px" id="tInfoExVal">3 ta</div></div>
+      <div style="background:rgba(255,255,255,.04);border:1px solid #1b2840;border-radius:10px;padding:12px"><div style="font-size:20px;margin-bottom:4px">🎯</div><div style="font-size:11px;color:#4a6080;font-family:monospace" id="tInfoGoal">Maqsad</div><div style="font-size:13px;font-weight:700;color:#dde6f5;margin-top:2px" id="tInfoGoalVal">ρ topish</div></div>
+    </div>
+    <div style="background:rgba(250,204,21,.05);border:1px solid rgba(250,204,21,.18);border-radius:12px;padding:16px;width:100%;text-align:left">
+      <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;color:#facc15;margin-bottom:10px" id="tProcedure">BAJARISH TARTIBI</div>
+      <div style="display:flex;flex-direction:column;gap:7px">
+        <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:#c5d3e8"><div style="width:22px;height:22px;border-radius:50%;background:rgba(250,204,21,.2);display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:10px;color:#facc15;flex-shrink:0">1</div><span id="tPS1">Usulni tanlang: geometrik / Arximed / piknometr</span></div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:#c5d3e8"><div style="width:22px;height:22px;border-radius:50%;background:rgba(250,204,21,.2);display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:10px;color:#facc15;flex-shrink:0">2</div><span id="tPS2"><b style="color:#facc15">"O'lchov olish"</b> — tarozi va asbob avtomatik o'qiladi</span></div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:#c5d3e8"><div style="width:22px;height:22px;border-radius:50%;background:rgba(250,204,21,.2);display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:10px;color:#facc15;flex-shrink:0">3</div><span id="tPS3">Har usulda kamida 5 marta o'lchov to'plang</span></div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:#c5d3e8"><div style="width:22px;height:22px;border-radius:50%;background:rgba(250,204,21,.2);display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:10px;color:#facc15;flex-shrink:0">4</div><span id="tPS4">ρ = m/V formulasi bilan zichlikni hisoblang</span></div>
+      </div>
+    </div>
+    <button onclick="startLab()" style="background:linear-gradient(135deg,#facc15,#b38b00);color:#000;border:none;border-radius:12px;padding:16px 60px;font-size:16px;font-weight:800;font-family:'Syne',sans-serif;cursor:pointer;box-shadow:0 8px 30px rgba(250,204,21,.4);transition:all .2s;width:100%"
+    onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 12px 40px rgba(250,204,21,.6)'"
+    onmouseout="this.style.transform='none';this.style.boxShadow='0 8px 30px rgba(250,204,21,.4)'">
+      <span id="tStartBtn">▶ Laboratoriyani boshlash</span>
+    </button>
+    <div style="display:flex;align-items:center;gap:6px;opacity:.6">
+      <span style="font-size:13px">🔬</span>
+      <span style="font-family:'Space Mono',monospace;font-size:10px;background:linear-gradient(90deg,#facc15,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;font-weight:700">Xosiyat Virtual Lab</span>
+    </div>
+  </div>
+</div>
+<style>
+@keyframes pulseG{0%,100%{box-shadow:0 0 50px rgba(250,204,21,.25)}50%{box-shadow:0 0 70px rgba(250,204,21,.5)}}
+@keyframes fadeOut{0%{opacity:1}100%{opacity:0;transform:scale(1.04)}}
+</style>
+<script>
+(function(){var c=document.getElementById('bgCanvas');var x=c.getContext('2d');var pts=[];function resize(){c.width=window.innerWidth;c.height=window.innerHeight;}resize();window.addEventListener('resize',resize);for(var i=0;i<60;i++)pts.push({x:Math.random()*1600,y:Math.random()*900,r:Math.random()*1.5+.5,vx:(Math.random()-.5)*.35,vy:(Math.random()-.5)*.35,a:Math.random()});function frame(){x.clearRect(0,0,c.width,c.height);pts.forEach(function(p){p.x+=p.vx;p.y+=p.vy;p.a+=.005;if(p.x<0)p.x=c.width;if(p.x>c.width)p.x=0;if(p.y<0)p.y=c.height;if(p.y>c.height)p.y=0;x.fillStyle='rgba(250,204,21,'+(0.25+Math.sin(p.a)*0.18)+')';x.beginPath();x.arc(p.x%c.width,p.y%c.height,p.r,0,Math.PI*2);x.fill();});requestAnimationFrame(frame);}frame();})();
+function startLab(){var s=document.getElementById('startScreen');s.style.animation='fadeOut .5s ease forwards';setTimeout(function(){s.style.display='none';},480);}
+</script>
+
+<!-- MAIN -->
+<header>
+  <div class="badge">LAB · ZICHLIK</div>
+  <h1 class="htitle" id="tTitle">Qattiq va suyuq jismlarning <span>zichligi</span></h1>
+  <div class="hsub" id="tHsub">MEXANIKA · FIZPRAKTIKUM · SDPI 2026</div>
+  <div class="langsw">
+    <button class="langbtn active" id="langUZ" onclick="setLang('uz')">UZ</button>
+    <button class="langbtn" id="langRU" onclick="setLang('ru')">RU</button>
+    <button class="langbtn" id="langEN" onclick="setLang('en')">EN</button>
+  </div>
+  <div class="brand"><span style="font-size:12px">🔬</span><span class="brand-txt">Xosiyat Virtual Lab</span></div>
+</header>
+
+<div class="tabs">
+  <div class="tab on" id="t1" onclick="switchTab(1)"><span id="tTab1">a) Geometrik usul</span></div>
+  <div class="tab" id="t2" onclick="switchTab(2)"><span id="tTab2">b) Arximed usuli</span></div>
+  <div class="tab" id="t3" onclick="switchTab(3)"><span id="tTab3">v) Piknometr usuli</span></div>
+</div>
+
+<div class="statusbar">
+  <div class="dot off" id="dot"></div>
+  <span id="statusTxt">"O'lchov olish" tugmasini bosing</span>
+  <div class="chips">
+    <div class="chip">ρ = <span id="chipRho">—</span> g/cm³</div>
+    <div class="chip"><span id="tMeasLbl">O'lchov:</span> <span id="chipCnt">0</span>/5</div>
+  </div>
+</div>
+
+<div class="body">
+  <!-- LEFT -->
+  <div class="left">
+    <div class="stitle" id="paramTitle">a-mashq: Geometrik usul</div>
+
+    <div class="fixedcard"><span id="tObjLbl">Namuna:</span> <b id="objName">Alyuminiy silindr</b></div>
+
+    <div class="fbox" id="fboxA">
+      <div class="frow"><span class="fl">V</span><span class="fe">= πD²H / 4</span></div>
+      <div class="frow"><span class="fl">ρ</span><span class="fe">= m / V</span></div>
+    </div>
+    <div class="fbox" id="fboxB" style="display:none">
+      <div class="frow"><span class="fl">ΔV</span><span class="fe">= V₂ - V₁</span></div>
+      <div class="frow"><span class="fl">ρ</span><span class="fe">= m / ΔV</span></div>
+    </div>
+    <div class="fbox" id="fboxC" style="display:none">
+      <div class="frow"><span class="fl">Δm</span><span class="fe">= m₁ - m₀</span></div>
+      <div class="frow"><span class="fl">ρ</span><span class="fe">= Δm / V</span></div>
+    </div>
+
+    <div class="fixedcard2">
+      <div class="row"><span id="tTheoLbl">Jadval ρ:</span><b id="theoValSide">2.70</b></div>
+    </div>
+
+    <div class="steps">
+      <div class="step active" id="st1"><div class="snum">1</div><span id="tStep1">O'lchov oling</span></div>
+      <div class="step" id="st2"><div class="snum">2</div><span id="tStep2">5 marta takrorlang</span></div>
+      <div class="step" id="st3"><div class="snum">3</div><span id="tStep3">ρ ni hisoblang</span></div>
+      <div class="step" id="st4"><div class="snum">4</div><span id="tStep4">Xatoni baholang</span></div>
+    </div>
+
+    <button class="btn btn-p" id="measBtn" onclick="takeMeasure()">⚖️ <span id="tMeasBtn">O'lchov olish</span></button>
+    <button class="btn btn-g" id="calcBtn" onclick="calcRho()" disabled>📊 <span id="tCalcBtn">ρ Hisoblash</span></button>
+    <button class="btn btn-r" onclick="resetAll()">↺ <span id="tResetBtn">Qayta boshlash</span></button>
+  </div>
+
+  <!-- CENTER -->
+  <div class="center">
+    <canvas id="simCanvas"></canvas>
+    <div class="instr-bar" id="instrBar">⚖️ Tarozi va o'lchash asbobi bilan namunani o'lchang</div>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="right">
+    <div class="stitle" id="tResultsSec">Joriy holat</div>
+    <div class="three">
+      <div class="rc hi">
+        <div class="rl" id="c1lbl">m</div>
+        <div class="rv" style="font-size:16px" id="rC1">—</div>
+        <div class="ru" id="c1u">g</div>
+      </div>
+      <div class="rc hi">
+        <div class="rl" id="c2lbl">D</div>
+        <div class="rv" style="font-size:16px" id="rC2">—</div>
+        <div class="ru" id="c2u">mm</div>
+      </div>
+      <div class="rc hi">
+        <div class="rl" id="c3lbl">H</div>
+        <div class="rv" style="font-size:16px;color:var(--accent)" id="rC3">—</div>
+        <div class="ru" id="c3u">mm</div>
+      </div>
+    </div>
+
+    <div class="stitle" id="tGraphSec">Grafik: ρ (o'lchovlar)</div>
+    <canvas id="graphCanvas" height="130"></canvas>
+
+    <div class="stitle" id="tTableSec">Jadval</div>
+    <div style="overflow-x:auto">
+      <table>
+        <thead><tr id="theadRow"><th>№</th><th id="thC1">m(g)</th><th id="thC2">D(mm)</th><th id="thC3">H(mm)</th><th>ρ(g/cm³)</th></tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+
+    <div class="final-card" id="finalCard" style="display:none">
+      <div class="rl" id="tAvgRho">O'rtacha zichlik ρ̄</div>
+      <div class="rv" style="color:var(--green);font-size:28px" id="avgR">—</div>
+      <div class="ru">g/cm³</div>
+      <div class="err-row"><span id="tAbsErr">Absolyut xatolik Δρ</span><span id="absErr">—</span></div>
+      <div class="err-row"><span id="tRelErr">Nisbiy xatolik ε</span><span id="relErr">—</span></div>
+      <div class="err-row"><span id="tTrueVal">Jadval qiymati</span><span style="color:rgba(250,204,21,.9)" id="theoValF">—</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- Watermark -->
+<div style="position:fixed;bottom:14px;right:18px;display:flex;align-items:center;gap:7px;background:rgba(7,9,15,.75);border:1px solid rgba(250,204,21,.2);border-radius:30px;padding:5px 16px;backdrop-filter:blur(10px);z-index:9999;pointer-events:none">
+  <span style="font-size:13px">🔬</span>
+  <span style="font-family:'Space Mono',monospace;font-size:11px;font-weight:700;background:linear-gradient(90deg,#facc15,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px">Xosiyat Virtual Lab</span>
+</div>
+
+<script>
+// ===== I18N =====
+var LANG='uz';
+var I18N={
+ uz:{title:'Qattiq va suyuq jismlarning <span>zichligi</span>',hsub:'MEXANIKA · FIZPRAKTIKUM · SDPI 2026',measLbl:"O'lchov:",kicker:'MEXANIKA · MODDA ZICHLIGI',
+   tab1:'a) Geometrik usul',tab2:'b) Arximed usuli',tab3:'v) Piknometr usuli',
+   paramTitleA:"a-mashq: Geometrik usul (silindr)",paramTitleB:'b-mashq: Arximed usuli (noto\'g\'ri shakl)',paramTitleC:'v-mashq: Piknometr usuli (suyuqlik)',
+   objLbl:'Namuna:',objNameA:'Alyuminiy silindr',objNameB:"Granit bo'lagi",objNameC:'Glitserin (suyuqlik)',
+   theoLbl:'Jadval ρ:',
+   step1:"O'lchov oling",step2:'5 marta takrorlang',step3:'ρ ni hisoblang',step4:'Xatoni baholang',
+   measBtn:"O'lchov olish",calcBtn:'ρ Hisoblash',resetBtn:'Qayta boshlash',resultsSec:'Joriy holat',
+   graphSec:"Grafik: ρ (o'lchovlar)",tableSec:'Jadval',
+   avgRho:"O'rtacha zichlik ρ̄",absErr:'Absolyut xatolik Δρ',relErr:'Nisbiy xatolik ε',trueVal:'Jadval qiymati',
+   c1A:'m',c2A:'D',c3A:'H',c1uA:'g',c2uA:'mm',c3uA:'mm',
+   c1B:'m',c2B:'V₁',c3B:'V₂',c1uB:'g',c2uB:'cm³',c3uB:'cm³',
+   c1C:'m₀',c2C:'m₁',c3C:'V',c1uC:'g',c2uC:'g',c3uC:'cm³',
+   startTitle:'Qattiq va suyuq jismlarning <span style="color:#facc15">zichligini aniqlash</span>',startSub:'Geometrik, Arximed va piknometr usullari',
+   infoTime:'Vaqt',infoEx:'Mashq',infoExVal:'3 ta',infoGoal:'Maqsad',infoGoalVal:'ρ topish',
+   procedure:'BAJARISH TARTIBI',ps1:"Usulni tanlang: geometrik / Arximed / piknometr",
+   ps2:'<b style="color:#facc15">"O\'lchov olish"</b> — tarozi va asbob avtomatik o\'qiladi',
+   ps3:"Har usulda kamida 5 marta o'lchov to'plang",
+   ps4:'ρ = m/V formulasi bilan zichlikni hisoblang',
+   startBtn:'▶ Laboratoriyani boshlash',
+   statusDefault:'"O\'lchov olish" tugmasini bosing',
+   statusWeigh:'⚖️ Tarozida massa o\'lchanmoqda...',statusMeasure:'📏 O\'lchamlar aniqlanmoqda...',statusImmerse:'💧 Jism suyuqlikka tushirilmoqda...',statusPour:'🧪 Suyuqlik piknometrga quyilmoqda...',
+   instrA:"📏 Shtangensirkul bilan D va H o'lchanadi, tarozida m o'lchanadi",
+   instrB:"💧 Jism avval havoda tortiladi, so'ng menzurkaga cho'ktiriladi — suv sathi ko'tariladi",
+   instrC:"🧪 Bo'sh va to'la piknometr tortiladi, hajm V piknometrda belgilangan",
+   instrEnough:'✅ Yetarli o\'lchov. "ρ Hisoblash" tugmasini bosing',avgRowLbl:'ρ̄ =',
+   finalStatus:'🎉 Zichlik aniqlandi: ρ̄ = ',finalStatus2:' g/cm³ | ε = '
+ },
+ ru:{title:'Плотность <span>твёрдых и жидких тел</span>',hsub:'МЕХАНИКА · ФИЗПРАКТИКУМ · SDPI 2026',measLbl:'Измерений:',kicker:'МЕХАНИКА · ПЛОТНОСТЬ ВЕЩЕСТВА',
+   tab1:'а) Геометрический метод',tab2:'б) Метод Архимеда',tab3:'в) Метод пикнометра',
+   paramTitleA:'Упр. а: Геометрический метод (цилиндр)',paramTitleB:'Упр. б: Метод Архимеда (неправ. форма)',paramTitleC:'Упр. в: Метод пикнометра (жидкость)',
+   objLbl:'Образец:',objNameA:'Алюминиевый цилиндр',objNameB:'Кусок гранита',objNameC:'Глицерин (жидкость)',
+   theoLbl:'Табличное ρ:',
+   step1:'Сделайте измерение',step2:'Повторите 5 раз',step3:'Вычислите ρ',step4:'Оцените погрешность',
+   measBtn:'Сделать измерение',calcBtn:'Вычислить ρ',resetBtn:'Начать заново',resultsSec:'Текущее состояние',
+   graphSec:'График: ρ (измерения)',tableSec:'Таблица',
+   avgRho:'Средняя плотность ρ̄',absErr:'Абс. погрешность Δρ',relErr:'Отн. погрешность ε',trueVal:'Табличное значение',
+   c1A:'m',c2A:'D',c3A:'H',c1uA:'г',c2uA:'мм',c3uA:'мм',
+   c1B:'m',c2B:'V₁',c3B:'V₂',c1uB:'г',c2uB:'см³',c3uB:'см³',
+   c1C:'m₀',c2C:'m₁',c3C:'V',c1uC:'г',c2uC:'г',c3uC:'см³',
+   startTitle:'Плотность <span style="color:#facc15">твёрдых и жидких тел</span>',startSub:'Геометрический, Архимеда и пикнометрический методы',
+   infoTime:'Время',infoEx:'Упражнения',infoExVal:'3 шт.',infoGoal:'Цель',infoGoalVal:'найти ρ',
+   procedure:'ПОРЯДОК ВЫПОЛНЕНИЯ',ps1:'Выберите метод: геометрический / Архимеда / пикнометр',
+   ps2:'<b style="color:#facc15">"Сделать измерение"</b> — весы и прибор считываются автоматически',
+   ps3:'Соберите не менее 5 измерений каждым методом',
+   ps4:'Вычислите плотность по формуле ρ = m/V',
+   startBtn:'▶ Начать лабораторную',
+   statusDefault:'Нажмите "Сделать измерение"',
+   statusWeigh:'⚖️ Измерение массы на весах...',statusMeasure:'📏 Определение размеров...',statusImmerse:'💧 Погружение тела в жидкость...',statusPour:'🧪 Заливка жидкости в пикнометр...',
+   instrA:'📏 Штангенциркулем измеряются D и H, на весах — m',
+   instrB:'💧 Тело сначала взвешивается в воздухе, затем погружается в мензурку — уровень воды поднимается',
+   instrC:'🧪 Взвешиваются пустой и полный пикнометр, объём V указан на пикнометре',
+   instrEnough:'✅ Достаточно данных. Нажмите "Вычислить ρ"',avgRowLbl:'ρ̄ =',
+   finalStatus:'🎉 Плотность определена: ρ̄ = ',finalStatus2:' г/см³ | ε = '
+ },
+ en:{title:'Density of <span>Solids and Liquids</span>',hsub:'MECHANICS · PHYSICS LAB · SDPI 2026',measLbl:'Measurements:',kicker:'MECHANICS · DENSITY OF MATTER',
+   tab1:'a) Geometric method',tab2:"b) Archimedes' method",tab3:'c) Pycnometer method',
+   paramTitleA:'Exercise a: Geometric method (cylinder)',paramTitleB:"Exercise b: Archimedes' method (irregular shape)",paramTitleC:'Exercise c: Pycnometer method (liquid)',
+   objLbl:'Sample:',objNameA:'Aluminum cylinder',objNameB:'Granite piece',objNameC:'Glycerin (liquid)',
+   theoLbl:'Reference ρ:',
+   step1:'Take a measurement',step2:'Repeat 5 times',step3:'Calculate ρ',step4:'Assess the error',
+   measBtn:'Take measurement',calcBtn:'Calculate ρ',resetBtn:'Restart',resultsSec:'Current state',
+   graphSec:'Graph: ρ (trials)',tableSec:'Table',
+   avgRho:'Average density ρ̄',absErr:'Absolute error Δρ',relErr:'Relative error ε',trueVal:'Reference value',
+   c1A:'m',c2A:'D',c3A:'H',c1uA:'g',c2uA:'mm',c3uA:'mm',
+   c1B:'m',c2B:'V₁',c3B:'V₂',c1uB:'cm³',c2uB:'cm³',c3uB:'cm³',
+   c1C:'m₀',c2C:'m₁',c3C:'V',c1uC:'g',c2uC:'g',c3uC:'cm³',
+   startTitle:'Density of <span style="color:#facc15">Solids and Liquids</span>',startSub:'Geometric, Archimedes, and pycnometer methods',
+   infoTime:'Time',infoEx:'Exercises',infoExVal:'3',infoGoal:'Goal',infoGoalVal:'find ρ',
+   procedure:'PROCEDURE',ps1:"Choose the method: geometric / Archimedes / pycnometer",
+   ps2:'<b style="color:#facc15">"Take measurement"</b> — the balance and instrument are read automatically',
+   ps3:'Collect at least 5 measurements for each method',
+   ps4:'Calculate the density using ρ = m/V',
+   startBtn:'▶ Start the lab',
+   statusDefault:'Press "Take measurement"',
+   statusWeigh:'⚖️ Measuring mass on the balance...',statusMeasure:'📏 Measuring dimensions...',statusImmerse:'💧 Immersing the body in liquid...',statusPour:'🧪 Pouring liquid into the pycnometer...',
+   instrA:'📏 D and H are measured with a caliper, m with a balance',
+   instrB:'💧 The body is first weighed in air, then immersed in a graduated cylinder — the water level rises',
+   instrC:'🧪 The empty and filled pycnometer are weighed; volume V is marked on the pycnometer',
+   instrEnough:'✅ Enough data. Press "Calculate ρ"',avgRowLbl:'ρ̄ =',
+   finalStatus:'🎉 Density determined: ρ̄ = ',finalStatus2:' g/cm³ | ε = '
+ }
+};
+function t(k){return I18N[LANG][k];}
+
+function setLang(l){
+  LANG=l;
+  document.getElementById('langUZ').className='langbtn'+(l==='uz'?' active':'');
+  document.getElementById('langRU').className='langbtn'+(l==='ru'?' active':'');
+  document.getElementById('langEN').className='langbtn'+(l==='en'?' active':'');
+  document.getElementById('tTitle').innerHTML=t('title');
+  document.getElementById('tHsub').textContent=t('hsub');
+  document.getElementById('tMeasLbl').textContent=t('measLbl');
+  document.getElementById('tKicker').textContent=t('kicker');
+  document.getElementById('tTab1').textContent=t('tab1');
+  document.getElementById('tTab2').textContent=t('tab2');
+  document.getElementById('tTab3').textContent=t('tab3');
+  document.getElementById('tObjLbl').textContent=t('objLbl');
+  document.getElementById('tTheoLbl').textContent=t('theoLbl');
+  document.getElementById('tStep1').textContent=t('step1');
+  document.getElementById('tStep2').textContent=t('step2');
+  document.getElementById('tStep3').textContent=t('step3');
+  document.getElementById('tStep4').textContent=t('step4');
+  document.getElementById('tMeasBtn').textContent=t('measBtn');
+  document.getElementById('tCalcBtn').textContent=t('calcBtn');
+  document.getElementById('tResetBtn').textContent=t('resetBtn');
+  document.getElementById('tResultsSec').textContent=t('resultsSec');
+  document.getElementById('tGraphSec').textContent=t('graphSec');
+  document.getElementById('tTableSec').textContent=t('tableSec');
+  document.getElementById('tAvgRho').textContent=t('avgRho');
+  document.getElementById('tAbsErr').textContent=t('absErr');
+  document.getElementById('tRelErr').textContent=t('relErr');
+  document.getElementById('tTrueVal').textContent=t('trueVal');
+  document.getElementById('tStartTitle').innerHTML=t('startTitle');
+  document.getElementById('tStartSub').textContent=t('startSub');
+  document.getElementById('tInfoTime').textContent=t('infoTime');
+  document.getElementById('tInfoExVal').textContent=t('infoExVal');
+  document.getElementById('tInfoEx').textContent=t('infoEx');
+  document.getElementById('tInfoGoal').textContent=t('infoGoal');
+  document.getElementById('tInfoGoalVal').textContent=t('infoGoalVal');
+  document.getElementById('tProcedure').textContent=t('procedure');
+  document.getElementById('tPS1').textContent=t('ps1');
+  document.getElementById('tPS2').innerHTML=t('ps2');
+  document.getElementById('tPS3').textContent=t('ps3');
+  document.getElementById('tPS4').textContent=t('ps4');
+  document.getElementById('tStartBtn').textContent=t('startBtn');
+  updateTabTexts();
+  if(!statusOverridden) document.getElementById('statusTxt').textContent=t('statusDefault');
+  if(phase==='idle') document.getElementById('instrBar').textContent=t(curTab===1?'instrA':curTab===2?'instrB':'instrC');
+}
+
+// ===== OBJECT / MATERIAL DATA =====
+var OBJ={
+  1:{rho:2.70, name:'objNameA', m:67.90, D:20.00, H:80.00},
+  2:{rho:2.60, name:'objNameB', m:104.00, V1:50.0, V2:90.0},
+  3:{rho:1.26, name:'objNameC', V:50.00, m0:30.00, m1:93.00}
+};
+var curTab=1;
+var statusOverridden=false;
+var meas={1:[],2:[],3:[]};
+var cnt={1:0,2:0,3:0};
+var phase='idle';
+var live={m:0,D:0,H:0,V1:0,V2:0,m0:0,m1:0};
+
+function paramTitleKey(){return curTab===1?'paramTitleA':curTab===2?'paramTitleB':'paramTitleC';}
+function updateTabTexts(){
+  document.getElementById('paramTitle').textContent=t(paramTitleKey());
+  document.getElementById('objName').textContent=t(OBJ[curTab].name);
+  document.getElementById('theoValSide').textContent=OBJ[curTab].rho.toFixed(2);
+  document.getElementById('fboxA').style.display=curTab===1?'block':'none';
+  document.getElementById('fboxB').style.display=curTab===2?'block':'none';
+  document.getElementById('fboxC').style.display=curTab===3?'block':'none';
+  var suf=curTab===1?'A':curTab===2?'B':'C';
+  document.getElementById('c1lbl').textContent=t('c1'+suf);
+  document.getElementById('c2lbl').textContent=t('c2'+suf);
+  document.getElementById('c3lbl').textContent=t('c3'+suf);
+  document.getElementById('c1u').textContent=t('c1u'+suf);
+  document.getElementById('c2u').textContent=t('c2u'+suf);
+  document.getElementById('c3u').textContent=t('c3u'+suf);
+  document.getElementById('thC1').textContent=t('c1'+suf)+'('+t('c1u'+suf)+')';
+  document.getElementById('thC2').textContent=t('c2'+suf)+'('+t('c2u'+suf)+')';
+  document.getElementById('thC3').textContent=t('c3'+suf)+'('+t('c3u'+suf)+')';
+}
+
+function switchTab(n_){
+  if(phase!=='idle')return;
+  curTab=n_;
+  document.getElementById('t1').className='tab'+(n_===1?' on':'');
+  document.getElementById('t2').className='tab'+(n_===2?' on':'');
+  document.getElementById('t3').className='tab'+(n_===3?' on':'');
+  updateTabTexts();
+  statusOverridden=false;
+  document.getElementById('statusTxt').textContent=t('statusDefault');
+  document.getElementById('instrBar').textContent=t(n_===1?'instrA':n_===2?'instrB':'instrC');
+  rebuildTable();
+  document.getElementById('chipCnt').textContent=cnt[curTab];
+  document.getElementById('calcBtn').disabled = cnt[curTab]<5;
+  document.getElementById('finalCard').style.display='none';
+  setStep(cnt[curTab]>=5?3:1);
+  document.getElementById('rC1').textContent='—';
+  document.getElementById('rC2').textContent='—';
+  document.getElementById('rC3').textContent='—';
+  document.getElementById('chipRho').textContent='—';
+  live={m:0,D:0,H:0,V1:curTab===2?OBJ[2].V1:0,V2:curTab===2?OBJ[2].V1:0,m0:curTab===3?OBJ[3].m0:0,m1:curTab===3?OBJ[3].m0:0};
+  drawSim();
+  drawGraph();
+}
+
+// ===== TABLE =====
+function rowRho(m_){
+  if(curTab===1) return m_.m/((Math.PI*Math.pow(m_.D/2,2)*m_.H)/1000);
+  if(curTab===2) return m_.m/(m_.V2-m_.V1);
+  return (m_.m1-m_.m0)/m_.V;
+}
+function rebuildTable(){
+  var arr=meas[curTab];
+  var tb=document.getElementById('tbody');
+  tb.innerHTML='';
+  arr.forEach(function(m_,i){
+    var r=rowRho(m_);
+    var c1,c2,c3;
+    if(curTab===1){c1=m_.m.toFixed(2);c2=m_.D.toFixed(2);c3=m_.H.toFixed(2);}
+    else if(curTab===2){c1=m_.m.toFixed(2);c2=m_.V1.toFixed(1);c3=m_.V2.toFixed(1);}
+    else {c1=m_.m0.toFixed(2);c2=m_.m1.toFixed(2);c3=m_.V.toFixed(2);}
+    var tr=document.createElement('tr');
+    tr.innerHTML='<td>'+(i+1)+'</td><td>'+c1+'</td><td>'+c2+'</td><td>'+c3+'</td><td>'+r.toFixed(3)+'</td>';
+    tb.appendChild(tr);
+  });
+}
+
+// ===== ANIMATION HELPERS =====
+function animateVal(setter,from,to,duration,onDone){
+  var start=null;
+  function step(ts){
+    if(!start)start=ts;
+    var p=Math.min(1,(ts-start)/duration);
+    setter(from+(to-from)*p);
+    drawSim();
+    if(p<1){requestAnimationFrame(step);} else {setter(to);drawSim();if(onDone)onDone();}
+  }
+  requestAnimationFrame(step);
+}
+function noise(v,pct){return v*(1+(Math.random()-0.5)*pct);}
+
+function takeMeasure(){
+  if(phase!=='idle')return;
+  document.getElementById('measBtn').disabled=true;
+  document.getElementById('calcBtn').disabled=true;
+  setDot(true);
+  statusOverridden=true;
+  setStep(1);
+
+  if(curTab===1){
+    var m1v=noise(OBJ[1].m,0.01), Dv=noise(OBJ[1].D,0.01), Hv=noise(OBJ[1].H,0.01);
+    phase='weigh';
+    document.getElementById('statusTxt').textContent=t('statusWeigh');
+    document.getElementById('instrBar').textContent=t('statusWeigh');
+    animateVal(function(v){live.m=v;},0,m1v,700,function(){
+      document.getElementById('rC1').textContent=live.m.toFixed(2);
+      setTimeout(function(){
+        phase='measure';
+        document.getElementById('statusTxt').textContent=t('statusMeasure');
+        document.getElementById('instrBar').textContent=t('statusMeasure');
+        animateVal(function(v){live.D=v;},0,Dv,500,function(){
+          document.getElementById('rC2').textContent=live.D.toFixed(2);
+          animateVal(function(v){live.H=v;},0,Hv,500,function(){
+            document.getElementById('rC3').textContent=live.H.toFixed(2);
+            finishMeasure({m:m1v,D:Dv,H:Hv});
+          });
+        });
+      },250);
+    });
+  } else if(curTab===2){
+    var m2v=noise(OBJ[2].m,0.01), V1v=noise(OBJ[2].V1,0.006), V2v=V1v+(OBJ[2].V2-OBJ[2].V1)*(1+(Math.random()-0.5)*0.02);
+    phase='weigh';
+    document.getElementById('statusTxt').textContent=t('statusWeigh');
+    document.getElementById('instrBar').textContent=t('statusWeigh');
+    animateVal(function(v){live.m=v;},0,m2v,700,function(){
+      document.getElementById('rC1').textContent=live.m.toFixed(2);
+      setTimeout(function(){
+        phase='v1';
+        live.V1=V1v; live.V2=V1v;
+        document.getElementById('rC2').textContent=live.V1.toFixed(1);
+        drawSim();
+        setTimeout(function(){
+          phase='immerse';
+          document.getElementById('statusTxt').textContent=t('statusImmerse');
+          document.getElementById('instrBar').textContent=t('statusImmerse');
+          animateVal(function(v){live.V2=v;},V1v,V2v,700,function(){
+            document.getElementById('rC3').textContent=live.V2.toFixed(1);
+            finishMeasure({m:m2v,V1:V1v,V2:V2v});
+          });
+        },350);
+      },250);
+    });
+  } else {
+    var m0v=noise(OBJ[3].m0,0.004), m1vv=m0v+(OBJ[3].m1-OBJ[3].m0)*(1+(Math.random()-0.5)*0.015);
+    live.m0=m0v;
+    document.getElementById('rC1').textContent=live.m0.toFixed(2);
+    document.getElementById('rC3').textContent=OBJ[3].V.toFixed(2);
+    phase='pour';
+    document.getElementById('statusTxt').textContent=t('statusPour');
+    document.getElementById('instrBar').textContent=t('statusPour');
+    animateVal(function(v){live.m1=v;},m0v,m1vv,900,function(){
+      document.getElementById('rC2').textContent=live.m1.toFixed(2);
+      finishMeasure({m0:m0v,m1:m1vv,V:OBJ[3].V});
+    });
+  }
+}
+
+function finishMeasure(row){
+  var r=rowRho(row);
+  document.getElementById('rC1') && (document.getElementById('chipRho').textContent=r.toFixed(3));
+  meas[curTab].push(row);
+  cnt[curTab]++;
+  document.getElementById('chipCnt').textContent=cnt[curTab];
+  rebuildTable();
+  drawGraph();
+  phase='idle';
+  setDot(false);
+  document.getElementById('measBtn').disabled=false;
+  document.getElementById('statusTxt').textContent='✓ #'+cnt[curTab]+' ρ='+r.toFixed(3)+' g/cm³';
+  if(cnt[curTab]>=5){
+    document.getElementById('calcBtn').disabled=false;
+    document.getElementById('instrBar').textContent=t('instrEnough');
+    setStep(3);
+  } else {
+    document.getElementById('instrBar').textContent=t(curTab===1?'instrA':curTab===2?'instrB':'instrC');
+    setStep(2);
+  }
+}
+
+function calcRho(){
+  var arr=meas[curTab];
+  var vals=arr.map(rowRho);
+  var avg=vals.reduce(function(a,b){return a+b;},0)/vals.length;
+  var v=vals.reduce(function(a,b){return a+Math.pow(b-avg,2);},0);
+  var de=Math.sqrt(v/Math.max(1,vals.length*(vals.length-1)));
+  var theo=OBJ[curTab].rho;
+  var re=Math.abs(avg-theo)/theo*100;
+
+  var ar=document.createElement('tr');ar.className='avg-r';
+  ar.innerHTML='<td colspan="4" style="text-align:right">'+t('avgRowLbl')+'</td><td>'+avg.toFixed(3)+'</td>';
+  document.getElementById('tbody').appendChild(ar);
+
+  document.getElementById('finalCard').style.display='block';
+  document.getElementById('avgR').textContent=avg.toFixed(3);
+  document.getElementById('absErr').textContent='± '+de.toFixed(4);
+  document.getElementById('relErr').textContent=re.toFixed(2)+'%';
+  document.getElementById('theoValF').textContent=theo.toFixed(2);
+  setStep(4);
+  statusOverridden=true;
+  document.getElementById('statusTxt').textContent=t('finalStatus')+avg.toFixed(3)+t('finalStatus2')+re.toFixed(2)+'%';
+}
+
+function resetAll(){
+  meas={1:[],2:[],3:[]};cnt={1:0,2:0,3:0};
+  phase='idle';
+  document.getElementById('finalCard').style.display='none';
+  document.getElementById('calcBtn').disabled=true;
+  document.getElementById('measBtn').disabled=false;
+  statusOverridden=false;
+  document.getElementById('statusTxt').textContent=t('statusDefault');
+  setDot(false);
+  switchTab(curTab);
+}
+
+function setDot(on){document.getElementById('dot').classList.toggle('off',!on);}
+function setStep(n_){for(var i=1;i<=4;i++){var el=document.getElementById('st'+i);el.className='step'+(i<n_?' done':i===n_?' active':'');el.querySelector('.snum').textContent=i<n_?'✓':i;}}
+
+// ===== SIMULATION CANVAS =====
+var simC=document.getElementById('simCanvas'), sctx=simC.getContext('2d');
+function resizeSim(){simC.width=simC.offsetWidth; simC.height=simC.offsetHeight; drawSim();}
+
+var simS=1;
+function drawBalance(cx,topY,mVal,mMax){
+  var S=simS;
+  sctx.strokeStyle='rgba(255,255,255,.3)';sctx.lineWidth=2*S;
+  sctx.beginPath();sctx.moveTo(cx,topY);sctx.lineTo(cx,topY+50*S);sctx.stroke();
+  sctx.fillStyle='#3a4a63';sctx.fillRect(cx-30*S,topY+50*S,60*S,8*S);
+  // dial
+  sctx.strokeStyle='rgba(255,255,255,.35)';sctx.beginPath();sctx.arc(cx,topY-8*S,26*S,0,Math.PI*2);sctx.stroke();
+  sctx.fillStyle='rgba(255,255,255,.05)';sctx.beginPath();sctx.arc(cx,topY-8*S,26*S,0,Math.PI*2);sctx.fill();
+  var frac=Math.min(1,mVal/mMax);
+  var ang=-Math.PI/2+frac*Math.PI*1.6;
+  sctx.strokeStyle='#facc15';sctx.lineWidth=2.2*S;
+  sctx.beginPath();sctx.moveTo(cx,topY-8*S);sctx.lineTo(cx+Math.cos(ang)*19*S,topY-8*S+Math.sin(ang)*19*S);sctx.stroke();
+  sctx.fillStyle='rgba(255,255,255,.5)';sctx.font='9px monospace';sctx.textAlign='center';
+  sctx.fillText(mVal.toFixed(2)+' g',cx,topY-40*S);
+}
+
+function drawSim(){
+  var W=simC.width||600, H=simC.height||400;
+  sctx.clearRect(0,0,W,H);
+  sctx.fillStyle='#030608';sctx.fillRect(0,0,W,H);
+
+  // scale factor for the drawn objects only (fonts stay untouched) so the
+  // simulation fills the canvas nicely on larger windows too
+  var S=simS=Math.max(1.4, Math.min(3, Math.min(W,H)/260));
+
+  if(curTab===1){
+    // balance on left
+    drawBalance(W*0.25,H*0.32,live.m,80);
+    // caliper measuring cylinder on right
+    var cx=W*0.68, cy=H*0.55;
+    var rw=Math.max(6*S,live.D*1.6*S), rh=live.H*1.6*S;
+    sctx.fillStyle='#9aa7b8';
+    sctx.fillRect(cx-rw/2,cy-rh/2,rw,rh);
+    sctx.strokeStyle='rgba(0,0,0,.4)';sctx.lineWidth=1.5*S;sctx.strokeRect(cx-rw/2,cy-rh/2,rw,rh);
+    // caliper jaws
+    sctx.strokeStyle='rgba(45,212,191,.7)';sctx.lineWidth=2*S;
+    sctx.beginPath();sctx.moveTo(cx-rw/2-14*S,cy-rh/2-10*S);sctx.lineTo(cx-rw/2-14*S,cy+rh/2+10*S);sctx.stroke();
+    sctx.beginPath();sctx.moveTo(cx+rw/2+14*S,cy-rh/2-10*S);sctx.lineTo(cx+rw/2+14*S,cy+rh/2+10*S);sctx.stroke();
+    sctx.fillStyle='rgba(255,255,255,.5)';sctx.font='10px monospace';sctx.textAlign='center';
+    sctx.fillText('D='+live.D.toFixed(2)+'mm', cx, cy-rh/2-20*S);
+    sctx.save();sctx.translate(cx+rw/2+34*S,cy);sctx.rotate(-Math.PI/2);
+    sctx.fillText('H='+live.H.toFixed(2)+'mm',0,0);sctx.restore();
+  }
+  else if(curTab===2){
+    drawBalance(W*0.22,H*0.28,live.m,150);
+    // graduated cylinder
+    var cx=W*0.62, cyl_w=64*S, baseY=H*0.82, topY=H*0.22;
+    sctx.strokeStyle='rgba(255,255,255,.35)';sctx.lineWidth=2*S;
+    sctx.beginPath();sctx.moveTo(cx-cyl_w/2,topY);sctx.lineTo(cx-cyl_w/2,baseY);sctx.lineTo(cx+cyl_w/2,baseY);sctx.lineTo(cx+cyl_w/2,topY);sctx.stroke();
+    var maxV=100, pxPerCm3=(baseY-topY)/maxV;
+    var waterY=baseY-live.V2*pxPerCm3;
+    sctx.fillStyle='rgba(34,211,238,.4)';
+    sctx.fillRect(cx-cyl_w/2,waterY,cyl_w,baseY-waterY);
+    // scale marks
+    sctx.strokeStyle='rgba(255,255,255,.15)';sctx.font='7px monospace';sctx.fillStyle='rgba(255,255,255,.35)';
+    for(var vv=0;vv<=100;vv+=20){var yy=baseY-vv*pxPerCm3;sctx.beginPath();sctx.moveTo(cx+cyl_w/2+3*S,yy);sctx.lineTo(cx+cyl_w/2+8*S,yy);sctx.stroke();sctx.fillText(vv,cx+cyl_w/2+20*S,yy+3);}
+    // stone (if immersing/immersed)
+    if(phase==='immerse'||phase==='v1'){
+      var stoneY = phase==='immerse'? waterY-6*S : topY+10*S;
+      sctx.fillStyle='#8a8a92';
+      sctx.beginPath();sctx.arc(cx,stoneY,14*S,0,Math.PI*2);sctx.fill();
+    }
+    sctx.fillStyle='rgba(255,255,255,.55)';sctx.font='10px monospace';sctx.textAlign='center';
+    sctx.fillText('V = '+live.V2.toFixed(1)+' cm³', cx, baseY+18*S);
+  }
+  else {
+    drawBalance(W*0.3,H*0.28,live.m1,100);
+    // pycnometer flask
+    var cx=W*0.66, cy=H*0.55, fw=54*S, fh=90*S;
+    sctx.strokeStyle='rgba(255,255,255,.35)';sctx.lineWidth=2*S;
+    sctx.beginPath();
+    sctx.moveTo(cx-10*S,cy-fh/2);sctx.lineTo(cx-10*S,cy-fh/2+20*S);
+    sctx.lineTo(cx-fw/2,cy+fh/2-16*S);sctx.lineTo(cx-fw/2,cy+fh/2);
+    sctx.lineTo(cx+fw/2,cy+fh/2);sctx.lineTo(cx+fw/2,cy+fh/2-16*S);
+    sctx.lineTo(cx+10*S,cy-fh/2+20*S);sctx.lineTo(cx+10*S,cy-fh/2);
+    sctx.stroke();
+    var frac=Math.min(1,(live.m1-live.m0)/(OBJ[3].m1-OBJ[3].m0));
+    var liqTop=cy+fh/2-16*S-(fh-36*S)*frac;
+    sctx.fillStyle='rgba(196,148,255,.45)';
+    sctx.beginPath();
+    sctx.moveTo(cx-fw/2,cy+fh/2);sctx.lineTo(cx+fw/2,cy+fh/2);
+    sctx.lineTo(cx+fw/2,Math.max(liqTop,cy-fh/2+20*S));sctx.lineTo(cx-fw/2,Math.max(liqTop,cy-fh/2+20*S));
+    sctx.fill();
+    sctx.fillStyle='rgba(255,255,255,.55)';sctx.font='10px monospace';sctx.textAlign='center';
+    sctx.fillText('V = '+OBJ[3].V.toFixed(2)+' cm³ (fixed)', cx, cy+fh/2+22*S);
+  }
+  sctx.fillStyle='rgba(255,255,255,.4)';sctx.font='10px monospace';sctx.textAlign='center';
+  sctx.fillText(t(OBJ[curTab].name), W/2, H*0.94);
+}
+
+// ===== GRAPH CANVAS (rho per trial) =====
+var gC=document.getElementById('graphCanvas'), gctx=gC.getContext('2d');
+function drawGraph(){
+  var W=gC.offsetWidth||220; gC.width=W; var H=130; gC.height=H;
+  gctx.clearRect(0,0,W,H);
+  gctx.fillStyle='#030608';gctx.fillRect(0,0,W,H);
+  var pad=26;
+  var arr=meas[curTab];
+  var vals=arr.map(rowRho);
+  var theo=OBJ[curTab].rho;
+  var ymin=theo*0.85, ymax=theo*1.15;
+  var xmax=Math.max(5,vals.length);
+
+  function mapX(i){return pad+(i-0.5)/xmax*(W-pad-8);}
+  function mapY(y){return H-18-(y-ymin)/(ymax-ymin)*(H-18-8);}
+
+  gctx.strokeStyle='rgba(255,255,255,.2)';gctx.lineWidth=1;
+  gctx.beginPath();gctx.moveTo(pad,8);gctx.lineTo(pad,H-18);gctx.lineTo(W-8,H-18);gctx.stroke();
+  gctx.fillStyle='rgba(255,255,255,.4)';gctx.font='8px monospace';gctx.textAlign='center';
+  gctx.fillText('№',W/2,H-6);
+  gctx.save();gctx.translate(9,H/2);gctx.rotate(-Math.PI/2);gctx.fillText('ρ(g/cm³)',0,0);gctx.restore();
+
+  // theoretical horizontal line
+  gctx.strokeStyle='rgba(250,204,21,.5)';gctx.lineWidth=1.4;gctx.setLineDash([4,3]);
+  gctx.beginPath();gctx.moveTo(pad,mapY(theo));gctx.lineTo(W-8,mapY(theo));gctx.stroke();
+  gctx.setLineDash([]);
+
+  // average line if enough
+  if(vals.length>0){
+    var avg=vals.reduce(function(a,b){return a+b;},0)/vals.length;
+    gctx.strokeStyle='rgba(111,255,92,.5)';gctx.lineWidth=1.2;
+    gctx.beginPath();gctx.moveTo(pad,mapY(avg));gctx.lineTo(W-8,mapY(avg));gctx.stroke();
+  }
+
+  // points
+  gctx.fillStyle='#22d3ee';
+  vals.forEach(function(v,i){
+    var px=mapX(i+1), py=mapY(v);
+    gctx.beginPath();gctx.arc(px,py,3,0,Math.PI*2);gctx.fill();
+  });
+}
+
+window.addEventListener('resize',resizeSim);
+window.addEventListener('load',function(){setTimeout(function(){resizeSim();drawGraph();setLang('uz');},100);});
+</script>
+</body>
+</html>

@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>9-Lab — Suv bug'ining bug'lanish issiqligi</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap');
+:root{
+  --bg:#07090f;--panel:#0e1420;--border:#1b2840;
+  --accent:#22d3ee;--green:#6fff5c;--yellow:#ffc947;
+  --red:#ff6b6b;--laser:#ff3030;--text:#dde6f5;--muted:#4a6080;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;height:100vh;overflow:hidden;display:flex;flex-direction:column;}
+
+header{display:flex;align-items:center;gap:12px;padding:8px 20px;border-bottom:1px solid var(--border);background:linear-gradient(90deg,#07090f,#001a1f,#07090f);flex-shrink:0;}
+.badge{background:var(--accent);color:#000;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:3px 9px;letter-spacing:2px;border-radius:2px;}
+.htitle{font-size:15px;font-weight:800;}
+.htitle span{color:var(--accent);}
+.hsub{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-left:auto;}
+.brand{display:flex;align-items:center;gap:6px;background:linear-gradient(135deg,rgba(34,211,238,.15),rgba(111,255,92,.1));border:1px solid rgba(34,211,238,.3);border-radius:20px;padding:4px 14px;margin-left:10px;flex-shrink:0;}
+.brand-txt{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;background:linear-gradient(90deg,#22d3ee,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;}
+
+.tabs{display:flex;border-bottom:1px solid var(--border);background:#0a0f1c;flex-shrink:0;}
+.tab{padding:8px 18px;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap;}
+.tab:hover{color:var(--text);}
+.tab.on{color:var(--accent);border-bottom-color:var(--accent);}
+
+.statusbar{background:#0a0f1c;border-bottom:1px solid var(--border);padding:5px 20px;display:flex;align-items:center;gap:14px;font-family:'Space Mono',monospace;font-size:11px;flex-shrink:0;}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:bl 1s infinite;flex-shrink:0;}
+.dot.off{background:var(--muted);animation:none;}
+@keyframes bl{0%,100%{opacity:1}50%{opacity:.2}}
+#statusTxt{color:var(--accent);}
+.chips{display:flex;gap:6px;margin-left:auto;}
+.chip{background:rgba(34,211,238,.08);border:1px solid rgba(34,211,238,.2);border-radius:10px;padding:2px 9px;font-size:10px;color:var(--muted);}
+.chip span{color:var(--accent);}
+
+.body{display:grid;grid-template-columns:215px 1fr 260px;flex:1;overflow:hidden;}
+
+.left{background:var(--panel);border-right:1px solid var(--border);overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:9px;}
+.stitle{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--accent);text-transform:uppercase;margin-bottom:3px;opacity:.85;}
+.card{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:8px;padding:10px;}
+.card label{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:7px;}
+.vb{font-family:'Space Mono',monospace;font-size:11px;color:var(--accent);background:rgba(34,211,238,.12);padding:2px 7px;border-radius:3px;}
+input[type=range]{width:100%;-webkit-appearance:none;height:4px;background:var(--border);border-radius:2px;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;background:var(--accent);border-radius:50%;cursor:pointer;box-shadow:0 0 8px rgba(34,211,238,.7);}
+
+.fbox{background:rgba(34,211,238,.04);border:1px solid rgba(34,211,238,.15);border-radius:7px;padding:9px;}
+.frow{display:flex;gap:6px;margin-bottom:4px;font-family:'Space Mono',monospace;font-size:10px;}
+.frow:last-child{margin-bottom:0;}
+.fl{color:var(--muted);min-width:30px;}
+.fe{color:var(--yellow);}
+
+.steps{display:flex;flex-direction:column;gap:3px;}
+.step{display:flex;align-items:center;gap:7px;padding:5px 8px;border-radius:5px;font-size:10px;color:var(--muted);border:1px solid transparent;transition:all .3s;}
+.step.active{background:rgba(34,211,238,.07);border-color:rgba(34,211,238,.2);color:var(--accent);}
+.step.done{color:var(--green);}
+.snum{font-family:'Space Mono',monospace;font-size:9px;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.05);flex-shrink:0;}
+.step.active .snum{background:rgba(34,211,238,.2);}
+.step.done .snum{background:rgba(111,255,92,.12);color:var(--green);}
+
+.btn{width:100%;padding:10px;border:none;border-radius:7px;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;cursor:pointer;transition:all .2s;}
+.btn-p{background:linear-gradient(135deg,#22d3ee,#0891b2);color:#000;}
+.btn-p:hover{transform:translateY(-1px);box-shadow:0 5px 18px rgba(34,211,238,.4);}
+.btn-p:disabled{opacity:.35;cursor:not-allowed;transform:none;}
+.btn-g{background:linear-gradient(135deg,#6fff5c,#33cc22);color:#000;margin-top:5px;}
+.btn-g:disabled{opacity:.35;cursor:not-allowed;}
+.btn-r{background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--border);margin-top:5px;font-size:11px;}
+
+.center{position:relative;overflow:hidden;background:var(--bg);display:flex;flex-direction:column;}
+#simCanvas{flex:1;display:block;width:100%;}
+.instr-bar{background:rgba(7,9,15,.92);border-top:1px solid var(--border);padding:6px 18px;font-size:11px;color:var(--muted);text-align:center;flex-shrink:0;}
+
+.right{background:var(--panel);border-left:1px solid var(--border);overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:9px;}
+.rc{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:8px;padding:10px;}
+.rc.hi{border-color:rgba(34,211,238,.25);background:rgba(34,211,238,.05);}
+.rl{font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:3px;}
+.rv{font-size:22px;font-weight:800;line-height:1;color:#fff;}
+.ru{font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);margin-top:2px;}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+.three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;}
+
+table{width:100%;border-collapse:collapse;font-family:'Space Mono',monospace;font-size:9px;}
+th{color:var(--accent);font-size:8px;letter-spacing:1px;border-bottom:1px solid var(--border);padding:4px 2px;text-align:center;}
+td{padding:3px 2px;border-bottom:1px solid rgba(255,255,255,.03);text-align:center;}
+tr.avg-r td{color:var(--yellow);border-top:1px solid var(--border);font-weight:700;}
+tr:last-child td{border-bottom:none;}
+
+#screenCanvas{display:block;width:100%;border-radius:8px;border:1px solid var(--border);}
+
+.final-card{background:rgba(34,211,238,.05);border:1px solid rgba(34,211,238,.2);border-radius:8px;padding:12px;}
+.err-row{display:flex;justify-content:space-between;margin-top:6px;font-family:'Space Mono',monospace;font-size:10px;}
+.err-row span:first-child{color:var(--muted);}
+.err-row span:last-child{color:var(--yellow);}
+.langsw{display:flex;gap:3px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;padding:3px;margin-left:10px;}
+.langbtn{background:transparent;border:none;color:var(--muted);font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:4px 9px;border-radius:5px;cursor:pointer;letter-spacing:1px;}
+.langbtn.active{background:var(--accent);color:#000;}
+</style>
+</head>
+<body>
+
+<!-- BOSHLASH EKRANI -->
+<div id="startScreen" style="position:fixed;inset:0;z-index:9998;background:radial-gradient(ellipse at 40% 50%,#001520 0%,#07090f 70%);display:flex;align-items:center;justify-content:center;">
+  <canvas id="bgCanvas" style="position:absolute;inset:0;width:100%;height:100%;opacity:.5;pointer-events:none"></canvas>
+  <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:20px;max-width:580px;padding:20px;text-align:center">
+    <div style="display:flex;align-items:center;gap:10px">
+      <div style="background:#22d3ee;color:#000;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:4px 14px;letter-spacing:2px;border-radius:2px">LAB · 9</div>
+      <div style="font-family:'Space Mono',monospace;font-size:10px;color:#4a6080;letter-spacing:2px" id="tBadge">MOLEKULYAR FIZIKA · KALORIMETRIYA</div>
+    </div>
+    <div style="width:100px;height:100px;border-radius:50%;background:radial-gradient(circle,rgba(34,211,238,.18) 0%,rgba(34,211,238,.02) 70%);border:2px solid rgba(34,211,238,.4);display:flex;align-items:center;justify-content:center;box-shadow:0 0 50px rgba(34,211,238,.3);animation:pulse5 2.5s ease-in-out infinite;">
+      <span style="font-size:44px">♨️</span>
+    </div>
+    <div>
+      <h1 style="font-size:24px;font-weight:800;line-height:1.2;color:#fff" id="tStartTitle">Suv bug'ining <span style="color:#22d3ee">bug'lanish issiqligini</span> aniqlash</h1>
+      <p style="font-size:13px;color:#4a6080;margin-top:8px;font-family:'Space Mono',monospace" id="tStartSub">Bug' kondensatsiyasi usuli · Kalorimetrik tenglama</p>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;width:100%">
+      <div style="background:rgba(255,255,255,.04);border:1px solid #1b2840;border-radius:10px;padding:12px"><div style="font-size:20px;margin-bottom:4px">⏱</div><div style="font-size:11px;color:#4a6080;font-family:monospace" id="tInfoTime">Vaqt</div><div style="font-size:13px;font-weight:700;color:#dde6f5;margin-top:2px">40-50 min</div></div>
+      <div style="background:rgba(255,255,255,.04);border:1px solid #1b2840;border-radius:10px;padding:12px"><div style="font-size:20px;margin-bottom:4px">♨️</div><div style="font-size:11px;color:#4a6080;font-family:monospace" id="tInfoEx">Mashq</div><div style="font-size:13px;font-weight:700;color:#dde6f5;margin-top:2px" id="tInfoExVal">3 ta</div></div>
+      <div style="background:rgba(255,255,255,.04);border:1px solid #1b2840;border-radius:10px;padding:12px"><div style="font-size:20px;margin-bottom:4px">🎯</div><div style="font-size:11px;color:#4a6080;font-family:monospace" id="tInfoGoal">Maqsad</div><div style="font-size:13px;font-weight:700;color:#dde6f5;margin-top:2px" id="tInfoGoalVal">L topish</div></div>
+    </div>
+    <div style="background:rgba(34,211,238,.05);border:1px solid rgba(34,211,238,.18);border-radius:12px;padding:16px;width:100%;text-align:left">
+      <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;color:#22d3ee;margin-bottom:10px" id="tProcedure">BAJARISH TARTIBI</div>
+      <div style="display:flex;flex-direction:column;gap:7px">
+        <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:#c5d3e8"><div style="width:22px;height:22px;border-radius:50%;background:rgba(34,211,238,.2);display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:10px;color:#22d3ee;flex-shrink:0">1</div><span id="tPS1">Kalorimetrga sovuq suv soling, massasi (m_suv) va haroratini (t₀) o'lchang</span></div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:#c5d3e8"><div style="width:22px;height:22px;border-radius:50%;background:rgba(34,211,238,.2);display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:10px;color:#22d3ee;flex-shrink:0">2</div><span id="tPS2">Bug' generatoridan (100°C) bug' naycha orqali suvga yuborilsin, kondensatlangan bug' massasini (m_bug') o'lchang</span></div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:#c5d3e8"><div style="width:22px;height:22px;border-radius:50%;background:rgba(34,211,238,.2);display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:10px;color:#22d3ee;flex-shrink:0">3</div><span id="tPS3">Muvozanat haroratini (t) o'lchang → <b style="color:#22d3ee">"O'lchov olish"</b></span></div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:#c5d3e8"><div style="width:22px;height:22px;border-radius:50%;background:rgba(34,211,238,.2);display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:10px;color:#22d3ee;flex-shrink:0">4</div><span id="tPS4">Issiqlik balansi tenglamasidan L ni hisoblang</span></div>
+      </div>
+    </div>
+    <button onclick="startLab()" style="background:linear-gradient(135deg,#22d3ee,#0891b2);color:#000;border:none;border-radius:12px;padding:16px 60px;font-size:16px;font-weight:800;font-family:'Syne',sans-serif;cursor:pointer;box-shadow:0 8px 30px rgba(34,211,238,.4);transition:all .2s;width:100%"
+    onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 12px 40px rgba(34,211,238,.6)'"
+    onmouseout="this.style.transform='none';this.style.boxShadow='0 8px 30px rgba(34,211,238,.4)'">
+      <span id="tStartBtn">▶ Laboratoriyani boshlash</span>
+    </button>
+    <div style="display:flex;align-items:center;gap:6px;opacity:.6">
+      <span style="font-size:13px">🔬</span>
+      <span style="font-family:'Space Mono',monospace;font-size:10px;background:linear-gradient(90deg,#22d3ee,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;font-weight:700">Xosiyat Virtual Lab</span>
+    </div>
+  </div>
+</div>
+<style>
+@keyframes pulse5{0%,100%{box-shadow:0 0 50px rgba(34,211,238,.25)}50%{box-shadow:0 0 70px rgba(34,211,238,.5)}}
+@keyframes fadeOut{0%{opacity:1}100%{opacity:0;transform:scale(1.04)}}
+</style>
+<script>
+(function(){var c=document.getElementById('bgCanvas');var x=c.getContext('2d');var pts=[];function resize(){c.width=window.innerWidth;c.height=window.innerHeight;}resize();window.addEventListener('resize',resize);for(var i=0;i<60;i++)pts.push({x:Math.random()*1600,y:Math.random()*900,r:Math.random()*1.5+.5,vx:(Math.random()-.5)*.35,vy:(Math.random()-.5)*.35,a:Math.random()});function frame(){x.clearRect(0,0,c.width,c.height);pts.forEach(function(p){p.x+=p.vx;p.y+=p.vy;p.a+=.005;if(p.x<0)p.x=c.width;if(p.x>c.width)p.x=0;if(p.y<0)p.y=c.height;if(p.y>c.height)p.y=0;x.fillStyle='rgba(34,211,238,'+(0.25+Math.sin(p.a)*0.18)+')';x.beginPath();x.arc(p.x%c.width,p.y%c.height,p.r,0,Math.PI*2);x.fill();});requestAnimationFrame(frame);}frame();})();
+function startLab(){var s=document.getElementById('startScreen');s.style.animation='fadeOut .5s ease forwards';setTimeout(function(){s.style.display='none';},480);}
+</script>
+
+<!-- MAIN -->
+<header>
+  <div class="badge">LAB · 9</div>
+  <h1 class="htitle" id="tTitle">Suv bug'ining <span>bug'lanish issiqligi</span> — kondensatsiya usuli</h1>
+  <div class="hsub" id="tHsub">MOLEKULYAR FIZIKA · FIZPRAKTIKUM · SDPI 2026</div>
+  <div class="langsw">
+    <button class="langbtn active" id="langUZ" onclick="setLang('uz')">UZ</button>
+    <button class="langbtn" id="langRU" onclick="setLang('ru')">RU</button>
+    <button class="langbtn" id="langEN" onclick="setLang('en')">EN</button>
+  </div>
+  <div class="brand"><span style="font-size:12px">🔬</span><span class="brand-txt">Xosiyat Virtual Lab</span></div>
+</header>
+
+<div class="tabs">
+  <div class="tab on" id="t1" onclick="switchTab(1)"><span id="tTab1">a) Kalorimetr</span></div>
+  <div class="tab" id="t2" onclick="switchTab(2)"><span id="tTab2">b) Bug' yuborish</span></div>
+  <div class="tab" id="t3" onclick="switchTab(3)"><span id="tTab3">v) L hisoblash</span></div>
+</div>
+
+<div class="statusbar">
+  <div class="dot off" id="dot"></div>
+  <span id="statusTxt">Suv massasi (m_suv) va boshlang'ich haroratni (t₀) tanlang</span>
+  <div class="chips">
+    <div class="chip">L = <span id="chipL">—</span></div>
+    <div class="chip">t = <span id="chipDx">—</span> °C</div>
+    <div class="chip"><span id="tMeasLbl">O'lchov:</span> <span id="chipCnt">0</span>/3</div>
+  </div>
+</div>
+
+<div class="body">
+  <!-- LEFT -->
+  <div class="left">
+    <div class="stitle" id="paramTitle">a-mashq parametrlari</div>
+
+    <div id="paramsA">
+      <div class="card">
+        <label><span id="tMwlbl">m_suv — kalorimetrdagi suv massasi</span> <span class="vb" id="dMw">200 g</span></label>
+        <input type="range" id="sMw" min="150" max="300" step="10" value="200" oninput="setParam('Mw',this.value)">
+      </div>
+      <div class="card">
+        <label><span id="tT0lbl">t₀ — suvning boshlang'ich harorati</span> <span class="vb" id="dT0">20 °C</span></label>
+        <input type="range" id="sT0" min="15" max="25" step="1" value="20" oninput="setParam('T0',this.value)">
+      </div>
+    </div>
+
+    <div id="paramsB" style="display:none">
+      <div class="card">
+        <label><span id="tMslbl">m_bug' — kondensatlangan bug' massasi</span> <span class="vb" id="dMs">5.0 g</span></label>
+        <input type="range" id="sMs" min="3" max="8" step="0.5" value="5" oninput="setParam('Ms',this.value)">
+      </div>
+    </div>
+
+    <div id="paramsC" style="display:none">
+      <div class="card" style="background:rgba(34,211,238,.04);border-color:rgba(34,211,238,.2)">
+        <div style="font-family:'Space Mono',monospace;font-size:11px;color:var(--accent);margin-bottom:10px" id="tFinalFormula">YAKUNIY FORMULA</div>
+        <div style="font-family:'Space Mono',monospace;font-size:13px;color:var(--yellow);text-align:center;padding:10px;background:#0a0f1c;border-radius:7px">L=[(m_sQ_s+m_kQ_k)(t-t₀)]/m_b − Q_s(100−t)</div>
+      </div>
+    </div>
+
+    <div class="fbox">
+      <div class="frow"><span class="fl">Q₁</span><span class="fe">= m_suv·c_suv·(t-t₀)</span></div>
+      <div class="frow"><span class="fl">Q₂</span><span class="fe">= m_kal·c_kal·(t-t₀)</span></div>
+      <div class="frow"><span class="fl">L</span><span class="fe">= (Q₁+Q₂)/m_bug' − c_suv·(100-t)</span></div>
+      <div class="frow"><span class="fl">L</span><span class="fe" id="tRealL">≈ 2260 J/g (haqiqiy)</span></div>
+    </div>
+
+    <div class="steps">
+      <div class="step active" id="st1"><div class="snum">1</div><span id="tStep1">Kalorimetrni tayyorlang (a-mashq)</span></div>
+      <div class="step" id="st2"><div class="snum">2</div><span id="tStep2">Bug' yuboring (b-mashq)</span></div>
+      <div class="step" id="st3"><div class="snum">3</div><span id="tStep3">L hisoblang (v-mashq)</span></div>
+      <div class="step" id="st4"><div class="snum">4</div><span id="tStep4">Xatoni baholang</span></div>
+    </div>
+
+    <button class="btn btn-p" id="measBtn" onclick="takeMeasure()">♨️ <span id="tMeasBtn">O'lchov olish</span></button>
+    <button class="btn btn-g" id="calcBtn" onclick="calcLambda()" disabled>📊 <span id="tCalcBtn">L Hisoblash</span></button>
+    <button class="btn btn-r" onclick="resetAll()">↺ <span id="tResetBtn">Qayta boshlash</span></button>
+  </div>
+
+  <!-- CENTER -->
+  <div class="center">
+    <canvas id="simCanvas"></canvas>
+    <div class="instr-bar" id="instrBar">♨️ Bug' generatoridan chiqqan 100°C bug' naycha orqali sovuq suvga yuboriladi, kondensatsiyalanib issiqlik beradi va suv isiydi</div>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="right">
+    <div class="stitle" id="tResultsSec">O'lchov natijalari</div>
+    <div class="three">
+      <div class="rc hi">
+        <div class="rl">Q₁+Q₂</div>
+        <div class="rv" style="font-size:16px" id="rDx">—</div>
+        <div class="ru">J</div>
+      </div>
+      <div class="rc hi">
+        <div class="rl">t</div>
+        <div class="rv" style="font-size:16px" id="rZ">—</div>
+        <div class="ru">°C</div>
+      </div>
+      <div class="rc hi">
+        <div class="rl">L</div>
+        <div class="rv" style="font-size:17px;color:var(--accent)" id="rLambda">—</div>
+        <div class="ru">J/g</div>
+      </div>
+    </div>
+    <div class="two">
+      <div class="rc"><div class="rl">m_suv (g)</div><div class="rv" style="font-size:16px" id="rD">—</div></div>
+      <div class="rc"><div class="rl">t₀ (°C)</div><div class="rv" style="font-size:16px" id="rN">—</div></div>
+      <div class="rc"><div class="rl">m_bug' (g)</div><div class="rv" style="font-size:16px" id="rd">—</div></div>
+      <div class="rc"><div class="rl">t_bug' (°C)</div><div class="rv" style="font-size:16px" id="rf">100</div></div>
+    </div>
+
+    <!-- Termometr ko'rinishi -->
+    <div class="stitle" id="tScreenSec">Harorat o'zgarishi</div>
+    <canvas id="screenCanvas" height="110"></canvas>
+
+    <div class="stitle" id="tTableSec">Jadval (9.1-jadval)</div>
+    <div style="overflow-x:auto">
+      <table>
+        <thead><tr><th>№</th><th>m_s(g)</th><th>m_b(g)</th><th>t₀(°C)</th><th>t(°C)</th><th>L(J/g)</th></tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+
+    <div class="final-card" id="finalCard" style="display:none">
+      <div class="rl" id="tAvgLambda">O'rtacha bug'lanish issiqligi L̄</div>
+      <div class="rv" style="color:var(--green);font-size:28px" id="avgL">—</div>
+      <div class="ru" id="tNmLbl">J/g (=kJ/kg)</div>
+      <div class="err-row"><span id="tAbsErr">Absolyut xatolik ΔL</span><span id="absErr">—</span></div>
+      <div class="err-row"><span id="tRelErr">Nisbiy xatolik ε</span><span id="relErr">—</span></div>
+      <div class="err-row"><span id="tTrueLambda">Haqiqiy L (jadvaldagi)</span><span style="color:rgba(111,255,92,.8)">2260 J/g</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- Watermark -->
+<div style="position:fixed;bottom:14px;right:18px;display:flex;align-items:center;gap:7px;background:rgba(7,9,15,.75);border:1px solid rgba(34,211,238,.2);border-radius:30px;padding:5px 16px;backdrop-filter:blur(10px);z-index:9999;pointer-events:none">
+  <span style="font-size:13px">🔬</span>
+  <span style="font-family:'Space Mono',monospace;font-size:11px;font-weight:700;background:linear-gradient(90deg,#22d3ee,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px">Xosiyat Virtual Lab</span>
+</div>
+
+<script>
+var LANG='uz';
+var I18N={
+ uz:{title:"Suv bug'ining <span>bug'lanish issiqligi</span> — kondensatsiya usuli",hsub:"MOLEKULYAR FIZIKA · FIZPRAKTIKUM · SDPI 2026",measLbl:"O'lchov:",badge:"MOLEKULYAR FIZIKA · KALORIMETRIYA",
+   tab1:'a) Kalorimetr',tab2:"b) Bug' yuborish",tab3:'v) L hisoblash',
+   paramTitleA:'a-mashq parametrlari',paramTitleB:'b-mashq parametrlari',paramTitleC:'v-mashq parametrlari',
+   mwLbl:'m_suv — kalorimetrdagi suv massasi',t0Lbl:"t₀ — suvning boshlang'ich harorati",msLbl:"m_bug' — kondensatlangan bug' massasi",
+   finalFormula:'YAKUNIY FORMULA',realL:'≈ 2260 J/g (haqiqiy)',
+   step1:'Kalorimetrni tayyorlang (a-mashq)',step2:"Bug' yuboring (b-mashq)",step3:'L hisoblang (v-mashq)',step4:'Xatoni baholang',
+   measBtn:"O'lchov olish",calcBtn:'L Hisoblash',resetBtn:'Qayta boshlash',resultsSec:"O'lchov natijalari",
+   screenSec:"Harorat o'zgarishi",tableSec:'Jadval (9.1-jadval)',avgLambda:"O'rtacha bug'lanish issiqligi L̄",nmLbl:'J/g (=kJ/kg)',
+   absErr:'Absolyut xatolik ΔL',relErr:'Nisbiy xatolik ε',trueLambda:'Haqiqiy L (jadvaldagi)',
+   startTitle:"Suv bug'ining <span style=\"color:#22d3ee\">bug'lanish issiqligini</span> aniqlash",startSub:"Bug' kondensatsiyasi usuli · Kalorimetrik tenglama",
+   infoTime:'Vaqt',infoEx:'Mashq',infoExVal:'3 ta',infoGoal:'Maqsad',infoGoalVal:'L topish',
+   procedure:'BAJARISH TARTIBI',ps1:"Kalorimetrga sovuq suv soling, massasi (m_suv) va haroratini (t₀) o'lchang",
+   ps2:"Bug' generatoridan (100°C) bug' naycha orqali suvga yuborilsin, kondensatlangan bug' massasini (m_bug') o'lchang",
+   ps3:'Muvozanat haroratini (t) o\'lchang → <b style="color:#22d3ee">"O\'lchov olish"</b>',ps4:"Issiqlik balansi tenglamasidan L ni hisoblang",
+   startBtn:'▶ Laboratoriyani boshlash',
+   statusDefault:"Suv massasi (m_suv) va boshlang'ich haroratni (t₀) tanlang",
+   tabTitles:['a-mashq: Kalorimetr',"b-mashq: Bug' yuborish",'v-mashq: L hisoblash'],
+   tabInstrs:["🧊 Suv massasi (m_suv) va boshlang'ich haroratni (t₀) tanlang","♨️ Kondensatlangan bug' massasini (m_bug') tanlang, bug' naycha orqali suvga yuborilsin","📊 L = (Q₁+Q₂)/m_bug' − c_suv(100-t) — muvozanat harorati (t) o'lchanganda hisoblang"],
+   fringesLbl:' °C  |  Q=',mmLbl:' J',measStatus:': t=',measStatus2:' °C, L=',measStatus3:' J/g',
+   instrEnough:'✅ Yetarli o\'lchov. "L Hisoblash" tugmasini bosing',avgRowLbl:'L̄ =',
+   finalStatus:"🎉 Bug'lanish issiqligi: L̄ = ",finalStatus2:' J/g | ε = '
+ },
+ ru:{title:'Определение <span>теплоты парообразования</span> воды — метод конденсации',hsub:'МОЛЕКУЛЯРНАЯ ФИЗИКА · ФИЗПРАКТИКУМ · SDPI 2026',measLbl:'Измерений:',badge:'МОЛЕКУЛЯРНАЯ ФИЗИКА · КАЛОРИМЕТРИЯ',
+   tab1:'а) Калориметр',tab2:'б) Подача пара',tab3:'в) Вычисление L',
+   paramTitleA:'Параметры упр. а',paramTitleB:'Параметры упр. б',paramTitleC:'Параметры упр. в',
+   mwLbl:'m_воды — масса воды в калориметре',t0Lbl:'t₀ — начальная температура воды',msLbl:'m_пара — масса сконденсировавшегося пара',
+   finalFormula:'ИТОГОВАЯ ФОРМУЛА',realL:'≈ 2260 Дж/г (реальное)',
+   step1:'Подготовьте калориметр (упр. а)',step2:'Подайте пар (упр. б)',step3:'Вычислите L (упр. в)',step4:'Оцените погрешность',
+   measBtn:'Сделать измерение',calcBtn:'Вычислить L',resetBtn:'Начать заново',resultsSec:'Результаты измерений',
+   screenSec:'Изменение температуры',tableSec:'Таблица (табл. 9.1)',avgLambda:'Средняя теплота парообразования L̄',nmLbl:'Дж/г (=кДж/кг)',
+   absErr:'Абс. погрешность ΔL',relErr:'Отн. погрешность ε',trueLambda:'Реальное L (табличное)',
+   startTitle:'Определение <span style="color:#22d3ee">теплоты парообразования</span> воды',startSub:'Метод конденсации пара · Калориметрическое уравнение',
+   infoTime:'Время',infoEx:'Упражнения',infoExVal:'3 шт.',infoGoal:'Цель',infoGoalVal:'найти L',
+   procedure:'ПОРЯДОК ВЫПОЛНЕНИЯ',ps1:'Налейте холодную воду в калориметр, измерьте массу (m_воды) и температуру (t₀)',
+   ps2:'Подайте пар (100°C) по трубке в воду, измерьте массу сконденсировавшегося пара (m_пара)',
+   ps3:'Измерьте температуру равновесия (t) → <b style="color:#22d3ee">"Сделать измерение"</b>',ps4:'Вычислите L из уравнения теплового баланса',
+   startBtn:'▶ Начать лабораторную',
+   statusDefault:'Выберите массу воды (m_воды) и начальную температуру (t₀)',
+   tabTitles:['Упр. а: Калориметр','Упр. б: Подача пара','Упр. в: Вычисление L'],
+   tabInstrs:['🧊 Выберите массу воды (m_воды) и начальную температуру (t₀)','♨️ Выберите массу сконденсировавшегося пара (m_пара), подайте пар по трубке в воду','📊 L = (Q₁+Q₂)/m_пара − c_воды(100-t) — вычислите после измерения температуры равновесия (t)'],
+   fringesLbl:' °C  |  Q=',mmLbl:' Дж',measStatus:': t=',measStatus2:' °C, L=',measStatus3:' Дж/г',
+   instrEnough:'✅ Достаточно данных. Нажмите "Вычислить L"',avgRowLbl:'L̄ =',
+   finalStatus:'🎉 Теплота парообразования: L̄ = ',finalStatus2:' Дж/г | ε = '
+ },
+ en:{title:"Determining the <span>heat of vaporization</span> of water — condensation method",hsub:'MOLECULAR PHYSICS · PHYSICS LAB · SDPI 2026',measLbl:'Measurements:',badge:'MOLECULAR PHYSICS · CALORIMETRY',
+   tab1:'a) Calorimeter',tab2:'b) Introduce steam',tab3:'c) Calculate L',
+   paramTitleA:'Exercise a parameters',paramTitleB:'Exercise b parameters',paramTitleC:'Exercise c parameters',
+   mwLbl:'m_water — water mass in the calorimeter',t0Lbl:"t₀ — water's initial temperature",msLbl:'m_steam — mass of condensed steam',
+   finalFormula:'FINAL FORMULA',realL:'≈ 2260 J/g (real value)',
+   step1:'Prepare the calorimeter (exercise a)',step2:'Introduce steam (exercise b)',step3:'Calculate L (exercise c)',step4:'Assess the error',
+   measBtn:'Take measurement',calcBtn:'Calculate L',resetBtn:'Restart',resultsSec:'Measurement results',
+   screenSec:'Temperature change',tableSec:'Table (Table 9.1)',avgLambda:'Average heat of vaporization L̄',nmLbl:'J/g (=kJ/kg)',
+   absErr:'Absolute error ΔL',relErr:'Relative error ε',trueLambda:'Real L (tabulated)',
+   startTitle:"Determining the <span style=\"color:#22d3ee\">heat of vaporization</span> of water",startSub:'Steam condensation method · Calorimetric equation',
+   infoTime:'Time',infoEx:'Exercises',infoExVal:'3',infoGoal:'Goal',infoGoalVal:'find L',
+   procedure:'PROCEDURE',ps1:'Pour cold water into the calorimeter, measure its mass (m_water) and temperature (t₀)',
+   ps2:'Pass steam (100°C) through a tube into the water, measure the mass of condensed steam (m_steam)',
+   ps3:'Measure the equilibrium temperature (t) → <b style="color:#22d3ee">"Take measurement"</b>',ps4:'Calculate L from the heat balance equation',
+   startBtn:'▶ Start the lab',
+   statusDefault:'Choose the water mass (m_water) and initial temperature (t₀)',
+   tabTitles:['Exercise a: Calorimeter','Exercise b: Introduce steam','Exercise c: Calculate L'],
+   tabInstrs:['🧊 Choose the water mass (m_water) and initial temperature (t₀)','♨️ Choose the mass of condensed steam (m_steam), pass it through the tube into the water','📊 L = (Q₁+Q₂)/m_steam − c_water(100-t) — calculate once the equilibrium temperature (t) is measured'],
+   fringesLbl:' °C  |  Q=',mmLbl:' J',measStatus:': t=',measStatus2:' °C, L=',measStatus3:' J/g',
+   instrEnough:'✅ Enough data. Press "Calculate L"',avgRowLbl:'L̄ =',
+   finalStatus:'🎉 Heat of vaporization: L̄ = ',finalStatus2:' J/g | ε = '
+ }
+};
+function t(k){return I18N[LANG][k];}
+function setLang(l){
+  LANG=l;
+  document.getElementById('langUZ').className='langbtn'+(l==='uz'?' active':'');
+  document.getElementById('langRU').className='langbtn'+(l==='ru'?' active':'');
+  document.getElementById('langEN').className='langbtn'+(l==='en'?' active':'');
+  document.getElementById('tTitle').innerHTML=t('title');
+  document.getElementById('tHsub').textContent=t('hsub');
+  document.getElementById('tMeasLbl').textContent=t('measLbl');
+  document.getElementById('tBadge').textContent=t('badge');
+  document.getElementById('tTab1').textContent=t('tab1');
+  document.getElementById('tTab2').textContent=t('tab2');
+  document.getElementById('tTab3').textContent=t('tab3');
+  document.getElementById('tMwlbl').textContent=t('mwLbl');
+  document.getElementById('tT0lbl').textContent=t('t0Lbl');
+  document.getElementById('tMslbl').textContent=t('msLbl');
+  document.getElementById('tFinalFormula').textContent=t('finalFormula');
+  document.getElementById('tRealL').textContent=t('realL');
+  document.getElementById('tStep1').textContent=t('step1');
+  document.getElementById('tStep2').textContent=t('step2');
+  document.getElementById('tStep3').textContent=t('step3');
+  document.getElementById('tStep4').textContent=t('step4');
+  document.getElementById('tMeasBtn').textContent=t('measBtn');
+  document.getElementById('tCalcBtn').textContent=t('calcBtn');
+  document.getElementById('tResetBtn').textContent=t('resetBtn');
+  document.getElementById('tResultsSec').textContent=t('resultsSec');
+  document.getElementById('tScreenSec').textContent=t('screenSec');
+  document.getElementById('tTableSec').textContent=t('tableSec');
+  document.getElementById('tAvgLambda').textContent=t('avgLambda');
+  document.getElementById('tNmLbl').textContent=t('nmLbl');
+  document.getElementById('tAbsErr').textContent=t('absErr');
+  document.getElementById('tRelErr').textContent=t('relErr');
+  document.getElementById('tTrueLambda').textContent=t('trueLambda');
+  document.getElementById('tStartTitle').innerHTML=t('startTitle');
+  document.getElementById('tStartSub').textContent=t('startSub');
+  document.getElementById('tInfoTime').textContent=t('infoTime');
+  document.getElementById('tInfoEx').textContent=t('infoEx');
+  document.getElementById('tInfoExVal').textContent=t('infoExVal');
+  document.getElementById('tInfoGoal').textContent=t('infoGoal');
+  document.getElementById('tInfoGoalVal').textContent=t('infoGoalVal');
+  document.getElementById('tProcedure').textContent=t('procedure');
+  document.getElementById('tPS1').textContent=t('ps1');
+  document.getElementById('tPS2').innerHTML=t('ps2');
+  document.getElementById('tPS3').innerHTML=t('ps3');
+  document.getElementById('tPS4').textContent=t('ps4');
+  document.getElementById('tStartBtn').textContent=t('startBtn');
+  if(cnt===0){
+    document.getElementById('statusTxt').textContent=t('statusDefault');
+  }
+  var titles=t('tabTitles');
+  document.getElementById('paramTitle').textContent=titles[tabMode-1];
+  document.getElementById('instrBar').textContent=t('tabInstrs')[tabMode-1];
+  if(typeof drawScreen==='function')drawScreen();
+}
+
+// ===== STATE =====
+var tabMode=1;
+var Mwv=200, T0v=20, Msv=5;
+var cWater=4.2, mKal=100, cKal=0.92; // g fixed calorimeter mass, J/(g K)
+var trueL=2260; // J/g
+var meas=[], cnt=0;
+var animT=0;
+
+var sc=document.getElementById('simCanvas');
+var sctx=sc.getContext('2d');
+var ec=document.getElementById('screenCanvas');
+var ectx=ec.getContext('2d');
+
+function resize(){sc.width=sc.offsetWidth;sc.height=sc.offsetHeight;drawAll();}
+window.addEventListener('resize',resize);
+setTimeout(resize,80);
+
+function animate(){animT+=0.03;drawSim();requestAnimationFrame(animate);}
+animate();
+
+// ===== TABS =====
+function switchTab(n){
+  tabMode=n;
+  [1,2,3].forEach(function(i){document.getElementById('t'+i).classList.toggle('on',i===n);});
+  document.getElementById('paramsA').style.display=n===1?'block':'none';
+  document.getElementById('paramsB').style.display=n===2?'block':'none';
+  document.getElementById('paramsC').style.display=n===3?'block':'none';
+  var titles=t('tabTitles');
+  document.getElementById('paramTitle').textContent=titles[n-1];
+  var instrs=t('tabInstrs');
+  document.getElementById('instrBar').textContent=instrs[n-1];
+  setStep(n);
+  drawAll();
+}
+
+// ===== CONTROLS =====
+function setParam(name,v){
+  var val=parseFloat(v);
+  if(name==='Mw'){Mwv=val;document.getElementById('dMw').textContent=val+' g';}
+  if(name==='T0'){T0v=val;document.getElementById('dT0').textContent=val+' °C';}
+  if(name==='Ms'){Msv=val;document.getElementById('dMs').textContent=val.toFixed(1)+' g';}
+  drawAll();
+}
+
+function getTeq(){ // true equilibrium temp using trueL
+  var A=Mwv*cWater+mKal*cKal;
+  var num=Msv*trueL+Msv*cWater*100+A*T0v;
+  var den=A+Msv*cWater;
+  return num/den;
+}
+
+// ===== DRAW =====
+function drawAll(){drawSim();drawScreen();updateLive();}
+
+function updateLive(){
+  var teq=getTeq();
+  var A=Mwv*cWater+mKal*cKal;
+  var Qsum=A*(teq-T0v);
+  document.getElementById('chipDx').textContent=teq.toFixed(2);
+  document.getElementById('chipL').textContent=trueL.toFixed(0);
+  document.getElementById('rDx').textContent=Qsum.toFixed(1);
+  document.getElementById('rZ').textContent=teq.toFixed(2);
+  document.getElementById('rLambda').textContent=trueL.toFixed(0);
+  document.getElementById('rD').textContent=Mwv;
+  document.getElementById('rN').textContent=T0v;
+  document.getElementById('rd').textContent=Msv.toFixed(1);
+}
+
+function drawSim(){
+  var W=sc.width,H=sc.height;
+  if(!W||!H) return;
+  sctx.clearRect(0,0,W,H);
+  sctx.fillStyle='#07090f';sctx.fillRect(0,0,W,H);
+
+  sctx.strokeStyle='rgba(34,211,238,.025)';sctx.lineWidth=1;
+  for(var x=0;x<W;x+=55){sctx.beginPath();sctx.moveTo(x,0);sctx.lineTo(x,H);sctx.stroke();}
+  for(var y=0;y<H;y+=55){sctx.beginPath();sctx.moveTo(0,y);sctx.lineTo(W,y);sctx.stroke();}
+
+  // === STEAM GENERATOR (left) ===
+  var genX=W*0.2, genY=H*0.62;
+  var genW=Math.min(W,H)*0.22, genH=genW*0.85;
+  sctx.strokeStyle='rgba(255,140,80,.55)';sctx.lineWidth=2;
+  sctx.strokeRect(genX-genW/2,genY-genH/2,genW,genH);
+  sctx.fillStyle='rgba(255,140,80,.22)';
+  sctx.fillRect(genX-genW/2+3,genY-genH*0.1,genW-6,genH/2-6);
+
+  // heater flame
+  var flameY=genY+genH/2+6;
+  for(var i=0;i<3;i++){
+    var fx=genX-genW*0.25+i*genW*0.25;
+    var fh=10+Math.sin(animT*4+i)*4;
+    sctx.fillStyle='rgba(255,120,40,.7)';
+    sctx.beginPath();
+    sctx.moveTo(fx,flameY+14);sctx.quadraticCurveTo(fx-6,flameY+4,fx,flameY-fh);sctx.quadraticCurveTo(fx+6,flameY+4,fx,flameY+14);
+    sctx.fill();
+  }
+  sctx.fillStyle='rgba(255,140,80,.6)';sctx.font='10px monospace';sctx.textAlign='center';
+  sctx.fillText("BUG' GENERATORI (100°C)",genX,genY-genH/2-14);
+
+  // tube from generator to calorimeter
+  var calX=W*0.72, calY=H*0.56;
+  var calW=Math.min(W,H)*0.26, calH=calW*1.08;
+  var tubeY=genY-genH*0.35;
+  sctx.strokeStyle='rgba(200,210,220,.5)';sctx.lineWidth=6;
+  sctx.beginPath();
+  sctx.moveTo(genX+genW/2,tubeY);
+  sctx.lineTo(calX-calW*0.18,tubeY);
+  sctx.lineTo(calX-calW*0.18,calY-calH*0.05);
+  sctx.stroke();
+
+  // steam particles moving through tube (only tab>=2)
+  if(tabMode>=2){
+    var seed=7;
+    function rnd(){seed=(seed*9301+49297)%233280;return seed/233280;}
+    for(var i=0;i<8;i++){
+      var prog=((animT*0.5+i*0.13)%1);
+      var px,py;
+      var pathLen1=(calX-calW*0.18)-(genX+genW/2);
+      if(prog<0.7){
+        px=genX+genW/2+pathLen1*(prog/0.7);
+        py=tubeY;
+      } else {
+        px=calX-calW*0.18;
+        py=tubeY+((calY-calH*0.05)-tubeY)*((prog-0.7)/0.3);
+      }
+      sctx.fillStyle='rgba(255,255,255,.5)';
+      sctx.beginPath();sctx.arc(px,py-8,3+rnd()*2,0,Math.PI*2);sctx.fill();
+    }
+  }
+
+  // === CALORIMETER (right) ===
+  sctx.strokeStyle='rgba(34,211,238,.5)';sctx.lineWidth=2;
+  sctx.strokeRect(calX-calW/2,calY-calH/2,calW,calH);
+  sctx.strokeStyle='rgba(34,211,238,.3)';sctx.lineWidth=1.5;
+  sctx.strokeRect(calX-calW*0.4,calY-calH*0.4,calW*0.8,calH*0.75);
+
+  var waterTop=calY-calH*0.4+calH*0.75*0.3;
+  var heatFrac=tabMode>=2?Math.min(1,(animT%4)/2):0;
+  sctx.fillStyle='rgba(34,140,200,'+(0.3+heatFrac*0.15)+')';
+  sctx.fillRect(calX-calW*0.38,waterTop,calW*0.76,calH*0.75*0.68);
+
+  for(var i=0;i<3;i++){
+    var ry=waterTop+3+Math.sin(animT*2+i)*1.5;
+    sctx.strokeStyle='rgba(150,220,255,.25)';sctx.lineWidth=1;
+    sctx.beginPath();sctx.moveTo(calX-calW*0.34,ry);sctx.lineTo(calX+calW*0.34,ry);sctx.stroke();
+  }
+
+  sctx.fillStyle='rgba(34,211,238,.55)';sctx.font='10px monospace';sctx.textAlign='center';
+  sctx.fillText('KALORIMETR',calX,calY+calH/2+18);
+
+  // thermometer in calorimeter
+  var thx=calX+calW*0.22;
+  sctx.strokeStyle='rgba(255,107,107,.7)';sctx.lineWidth=2;
+  sctx.beginPath();sctx.moveTo(thx,calY-calH*0.55);sctx.lineTo(thx,waterTop+10);sctx.stroke();
+  sctx.fillStyle='rgba(255,107,107,.8)';sctx.beginPath();sctx.arc(thx,calY-calH*0.58,5,0,Math.PI*2);sctx.fill();
+
+}
+
+// ===== SCREEN CANVAS (thermometer trend) =====
+function drawScreen(){
+  var W=ec.offsetWidth||280; ec.width=W; var H=110;
+  ectx.clearRect(0,0,W,H);ectx.fillStyle='#030608';ectx.fillRect(0,0,W,H);
+
+  var teq=getTeq();
+  var minT=Math.min(T0v,teq)-2, maxT=Math.max(100,teq)+5;
+  function y(v){return H-8-((v-minT)/(maxT-minT))*(H-18);}
+
+  ectx.strokeStyle='rgba(255,107,107,.6)';ectx.lineWidth=1.5;
+  ectx.beginPath();
+  ectx.moveTo(12,y(100));
+  ectx.lineTo(W*0.5,y(teq));
+  ectx.lineTo(W-12,y(teq));
+  ectx.stroke();
+
+  ectx.strokeStyle='rgba(150,220,255,.4)';ectx.lineWidth=1;ectx.setLineDash([2,3]);
+  ectx.beginPath();ectx.moveTo(12,y(T0v));ectx.lineTo(W-12,y(T0v));ectx.stroke();
+  ectx.setLineDash([]);
+
+  ectx.fillStyle='rgba(255,107,107,.7)';
+  ectx.beginPath();ectx.arc(12,y(100),3,0,Math.PI*2);ectx.fill();
+  ectx.fillStyle='rgba(34,211,238,.8)';
+  ectx.beginPath();ectx.arc(W-12,y(teq),3,0,Math.PI*2);ectx.fill();
+
+  ectx.fillStyle='rgba(34,211,238,.7)';ectx.font='11px monospace';ectx.textAlign='center';
+  ectx.fillText('100°C → t≈'+teq.toFixed(1)+'°C',W/2,H-5);
+}
+
+// ===== MEASURE =====
+function takeMeasure(){
+  var teqTrue=getTeq();
+  var t=teqTrue+(Math.random()-.5)*0.5;
+
+  var A=Mwv*cWater+mKal*cKal;
+  var Qsum=A*(t-T0v);
+  var Lexp=Qsum/Msv - cWater*(100-t);
+
+  cnt++;
+  meas.push({Mw:Mwv,Ms:Msv,T0:T0v,t:t,L:Lexp});
+  document.getElementById('chipCnt').textContent=cnt;
+
+  var ar=document.getElementById('avgRow');if(ar)ar.remove();
+  var tr=document.createElement('tr');
+  tr.innerHTML='<td>'+cnt+'</td><td>'+Mwv+'</td><td>'+Msv.toFixed(1)+'</td><td>'+T0v+'</td><td>'+t.toFixed(1)+'</td><td>'+Lexp.toFixed(0)+'</td>';
+  document.getElementById('tbody').appendChild(tr);
+
+  setDot(true);setTimeout(function(){setDot(false);},900);
+  document.getElementById('statusTxt').textContent='✓ #'+cnt+t('measStatus')+t.toFixed(1)+t('measStatus2')+Lexp.toFixed(0)+t('measStatus3');
+
+  if(cnt>=3){
+    document.getElementById('calcBtn').disabled=false;
+    document.getElementById('instrBar').textContent=t('instrEnough');
+    setStep(4);
+  }
+
+  if(cnt<3){
+    Mwv=Mwv+20;document.getElementById('sMw').value=Mwv;document.getElementById('dMw').textContent=Mwv+' g';
+    Msv=parseFloat((Msv+0.5).toFixed(1));document.getElementById('sMs').value=Msv;document.getElementById('dMs').textContent=Msv.toFixed(1)+' g';
+    drawAll();
+  }
+}
+
+function calcLambda(){
+  var ls=meas.map(function(m){return m.L;});
+  var avg=ls.reduce(function(a,b){return a+b;},0)/ls.length;
+  var v=ls.reduce(function(a,b){return a+Math.pow(b-avg,2);},0);
+  var de=Math.sqrt(v/Math.max(1,ls.length*(ls.length-1)));
+  var re=(de/avg*100);
+
+  var ar=document.createElement('tr');ar.className='avg-r';ar.id='avgRow';
+  ar.innerHTML='<td colspan="5" style="text-align:right">'+t('avgRowLbl')+'</td><td>'+avg.toFixed(0)+'</td>';
+  document.getElementById('tbody').appendChild(ar);
+
+  document.getElementById('finalCard').style.display='block';
+  document.getElementById('avgL').textContent=avg.toFixed(0);
+  document.getElementById('absErr').textContent='± '+de.toFixed(1);
+  document.getElementById('relErr').textContent=re.toFixed(2)+'%';
+  document.getElementById('chipL').textContent=avg.toFixed(0);
+  setStep(4);
+  document.getElementById('statusTxt').textContent=t('finalStatus')+avg.toFixed(0)+t('finalStatus2')+re.toFixed(2)+'%';
+}
+
+function resetAll(){
+  meas=[];cnt=0;Mwv=200;T0v=20;Msv=5;
+  ['sMw','sT0','sMs'].forEach(function(id){
+    var el=document.getElementById(id);
+    if(el){
+      if(id==='sMw')el.value=200;
+      if(id==='sT0')el.value=20;
+      if(id==='sMs')el.value=5;
+    }
+  });
+  document.getElementById('dMw').textContent='200 g';document.getElementById('dT0').textContent='20 °C';
+  document.getElementById('dMs').textContent='5.0 g';
+  document.getElementById('tbody').innerHTML='';
+  document.getElementById('finalCard').style.display='none';
+  document.getElementById('calcBtn').disabled=true;
+  document.getElementById('chipCnt').textContent='0';document.getElementById('chipDx').textContent='—';document.getElementById('chipL').textContent='—';
+  document.getElementById('statusTxt').textContent=t('statusDefault');
+  document.getElementById('instrBar').textContent=t('tabInstrs')[0];
+  setDot(false);setStep(1);switchTab(1);
+  drawAll();
+}
+
+function setDot(on){document.getElementById('dot').classList.toggle('off',!on);}
+function setStep(n){for(var i=1;i<=4;i++){var el=document.getElementById('st'+i);el.className='step'+(i<n?' done':i===n?' active':'');el.querySelector('.snum').textContent=i<n?'✓':i;}}
+
+window.addEventListener('load',function(){setTimeout(function(){resize();},100);setLang('uz');});
+</script>
+</body>
+</html>

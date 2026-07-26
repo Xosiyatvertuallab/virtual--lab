@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gaz qonunlari — Izoprotsesslar</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap');
+:root{
+  --bg:#07090f;--panel:#0e1420;--border:#1b2840;
+  --accent:#ff9f43;--green:#6fff5c;--yellow:#ffc947;
+  --red:#ff6b6b;--cold:#22d3ee;--text:#dde6f5;--muted:#4a6080;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;height:100vh;overflow:hidden;display:flex;flex-direction:column;}
+
+header{display:flex;align-items:center;gap:12px;padding:8px 20px;border-bottom:1px solid var(--border);background:linear-gradient(90deg,#07090f,#1f1300,#07090f);flex-shrink:0;}
+.badge{background:var(--accent);color:#000;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:3px 9px;letter-spacing:2px;border-radius:2px;}
+.htitle{font-size:15px;font-weight:800;}
+.htitle span{color:var(--accent);}
+.hsub{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-left:auto;}
+.brand{display:flex;align-items:center;gap:6px;background:linear-gradient(135deg,rgba(255,159,67,.15),rgba(111,255,92,.1));border:1px solid rgba(255,159,67,.3);border-radius:20px;padding:4px 14px;margin-left:10px;flex-shrink:0;}
+.brand-txt{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;background:linear-gradient(90deg,#ff9f43,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;}
+
+.tabs{display:flex;border-bottom:1px solid var(--border);background:#0a0f1c;flex-shrink:0;}
+.tab{padding:8px 18px;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap;}
+.tab:hover{color:var(--text);}
+.tab.on{color:var(--accent);border-bottom-color:var(--accent);}
+
+.statusbar{background:#0a0f1c;border-bottom:1px solid var(--border);padding:5px 20px;display:flex;align-items:center;gap:14px;font-family:'Space Mono',monospace;font-size:11px;flex-shrink:0;}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:bl 1s infinite;flex-shrink:0;}
+.dot.off{background:var(--muted);animation:none;}
+@keyframes bl{0%,100%{opacity:1}50%{opacity:.2}}
+#statusTxt{color:var(--accent);}
+.chips{display:flex;gap:6px;margin-left:auto;}
+.chip{background:rgba(255,159,67,.08);border:1px solid rgba(255,159,67,.2);border-radius:10px;padding:2px 9px;font-size:10px;color:var(--muted);}
+.chip span{color:var(--accent);}
+
+.body{display:grid;grid-template-columns:210px 1fr 255px;flex:1;overflow:hidden;}
+
+.left{background:var(--panel);border-right:1px solid var(--border);overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:9px;}
+.stitle{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--accent);text-transform:uppercase;margin-bottom:3px;opacity:.85;}
+.card{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:8px;padding:10px;}
+.card label{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:7px;}
+.vb{font-family:'Space Mono',monospace;font-size:11px;color:var(--accent);background:rgba(255,159,67,.12);padding:2px 7px;border-radius:3px;}
+input[type=range]{width:100%;-webkit-appearance:none;height:4px;background:var(--border);border-radius:2px;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;background:var(--accent);border-radius:50%;cursor:pointer;box-shadow:0 0 8px rgba(255,159,67,.7);}
+
+.fixedcard{background:rgba(111,255,92,.05);border:1px solid rgba(111,255,92,.2);border-radius:8px;padding:9px;font-family:'Space Mono',monospace;font-size:11px;display:flex;justify-content:space-between;align-items:center;}
+.fixedcard b{color:var(--green);}
+
+.fbox{background:rgba(255,159,67,.04);border:1px solid rgba(255,159,67,.15);border-radius:7px;padding:9px;}
+.frow{display:flex;gap:6px;margin-bottom:4px;font-family:'Space Mono',monospace;font-size:10px;}
+.frow:last-child{margin-bottom:0;}
+.fl{color:var(--muted);min-width:30px;}
+.fe{color:var(--yellow);}
+
+.steps{display:flex;flex-direction:column;gap:3px;}
+.step{display:flex;align-items:center;gap:7px;padding:5px 8px;border-radius:5px;font-size:10px;color:var(--muted);border:1px solid transparent;transition:all .3s;}
+.step.active{background:rgba(255,159,67,.07);border-color:rgba(255,159,67,.2);color:var(--accent);}
+.step.done{color:var(--green);}
+.snum{font-family:'Space Mono',monospace;font-size:9px;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.05);flex-shrink:0;}
+.step.active .snum{background:rgba(255,159,67,.2);}
+.step.done .snum{background:rgba(111,255,92,.12);color:var(--green);}
+
+.btn{width:100%;padding:10px;border:none;border-radius:7px;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;cursor:pointer;transition:all .2s;}
+.btn-p{background:linear-gradient(135deg,#ff9f43,#c9720c);color:#000;}
+.btn-p:hover{transform:translateY(-1px);box-shadow:0 5px 18px rgba(255,159,67,.4);}
+.btn-p:disabled{opacity:.35;cursor:not-allowed;transform:none;}
+.btn-g{background:linear-gradient(135deg,#6fff5c,#33cc22);color:#000;margin-top:5px;}
+.btn-g:disabled{opacity:.35;cursor:not-allowed;}
+.btn-r{background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--border);margin-top:5px;font-size:11px;}
+
+.center{position:relative;overflow:hidden;background:var(--bg);display:flex;flex-direction:column;}
+#simCanvas{flex:1;display:block;width:100%;}
+.instr-bar{background:rgba(7,9,15,.92);border-top:1px solid var(--border);padding:6px 18px;font-size:11px;color:var(--muted);text-align:center;flex-shrink:0;}
+
+.right{background:var(--panel);border-left:1px solid var(--border);overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:9px;}
+.rc{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:8px;padding:10px;}
+.rc.hi{border-color:rgba(255,159,67,.25);background:rgba(255,159,67,.05);}
+.rl{font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:3px;}
+.rv{font-size:22px;font-weight:800;line-height:1;color:#fff;}
+.ru{font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);margin-top:2px;}
+.three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;}
+
+table{width:100%;border-collapse:collapse;font-family:'Space Mono',monospace;font-size:9px;}
+th{color:var(--accent);font-size:8px;letter-spacing:1px;border-bottom:1px solid var(--border);padding:4px 2px;text-align:center;}
+td{padding:3px 2px;border-bottom:1px solid rgba(255,255,255,.03);text-align:center;}
+tr.avg-r td{color:var(--yellow);border-top:1px solid var(--border);font-weight:700;}
+tr:last-child td{border-bottom:none;}
+
+#graphCanvas{display:block;width:100%;border-radius:8px;border:1px solid var(--border);}
+
+.final-card{background:rgba(255,159,67,.05);border:1px solid rgba(255,159,67,.2);border-radius:8px;padding:12px;}
+.err-row{display:flex;justify-content:space-between;margin-top:6px;font-family:'Space Mono',monospace;font-size:10px;}
+.err-row span:first-child{color:var(--muted);}
+.err-row span:last-child{color:var(--yellow);}
+.langsw{display:flex;gap:3px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;padding:3px;margin-left:10px;}
+.langbtn{background:transparent;border:none;color:var(--muted);font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:4px 9px;border-radius:5px;cursor:pointer;letter-spacing:1px;}
+.langbtn.active{background:var(--accent);color:#000;}
+</style>
+</head>
+<body>
+
+<!-- BOSHLASH EKRANI -->
+<div id="startScreen" style="position:fixed;inset:0;z-index:9998;background:radial-gradient(ellipse at 40% 50%,#1a0e00 0%,#07090f 70%);display:flex;align-items:center;justify-content:center;">
+  <canvas id="bgCanvas" style="position:absolute;inset:0;width:100%;height:100%;opacity:.5;pointer-events:none"></canvas>
+  <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:20px;max-width:580px;padding:20px;text-align:center">
+    <div style="display:flex;align-items:center;gap:10px">
+      <div style="background:#ff9f43;color:#000;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:4px 14px;letter-spacing:2px;border-radius:2px">LAB · GAZ</div>
+      <div style="font-family:'Space Mono',monospace;font-size:10px;color:#4a6080;letter-spacing:2px" id="tKicker">MOLEKULYAR FIZIKA · IZOPROTSESSLAR</div>
+    </div>
+    <div style="width:100px;height:100px;border-radius:50%;background:radial-gradient(circle,rgba(255,159,67,.18) 0%,rgba(255,159,67,.02) 70%);border:2px solid rgba(255,159,67,.4);display:flex;align-items:center;justify-content:center;box-shadow:0 0 50px rgba(255,159,67,.3);animation:pulseG 2.5s ease-in-out infinite;">
+      <span style="font-size:44px">🌡️</span>
+    </div>
+    <div>
+      <h1 style="font-size:24px;font-weight:800;line-height:1.2;color:#fff" id="tStartTitle">Gaz qonunlari — <span style="color:#ff9f43">izoprotsesslar</span></h1>
+      <p style="font-size:13px;color:#4a6080;margin-top:8px;font-family:'Space Mono',monospace" id="tStartSub">Boyl-Mariott · Gey-Lyussak · Sharl qonunlarini o'rganish</p>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;width:100%">
+      <div style="background:rgba(255,255,255,.04);border:1px solid #1b2840;border-radius:10px;padding:12px"><div style="font-size:20px;margin-bottom:4px">⏱</div><div style="font-size:11px;color:#4a6080;font-family:monospace" id="tInfoTime">Vaqt</div><div style="font-size:13px;font-weight:700;color:#dde6f5;margin-top:2px">45-60 min</div></div>
+      <div style="background:rgba(255,255,255,.04);border:1px solid #1b2840;border-radius:10px;padding:12px"><div style="font-size:20px;margin-bottom:4px">🧪</div><div style="font-size:11px;color:#4a6080;font-family:monospace" id="tInfoEx">Mashq</div><div style="font-size:13px;font-weight:700;color:#dde6f5;margin-top:2px" id="tInfoExVal">3 ta</div></div>
+      <div style="background:rgba(255,255,255,.04);border:1px solid #1b2840;border-radius:10px;padding:12px"><div style="font-size:20px;margin-bottom:4px">🎯</div><div style="font-size:11px;color:#4a6080;font-family:monospace" id="tInfoGoal">Maqsad</div><div style="font-size:13px;font-weight:700;color:#dde6f5;margin-top:2px" id="tInfoGoalVal">const tekshirish</div></div>
+    </div>
+    <div style="background:rgba(255,159,67,.05);border:1px solid rgba(255,159,67,.18);border-radius:12px;padding:16px;width:100%;text-align:left">
+      <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;color:#ff9f43;margin-bottom:10px" id="tProcedure">BAJARISH TARTIBI</div>
+      <div style="display:flex;flex-direction:column;gap:7px">
+        <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:#c5d3e8"><div style="width:22px;height:22px;border-radius:50%;background:rgba(255,159,67,.2);display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:10px;color:#ff9f43;flex-shrink:0">1</div><span id="tPS1">Kerakli izoprotsess bo'limini tanlang (izobarik/izoxorik/izotermik)</span></div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:#c5d3e8"><div style="width:22px;height:22px;border-radius:50%;background:rgba(255,159,67,.2);display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:10px;color:#ff9f43;flex-shrink:0">2</div><span id="tPS2">Parametrni (T yoki V) slayder bilan o'zgartiring</span></div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:#c5d3e8"><div style="width:22px;height:22px;border-radius:50%;background:rgba(255,159,67,.2);display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:10px;color:#ff9f43;flex-shrink:0">3</div><span id="tPS3">Har safar <b style="color:#ff9f43">"O'lchov olish"</b> tugmasini bosing (kamida 5 marta)</span></div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:#c5d3e8"><div style="width:22px;height:22px;border-radius:50%;background:rgba(255,159,67,.2);display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:10px;color:#ff9f43;flex-shrink:0">4</div><span id="tPS4">"Hisoblash" tugmasi bilan doimiylikni tekshiring</span></div>
+      </div>
+    </div>
+    <button onclick="startLab()" style="background:linear-gradient(135deg,#ff9f43,#c9720c);color:#000;border:none;border-radius:12px;padding:16px 60px;font-size:16px;font-weight:800;font-family:'Syne',sans-serif;cursor:pointer;box-shadow:0 8px 30px rgba(255,159,67,.4);transition:all .2s;width:100%"
+    onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 12px 40px rgba(255,159,67,.6)'"
+    onmouseout="this.style.transform='none';this.style.boxShadow='0 8px 30px rgba(255,159,67,.4)'">
+      <span id="tStartBtn">▶ Laboratoriyani boshlash</span>
+    </button>
+    <div style="display:flex;align-items:center;gap:6px;opacity:.6">
+      <span style="font-size:13px">🔬</span>
+      <span style="font-family:'Space Mono',monospace;font-size:10px;background:linear-gradient(90deg,#ff9f43,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;font-weight:700">Xosiyat Virtual Lab</span>
+    </div>
+  </div>
+</div>
+<style>
+@keyframes pulseG{0%,100%{box-shadow:0 0 50px rgba(255,159,67,.25)}50%{box-shadow:0 0 70px rgba(255,159,67,.5)}}
+@keyframes fadeOut{0%{opacity:1}100%{opacity:0;transform:scale(1.04)}}
+</style>
+<script>
+(function(){var c=document.getElementById('bgCanvas');var x=c.getContext('2d');var pts=[];function resize(){c.width=window.innerWidth;c.height=window.innerHeight;}resize();window.addEventListener('resize',resize);for(var i=0;i<60;i++)pts.push({x:Math.random()*1600,y:Math.random()*900,r:Math.random()*1.5+.5,vx:(Math.random()-.5)*.35,vy:(Math.random()-.5)*.35,a:Math.random()});function frame(){x.clearRect(0,0,c.width,c.height);pts.forEach(function(p){p.x+=p.vx;p.y+=p.vy;p.a+=.005;if(p.x<0)p.x=c.width;if(p.x>c.width)p.x=0;if(p.y<0)p.y=c.height;if(p.y>c.height)p.y=0;x.fillStyle='rgba(255,159,67,'+(0.25+Math.sin(p.a)*0.18)+')';x.beginPath();x.arc(p.x%c.width,p.y%c.height,p.r,0,Math.PI*2);x.fill();});requestAnimationFrame(frame);}frame();})();
+function startLab(){var s=document.getElementById('startScreen');s.style.animation='fadeOut .5s ease forwards';setTimeout(function(){s.style.display='none';},480);}
+</script>
+
+<!-- MAIN -->
+<header>
+  <div class="badge">LAB · GAZ</div>
+  <h1 class="htitle" id="tTitle">Gaz qonunlari — <span>izoprotsesslar</span></h1>
+  <div class="hsub" id="tHsub">MOLEKULYAR FIZIKA · FIZPRAKTIKUM · SDPI 2026</div>
+  <div class="langsw">
+    <button class="langbtn active" id="langUZ" onclick="setLang('uz')">UZ</button>
+    <button class="langbtn" id="langRU" onclick="setLang('ru')">RU</button>
+    <button class="langbtn" id="langEN" onclick="setLang('en')">EN</button>
+  </div>
+  <div class="brand"><span style="font-size:12px">🔬</span><span class="brand-txt">Xosiyat Virtual Lab</span></div>
+</header>
+
+<div class="tabs">
+  <div class="tab on" id="t1" onclick="switchTab(1)"><span id="tTab1">a) Izobarik jarayon</span></div>
+  <div class="tab" id="t2" onclick="switchTab(2)"><span id="tTab2">b) Izoxorik jarayon</span></div>
+  <div class="tab" id="t3" onclick="switchTab(3)"><span id="tTab3">v) Izotermik jarayon</span></div>
+</div>
+
+<div class="statusbar">
+  <div class="dot off" id="dot"></div>
+  <span id="statusTxt">Parametrni o'zgartiring va o'lchov oling</span>
+  <div class="chips">
+    <div class="chip"><span id="tConstLbl">const</span> = <span id="chipConst">—</span></div>
+    <div class="chip"><span id="tMeasLbl">O'lchov:</span> <span id="chipCnt">0</span>/5</div>
+  </div>
+</div>
+
+<div class="body">
+  <!-- LEFT -->
+  <div class="left">
+    <div class="stitle" id="paramTitle">a-mashq parametrlari</div>
+
+    <div id="paramsA">
+      <div class="fixedcard"><span id="tPfix">P (bosim)</span> <b>100 kPa</b></div>
+      <div class="card">
+        <label><span id="tTlblA">T — harorat</span> <span class="vb" id="dTA">300 K</span></label>
+        <input type="range" id="sTA" min="250" max="450" step="5" value="300" oninput="setParam('TA',this.value)">
+      </div>
+    </div>
+
+    <div id="paramsB" style="display:none">
+      <div class="fixedcard"><span id="tVfix">V (hajm)</span> <b>10.0 L</b></div>
+      <div class="card">
+        <label><span id="tTlblB">T — harorat</span> <span class="vb" id="dTB">300 K</span></label>
+        <input type="range" id="sTB" min="250" max="450" step="5" value="300" oninput="setParam('TB',this.value)">
+      </div>
+    </div>
+
+    <div id="paramsC" style="display:none">
+      <div class="fixedcard"><span id="tTfix">T — harorat</span> <b>300 K</b></div>
+      <div class="card">
+        <label><span id="tVlblC">V — hajm</span> <span class="vb" id="dVC">10.0 L</span></label>
+        <input type="range" id="sVC" min="5" max="20" step="0.5" value="10" oninput="setParam('VC',this.value)">
+      </div>
+    </div>
+
+    <div class="fbox">
+      <div class="frow"><span class="fl" id="tLawName">Qonun</span></div>
+      <div class="frow"><span class="fe" id="tFormula1">V₁/T₁ = V₂/T₂</span></div>
+      <div class="frow"><span class="fl" id="tConstDesc">Doimiylik:</span><span class="fe" id="tFormula2">V/T = const</span></div>
+    </div>
+
+    <div class="steps">
+      <div class="step active" id="st1"><div class="snum">1</div><span id="tStep1">Parametrni o'zgartiring</span></div>
+      <div class="step" id="st2"><div class="snum">2</div><span id="tStep2">O'lchovlarni yig'ing (≥5)</span></div>
+      <div class="step" id="st3"><div class="snum">3</div><span id="tStep3">Doimiylikni hisoblang</span></div>
+      <div class="step" id="st4"><div class="snum">4</div><span id="tStep4">Xatoni baholang</span></div>
+    </div>
+
+    <button class="btn btn-p" id="measBtn" onclick="takeMeasure()">📏 <span id="tMeasBtn">O'lchov olish</span></button>
+    <button class="btn btn-g" id="calcBtn" onclick="calcConst()" disabled>📊 <span id="tCalcBtn">Hisoblash</span></button>
+    <button class="btn btn-r" onclick="resetAll()">↺ <span id="tResetBtn">Qayta boshlash</span></button>
+  </div>
+
+  <!-- CENTER -->
+  <div class="center">
+    <canvas id="simCanvas"></canvas>
+    <div class="instr-bar" id="instrBar">🌡️ Gaz zarrachalarining harakatini kuzating — harorat oshsa, tezlik oshadi</div>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="right">
+    <div class="stitle" id="tResultsSec">O'lchov natijalari</div>
+    <div class="three">
+      <div class="rc hi">
+        <div class="rl">P</div>
+        <div class="rv" style="font-size:16px" id="rP">—</div>
+        <div class="ru">kPa</div>
+      </div>
+      <div class="rc hi">
+        <div class="rl">V</div>
+        <div class="rv" style="font-size:16px" id="rV">—</div>
+        <div class="ru">L</div>
+      </div>
+      <div class="rc hi">
+        <div class="rl">T</div>
+        <div class="rv" style="font-size:16px;color:var(--accent)" id="rT">—</div>
+        <div class="ru">K</div>
+      </div>
+    </div>
+
+    <div class="stitle" id="tGraphSec">Grafik</div>
+    <canvas id="graphCanvas" height="130"></canvas>
+
+    <div class="stitle" id="tTableSec">Jadval</div>
+    <div style="overflow-x:auto">
+      <table>
+        <thead><tr><th>№</th><th>T(K)</th><th>P(kPa)</th><th>V(L)</th><th id="thConst">V/T</th></tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+
+    <div class="final-card" id="finalCard" style="display:none">
+      <div class="rl" id="tAvgConst">O'rtacha doimiylik</div>
+      <div class="rv" style="color:var(--green);font-size:28px" id="avgC">—</div>
+      <div class="ru" id="tConstUnit">L/K</div>
+      <div class="err-row"><span id="tAbsErr">Absolyut xatolik</span><span id="absErr">—</span></div>
+      <div class="err-row"><span id="tRelErr">Nisbiy xatolik ε</span><span id="relErr">—</span></div>
+      <div class="err-row"><span id="tTrueVal">Nazariy qiymat</span><span style="color:rgba(255,159,67,.9)" id="theoVal">—</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- Watermark -->
+<div style="position:fixed;bottom:14px;right:18px;display:flex;align-items:center;gap:7px;background:rgba(7,9,15,.75);border:1px solid rgba(255,159,67,.2);border-radius:30px;padding:5px 16px;backdrop-filter:blur(10px);z-index:9999;pointer-events:none">
+  <span style="font-size:13px">🔬</span>
+  <span style="font-family:'Space Mono',monospace;font-size:11px;font-weight:700;background:linear-gradient(90deg,#ff9f43,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px">Xosiyat Virtual Lab</span>
+</div>
+
+<script>
+// ===== I18N =====
+var LANG='uz';
+var I18N={
+ uz:{title:'Gaz qonunlari — <span>izoprotsesslar</span>',hsub:'MOLEKULYAR FIZIKA · FIZPRAKTIKUM · SDPI 2026',measLbl:"O'lchov:",constLbl:'const',kicker:'MOLEKULYAR FIZIKA · IZOPROTSESSLAR',
+   tab1:'a) Izobarik jarayon',tab2:'b) Izoxorik jarayon',tab3:'v) Izotermik jarayon',
+   paramTitleA:'a-mashq: Izobarik (P=const)',paramTitleB:'b-mashq: Izoxorik (V=const)',paramTitleC:'v-mashq: Izotermik (T=const)',
+   pFix:'P (bosim)',vFix:'V (hajm)',tFix:'T — harorat',tLblA:'T — harorat',tLblB:'T — harorat',vLblC:'V — hajm',
+   lawNameA:"Gey-Lyussak qonuni (izobarik)",lawNameB:'Sharl qonuni (izoxorik)',lawNameC:'Boyl-Mariott qonuni (izotermik)',
+   formula1A:'V₁/T₁ = V₂/T₂',formula1B:'P₁/T₁ = P₂/T₂',formula1C:'P₁V₁ = P₂V₂',
+   constDesc:'Doimiylik:',formula2A:'V/T = const',formula2B:'P/T = const',formula2C:'P·V = const',
+   step1:'Parametrni o\'zgartiring',step2:"O'lchovlarni yig'ing (≥5)",step3:'Doimiylikni hisoblang',step4:'Xatoni baholang',
+   measBtn:"O'lchov olish",calcBtn:'Hisoblash',resetBtn:'Qayta boshlash',resultsSec:'Joriy holat',
+   graphSec:'Grafik',tableSec:'Jadval',
+   thConstA:'V/T',thConstB:'P/T',thConstC:'P·V',
+   avgConst:'O\'rtacha doimiylik',absErr:'Absolyut xatolik',relErr:'Nisbiy xatolik ε',trueVal:'Nazariy qiymat',
+   constUnitA:'L/K',constUnitB:'kPa/K',constUnitC:'kPa·L',
+   startTitle:'Gaz qonunlari — <span style="color:#ff9f43">izoprotsesslar</span>',startSub:'Boyl-Mariott · Gey-Lyussak · Sharl qonunlarini o\'rganish',
+   infoTime:'Vaqt',infoEx:'Mashq',infoExVal:'3 ta',infoGoal:'Maqsad',infoGoalVal:'const tekshirish',
+   procedure:'BAJARISH TARTIBI',ps1:"Kerakli izoprotsess bo'limini tanlang (izobarik/izoxorik/izotermik)",
+   ps2:'Parametrni (T yoki V) slayder bilan o\'zgartiring',
+   ps3:'Har safar <b style="color:#ff9f43">"O\'lchov olish"</b> tugmasini bosing (kamida 5 marta)',
+   ps4:'"Hisoblash" tugmasi bilan doimiylikni tekshiring',
+   startBtn:'▶ Laboratoriyani boshlash',
+   statusDefault:"Parametrni o'zgartiring va o'lchov oling",
+   tabInstrs:['🌡️ T ni oshiring — bosim doimiy, gaz kengayadi va V ortadi','🌡️ T ni oshiring — hajm doimiy (porshen qulflangan), bosim ortadi','↔️ V ni o\'zgartiring — harorat doimiy, bosim teskari proporsional o\'zgaradi'],
+   instrEnough:'✅ Yetarli o\'lchov. "Hisoblash" tugmasini bosing',avgRowLbl:'O\'rt =',
+   finalStatus:'🎉 Doimiylik tasdiqlandi: ',finalStatus2:' | ε = ',measStatus:': o\'lchov #'
+ },
+ ru:{title:'Газовые законы — <span>изопроцессы</span>',hsub:'МОЛЕКУЛЯРНАЯ ФИЗИКА · ФИЗПРАКТИКУМ · SDPI 2026',measLbl:'Измерений:',constLbl:'const',kicker:'МОЛЕКУЛЯРНАЯ ФИЗИКА · ИЗОПРОЦЕССЫ',
+   tab1:'а) Изобарный процесс',tab2:'б) Изохорный процесс',tab3:'в) Изотермический процесс',
+   paramTitleA:'Упр. а: Изобарный (P=const)',paramTitleB:'Упр. б: Изохорный (V=const)',paramTitleC:'Упр. в: Изотермический (T=const)',
+   pFix:'P (давление)',vFix:'V (объём)',tFix:'T — температура',tLblA:'T — температура',tLblB:'T — температура',vLblC:'V — объём',
+   lawNameA:'Закон Гей-Люссака (изобарный)',lawNameB:'Закон Шарля (изохорный)',lawNameC:'Закон Бойля-Мариотта (изотермический)',
+   formula1A:'V₁/T₁ = V₂/T₂',formula1B:'P₁/T₁ = P₂/T₂',formula1C:'P₁V₁ = P₂V₂',
+   constDesc:'Постоянная:',formula2A:'V/T = const',formula2B:'P/T = const',formula2C:'P·V = const',
+   step1:'Измените параметр',step2:'Соберите измерения (≥5)',step3:'Вычислите постоянную',step4:'Оцените погрешность',
+   measBtn:'Сделать измерение',calcBtn:'Вычислить',resetBtn:'Начать заново',resultsSec:'Текущее состояние',
+   graphSec:'График',tableSec:'Таблица',
+   thConstA:'V/T',thConstB:'P/T',thConstC:'P·V',
+   avgConst:'Средняя постоянная',absErr:'Абс. погрешность',relErr:'Отн. погрешность ε',trueVal:'Теоретическое значение',
+   constUnitA:'Л/К',constUnitB:'кПа/К',constUnitC:'кПа·Л',
+   startTitle:'Газовые законы — <span style="color:#ff9f43">изопроцессы</span>',startSub:'Бойль-Мариотт · Гей-Люссак · Шарль',
+   infoTime:'Время',infoEx:'Упражнения',infoExVal:'3 шт.',infoGoal:'Цель',infoGoalVal:'проверить const',
+   procedure:'ПОРЯДОК ВЫПОЛНЕНИЯ',ps1:'Выберите нужный изопроцесс (изобарный/изохорный/изотермический)',
+   ps2:'Измените параметр (T или V) ползунком',
+   ps3:'Каждый раз нажимайте <b style="color:#ff9f43">"Сделать измерение"</b> (не менее 5 раз)',
+   ps4:'Нажмите "Вычислить", чтобы проверить постоянную',
+   startBtn:'▶ Начать лабораторную',
+   statusDefault:'Измените параметр и сделайте измерение',
+   tabInstrs:['🌡️ Увеличьте T — давление постоянно, газ расширяется, V растёт','🌡️ Увеличьте T — объём постоянен (поршень закреплён), давление растёт','↔️ Измените V — температура постоянна, давление меняется обратно пропорционально'],
+   instrEnough:'✅ Достаточно данных. Нажмите "Вычислить"',avgRowLbl:'Ср =',
+   finalStatus:'🎉 Постоянная подтверждена: ',finalStatus2:' | ε = ',measStatus:': измерение #'
+ },
+ en:{title:'Gas Laws — <span>isoprocesses</span>',hsub:'MOLECULAR PHYSICS · PHYSICS LAB · SDPI 2026',measLbl:'Measurements:',constLbl:'const',kicker:'MOLECULAR PHYSICS · ISOPROCESSES',
+   tab1:'a) Isobaric process',tab2:'b) Isochoric process',tab3:'c) Isothermal process',
+   paramTitleA:'Exercise a: Isobaric (P=const)',paramTitleB:'Exercise b: Isochoric (V=const)',paramTitleC:'Exercise c: Isothermal (T=const)',
+   pFix:'P (pressure)',vFix:'V (volume)',tFix:'T — temperature',tLblA:'T — temperature',tLblB:'T — temperature',vLblC:'V — volume',
+   lawNameA:"Gay-Lussac's Law (isobaric)",lawNameB:"Charles's Law (isochoric)",lawNameC:"Boyle-Mariotte's Law (isothermal)",
+   formula1A:'V₁/T₁ = V₂/T₂',formula1B:'P₁/T₁ = P₂/T₂',formula1C:'P₁V₁ = P₂V₂',
+   constDesc:'Constant:',formula2A:'V/T = const',formula2B:'P/T = const',formula2C:'P·V = const',
+   step1:'Change the parameter',step2:'Collect measurements (≥5)',step3:'Calculate the constant',step4:'Assess the error',
+   measBtn:'Take measurement',calcBtn:'Calculate',resetBtn:'Restart',resultsSec:'Current state',
+   graphSec:'Graph',tableSec:'Table',
+   thConstA:'V/T',thConstB:'P/T',thConstC:'P·V',
+   avgConst:'Average constant',absErr:'Absolute error',relErr:'Relative error ε',trueVal:'Theoretical value',
+   constUnitA:'L/K',constUnitB:'kPa/K',constUnitC:'kPa·L',
+   startTitle:'Gas Laws — <span style="color:#ff9f43">isoprocesses</span>',startSub:"Boyle-Mariotte · Gay-Lussac · Charles' Laws",
+   infoTime:'Time',infoEx:'Exercises',infoExVal:'3',infoGoal:'Goal',infoGoalVal:'verify const',
+   procedure:'PROCEDURE',ps1:'Choose the isoprocess section (isobaric/isochoric/isothermal)',
+   ps2:'Change the parameter (T or V) with the slider',
+   ps3:'Press <b style="color:#ff9f43">"Take measurement"</b> each time (at least 5 times)',
+   ps4:'Press "Calculate" to verify the constant',
+   startBtn:'▶ Start the lab',
+   statusDefault:'Change the parameter and take a measurement',
+   tabInstrs:['🌡️ Increase T — pressure constant, gas expands, V rises','🌡️ Increase T — volume constant (piston locked), pressure rises','↔️ Change V — temperature constant, pressure changes inversely'],
+   instrEnough:'✅ Enough data. Press "Calculate"',avgRowLbl:'Avg =',
+   finalStatus:'🎉 Constant confirmed: ',finalStatus2:' | ε = ',measStatus:': measurement #'
+ }
+};
+function t(k){return I18N[LANG][k];}
+
+function setLang(l){
+  LANG=l;
+  document.getElementById('langUZ').className='langbtn'+(l==='uz'?' active':'');
+  document.getElementById('langRU').className='langbtn'+(l==='ru'?' active':'');
+  document.getElementById('langEN').className='langbtn'+(l==='en'?' active':'');
+  document.getElementById('tTitle').innerHTML=t('title');
+  document.getElementById('tHsub').textContent=t('hsub');
+  document.getElementById('tMeasLbl').textContent=t('measLbl');
+  document.getElementById('tConstLbl').textContent=t('constLbl');
+  document.getElementById('tKicker').textContent=t('kicker');
+  document.getElementById('tTab1').textContent=t('tab1');
+  document.getElementById('tTab2').textContent=t('tab2');
+  document.getElementById('tTab3').textContent=t('tab3');
+  document.getElementById('tPfix').textContent=t('pFix');
+  document.getElementById('tVfix').textContent=t('vFix');
+  document.getElementById('tTfix').textContent=t('tFix');
+  document.getElementById('tTlblA').textContent=t('tLblA');
+  document.getElementById('tTlblB').textContent=t('tLblB');
+  document.getElementById('tVlblC').textContent=t('vLblC');
+  document.getElementById('tStep1').textContent=t('step1');
+  document.getElementById('tStep2').textContent=t('step2');
+  document.getElementById('tStep3').textContent=t('step3');
+  document.getElementById('tStep4').textContent=t('step4');
+  document.getElementById('tMeasBtn').textContent=t('measBtn');
+  document.getElementById('tCalcBtn').textContent=t('calcBtn');
+  document.getElementById('tResetBtn').textContent=t('resetBtn');
+  document.getElementById('tResultsSec').textContent=t('resultsSec');
+  document.getElementById('tGraphSec').textContent=t('graphSec');
+  document.getElementById('tTableSec').textContent=t('tableSec');
+  document.getElementById('tAvgConst').textContent=t('avgConst');
+  document.getElementById('tAbsErr').textContent=t('absErr');
+  document.getElementById('tRelErr').textContent=t('relErr');
+  document.getElementById('tTrueVal').textContent=t('trueVal');
+  document.getElementById('tStartTitle').innerHTML=t('startTitle');
+  document.getElementById('tStartSub').textContent=t('startSub');
+  document.getElementById('tInfoTime').textContent=t('infoTime');
+  document.getElementById('tInfoExVal').textContent=t('infoExVal');
+  document.getElementById('tInfoEx').textContent=t('infoEx');
+  document.getElementById('tInfoGoal').textContent=t('infoGoal');
+  document.getElementById('tInfoGoalVal').textContent=t('infoGoalVal');
+  document.getElementById('tProcedure').textContent=t('procedure');
+  document.getElementById('tPS1').textContent=t('ps1');
+  document.getElementById('tPS2').textContent=t('ps2');
+  document.getElementById('tPS3').innerHTML=t('ps3');
+  document.getElementById('tPS4').textContent=t('ps4');
+  document.getElementById('tStartBtn').textContent=t('startBtn');
+  updateTabTexts();
+  if(!statusOverridden) document.getElementById('statusTxt').textContent=t('statusDefault');
+  document.getElementById('instrBar').textContent=t('tabInstrs')[curTab-1];
+}
+
+// ===== STATE =====
+var R=8.314, n=0.5; // ideal gas: n moles, R gas constant
+var curTab=1;
+var statusOverridden=false;
+var TA=300, TB=300, VC=10; // slider-controlled values
+var Pfix=100, Vfix=10, Tfix=300; // fixed values per exercise
+var measA=[],measB=[],measC=[];
+var cntA=0,cntB=0,cntC=0;
+
+function paramTitleKey(){return curTab===1?'paramTitleA':curTab===2?'paramTitleB':'paramTitleC';}
+function updateTabTexts(){
+  document.getElementById('paramTitle').textContent=t(paramTitleKey());
+  document.getElementById('tLawName').textContent=t(curTab===1?'lawNameA':curTab===2?'lawNameB':'lawNameC');
+  document.getElementById('tFormula1').textContent=t(curTab===1?'formula1A':curTab===2?'formula1B':'formula1C');
+  document.getElementById('tConstDesc').textContent=t('constDesc');
+  document.getElementById('tFormula2').textContent=t(curTab===1?'formula2A':curTab===2?'formula2B':'formula2C');
+  document.getElementById('thConst').textContent=t(curTab===1?'thConstA':curTab===2?'thConstB':'thConstC');
+  document.getElementById('tConstUnit').textContent=t(curTab===1?'constUnitA':curTab===2?'constUnitB':'constUnitC');
+  document.getElementById('tGraphSec').textContent=t('graphSec')+': '+(curTab===1?'V = f(T)':curTab===2?'P = f(T)':'P = f(V)');
+}
+
+function switchTab(n_){
+  curTab=n_;
+  document.getElementById('t1').className='tab'+(n_===1?' on':'');
+  document.getElementById('t2').className='tab'+(n_===2?' on':'');
+  document.getElementById('t3').className='tab'+(n_===3?' on':'');
+  document.getElementById('paramsA').style.display=n_===1?'flex':'none';
+  document.getElementById('paramsB').style.display=n_===2?'flex':'none';
+  document.getElementById('paramsC').style.display=n_===3?'flex':'none';
+  document.getElementById('paramsA').style.flexDirection='column';document.getElementById('paramsA').style.gap='9px';
+  document.getElementById('paramsB').style.flexDirection='column';document.getElementById('paramsB').style.gap='9px';
+  document.getElementById('paramsC').style.flexDirection='column';document.getElementById('paramsC').style.gap='9px';
+  updateTabTexts();
+  statusOverridden=false;
+  document.getElementById('statusTxt').textContent=t('statusDefault');
+  document.getElementById('instrBar').textContent=t('tabInstrs')[n_-1];
+  rebuildTable();
+  var cnt=n_===1?cntA:n_===2?cntB:cntC;
+  document.getElementById('chipCnt').textContent=cnt;
+  document.getElementById('calcBtn').disabled = cnt<5;
+  document.getElementById('finalCard').style.display='none';
+  setStep(cnt>=5?3:1);
+  updateReadout();
+}
+
+function setParam(which,val){
+  val=parseFloat(val);
+  if(which==='TA'){TA=val;document.getElementById('dTA').textContent=val+' K';}
+  if(which==='TB'){TB=val;document.getElementById('dTB').textContent=val+' K';}
+  if(which==='VC'){VC=val;document.getElementById('dVC').textContent=val.toFixed(1)+' L';}
+  updateReadout();
+}
+
+function currentPVT(){
+  if(curTab===1){ // izobarik: P=Pfix, T=TA, V=nRT/P
+    var V=n*R*TA/Pfix;
+    return {P:Pfix,V:V,T:TA};
+  } else if(curTab===2){ // izoxorik: V=Vfix, T=TB, P=nRT/V
+    var P=n*R*TB/Vfix;
+    return {P:P,V:Vfix,T:TB};
+  } else { // izotermik: T=Tfix, V=VC, P=nRT/V
+    var P2=n*R*Tfix/VC;
+    return {P:P2,V:VC,T:Tfix};
+  }
+}
+
+function updateReadout(){
+  var s=currentPVT();
+  document.getElementById('rP').textContent=s.P.toFixed(1);
+  document.getElementById('rV').textContent=s.V.toFixed(2);
+  document.getElementById('rT').textContent=s.T.toFixed(0);
+  var constVal = curTab===1? (s.V/s.T) : curTab===2? (s.P/s.T) : (s.P*s.V);
+  document.getElementById('chipConst').textContent = curTab===3? constVal.toFixed(0) : constVal.toFixed(4);
+  drawSim(s);
+  drawGraph();
+}
+
+// ===== TABLE =====
+function tableArrays(){return curTab===1?measA:curTab===2?measB:measC;}
+function rebuildTable(){
+  var arr=tableArrays();
+  var tb=document.getElementById('tbody');
+  tb.innerHTML='';
+  arr.forEach(function(m,i){
+    var cval = curTab===1? (m.V/m.T) : curTab===2? (m.P/m.T) : (m.P*m.V);
+    var tr=document.createElement('tr');
+    tr.innerHTML='<td>'+(i+1)+'</td><td>'+m.T.toFixed(0)+'</td><td>'+m.P.toFixed(1)+'</td><td>'+m.V.toFixed(2)+'</td><td>'+(curTab===3?cval.toFixed(0):cval.toFixed(4))+'</td>';
+    tb.appendChild(tr);
+  });
+}
+
+function takeMeasure(){
+  var s=currentPVT();
+  // small measurement noise
+  var noise=1+(Math.random()-0.5)*0.03;
+  var m={P:s.P*noise,V:s.V*noise,T:s.T};
+  var arr=tableArrays();
+  arr.push(m);
+  var cnt = curTab===1?++cntA:curTab===2?++cntB:++cntC;
+  document.getElementById('chipCnt').textContent=cnt;
+  rebuildTable();
+  drawGraph();
+
+  setDot(true);setTimeout(function(){setDot(false);},700);
+  statusOverridden=true;
+  document.getElementById('statusTxt').textContent='✓ #'+cnt+t('measStatus').replace(': measurement #','').replace(': o\'lchov #','').replace(': измерение #','')+' '+cnt;
+
+  if(cnt>=5){
+    document.getElementById('calcBtn').disabled=false;
+    document.getElementById('instrBar').textContent=t('instrEnough');
+    setStep(3);
+  } else {
+    setStep(2);
+  }
+
+  // nudge slider for next reading
+  if(cnt<5){
+    if(curTab===1){TA=Math.min(450,TA+30);document.getElementById('sTA').value=TA;document.getElementById('dTA').textContent=TA+' K';}
+    if(curTab===2){TB=Math.min(450,TB+30);document.getElementById('sTB').value=TB;document.getElementById('dTB').textContent=TB+' K';}
+    if(curTab===3){VC=Math.min(20,VC+2.5);document.getElementById('sVC').value=VC;document.getElementById('dVC').textContent=VC.toFixed(1)+' L';}
+    updateReadout();
+  }
+}
+
+function calcConst(){
+  var arr=tableArrays();
+  var vals=arr.map(function(m){return curTab===1?(m.V/m.T):curTab===2?(m.P/m.T):(m.P*m.V);});
+  var avg=vals.reduce(function(a,b){return a+b;},0)/vals.length;
+  var v=vals.reduce(function(a,b){return a+Math.pow(b-avg,2);},0);
+  var de=Math.sqrt(v/Math.max(1,vals.length*(vals.length-1)));
+  var theo = curTab===1? (n*R/Pfix) : curTab===2? (n*R/Vfix) : (n*R*Tfix);
+  var re=Math.abs(avg-theo)/theo*100;
+
+  var ar=document.createElement('tr');ar.className='avg-r';
+  ar.innerHTML='<td colspan="4" style="text-align:right">'+t('avgRowLbl')+'</td><td>'+(curTab===3?avg.toFixed(0):avg.toFixed(4))+'</td>';
+  document.getElementById('tbody').appendChild(ar);
+
+  document.getElementById('finalCard').style.display='block';
+  document.getElementById('avgC').textContent=curTab===3?avg.toFixed(0):avg.toFixed(4);
+  document.getElementById('absErr').textContent='± '+(curTab===3?Math.abs(de).toFixed(1):de.toFixed(5));
+  document.getElementById('relErr').textContent=re.toFixed(2)+'%';
+  document.getElementById('theoVal').textContent=curTab===3?theo.toFixed(0):theo.toFixed(4);
+  setStep(4);
+  statusOverridden=true;
+  document.getElementById('statusTxt').textContent=t('finalStatus')+(curTab===3?avg.toFixed(0):avg.toFixed(4))+t('finalStatus2')+re.toFixed(2)+'%';
+}
+
+function resetAll(){
+  measA=[];measB=[];measC=[];cntA=0;cntB=0;cntC=0;
+  TA=300;TB=300;VC=10;
+  document.getElementById('sTA').value=300;document.getElementById('dTA').textContent='300 K';
+  document.getElementById('sTB').value=300;document.getElementById('dTB').textContent='300 K';
+  document.getElementById('sVC').value=10;document.getElementById('dVC').textContent='10.0 L';
+  document.getElementById('finalCard').style.display='none';
+  document.getElementById('calcBtn').disabled=true;
+  statusOverridden=false;
+  document.getElementById('statusTxt').textContent=t('statusDefault');
+  setDot(false);
+  switchTab(curTab);
+}
+
+function setDot(on){document.getElementById('dot').classList.toggle('off',!on);}
+function setStep(n_){for(var i=1;i<=4;i++){var el=document.getElementById('st'+i);el.className='step'+(i<n_?' done':i===n_?' active':'');el.querySelector('.snum').textContent=i<n_?'✓':i;}}
+
+// ===== SIMULATION CANVAS =====
+var simC=document.getElementById('simCanvas'), sctx=simC.getContext('2d');
+var particles=[];
+var NP=32;
+for(var i=0;i<NP;i++){particles.push({x:Math.random(),y:Math.random(),vx:(Math.random()-.5),vy:(Math.random()-.5)});}
+
+function resizeSim(){
+  simC.width=simC.offsetWidth; simC.height=simC.offsetHeight;
+  updateReadout();
+}
+
+function drawSim(s){
+  var W=simC.width||600, H=simC.height||400;
+  sctx.clearRect(0,0,W,H);
+  sctx.fillStyle='#030608';sctx.fillRect(0,0,W,H);
+
+  // container box: width fixed, height maps to V (5..20L -> px)
+  var boxW=Math.min(260,W*0.32);
+  var vFrac = (s.V-5)/(20-5); vFrac=Math.max(0,Math.min(1,vFrac));
+  var boxH = curTab===2 ? H*0.55 : (H*0.28 + vFrac*H*0.55); // izoxorik: fixed height
+  var boxX = W/2-boxW/2;
+  var boxYbottom = H*0.82;
+  var boxY = boxYbottom-boxH;
+
+  // temperature -> color
+  var tFrac=(s.T-250)/(450-250); tFrac=Math.max(0,Math.min(1,tFrac));
+  var hue = 200-tFrac*200; // 200(blue)->0(red)
+  var glow='hsla('+hue+',85%,55%,.10)';
+  sctx.fillStyle=glow;
+  sctx.fillRect(boxX,boxY,boxW,boxH);
+
+  // container walls
+  sctx.strokeStyle='rgba(255,255,255,.25)';sctx.lineWidth=2;
+  sctx.strokeRect(boxX,boxY,boxW,boxH);
+
+  // piston (top bar) — only meaningful for tabs 1 & 3 where V changes
+  if(curTab!==2){
+    sctx.fillStyle='#8a94a8';
+    sctx.fillRect(boxX-6,boxY-10,boxW+12,10);
+    sctx.fillStyle='rgba(255,255,255,.15)';
+    for(var k=0;k<3;k++){sctx.fillRect(boxX+10+k*(boxW-20)/2,boxY-8,3,6);}
+  } else {
+    sctx.fillStyle='#556';
+    sctx.fillRect(boxX-6,boxY-10,boxW+12,10);
+  }
+
+  // particles
+  var speed = 0.5+tFrac*2.2;
+  particles.forEach(function(p){
+    p.x+=p.vx*speed*0.004; p.y+=p.vy*speed*0.004;
+    if(p.x<0){p.x=0;p.vx*=-1;} if(p.x>1){p.x=1;p.vx*=-1;}
+    if(p.y<0){p.y=0;p.vy*=-1;} if(p.y>1){p.y=1;p.vy*=-1;}
+    var px=boxX+p.x*boxW, py=boxY+p.y*boxH;
+    sctx.fillStyle='hsl('+hue+',90%,'+(55+15*Math.sin(p.x*10))+'%)';
+    sctx.beginPath();sctx.arc(px,py,3.2,0,Math.PI*2);sctx.fill();
+  });
+
+}
+
+// ===== GRAPH CANVAS =====
+var gC=document.getElementById('graphCanvas'), gctx=gC.getContext('2d');
+function drawGraph(){
+  var W=gC.offsetWidth||220; gC.width=W; var H=130; gC.height=H;
+  gctx.clearRect(0,0,W,H);
+  gctx.fillStyle='#030608';gctx.fillRect(0,0,W,H);
+  var pad=26;
+  var arr=tableArrays();
+
+  var xs,ys,xlabel,ylabel,xmin,xmax,ymin,ymax;
+  if(curTab===1){ xs=arr.map(function(m){return m.T;}); ys=arr.map(function(m){return m.V;}); xlabel='T(K)'; ylabel='V(L)'; xmin=250;xmax=450;ymin=0;ymax=n*R*450/Pfix*1.15; }
+  else if(curTab===2){ xs=arr.map(function(m){return m.T;}); ys=arr.map(function(m){return m.P;}); xlabel='T(K)'; ylabel='P(kPa)'; xmin=250;xmax=450;ymin=0;ymax=n*R*450/Vfix*1.15; }
+  else { xs=arr.map(function(m){return m.V;}); ys=arr.map(function(m){return m.P;}); xlabel='V(L)'; ylabel='P(kPa)'; xmin=5;xmax=20;ymin=0;ymax=n*R*Tfix/5*1.15; }
+
+  function mapX(x){return pad+(x-xmin)/(xmax-xmin)*(W-pad-8);}
+  function mapY(y){return H-18-(y-ymin)/(ymax-ymin)*(H-18-8);}
+
+  // axes
+  gctx.strokeStyle='rgba(255,255,255,.2)';gctx.lineWidth=1;
+  gctx.beginPath();gctx.moveTo(pad,8);gctx.lineTo(pad,H-18);gctx.lineTo(W-8,H-18);gctx.stroke();
+  gctx.fillStyle='rgba(255,255,255,.4)';gctx.font='8px monospace';gctx.textAlign='center';
+  gctx.fillText(xlabel,W/2,H-6);
+  gctx.save();gctx.translate(9,H/2);gctx.rotate(-Math.PI/2);gctx.fillText(ylabel,0,0);gctx.restore();
+
+  // theoretical curve
+  gctx.strokeStyle='rgba(255,159,67,.5)';gctx.lineWidth=1.4;gctx.beginPath();
+  var steps=40;
+  for(var i=0;i<=steps;i++){
+    var xv=xmin+(xmax-xmin)*i/steps, yv;
+    if(curTab===1) yv=n*R*xv/Pfix;
+    else if(curTab===2) yv=n*R*xv/Vfix;
+    else yv=n*R*Tfix/xv;
+    var px=mapX(xv), py=mapY(yv);
+    if(i===0)gctx.moveTo(px,py); else gctx.lineTo(px,py);
+  }
+  gctx.stroke();
+
+  // points
+  gctx.fillStyle='#22d3ee';
+  for(var j=0;j<xs.length;j++){
+    var px2=mapX(xs[j]), py2=mapY(ys[j]);
+    gctx.beginPath();gctx.arc(px2,py2,3,0,Math.PI*2);gctx.fill();
+  }
+}
+
+window.addEventListener('resize',resizeSim);
+window.addEventListener('load',function(){setTimeout(resizeSim,100);setLang('uz');});
+setInterval(function(){ if(document.getElementById('startScreen').style.display==='none'){ updateReadout(); } },80);
+</script>
+</body>
+</html>

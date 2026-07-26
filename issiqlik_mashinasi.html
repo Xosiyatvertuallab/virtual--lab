@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Issiqlik mashinasi — Karno sikli</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap');
+:root{
+  --bg:#07090f;--panel:#0e1420;--border:#1b2840;
+  --accent:#e879f9;--green:#6fff5c;--yellow:#ffc947;
+  --red:#ff6b6b;--text:#dde6f5;--muted:#4a6080;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;height:100vh;overflow:hidden;display:flex;flex-direction:column;}
+
+header{display:flex;align-items:center;gap:12px;padding:8px 20px;border-bottom:1px solid var(--border);background:linear-gradient(90deg,#07090f,#210a29,#07090f);flex-shrink:0;}
+.badge{background:var(--accent);color:#000;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:3px 9px;letter-spacing:2px;border-radius:2px;}
+.htitle{font-size:15px;font-weight:800;}
+.htitle span{color:var(--accent);}
+.hsub{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-left:auto;}
+.brand{display:flex;align-items:center;gap:6px;background:linear-gradient(135deg,rgba(232,121,249,.15),rgba(111,255,92,.1));border:1px solid rgba(232,121,249,.3);border-radius:20px;padding:4px 14px;margin-left:10px;flex-shrink:0;}
+.brand-txt{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;background:linear-gradient(90deg,#e879f9,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;}
+
+.tabs{display:flex;border-bottom:1px solid var(--border);background:#0a0f1c;flex-shrink:0;}
+.tab{padding:8px 18px;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap;}
+.tab:hover{color:var(--text);}
+.tab.on{color:var(--accent);border-bottom-color:var(--accent);}
+
+.statusbar{background:#0a0f1c;border-bottom:1px solid var(--border);padding:5px 20px;display:flex;align-items:center;gap:14px;font-family:'Space Mono',monospace;font-size:11px;flex-shrink:0;}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:bl 1s infinite;flex-shrink:0;}
+.dot.off{background:var(--muted);animation:none;}
+@keyframes bl{0%,100%{opacity:1}50%{opacity:.2}}
+#statusTxt{color:var(--accent);}
+.chips{display:flex;gap:6px;margin-left:auto;}
+.chip{background:rgba(232,121,249,.08);border:1px solid rgba(232,121,249,.2);border-radius:10px;padding:2px 9px;font-size:10px;color:var(--muted);}
+.chip span{color:var(--accent);}
+
+.body{display:grid;grid-template-columns:210px 1fr 255px;flex:1;overflow:hidden;}
+
+.left{background:var(--panel);border-right:1px solid var(--border);overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:9px;}
+.stitle{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--accent);text-transform:uppercase;margin-bottom:3px;opacity:.85;}
+.card{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:8px;padding:10px;}
+.card label{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:7px;}
+.vb{font-family:'Space Mono',monospace;font-size:11px;color:var(--accent);background:rgba(232,121,249,.12);padding:2px 7px;border-radius:3px;}
+input[type=range]{width:100%;-webkit-appearance:none;height:4px;background:var(--border);border-radius:2px;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;background:var(--accent);border-radius:50%;cursor:pointer;box-shadow:0 0 8px rgba(232,121,249,.7);}
+
+.fixedcard{background:rgba(111,255,92,.05);border:1px solid rgba(111,255,92,.2);border-radius:8px;padding:9px;font-family:'Space Mono',monospace;font-size:11px;display:flex;justify-content:space-between;align-items:center;}
+.fixedcard b{color:var(--green);}
+.fixedcard2{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:8px;padding:9px;font-family:'Space Mono',monospace;font-size:10px;display:flex;flex-direction:column;gap:4px;}
+.fixedcard2 .row{display:flex;justify-content:space-between;}
+.fixedcard2 b{color:var(--accent);}
+
+.fbox{background:rgba(232,121,249,.04);border:1px solid rgba(232,121,249,.15);border-radius:7px;padding:9px;}
+.frow{display:flex;gap:6px;margin-bottom:4px;font-family:'Space Mono',monospace;font-size:10px;}
+.frow:last-child{margin-bottom:0;}
+.fl{color:var(--muted);min-width:30px;}
+.fe{color:var(--yellow);}
+
+.steps{display:flex;flex-direction:column;gap:3px;}
+.step{display:flex;align-items:center;gap:7px;padding:5px 8px;border-radius:5px;font-size:10px;color:var(--muted);border:1px solid transparent;transition:all .3s;}
+.step.active{background:rgba(232,121,249,.07);border-color:rgba(232,121,249,.2);color:var(--accent);}
+.step.done{color:var(--green);}
+.snum{font-family:'Space Mono',monospace;font-size:9px;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.05);flex-shrink:0;}
+.step.active .snum{background:rgba(232,121,249,.2);}
+.step.done .snum{background:rgba(111,255,92,.12);color:var(--green);}
+
+.btn{width:100%;padding:10px;border:none;border-radius:7px;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;cursor:pointer;transition:all .2s;}
+.btn-p{background:linear-gradient(135deg,#e879f9,#8b1fa3);color:#000;}
+.btn-p:hover{transform:translateY(-1px);box-shadow:0 5px 18px rgba(232,121,249,.4);}
+.btn-p:disabled{opacity:.35;cursor:not-allowed;transform:none;}
+.btn-g{background:linear-gradient(135deg,#6fff5c,#33cc22);color:#000;margin-top:5px;}
+.btn-g:disabled{opacity:.35;cursor:not-allowed;}
+.btn-r{background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--border);margin-top:5px;font-size:11px;}
+
+.center{position:relative;overflow:hidden;background:var(--bg);display:flex;flex-direction:column;}
+#simCanvas{flex:1;display:block;width:100%;}
+.instr-bar{background:rgba(7,9,15,.92);border-top:1px solid var(--border);padding:6px 18px;font-size:11px;color:var(--muted);text-align:center;flex-shrink:0;}
+
+.right{background:var(--panel);border-left:1px solid var(--border);overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:9px;}
+.rc{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:8px;padding:10px;}
+.rc.hi{border-color:rgba(232,121,249,.25);background:rgba(232,121,249,.05);}
+.rl{font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:3px;}
+.rv{font-size:22px;font-weight:800;line-height:1;color:#fff;}
+.ru{font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);margin-top:2px;}
+.three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;}
+
+table{width:100%;border-collapse:collapse;font-family:'Space Mono',monospace;font-size:9px;}
+th{color:var(--accent);font-size:8px;letter-spacing:1px;border-bottom:1px solid var(--border);padding:4px 2px;text-align:center;}
+td{padding:3px 2px;border-bottom:1px solid rgba(255,255,255,.03);text-align:center;}
+tr.avg-r td{color:var(--yellow);border-top:1px solid var(--border);font-weight:700;}
+tr:last-child td{border-bottom:none;}
+
+#graphCanvas{display:block;width:100%;border-radius:8px;border:1px solid var(--border);}
+
+.final-card{background:rgba(232,121,249,.05);border:1px solid rgba(232,121,249,.2);border-radius:8px;padding:12px;}
+.err-row{display:flex;justify-content:space-between;margin-top:6px;font-family:'Space Mono',monospace;font-size:10px;}
+.err-row span:first-child{color:var(--muted);}
+.err-row span:last-child{color:var(--yellow);}
+.langsw{display:flex;gap:3px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;padding:3px;margin-left:10px;}
+.langbtn{background:transparent;border:none;color:var(--muted);font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:4px 9px;border-radius:5px;cursor:pointer;letter-spacing:1px;}
+.langbtn.active{background:var(--accent);color:#000;}
+</style>
+</head>
+<body>
+
+<!-- BOSHLASH EKRANI -->
+<div id="startScreen" style="position:fixed;inset:0;z-index:9998;background:radial-gradient(ellipse at 40% 50%,#1f0a26 0%,#07090f 70%);display:flex;align-items:center;justify-content:center;">
+  <canvas id="bgCanvas" style="position:absolute;inset:0;width:100%;height:100%;opacity:.5;pointer-events:none"></canvas>
+  <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:20px;max-width:580px;padding:20px;text-align:center">
+    <div style="display:flex;align-items:center;gap:10px">
+      <div style="background:#e879f9;color:#000;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:4px 14px;letter-spacing:2px;border-radius:2px">LAB · IM</div>
+      <div style="font-family:'Space Mono',monospace;font-size:10px;color:#4a6080;letter-spacing:2px" id="tKicker">MOLEKULYAR FIZIKA · ISSIQLIK MASHINASI</div>
+    </div>
+    <div style="width:100px;height:100px;border-radius:50%;background:radial-gradient(circle,rgba(232,121,249,.18) 0%,rgba(232,121,249,.02) 70%);border:2px solid rgba(232,121,249,.4);display:flex;align-items:center;justify-content:center;box-shadow:0 0 50px rgba(232,121,249,.3);animation:pulseG 2.5s ease-in-out infinite;">
+      <span style="font-size:44px">⚙️</span>
+    </div>
+    <div>
+      <h1 style="font-size:24px;font-weight:800;line-height:1.2;color:#fff" id="tStartTitle">Issiqlik mashinasi — <span style="color:#e879f9">Karno sikli</span></h1>
+      <p style="font-size:13px;color:#4a6080;margin-top:8px;font-family:'Space Mono',monospace" id="tStartSub">Foydali ish koeffitsientini (η) aniqlash</p>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;width:100%">
+      <div style="background:rgba(255,255,255,.04);border:1px solid #1b2840;border-radius:10px;padding:12px"><div style="font-size:20px;margin-bottom:4px">⏱</div><div style="font-size:11px;color:#4a6080;font-family:monospace" id="tInfoTime">Vaqt</div><div style="font-size:13px;font-weight:700;color:#dde6f5;margin-top:2px">45-60 min</div></div>
+      <div style="background:rgba(255,255,255,.04);border:1px solid #1b2840;border-radius:10px;padding:12px"><div style="font-size:20px;margin-bottom:4px">🔄</div><div style="font-size:11px;color:#4a6080;font-family:monospace" id="tInfoEx">Mashq</div><div style="font-size:13px;font-weight:700;color:#dde6f5;margin-top:2px" id="tInfoExVal">3 ta</div></div>
+      <div style="background:rgba(255,255,255,.04);border:1px solid #1b2840;border-radius:10px;padding:12px"><div style="font-size:20px;margin-bottom:4px">🎯</div><div style="font-size:11px;color:#4a6080;font-family:monospace" id="tInfoGoal">Maqsad</div><div style="font-size:13px;font-weight:700;color:#dde6f5;margin-top:2px" id="tInfoGoalVal">η topish</div></div>
+    </div>
+    <div style="background:rgba(232,121,249,.05);border:1px solid rgba(232,121,249,.18);border-radius:12px;padding:16px;width:100%;text-align:left">
+      <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;color:#e879f9;margin-bottom:10px" id="tProcedure">BAJARISH TARTIBI</div>
+      <div style="display:flex;flex-direction:column;gap:7px">
+        <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:#c5d3e8"><div style="width:22px;height:22px;border-radius:50%;background:rgba(232,121,249,.2);display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:10px;color:#e879f9;flex-shrink:0">1</div><span id="tPS1">Ishchi gazni (havo/CO₂/argon) tanlang</span></div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:#c5d3e8"><div style="width:22px;height:22px;border-radius:50%;background:rgba(232,121,249,.2);display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:10px;color:#e879f9;flex-shrink:0">2</div><span id="tPS2">Kengayish nisbati r=V₂/V₁ ni slayder bilan tanlang</span></div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:#c5d3e8"><div style="width:22px;height:22px;border-radius:50%;background:rgba(232,121,249,.2);display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:10px;color:#e879f9;flex-shrink:0">3</div><span id="tPS3"><b style="color:#e879f9">"Siklni ishga tushirish"</b> — Q₁, Q₂, A avtomatik hisoblanadi (5 marta)</span></div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:#c5d3e8"><div style="width:22px;height:22px;border-radius:50%;background:rgba(232,121,249,.2);display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:10px;color:#e879f9;flex-shrink:0">4</div><span id="tPS4">η=A/Q₁ ni Karno FIKga solishtiring</span></div>
+      </div>
+    </div>
+    <button onclick="startLab()" style="background:linear-gradient(135deg,#e879f9,#8b1fa3);color:#000;border:none;border-radius:12px;padding:16px 60px;font-size:16px;font-weight:800;font-family:'Syne',sans-serif;cursor:pointer;box-shadow:0 8px 30px rgba(232,121,249,.4);transition:all .2s;width:100%"
+    onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 12px 40px rgba(232,121,249,.6)'"
+    onmouseout="this.style.transform='none';this.style.boxShadow='0 8px 30px rgba(232,121,249,.4)'">
+      <span id="tStartBtn">▶ Laboratoriyani boshlash</span>
+    </button>
+    <div style="display:flex;align-items:center;gap:6px;opacity:.6">
+      <span style="font-size:13px">🔬</span>
+      <span style="font-family:'Space Mono',monospace;font-size:10px;background:linear-gradient(90deg,#e879f9,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;font-weight:700">Xosiyat Virtual Lab</span>
+    </div>
+  </div>
+</div>
+<style>
+@keyframes pulseG{0%,100%{box-shadow:0 0 50px rgba(232,121,249,.25)}50%{box-shadow:0 0 70px rgba(232,121,249,.5)}}
+@keyframes fadeOut{0%{opacity:1}100%{opacity:0;transform:scale(1.04)}}
+</style>
+<script>
+(function(){var c=document.getElementById('bgCanvas');var x=c.getContext('2d');var pts=[];function resize(){c.width=window.innerWidth;c.height=window.innerHeight;}resize();window.addEventListener('resize',resize);for(var i=0;i<60;i++)pts.push({x:Math.random()*1600,y:Math.random()*900,r:Math.random()*1.5+.5,vx:(Math.random()-.5)*.35,vy:(Math.random()-.5)*.35,a:Math.random()});function frame(){x.clearRect(0,0,c.width,c.height);pts.forEach(function(p){p.x+=p.vx;p.y+=p.vy;p.a+=.005;if(p.x<0)p.x=c.width;if(p.x>c.width)p.x=0;if(p.y<0)p.y=c.height;if(p.y>c.height)p.y=0;x.fillStyle='rgba(232,121,249,'+(0.25+Math.sin(p.a)*0.18)+')';x.beginPath();x.arc(p.x%c.width,p.y%c.height,p.r,0,Math.PI*2);x.fill();});requestAnimationFrame(frame);}frame();})();
+function startLab(){var s=document.getElementById('startScreen');s.style.animation='fadeOut .5s ease forwards';setTimeout(function(){s.style.display='none';},480);}
+</script>
+
+<!-- MAIN -->
+<header>
+  <div class="badge">LAB · IM</div>
+  <h1 class="htitle" id="tTitle">Issiqlik mashinasi — <span>Karno sikli</span></h1>
+  <div class="hsub" id="tHsub">MOLEKULYAR FIZIKA · FIZPRAKTIKUM · SDPI 2026</div>
+  <div class="langsw">
+    <button class="langbtn active" id="langUZ" onclick="setLang('uz')">UZ</button>
+    <button class="langbtn" id="langRU" onclick="setLang('ru')">RU</button>
+    <button class="langbtn" id="langEN" onclick="setLang('en')">EN</button>
+  </div>
+  <div class="brand"><span style="font-size:12px">🔬</span><span class="brand-txt">Xosiyat Virtual Lab</span></div>
+</header>
+
+<div class="tabs">
+  <div class="tab on" id="t1" onclick="switchTab(1)"><span id="tTab1">a) Havo</span></div>
+  <div class="tab" id="t2" onclick="switchTab(2)"><span id="tTab2">b) Karbonat angidrid</span></div>
+  <div class="tab" id="t3" onclick="switchTab(3)"><span id="tTab3">v) Argon</span></div>
+</div>
+
+<div class="statusbar">
+  <div class="dot off" id="dot"></div>
+  <span id="statusTxt">r ni tanlang va siklni ishga tushiring</span>
+  <div class="chips">
+    <div class="chip">η = <span id="chipEta">—</span>%</div>
+    <div class="chip"><span id="tMeasLbl">Sikl:</span> <span id="chipCnt">0</span>/5</div>
+  </div>
+</div>
+
+<div class="body">
+  <!-- LEFT -->
+  <div class="left">
+    <div class="stitle" id="paramTitle">a-mashq: Havo</div>
+
+    <div class="fixedcard"><span id="tGasLbl">Ishchi jism:</span> <b id="gasName">Havo</b></div>
+
+    <div class="card">
+      <label><span id="tRlbl">r = V₂/V₁</span> <span class="vb" id="dR">2.00</span></label>
+      <input type="range" id="sR" min="1.5" max="4" step="0.25" value="2" oninput="setParam(this.value)">
+    </div>
+
+    <div class="fixedcard2">
+      <div class="row"><span id="tT1lbl">T₁ (issiq manba)</span><b>500 K</b></div>
+      <div class="row"><span id="tT2lbl">T₂ (sovuq manba)</span><b>300 K</b></div>
+    </div>
+
+    <div class="fbox">
+      <div class="frow"><span class="fl">Q₁</span><span class="fe">= nRT₁ ln r</span></div>
+      <div class="frow"><span class="fl">Q₂</span><span class="fe">= nRT₂ ln r</span></div>
+      <div class="frow"><span class="fl">A</span><span class="fe">= Q₁ − Q₂</span></div>
+      <div class="frow"><span class="fl">η</span><span class="fe">= A/Q₁</span></div>
+      <div class="frow"><span class="fl" id="tTheoLbl">Karno η:</span><span class="fe" id="tTheoVal">40.0%</span></div>
+    </div>
+
+    <div class="steps">
+      <div class="step active" id="st1"><div class="snum">1</div><span id="tStep1">r ni sozlang</span></div>
+      <div class="step" id="st2"><div class="snum">2</div><span id="tStep2">Sikllarni yig'ing (≥5)</span></div>
+      <div class="step" id="st3"><div class="snum">3</div><span id="tStep3">η ni hisoblang</span></div>
+      <div class="step" id="st4"><div class="snum">4</div><span id="tStep4">Karno bilan solishtiring</span></div>
+    </div>
+
+    <button class="btn btn-p" id="measBtn" onclick="takeMeasure()">⚙️ <span id="tMeasBtn">Siklni ishga tushirish</span></button>
+    <button class="btn btn-g" id="calcBtn" onclick="calcEta()" disabled>📊 <span id="tCalcBtn">η Hisoblash</span></button>
+    <button class="btn btn-r" onclick="resetAll()">↺ <span id="tResetBtn">Qayta boshlash</span></button>
+  </div>
+
+  <!-- CENTER -->
+  <div class="center">
+    <canvas id="simCanvas"></canvas>
+    <div class="instr-bar" id="instrBar">🔥 Issiq manbadan Q₁ olinadi → ish A bajariladi → Q₂ sovuq manbaga beriladi</div>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="right">
+    <div class="stitle" id="tResultsSec">Joriy holat</div>
+    <div class="three">
+      <div class="rc hi">
+        <div class="rl">Q₁</div>
+        <div class="rv" style="font-size:16px" id="rQ1">—</div>
+        <div class="ru">J</div>
+      </div>
+      <div class="rc hi">
+        <div class="rl">Q₂</div>
+        <div class="rv" style="font-size:16px" id="rQ2">—</div>
+        <div class="ru">J</div>
+      </div>
+      <div class="rc hi">
+        <div class="rl">η</div>
+        <div class="rv" style="font-size:16px;color:var(--accent)" id="rEta">—</div>
+        <div class="ru">%</div>
+      </div>
+    </div>
+
+    <div class="stitle" id="tGraphSec">Grafik: η (r bo'yicha)</div>
+    <canvas id="graphCanvas" height="130"></canvas>
+
+    <div class="stitle" id="tTableSec">Jadval</div>
+    <div style="overflow-x:auto">
+      <table>
+        <thead><tr><th>№</th><th>Q₁(J)</th><th>A(J)</th><th>η(%)</th></tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+
+    <div class="final-card" id="finalCard" style="display:none">
+      <div class="rl" id="tAvgEta">O'rtacha FIK η̄</div>
+      <div class="rv" style="color:var(--green);font-size:28px" id="avgE">—</div>
+      <div class="ru">%</div>
+      <div class="err-row"><span id="tAbsErr">Absolyut xatolik Δη</span><span id="absErr">—</span></div>
+      <div class="err-row"><span id="tRelErr">Nisbiy xatolik ε</span><span id="relErr">—</span></div>
+      <div class="err-row"><span id="tTrueVal">Karno FIK</span><span style="color:rgba(232,121,249,.9)" id="theoValF">—</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- Watermark -->
+<div style="position:fixed;bottom:14px;right:18px;display:flex;align-items:center;gap:7px;background:rgba(7,9,15,.75);border:1px solid rgba(232,121,249,.2);border-radius:30px;padding:5px 16px;backdrop-filter:blur(10px);z-index:9999;pointer-events:none">
+  <span style="font-size:13px">🔬</span>
+  <span style="font-family:'Space Mono',monospace;font-size:11px;font-weight:700;background:linear-gradient(90deg,#e879f9,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px">Xosiyat Virtual Lab</span>
+</div>
+
+<script>
+// ===== I18N =====
+var LANG='uz';
+var I18N={
+ uz:{title:"Issiqlik mashinasi — <span>Karno sikli</span>",hsub:'MOLEKULYAR FIZIKA · FIZPRAKTIKUM · SDPI 2026',measLbl:'Sikl:',kicker:'MOLEKULYAR FIZIKA · ISSIQLIK MASHINASI',
+   tab1:'a) Havo',tab2:'b) Karbonat angidrid',tab3:'v) Argon',
+   paramTitleA:'a-mashq: Havo',paramTitleB:'b-mashq: Karbonat angidrid (CO₂)',paramTitleC:'v-mashq: Argon (Ar)',
+   gasLbl:'Ishchi jism:',gasNameA:'Havo',gasNameB:'Karbonat angidrid',gasNameC:'Argon',
+   rLbl:'r = V₂/V₁',t1Lbl:'T₁ (issiq manba)',t2Lbl:'T₂ (sovuq manba)',theoLbl:'Karno η:',
+   step1:'r ni sozlang',step2:"Sikllarni yig'ing (≥5)",step3:'η ni hisoblang',step4:'Karno bilan solishtiring',
+   measBtn:'Siklni ishga tushirish',calcBtn:'η Hisoblash',resetBtn:'Qayta boshlash',resultsSec:'Joriy holat',
+   graphSec:"Grafik: η (r bo'yicha)",tableSec:'Jadval',
+   avgEta:"O'rtacha FIK η̄",absErr:'Absolyut xatolik Δη',relErr:'Nisbiy xatolik ε',trueVal:'Karno FIK',
+   startTitle:"Issiqlik mashinasi — <span style=\"color:#e879f9\">Karno sikli</span>",startSub:'Foydali ish koeffitsientini (η) aniqlash',
+   infoTime:'Vaqt',infoEx:'Mashq',infoExVal:'3 ta',infoGoal:'Maqsad',infoGoalVal:'η topish',
+   procedure:'BAJARISH TARTIBI',ps1:'Ishchi gazni (havo/CO₂/argon) tanlang',
+   ps2:"Kengayish nisbati r=V₂/V₁ ni slayder bilan tanlang",
+   ps3:'<b style="color:#e879f9">"Siklni ishga tushirish"</b> — Q₁, Q₂, A avtomatik hisoblanadi (5 marta)',
+   ps4:'η=A/Q₁ ni Karno FIKga solishtiring',
+   startBtn:'▶ Laboratoriyani boshlash',
+   statusDefault:'r ni tanlang va siklni ishga tushiring',
+   statusQ1:'🔥 Issiq manbadan Q₁ olinmoqda (izotermik kengayish)...',statusAd:'💨 Adiabatik kengayish/siqilish...',statusQ2:'❄️ Sovuq manbaga Q₂ berilmoqda (izotermik siqilish)...',
+   instrDefault:'🔥 Issiq manbadan Q₁ olinadi → ish A bajariladi → Q₂ sovuq manbaga beriladi',
+   instrEnough:'✅ Yetarli sikl. "η Hisoblash" tugmasini bosing',avgRowLbl:'η̄ =',
+   finalStatus:"🎉 Foydali ish koeffitsienti: η̄ = ",finalStatus2:'% | ε = '
+ },
+ ru:{title:'Тепловая машина — <span>цикл Карно</span>',hsub:'МОЛЕКУЛЯРНАЯ ФИЗИКА · ФИЗПРАКТИКУМ · SDPI 2026',measLbl:'Цикл:',kicker:'МОЛЕКУЛЯРНАЯ ФИЗИКА · ТЕПЛОВАЯ МАШИНА',
+   tab1:'а) Воздух',tab2:'б) Углекислый газ',tab3:'в) Аргон',
+   paramTitleA:'Упр. а: Воздух',paramTitleB:'Упр. б: Углекислый газ (CO₂)',paramTitleC:'Упр. в: Аргон (Ar)',
+   gasLbl:'Рабочее тело:',gasNameA:'Воздух',gasNameB:'Углекислый газ',gasNameC:'Аргон',
+   rLbl:'r = V₂/V₁',t1Lbl:'T₁ (горячий источник)',t2Lbl:'T₂ (холодный источник)',theoLbl:'КПД Карно:',
+   step1:'Настройте r',step2:'Соберите циклы (≥5)',step3:'Вычислите η',step4:'Сравните с Карно',
+   measBtn:'Запустить цикл',calcBtn:'Вычислить η',resetBtn:'Начать заново',resultsSec:'Текущее состояние',
+   graphSec:'График: η (по r)',tableSec:'Таблица',
+   avgEta:'Средний КПД η̄',absErr:'Абс. погрешность Δη',relErr:'Отн. погрешность ε',trueVal:'КПД Карно',
+   startTitle:'Тепловая машина — <span style="color:#e879f9">цикл Карно</span>',startSub:'Определение коэффициента полезного действия (η)',
+   infoTime:'Время',infoEx:'Упражнения',infoExVal:'3 шт.',infoGoal:'Цель',infoGoalVal:'найти η',
+   procedure:'ПОРЯДОК ВЫПОЛНЕНИЯ',ps1:'Выберите рабочий газ (воздух/CO₂/аргон)',
+   ps2:'Выберите степень расширения r=V₂/V₁ ползунком',
+   ps3:'<b style="color:#e879f9">"Запустить цикл"</b> — Q₁, Q₂, A вычисляются автоматически (5 раз)',
+   ps4:'Сравните η=A/Q₁ с КПД Карно',
+   startBtn:'▶ Начать лабораторную',
+   statusDefault:'Выберите r и запустите цикл',
+   statusQ1:'🔥 Забор Q₁ от горячего источника (изотермическое расширение)...',statusAd:'💨 Адиабатическое расширение/сжатие...',statusQ2:'❄️ Отдача Q₂ холодному источнику (изотермическое сжатие)...',
+   instrDefault:'🔥 От горячего источника берётся Q₁ → совершается работа A → Q₂ отдаётся холодному источнику',
+   instrEnough:'✅ Достаточно циклов. Нажмите "Вычислить η"',avgRowLbl:'η̄ =',
+   finalStatus:'🎉 КПД тепловой машины: η̄ = ',finalStatus2:'% | ε = '
+ },
+ en:{title:'Heat Engine — <span>Carnot Cycle</span>',hsub:'MOLECULAR PHYSICS · PHYSICS LAB · SDPI 2026',measLbl:'Cycle:',kicker:'MOLECULAR PHYSICS · HEAT ENGINE',
+   tab1:'a) Air',tab2:'b) Carbon dioxide',tab3:'c) Argon',
+   paramTitleA:'Exercise a: Air',paramTitleB:'Exercise b: Carbon dioxide (CO₂)',paramTitleC:'Exercise c: Argon (Ar)',
+   gasLbl:'Working substance:',gasNameA:'Air',gasNameB:'Carbon dioxide',gasNameC:'Argon',
+   rLbl:'r = V₂/V₁',t1Lbl:'T₁ (hot reservoir)',t2Lbl:'T₂ (cold reservoir)',theoLbl:'Carnot η:',
+   step1:'Set r',step2:'Collect cycles (≥5)',step3:'Calculate η',step4:'Compare to Carnot',
+   measBtn:'Run cycle',calcBtn:'Calculate η',resetBtn:'Restart',resultsSec:'Current state',
+   graphSec:'Graph: η (by r)',tableSec:'Table',
+   avgEta:'Average efficiency η̄',absErr:'Absolute error Δη',relErr:'Relative error ε',trueVal:'Carnot efficiency',
+   startTitle:'Heat Engine — <span style="color:#e879f9">Carnot Cycle</span>',startSub:'Determining the thermal efficiency (η)',
+   infoTime:'Time',infoEx:'Exercises',infoExVal:'3',infoGoal:'Goal',infoGoalVal:'find η',
+   procedure:'PROCEDURE',ps1:'Choose the working gas (air/CO₂/argon)',
+   ps2:'Choose the expansion ratio r=V₂/V₁ with the slider',
+   ps3:'<b style="color:#e879f9">"Run cycle"</b> — Q₁, Q₂, A are computed automatically (5 times)',
+   ps4:'Compare η=A/Q₁ with the Carnot efficiency',
+   startBtn:'▶ Start the lab',
+   statusDefault:'Choose r and run the cycle',
+   statusQ1:'🔥 Absorbing Q₁ from the hot reservoir (isothermal expansion)...',statusAd:'💨 Adiabatic expansion/compression...',statusQ2:'❄️ Releasing Q₂ to the cold reservoir (isothermal compression)...',
+   instrDefault:'🔥 Q₁ is drawn from the hot reservoir → work A is done → Q₂ is released to the cold reservoir',
+   instrEnough:'✅ Enough cycles. Press "Calculate η"',avgRowLbl:'Avg =',
+   finalStatus:'🎉 Heat engine efficiency: η̄ = ',finalStatus2:'% | ε = '
+ }
+};
+function t(k){return I18N[LANG][k];}
+
+function setLang(l){
+  LANG=l;
+  document.getElementById('langUZ').className='langbtn'+(l==='uz'?' active':'');
+  document.getElementById('langRU').className='langbtn'+(l==='ru'?' active':'');
+  document.getElementById('langEN').className='langbtn'+(l==='en'?' active':'');
+  document.getElementById('tTitle').innerHTML=t('title');
+  document.getElementById('tHsub').textContent=t('hsub');
+  document.getElementById('tMeasLbl').textContent=t('measLbl');
+  document.getElementById('tKicker').textContent=t('kicker');
+  document.getElementById('tTab1').textContent=t('tab1');
+  document.getElementById('tTab2').textContent=t('tab2');
+  document.getElementById('tTab3').textContent=t('tab3');
+  document.getElementById('tGasLbl').textContent=t('gasLbl');
+  document.getElementById('tRlbl').textContent=t('rLbl');
+  document.getElementById('tT1lbl').textContent=t('t1Lbl');
+  document.getElementById('tT2lbl').textContent=t('t2Lbl');
+  document.getElementById('tTheoLbl').textContent=t('theoLbl');
+  document.getElementById('tStep1').textContent=t('step1');
+  document.getElementById('tStep2').textContent=t('step2');
+  document.getElementById('tStep3').textContent=t('step3');
+  document.getElementById('tStep4').textContent=t('step4');
+  document.getElementById('tMeasBtn').textContent=t('measBtn');
+  document.getElementById('tCalcBtn').textContent=t('calcBtn');
+  document.getElementById('tResetBtn').textContent=t('resetBtn');
+  document.getElementById('tResultsSec').textContent=t('resultsSec');
+  document.getElementById('tGraphSec').textContent=t('graphSec');
+  document.getElementById('tTableSec').textContent=t('tableSec');
+  document.getElementById('tAvgEta').textContent=t('avgEta');
+  document.getElementById('tAbsErr').textContent=t('absErr');
+  document.getElementById('tRelErr').textContent=t('relErr');
+  document.getElementById('tTrueVal').textContent=t('trueVal');
+  document.getElementById('tStartTitle').innerHTML=t('startTitle');
+  document.getElementById('tStartSub').textContent=t('startSub');
+  document.getElementById('tInfoTime').textContent=t('infoTime');
+  document.getElementById('tInfoExVal').textContent=t('infoExVal');
+  document.getElementById('tInfoEx').textContent=t('infoEx');
+  document.getElementById('tInfoGoal').textContent=t('infoGoal');
+  document.getElementById('tInfoGoalVal').textContent=t('infoGoalVal');
+  document.getElementById('tProcedure').textContent=t('procedure');
+  document.getElementById('tPS1').textContent=t('ps1');
+  document.getElementById('tPS2').textContent=t('ps2');
+  document.getElementById('tPS3').innerHTML=t('ps3');
+  document.getElementById('tPS4').textContent=t('ps4');
+  document.getElementById('tStartBtn').textContent=t('startBtn');
+  updateTabTexts();
+  if(!statusOverridden) document.getElementById('statusTxt').textContent=t('statusDefault');
+  if(phase==='idle') document.getElementById('instrBar').textContent=t('instrDefault');
+}
+
+// ===== PHYSICS DATA =====
+var R=8.314, n=0.5, T1=500, T2=300;
+var etaTheo=(T1-T2)/T1; // 0.40
+var GAS={1:{name:'gasNameA'},2:{name:'gasNameB'},3:{name:'gasNameC'}}; // gas type doesn't affect Carnot eta, only illustrative
+var curTab=1;
+var statusOverridden=false;
+var rS={1:2,2:2,3:2};
+var meas={1:[],2:[],3:[]};
+var cnt={1:0,2:0,3:0};
+var phase='idle';
+var live={frac:0};
+
+function paramTitleKey(){return curTab===1?'paramTitleA':curTab===2?'paramTitleB':'paramTitleC';}
+function updateTabTexts(){
+  document.getElementById('paramTitle').textContent=t(paramTitleKey());
+  document.getElementById('gasName').textContent=t(GAS[curTab].name);
+  document.getElementById('tTheoVal').textContent=(etaTheo*100).toFixed(1)+'%';
+}
+
+function switchTab(n_){
+  if(phase!=='idle')return;
+  curTab=n_;
+  document.getElementById('t1').className='tab'+(n_===1?' on':'');
+  document.getElementById('t2').className='tab'+(n_===2?' on':'');
+  document.getElementById('t3').className='tab'+(n_===3?' on':'');
+  document.getElementById('sR').value=rS[curTab];
+  document.getElementById('dR').textContent=rS[curTab].toFixed(2);
+  updateTabTexts();
+  statusOverridden=false;
+  document.getElementById('statusTxt').textContent=t('statusDefault');
+  document.getElementById('instrBar').textContent=t('instrDefault');
+  rebuildTable();
+  document.getElementById('chipCnt').textContent=cnt[curTab];
+  document.getElementById('calcBtn').disabled = cnt[curTab]<5;
+  document.getElementById('finalCard').style.display='none';
+  setStep(cnt[curTab]>=5?3:1);
+  live.frac=0;
+  document.getElementById('rQ1').textContent='—';
+  document.getElementById('rQ2').textContent='—';
+  document.getElementById('rEta').textContent='—';
+  document.getElementById('chipEta').textContent='—';
+  drawSim();
+  drawGraph();
+}
+
+function setParam(val){
+  rS[curTab]=parseFloat(val);
+  document.getElementById('dR').textContent=rS[curTab].toFixed(2);
+}
+
+function rowEta(m_){return m_.A/m_.Q1;}
+
+// ===== TABLE =====
+function rebuildTable(){
+  var arr=meas[curTab];
+  var tb=document.getElementById('tbody');
+  tb.innerHTML='';
+  arr.forEach(function(m_,i){
+    var eta=rowEta(m_)*100;
+    var tr=document.createElement('tr');
+    tr.innerHTML='<td>'+(i+1)+'</td><td>'+m_.Q1.toFixed(1)+'</td><td>'+m_.A.toFixed(1)+'</td><td>'+eta.toFixed(2)+'</td>';
+    tb.appendChild(tr);
+  });
+}
+
+// ===== ANIMATION =====
+function animateFrac(from,to,duration,onDone){
+  var start=null;
+  function step(ts){
+    if(!start)start=ts;
+    var p=Math.min(1,(ts-start)/duration);
+    live.frac=from+(to-from)*p;
+    drawSim();
+    if(p<1){requestAnimationFrame(step);} else {live.frac=to;drawSim();if(onDone)onDone();}
+  }
+  requestAnimationFrame(step);
+}
+
+function takeMeasure(){
+  if(phase!=='idle')return;
+  document.getElementById('measBtn').disabled=true;
+  document.getElementById('calcBtn').disabled=true;
+  setDot(true);
+  statusOverridden=true;
+
+  var rActual=rS[curTab]*(1+(Math.random()-0.5)*0.02);
+  var lnR=Math.log(rActual);
+  var Q1true=n*R*T1*lnR, Q2true=n*R*T2*lnR;
+  var Q1=Q1true*(1+(Math.random()-0.5)*0.02);
+  var Q2=Q2true*(1+(Math.random()-0.5)*0.02);
+  var A=Q1-Q2;
+
+  phase='q1';
+  document.getElementById('statusTxt').textContent=t('statusQ1');
+  document.getElementById('instrBar').textContent=t('statusQ1');
+  setStep(1);
+  animateFrac(0,0.4,700,function(){
+    phase='ad';
+    document.getElementById('statusTxt').textContent=t('statusAd');
+    document.getElementById('instrBar').textContent=t('statusAd');
+    animateFrac(0.4,0.6,350,function(){
+      phase='q2';
+      document.getElementById('statusTxt').textContent=t('statusQ2');
+      document.getElementById('instrBar').textContent=t('statusQ2');
+      animateFrac(0.6,1.0,700,function(){
+        document.getElementById('rQ1').textContent=Q1.toFixed(1);
+        document.getElementById('rQ2').textContent=Q2.toFixed(1);
+        var eta=(A/Q1)*100;
+        document.getElementById('rEta').textContent=eta.toFixed(2);
+        document.getElementById('chipEta').textContent=eta.toFixed(2);
+
+        var row={Q1:Q1,Q2:Q2,A:A,r:rActual};
+        meas[curTab].push(row);
+        cnt[curTab]++;
+        document.getElementById('chipCnt').textContent=cnt[curTab];
+        rebuildTable();
+        drawGraph();
+
+        phase='idle';
+        live.frac=0;
+        setDot(false);
+        document.getElementById('measBtn').disabled=false;
+        document.getElementById('statusTxt').textContent='✓ #'+cnt[curTab]+' η='+eta.toFixed(2)+'%';
+        if(cnt[curTab]>=5){
+          document.getElementById('calcBtn').disabled=false;
+          document.getElementById('instrBar').textContent=t('instrEnough');
+          setStep(3);
+        } else {
+          document.getElementById('instrBar').textContent=t('instrDefault');
+          setStep(2);
+          rS[curTab]=Math.min(4,rS[curTab]+0.5);
+          if(rS[curTab]>4)rS[curTab]=1.5;
+          document.getElementById('sR').value=rS[curTab];
+          document.getElementById('dR').textContent=rS[curTab].toFixed(2);
+        }
+        drawSim();
+      });
+    });
+  });
+}
+
+function calcEta(){
+  var arr=meas[curTab];
+  var vals=arr.map(function(m_){return rowEta(m_)*100;});
+  var avg=vals.reduce(function(a,b){return a+b;},0)/vals.length;
+  var v=vals.reduce(function(a,b){return a+Math.pow(b-avg,2);},0);
+  var de=Math.sqrt(v/Math.max(1,vals.length*(vals.length-1)));
+  var theo=etaTheo*100;
+  var re=Math.abs(avg-theo)/theo*100;
+
+  var ar=document.createElement('tr');ar.className='avg-r';
+  ar.innerHTML='<td colspan="3" style="text-align:right">'+t('avgRowLbl')+'</td><td>'+avg.toFixed(2)+'</td>';
+  document.getElementById('tbody').appendChild(ar);
+
+  document.getElementById('finalCard').style.display='block';
+  document.getElementById('avgE').textContent=avg.toFixed(2);
+  document.getElementById('absErr').textContent='± '+de.toFixed(3);
+  document.getElementById('relErr').textContent=re.toFixed(2)+'%';
+  document.getElementById('theoValF').textContent=theo.toFixed(1)+'%';
+  setStep(4);
+  statusOverridden=true;
+  document.getElementById('statusTxt').textContent=t('finalStatus')+avg.toFixed(2)+t('finalStatus2')+re.toFixed(2)+'%';
+}
+
+function resetAll(){
+  meas={1:[],2:[],3:[]};cnt={1:0,2:0,3:0};rS={1:2,2:2,3:2};
+  phase='idle';live.frac=0;
+  document.getElementById('sR').value=2;
+  document.getElementById('dR').textContent='2.00';
+  document.getElementById('finalCard').style.display='none';
+  document.getElementById('calcBtn').disabled=true;
+  document.getElementById('measBtn').disabled=false;
+  statusOverridden=false;
+  document.getElementById('statusTxt').textContent=t('statusDefault');
+  setDot(false);
+  switchTab(curTab);
+}
+
+function setDot(on){document.getElementById('dot').classList.toggle('off',!on);}
+function setStep(n_){for(var i=1;i<=4;i++){var el=document.getElementById('st'+i);el.className='step'+(i<n_?' done':i===n_?' active':'');el.querySelector('.snum').textContent=i<n_?'✓':i;}}
+
+// ===== SIMULATION CANVAS =====
+var simC=document.getElementById('simCanvas'), sctx=simC.getContext('2d');
+function resizeSim(){simC.width=simC.offsetWidth; simC.height=simC.offsetHeight; drawSim();}
+
+function drawSim(){
+  var W=simC.width||600, H=simC.height||400;
+  sctx.clearRect(0,0,W,H);
+  sctx.fillStyle='#030608';sctx.fillRect(0,0,W,H);
+
+  var f=live.frac;
+  var hotY=H*0.14, coldY=H*0.86, engY=H*0.5;
+  var cx=W*0.42;
+
+  // hot reservoir
+  sctx.fillStyle='rgba(255,107,107,.12)';
+  sctx.fillRect(cx-110,hotY-24,220,34);
+  sctx.strokeStyle='rgba(255,107,107,.5)';sctx.lineWidth=1.5;sctx.strokeRect(cx-110,hotY-24,220,34);
+  sctx.fillStyle='rgba(255,150,150,.9)';sctx.font='11px monospace';sctx.textAlign='center';
+  sctx.fillText('T₁ = 500 K  (issiq manba)',cx,hotY-4);
+
+  // cold reservoir
+  sctx.fillStyle='rgba(34,211,238,.10)';
+  sctx.fillRect(cx-110,coldY-10,220,34);
+  sctx.strokeStyle='rgba(34,211,238,.5)';sctx.lineWidth=1.5;sctx.strokeRect(cx-110,coldY-10,220,34);
+  sctx.fillStyle='rgba(150,230,255,.9)';sctx.font='11px monospace';sctx.textAlign='center';
+  sctx.fillText('T₂ = 300 K  (sovuq manba)',cx,coldY+34);
+
+  // engine (circle) center
+  var engR=42;
+  sctx.fillStyle='rgba(232,121,249,.10)';
+  sctx.beginPath();sctx.arc(cx,engY,engR,0,Math.PI*2);sctx.fill();
+  sctx.strokeStyle='rgba(232,121,249,.6)';sctx.lineWidth=2;sctx.stroke();
+  sctx.fillStyle='rgba(255,255,255,.6)';sctx.font='20px sans-serif';sctx.textAlign='center';
+  sctx.save();sctx.translate(cx,engY);sctx.rotate(f*Math.PI*6);sctx.fillText('⚙️',0,7);sctx.restore();
+
+  // Q1 arrow (hot -> engine), active during phase q1 (f 0-0.4)
+  var q1active = f>0 && f<=0.45;
+  sctx.strokeStyle = q1active? 'rgba(255,107,107,.9)':'rgba(255,107,107,.25)';
+  sctx.lineWidth=3;
+  sctx.beginPath();sctx.moveTo(cx,hotY+10);sctx.lineTo(cx,engY-engR-4);sctx.stroke();
+  sctx.fillStyle=sctx.strokeStyle;
+  sctx.beginPath();sctx.moveTo(cx-6,engY-engR-4);sctx.lineTo(cx+6,engY-engR-4);sctx.lineTo(cx,engY-engR+8);sctx.fill();
+  if(q1active){sctx.fillStyle='rgba(255,150,150,.9)';sctx.font='11px monospace';sctx.fillText('Q₁ ↓',cx+26,(hotY+engY)/2);}
+
+  // Q2 arrow (engine -> cold), active during phase q2 (f 0.6-1.0)
+  var q2active = f>=0.58;
+  sctx.strokeStyle = q2active? 'rgba(34,211,238,.9)':'rgba(34,211,238,.25)';
+  sctx.lineWidth=3;
+  sctx.beginPath();sctx.moveTo(cx,engY+engR+4);sctx.lineTo(cx,coldY-10);sctx.stroke();
+  sctx.fillStyle=sctx.strokeStyle;
+  sctx.beginPath();sctx.moveTo(cx-6,coldY-10);sctx.lineTo(cx+6,coldY-10);sctx.lineTo(cx,coldY+2);sctx.fill();
+  if(q2active){sctx.fillStyle='rgba(150,230,255,.9)';sctx.font='11px monospace';sctx.fillText('Q₂ ↓',cx+26,(engY+coldY)/2);}
+
+  // Work arrow (engine -> piston/wheel to the right)
+  var workActive = f>0.05;
+  var wx=cx+engR+50;
+  sctx.strokeStyle= workActive?'rgba(255,201,71,.9)':'rgba(255,201,71,.2)';
+  sctx.lineWidth=3;
+  sctx.beginPath();sctx.moveTo(cx+engR+4,engY);sctx.lineTo(wx-14,engY);sctx.stroke();
+  sctx.fillStyle=sctx.strokeStyle;
+  sctx.beginPath();sctx.moveTo(wx-14,engY-6);sctx.lineTo(wx-14,engY+6);sctx.lineTo(wx-2,engY);sctx.fill();
+  // flywheel
+  sctx.strokeStyle='rgba(255,255,255,.35)';sctx.lineWidth=2;
+  sctx.beginPath();sctx.arc(wx+20,engY,22,0,Math.PI*2);sctx.stroke();
+  sctx.save();sctx.translate(wx+20,engY);sctx.rotate(f*Math.PI*8);
+  sctx.strokeStyle='rgba(255,201,71,.6)';
+  for(var s=0;s<4;s++){sctx.beginPath();sctx.moveTo(0,0);sctx.rotate(Math.PI/2);sctx.lineTo(20,0);sctx.stroke();}
+  sctx.restore();
+  sctx.fillStyle='rgba(255,220,150,.8)';sctx.font='10px monospace';sctx.textAlign='center';
+  sctx.fillText('A',wx+3,engY-30);
+
+  // small PV diagram inset (bottom-left)
+  var px0=30, py0=H-30, pw=110, ph=90;
+  sctx.strokeStyle='rgba(255,255,255,.2)';sctx.lineWidth=1;
+  sctx.beginPath();sctx.moveTo(px0,py0-ph);sctx.lineTo(px0,py0);sctx.lineTo(px0+pw,py0);sctx.stroke();
+  sctx.fillStyle='rgba(255,255,255,.3)';sctx.font='8px monospace';sctx.textAlign='center';
+  sctx.fillText('V',px0+pw/2,py0+12);
+  sctx.save();sctx.translate(px0-10,py0-ph/2);sctx.rotate(-Math.PI/2);sctx.fillText('P',0,0);sctx.restore();
+  // draw carnot loop path
+  sctx.strokeStyle='rgba(232,121,249,.6)';sctx.lineWidth=1.5;
+  sctx.beginPath();
+  sctx.moveTo(px0+14,py0-ph+16);
+  sctx.bezierCurveTo(px0+50,py0-ph+8,px0+70,py0-ph+30,px0+pw-14,py0-ph+46);
+  sctx.bezierCurveTo(px0+pw-4,py0-ph+58,px0+pw-6,py0-20,px0+pw-24,py0-14);
+  sctx.bezierCurveTo(px0+60,py0-6,px0+40,py0-16,px0+22,py0-30);
+  sctx.bezierCurveTo(px0+12,py0-40,px0+10,py0-ph+24,px0+14,py0-ph+16);
+  sctx.stroke();
+  // moving dot along cycle progress
+  var dotAng=f*Math.PI*2;
+  var dx=px0+pw/2+Math.cos(dotAng)*pw*0.32, dy=py0-ph/2+Math.sin(dotAng)*ph*0.32;
+  sctx.fillStyle='#ffc947';sctx.beginPath();sctx.arc(dx,dy,3.5,0,Math.PI*2);sctx.fill();
+
+  sctx.fillStyle='rgba(255,255,255,.4)';sctx.font='10px monospace';sctx.textAlign='center';
+  sctx.fillText(t(GAS[curTab].name)+'  r='+rS[curTab].toFixed(2), W*0.75, H-14);
+}
+
+// ===== GRAPH CANVAS =====
+var gC=document.getElementById('graphCanvas'), gctx=gC.getContext('2d');
+function drawGraph(){
+  var W=gC.offsetWidth||220; gC.width=W; var H=130; gC.height=H;
+  gctx.clearRect(0,0,W,H);
+  gctx.fillStyle='#030608';gctx.fillRect(0,0,W,H);
+  var pad=26;
+  var arr=meas[curTab];
+
+  var xmin=1.5,xmax=4, ymin=(etaTheo*100)*0.85, ymax=(etaTheo*100)*1.15;
+
+  function mapX(x){return pad+(x-xmin)/(xmax-xmin)*(W-pad-8);}
+  function mapY(y){return H-18-(y-ymin)/(ymax-ymin)*(H-18-8);}
+
+  gctx.strokeStyle='rgba(255,255,255,.2)';gctx.lineWidth=1;
+  gctx.beginPath();gctx.moveTo(pad,8);gctx.lineTo(pad,H-18);gctx.lineTo(W-8,H-18);gctx.stroke();
+  gctx.fillStyle='rgba(255,255,255,.4)';gctx.font='8px monospace';gctx.textAlign='center';
+  gctx.fillText('r = V₂/V₁',W/2,H-6);
+  gctx.save();gctx.translate(9,H/2);gctx.rotate(-Math.PI/2);gctx.fillText('η(%)',0,0);gctx.restore();
+
+  // theoretical horizontal line
+  gctx.strokeStyle='rgba(232,121,249,.5)';gctx.lineWidth=1.4;gctx.setLineDash([4,3]);
+  gctx.beginPath();gctx.moveTo(pad,mapY(etaTheo*100));gctx.lineTo(W-8,mapY(etaTheo*100));gctx.stroke();
+  gctx.setLineDash([]);
+
+  gctx.fillStyle='#22d3ee';
+  arr.forEach(function(m_){
+    var px=mapX(m_.r), py=mapY(rowEta(m_)*100);
+    gctx.beginPath();gctx.arc(px,py,3,0,Math.PI*2);gctx.fill();
+  });
+}
+
+window.addEventListener('resize',resizeSim);
+window.addEventListener('load',function(){setTimeout(function(){resizeSim();drawGraph();setLang('uz');},100);});
+setInterval(function(){ if(document.getElementById('startScreen').style.display==='none' && phase==='idle'){ drawSim(); } },100);
+</script>
+</body>
+</html>
