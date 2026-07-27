@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>14-Lab — Elektrofotometr. Yoritilganlik qonunlari</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap');
+:root{--bg:#07090f;--panel:#0e1420;--border:#1b2840;--accent:#10b981;--green:#6fff5c;--yellow:#ffc947;--text:#dde6f5;--muted:#4a6080;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;height:100vh;overflow:hidden;display:flex;flex-direction:column;}
+header{display:flex;align-items:center;gap:12px;padding:8px 20px;border-bottom:1px solid var(--border);background:linear-gradient(90deg,#07090f,#001510,#07090f);flex-shrink:0;}
+.badge{background:var(--accent);color:#000;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:3px 9px;letter-spacing:2px;border-radius:2px;}
+.htitle{font-size:15px;font-weight:800;}.htitle span{color:var(--accent);}
+.hsub{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-left:auto;}
+.brand{display:flex;align-items:center;gap:6px;background:linear-gradient(135deg,rgba(16,185,129,.15),rgba(111,255,92,.1));border:1px solid rgba(16,185,129,.3);border-radius:20px;padding:4px 14px;margin-left:10px;flex-shrink:0;}
+.brand-txt{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;background:linear-gradient(90deg,#10b981,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;}
+.tabs{display:flex;background:#0a0f1c;border-bottom:1px solid var(--border);flex-shrink:0;}
+.tab{padding:8px 18px;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap;}
+.tab:hover{color:var(--text);}
+.tab.on{color:var(--accent);border-bottom-color:var(--accent);}
+.statusbar{background:#0a0f1c;border-bottom:1px solid var(--border);padding:5px 20px;display:flex;align-items:center;gap:14px;font-family:'Space Mono',monospace;font-size:11px;flex-shrink:0;}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:bl 1s infinite;flex-shrink:0;}
+.dot.off{background:var(--muted);animation:none;}
+@keyframes bl{0%,100%{opacity:1}50%{opacity:.2}}
+#statusTxt{color:var(--accent);}
+.chips{display:flex;gap:6px;margin-left:auto;}
+.chip{background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2);border-radius:10px;padding:2px 9px;font-size:10px;color:var(--muted);}
+.chip span{color:var(--accent);}
+.body{display:grid;grid-template-columns:210px 1fr 250px;flex:1;overflow:hidden;}
+.left{background:var(--panel);border-right:1px solid var(--border);overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:9px;}
+.stitle{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--accent);text-transform:uppercase;margin-bottom:3px;opacity:.85;}
+.card{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:8px;padding:10px;}
+.card label{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:7px;}
+.vb{font-family:'Space Mono',monospace;font-size:11px;color:var(--accent);background:rgba(16,185,129,.12);padding:2px 7px;border-radius:3px;}
+input[type=range]{width:100%;-webkit-appearance:none;height:4px;background:var(--border);border-radius:2px;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;background:var(--accent);border-radius:50%;cursor:pointer;box-shadow:0 0 8px rgba(16,185,129,.7);}
+.fbox{background:rgba(16,185,129,.04);border:1px solid rgba(16,185,129,.15);border-radius:7px;padding:9px;}
+.frow{display:flex;gap:6px;margin-bottom:4px;font-family:'Space Mono',monospace;font-size:10px;}
+.frow:last-child{margin-bottom:0;}
+.fl{color:var(--muted);min-width:22px;}.fe{color:var(--yellow);}
+.steps{display:flex;flex-direction:column;gap:3px;}
+.step{display:flex;align-items:center;gap:7px;padding:5px 8px;border-radius:5px;font-size:10px;color:var(--muted);border:1px solid transparent;transition:all .3s;}
+.step.active{background:rgba(16,185,129,.07);border-color:rgba(16,185,129,.2);color:var(--accent);}
+.step.done{color:var(--green);}
+.snum{font-family:'Space Mono',monospace;font-size:9px;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.05);flex-shrink:0;}
+.step.active .snum{background:rgba(16,185,129,.2);}
+.step.done .snum{background:rgba(111,255,92,.12);color:var(--green);}
+.btn{width:100%;padding:10px;border:none;border-radius:7px;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;cursor:pointer;transition:all .2s;}
+.btn-p{background:linear-gradient(135deg,#10b981,#059669);color:#000;}
+.btn-p:hover{transform:translateY(-1px);box-shadow:0 5px 18px rgba(16,185,129,.4);}
+.btn-p:disabled{opacity:.35;cursor:not-allowed;transform:none;}
+.btn-g{background:linear-gradient(135deg,#6fff5c,#33cc22);color:#000;margin-top:5px;}
+.btn-g:disabled{opacity:.35;cursor:not-allowed;}
+.btn-r{background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--border);margin-top:5px;font-size:11px;}
+.center{position:relative;overflow:hidden;background:#040810;}
+#simCanvas{display:block;width:100%;height:100%;}
+.instr-bar{position:absolute;bottom:0;left:0;right:0;background:rgba(4,8,16,.92);border-top:1px solid var(--border);padding:6px 18px;font-size:11px;color:var(--muted);text-align:center;}
+.right{background:var(--panel);border-left:1px solid var(--border);overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:9px;}
+.rc{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:8px;padding:10px;}
+.rc.hi{border-color:rgba(16,185,129,.25);background:rgba(16,185,129,.05);}
+.rl{font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:3px;}
+.rv{font-size:20px;font-weight:800;line-height:1;color:#fff;}
+.ru{font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);margin-top:2px;}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+table{width:100%;border-collapse:collapse;font-family:'Space Mono',monospace;font-size:9px;}
+th{color:var(--accent);font-size:8px;letter-spacing:1px;border-bottom:1px solid var(--border);padding:4px 2px;text-align:center;}
+td{padding:3px 2px;border-bottom:1px solid rgba(255,255,255,.03);text-align:center;}
+tr.avg-r td{color:var(--yellow);border-top:1px solid var(--border);font-weight:700;}
+#graphCanvas{display:block;width:100%;border-radius:8px;border:1px solid var(--border);}
+.final-card{background:rgba(16,185,129,.05);border:1px solid rgba(16,185,129,.2);border-radius:8px;padding:12px;}
+.err-row{display:flex;justify-content:space-between;margin-top:6px;font-family:'Space Mono',monospace;font-size:10px;}
+.err-row span:first-child{color:var(--muted);}
+.err-row span:last-child{color:var(--yellow);}
+.langsw{display:flex;gap:2px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:6px;padding:2px;margin-left:8px;}
+.langbtn{background:transparent;border:none;color:var(--muted);font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:4px 8px;border-radius:4px;cursor:pointer;letter-spacing:1px;}
+.langbtn.active{background:var(--accent);color:#000;}
+</style>
+</head>
+<body>
+<!-- BOSHLASH EKRANI -->
+<div id="startScreen" style="position:fixed;inset:0;z-index:9998;background:radial-gradient(ellipse at 50% 40%,#001510 0%,#07090f 70%);display:flex;align-items:center;justify-content:center;">
+  <canvas id="bgCanvas" style="position:absolute;inset:0;width:100%;height:100%;opacity:.4;pointer-events:none"></canvas>
+  <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:18px;max-width:580px;padding:20px;text-align:center">
+    <div style="display:flex;align-items:center;gap:10px">
+      <div style="background:#10b981;color:#000;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:4px 14px;letter-spacing:2px;border-radius:2px">LAB · 14</div>
+      <div style="font-family:'Space Mono',monospace;font-size:10px;color:#4a6080;letter-spacing:2px">OPTIKA · FOTOMETRIYA</div>
+    </div>
+    <div style="width:90px;height:90px;border-radius:50%;background:radial-gradient(circle,rgba(16,185,129,.2) 0%,rgba(16,185,129,.02) 70%);border:2px solid rgba(16,185,129,.4);display:flex;align-items:center;justify-content:center;box-shadow:0 0 50px rgba(16,185,129,.3);animation:pulse14 2.5s ease-in-out infinite;"><span style="font-size:40px">💡</span></div>
+    <h1 style="font-size:22px;font-weight:800;color:#fff" id="tStartTitle">Elektrofotometr — <span style="color:#10b981">Yoritilganlik qonunlari</span></h1>
+    <p style="font-size:12px;color:#4a6080;font-family:'Space Mono',monospace" id="tStartSub">E = I·cos(θ)/r² · Fotoelement · i = c·cos(θ)/r²</p>
+    <div style="background:rgba(16,185,129,.05);border:1px solid rgba(16,185,129,.18);border-radius:12px;padding:16px;width:100%;text-align:left">
+      <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;color:#10b981;margin-bottom:10px" id="tProcedure">BAJARISH TARTIBI</div>
+      <div style="display:flex;flex-direction:column;gap:7px">
+        <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:#c5d3e8"><div style="width:22px;height:22px;border-radius:50%;background:rgba(16,185,129,.2);display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:10px;color:#10b981;flex-shrink:0">1</div><span id="tS1"><b style="color:#10b981">1-Mashq:</b> θ=0° saqlagan holda r ni o'zgartiring → i ~ 1/r²</span></div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:#c5d3e8"><div style="width:22px;height:22px;border-radius:50%;background:rgba(16,185,129,.2);display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:10px;color:#10b981;flex-shrink:0">2</div><span id="tS2"><b style="color:#10b981">2-Mashq:</b> r ni saqlagan holda θ ni o'zgartiring → i ~ cos(θ)</span></div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:#c5d3e8"><div style="width:22px;height:22px;border-radius:50%;background:rgba(16,185,129,.2);display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:10px;color:#10b981;flex-shrink:0">3</div><span id="tS3"><b style="color:#6fff5c">i·r² = const</b> va <b style="color:#6fff5c">i/cos(θ) = const</b> ni isbotlang</span></div>
+      </div>
+    </div>
+    <button onclick="startLab()" style="background:linear-gradient(135deg,#10b981,#059669);color:#000;border:none;border-radius:12px;padding:16px 60px;font-size:16px;font-weight:800;font-family:'Syne',sans-serif;cursor:pointer;box-shadow:0 8px 30px rgba(16,185,129,.4);width:100%"
+    onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'"><span id="tStartBtn">▶ Laboratoriyani boshlash</span></button>
+    <div style="display:flex;align-items:center;gap:6px;opacity:.6"><span>🔬</span><span style="font-family:'Space Mono',monospace;font-size:10px;background:linear-gradient(90deg,#10b981,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;font-weight:700">Xosiyat Virtual Lab</span></div>
+  </div>
+</div>
+<style>
+@keyframes pulse14{0%,100%{box-shadow:0 0 50px rgba(16,185,129,.25)}50%{box-shadow:0 0 70px rgba(16,185,129,.5)}}
+@keyframes fadeOut{0%{opacity:1}100%{opacity:0;transform:scale(1.04)}}
+</style>
+<script>
+(function(){var c=document.getElementById('bgCanvas');var x=c.getContext('2d');var pts=[];function rs(){c.width=window.innerWidth;c.height=window.innerHeight;}rs();window.addEventListener('resize',rs);for(var i=0;i<55;i++)pts.push({x:Math.random()*1600,y:Math.random()*900,r:Math.random()*1.5+.5,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,a:Math.random()});function fr(){x.clearRect(0,0,c.width,c.height);pts.forEach(function(p){p.x+=p.vx;p.y+=p.vy;p.a+=.005;if(p.x<0)p.x=c.width;if(p.x>c.width)p.x=0;if(p.y<0)p.y=c.height;if(p.y>c.height)p.y=0;x.fillStyle='rgba(16,185,129,'+(0.2+Math.sin(p.a)*0.15)+')';x.beginPath();x.arc(p.x%c.width,p.y%c.height,p.r,0,Math.PI*2);x.fill();});requestAnimationFrame(fr);}fr();})();
+function startLab(){var s=document.getElementById('startScreen');s.style.animation='fadeOut .5s ease forwards';setTimeout(function(){s.style.display='none';},480);}
+</script>
+
+<header>
+  <div class="badge">LAB · 14</div>
+  <h1 class="htitle" id="tTitle">Elektrofotometr — <span>Yoritilganlik qonunlari</span></h1>
+  <div class="hsub" id="tHsub">OPTIKA · FIZPRAKTIKUM · SDPI 2025</div>
+  <div class="langsw">
+    <button class="langbtn active" id="langUZ" onclick="setLang('uz')">UZ</button>
+    <button class="langbtn" id="langRU" onclick="setLang('ru')">RU</button>
+    <button class="langbtn" id="langEN" onclick="setLang('en')">EN</button>
+  </div>
+  <div class="brand"><span>🔬</span><span class="brand-txt">Xosiyat Virtual Lab</span></div>
+</header>
+
+<div class="tabs">
+  <div class="tab on" id="t1" onclick="switchTab(1)"><span id="tTab1">1-Mashq: i ~ 1/r²</span></div>
+  <div class="tab" id="t2" onclick="switchTab(2)"><span id="tTab2">2-Mashq: i ~ cos(θ)</span></div>
+</div>
+
+<div class="statusbar">
+  <div class="dot off" id="dot"></div>
+  <span id="statusTxt">Masofani o'zgartiring → fototok o'zgarishini kuzating → O'lchov oling</span>
+  <div class="chips">
+    <div class="chip"><span id="tChipRlbl">r =</span> <span id="chipR">30</span> <span id="tSmUnit1">sm</span></div>
+    <div class="chip"><span id="tChipTlbl">θ =</span> <span id="chipT">0</span>°</div>
+    <div class="chip"><span id="tChipIlbl">i =</span> <span id="chipI">—</span> μA</div>
+    <div class="chip"><span id="tMeasLbl">O'lchov:</span> <span id="chipCnt">0</span></div>
+  </div>
+</div>
+
+<div class="body">
+<div class="left">
+  <div class="stitle" id="tDistLbl">Masofa r</div>
+  <div class="card">
+    <label><span id="tDistFullLbl">r — masofa (sm)</span> <span class="vb" id="dR">30 sm</span></label>
+    <input type="range" id="sR" min="10" max="80" step="5" value="30" oninput="setR(this.value)">
+  </div>
+  <div class="stitle" id="tAngleLbl">Tushish burchagi θ</div>
+  <div class="card">
+    <label><span id="tAngleFullLbl">θ burchak (°)</span> <span class="vb" id="dT">0°</span></label>
+    <input type="range" id="sT" min="0" max="75" step="5" value="0" oninput="setTheta(this.value)">
+  </div>
+  <div class="stitle" id="tLampLbl">Lampa kuchi I₀</div>
+  <div class="card">
+    <label><span id="tLampFullLbl">Yorug'lik kuchi</span> <span class="vb" id="dI0">100 kd</span></label>
+    <input type="range" id="sI0" min="50" max="200" step="10" value="100" oninput="setI0(this.value)">
+  </div>
+  <div class="fbox">
+    <div class="frow"><span class="fl">E</span><span class="fe">= I·cos(θ)/r²</span></div>
+    <div class="frow"><span class="fl">i</span><span class="fe">= c·cos(θ)/r²</span></div>
+    <div class="frow"><span class="fl">i·r²</span><span class="fe" id="tFbox3">= const (θ=0)</span></div>
+    <div class="frow"><span class="fl">i/cos</span><span class="fe" id="tFbox4">= const (r=sabit)</span></div>
+  </div>
+  <div class="steps">
+    <div class="step active" id="st1"><div class="snum">1</div><span id="tStep1">θ=0, r ni o'zgartiring</span></div>
+    <div class="step" id="st2"><div class="snum">2</div><span id="tStep2">i ni o'lchang</span></div>
+    <div class="step" id="st3"><div class="snum">3</div><span id="tStep3">i·r² isbotlang</span></div>
+    <div class="step" id="st4"><div class="snum">4</div><span id="tStep4">θ ni o'zgartiring</span></div>
+    <div class="step" id="st5"><div class="snum">5</div><span id="tStep5">i/cosθ = const</span></div>
+  </div>
+  <button class="btn btn-p" onclick="takeMeasure()">📏 <span id="tMeasBtn">O'lchov olish</span></button>
+  <button class="btn btn-g" onclick="calcResults()" id="calcBtn" disabled>📊 <span id="tCalcBtn">Qonunni tekshirish</span></button>
+  <button class="btn btn-r" onclick="resetAll()">↺ <span id="tResetBtn">Qayta boshlash</span></button>
+</div>
+
+<div class="center">
+  <canvas id="simCanvas"></canvas>
+  <div class="instr-bar" id="instrBar">💡 Lampa → fotoelement → mikroampermetr: r va θ ga qarab tok o'zgaradi</div>
+</div>
+
+<div class="right">
+  <div class="stitle" id="tCurMeasLbl">Joriy o'lchov</div>
+  <div class="two">
+    <div class="rc hi"><div class="rl" id="tDistLbl2">Masofa r (sm)</div><div class="rv" id="rR">30</div></div>
+    <div class="rc hi"><div class="rl" id="tAngleLbl2">Burchak θ (°)</div><div class="rv" id="rT">0</div></div>
+  </div>
+  <div class="two">
+    <div class="rc"><div class="rl" id="tPhotocurrentLbl">Fototok i (μA)</div><div class="rv" style="color:var(--accent)" id="rI">—</div></div>
+    <div class="rc"><div class="rl">i·r²</div><div class="rv" style="font-size:16px" id="rIr2">—</div></div>
+  </div>
+  <div class="rc"><div class="rl" id="tIllumLbl">Yoritilganlik E (lk)</div><div class="rv" style="font-size:18px;color:var(--yellow)" id="rE">—</div></div>
+  <div class="stitle" id="tableTitle">14.1-jadval (i ~ 1/r²)</div>
+  <div style="overflow-x:auto;max-height:170px;overflow-y:auto">
+    <table>
+      <thead id="thead"><tr><th>№</th><th>r(sm)</th><th>i(μA)</th><th>i·r²</th><th>1/r²</th></tr></thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+  <div class="stitle" id="tGraphLbl">Grafik</div>
+  <canvas id="graphCanvas" height="100"></canvas>
+  <div class="final-card" id="finalCard" style="display:none">
+    <div class="rl" id="tResultLbl">Natija</div>
+    <div class="rv" style="color:var(--green);font-size:16px" id="resText">—</div>
+    <div class="err-row"><span id="tAvgConstLbl">O'rtacha const</span><span id="constVal">—</span></div>
+    <div class="err-row"><span id="tRelDiffLbl">Nisbiy farq ε</span><span id="constErr">—</span></div>
+  </div>
+</div>
+</div>
+
+<div style="position:fixed;bottom:14px;right:18px;display:flex;align-items:center;gap:7px;background:rgba(7,9,15,.75);border:1px solid rgba(16,185,129,.2);border-radius:30px;padding:5px 16px;backdrop-filter:blur(10px);z-index:9999;pointer-events:none">
+  <span>🔬</span><span style="font-family:'Space Mono',monospace;font-size:11px;font-weight:700;background:linear-gradient(90deg,#10b981,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px">Xosiyat Virtual Lab</span>
+</div>
+
+<script>
+var LANG='uz';
+var I18N={
+ uz:{title:"Elektrofotometr — <span>Yoritilganlik qonunlari</span>",hsub:'OPTIKA · FIZPRAKTIKUM · SDPI 2025',
+   startTitle:"Elektrofotometr — <span style=\"color:#10b981;\">Yoritilganlik qonunlari</span>",
+   startSub:'E = I·cos(θ)/r² · Fotoelement · i = c·cos(θ)/r²',procedure:'BAJARISH TARTIBI',
+   s1:'<b style="color:#10b981">1-Mashq:</b> θ=0° saqlagan holda r ni o\'zgartiring → i ~ 1/r²',
+   s2:'<b style="color:#10b981">2-Mashq:</b> r ni saqlagan holda θ ni o\'zgartiring → i ~ cos(θ)',
+   s3:'<b style="color:#6fff5c">i·r² = const</b> va <b style="color:#6fff5c">i/cos(θ) = const</b> ni isbotlang',
+   startBtn:'▶ Laboratoriyani boshlash',
+   tab1:'1-Mashq: i ~ 1/r²',tab2:'2-Mashq: i ~ cos(θ)',
+   statusDefault:"Masofani o'zgartiring → fototok o'zgarishini kuzating → O'lchov oling",
+   chipRlbl:'r =',chipTlbl:'θ =',chipIlbl:'i =',smUnit1:'sm',measLbl:"O'lchov:",
+   distLbl:'Masofa r',distFullLbl:'r — masofa (sm)',angleLbl:'Tushish burchagi θ',angleFullLbl:'θ burchak (°)',
+   lampLbl:'Lampa kuchi I₀',lampFullLbl:"Yorug'lik kuchi",
+   fbox3:'= const (θ=0)',fbox4:'= const (r=sabit)',
+   step1:"θ=0, r ni o'zgartiring",step2:'i ni o\'lchang',step3:"i·r² isbotlang",step4:"θ ni o'zgartiring",step5:'i/cosθ = const',
+   measBtn:"O'lchov olish",calcBtn:'Qonunni tekshirish',resetBtn:'Qayta boshlash',
+   instrDefault:"💡 Lampa → fotoelement → mikroampermetr: r va θ ga qarab tok o'zgaradi",
+   instr1:'💡 θ=0° saqlang → r ni o\'zgartiring → i·r² = const isbotlang',
+   instr2:'💡 r=30 sm saqlang → θ ni o\'zgartiring → i/cos(θ) = const isbotlang',
+   curMeasLbl:"Joriy o'lchov",distLbl2:'Masofa r (sm)',angleLbl2:'Burchak θ (°)',
+   photocurrentLbl:'Fototok i (μA)',illumLbl:'Yoritilganlik E (lk)',
+   tableTitle1:"14.1-jadval (i ~ 1/r²)",tableTitle2:'14.2-jadval (i ~ cos θ)',
+   thead1:'<tr><th>№</th><th>r(sm)</th><th>i(μA)</th><th>i·r²</th><th>1/r²</th></tr>',
+   thead2:'<tr><th>№</th><th>θ(°)</th><th>cosθ</th><th>i(μA)</th><th>i/cosθ</th></tr>',
+   graphLbl:'Grafik',resultLbl:'Natija',avgConstLbl:"O'rtacha const",relDiffLbl:'Nisbiy farq ε',
+   measDone:'✓ O\'lchov #',measDoneMid1:': r=',measDoneMid2:'sm, θ=',measDoneMid3:'°, i=',measDoneEnd:' μA',
+   resText1:'i·r² = const ✓',resText2:'i/cos(θ) = const ✓',
+   finalStatus:'🎉 Qonun tasdiqlandi! const=',finalStatusMid:' (ε=',finalStatusEnd:'%)',
+   graphXlbl1:'1/r²',graphXlbl2:'cosθ'
+ },
+ ru:{title:'Электрофотометр — <span>Законы освещённости</span>',hsub:'ОПТИКА · ФИЗПРАКТИКУМ · SDPI 2025',
+   startTitle:'Электрофотометр — <span style="color:#10b981;">Законы освещённости</span>',
+   startSub:'E = I·cos(θ)/r² · Фотоэлемент · i = c·cos(θ)/r²',procedure:'ПОРЯДОК ВЫПОЛНЕНИЯ',
+   s1:'<b style="color:#10b981">Упр. 1:</b> сохраняя θ=0°, изменяйте r → i ~ 1/r²',
+   s2:'<b style="color:#10b981">Упр. 2:</b> сохраняя r, изменяйте θ → i ~ cos(θ)',
+   s3:'<b style="color:#6fff5c">i·r² = const</b> и <b style="color:#6fff5c">i/cos(θ) = const</b> — докажите',
+   startBtn:'▶ Начать лабораторную',
+   tab1:'Упр. 1: i ~ 1/r²',tab2:'Упр. 2: i ~ cos(θ)',
+   statusDefault:'Изменяйте расстояние → наблюдайте изменение фототока → снимите измерение',
+   chipRlbl:'r =',chipTlbl:'θ =',chipIlbl:'i =',smUnit1:'см',measLbl:'Измерений:',
+   distLbl:'Расстояние r',distFullLbl:'r — расстояние (см)',angleLbl:'Угол падения θ',angleFullLbl:'θ угол (°)',
+   lampLbl:'Сила лампы I₀',lampFullLbl:'Сила света',
+   fbox3:'= const (θ=0)',fbox4:'= const (r=фикс.)',
+   step1:'θ=0, изменяйте r',step2:'Измерьте i',step3:'Докажите i·r²',step4:'Изменяйте θ',step5:'i/cosθ = const',
+   measBtn:'Снять измерение',calcBtn:'Проверить закон',resetBtn:'Начать заново',
+   instrDefault:'💡 Лампа → фотоэлемент → микроамперметр: ток меняется в зависимости от r и θ',
+   instr1:'💡 Сохраняйте θ=0° → изменяйте r → докажите i·r² = const',
+   instr2:'💡 Сохраняйте r=30 см → изменяйте θ → докажите i/cos(θ) = const',
+   curMeasLbl:'Текущее измерение',distLbl2:'Расстояние r (см)',angleLbl2:'Угол θ (°)',
+   photocurrentLbl:'Фототок i (мкА)',illumLbl:'Освещённость E (лк)',
+   tableTitle1:'Таблица 14.1 (i ~ 1/r²)',tableTitle2:'Таблица 14.2 (i ~ cos θ)',
+   thead1:'<tr><th>№</th><th>r(см)</th><th>i(мкА)</th><th>i·r²</th><th>1/r²</th></tr>',
+   thead2:'<tr><th>№</th><th>θ(°)</th><th>cosθ</th><th>i(мкА)</th><th>i/cosθ</th></tr>',
+   graphLbl:'График',resultLbl:'Результат',avgConstLbl:'Среднее const',relDiffLbl:'Отн. отклонение ε',
+   measDone:'✓ Измерение #',measDoneMid1:': r=',measDoneMid2:'см, θ=',measDoneMid3:'°, i=',measDoneEnd:' мкА',
+   resText1:'i·r² = const ✓',resText2:'i/cos(θ) = const ✓',
+   finalStatus:'🎉 Закон подтверждён! const=',finalStatusMid:' (ε=',finalStatusEnd:'%)',
+   graphXlbl1:'1/r²',graphXlbl2:'cosθ'
+ },
+ en:{title:'Photometer — <span>Laws of Illumination</span>',hsub:'OPTICS · PHYSICS LAB · SDPI 2025',
+   startTitle:'Photometer — <span style="color:#10b981;">Laws of Illumination</span>',
+   startSub:'E = I·cos(θ)/r² · Photocell · i = c·cos(θ)/r²',procedure:'PROCEDURE',
+   s1:'<b style="color:#10b981">Exercise 1:</b> keeping θ=0°, vary r → i ~ 1/r²',
+   s2:'<b style="color:#10b981">Exercise 2:</b> keeping r fixed, vary θ → i ~ cos(θ)',
+   s3:'Prove <b style="color:#6fff5c">i·r² = const</b> and <b style="color:#6fff5c">i/cos(θ) = const</b>',
+   startBtn:'▶ Start the lab',
+   tab1:'Exercise 1: i ~ 1/r²',tab2:'Exercise 2: i ~ cos(θ)',
+   statusDefault:'Change the distance → watch the photocurrent change → take a measurement',
+   chipRlbl:'r =',chipTlbl:'θ =',chipIlbl:'i =',smUnit1:'cm',measLbl:'Measurements:',
+   distLbl:'Distance r',distFullLbl:'r — distance (cm)',angleLbl:'Angle of incidence θ',angleFullLbl:'θ angle (°)',
+   lampLbl:'Lamp intensity I₀',lampFullLbl:'Light intensity',
+   fbox3:'= const (θ=0)',fbox4:'= const (r fixed)',
+   step1:'θ=0, vary r',step2:'Measure i',step3:'Prove i·r²',step4:'Vary θ',step5:'i/cosθ = const',
+   measBtn:'Take measurement',calcBtn:'Verify law',resetBtn:'Restart',
+   instrDefault:'💡 Lamp → photocell → microammeter: the current changes with r and θ',
+   instr1:'💡 Keep θ=0° → vary r → prove i·r² = const',
+   instr2:'💡 Keep r=30 cm → vary θ → prove i/cos(θ) = const',
+   curMeasLbl:'Current measurement',distLbl2:'Distance r (cm)',angleLbl2:'Angle θ (°)',
+   photocurrentLbl:'Photocurrent i (μA)',illumLbl:'Illumination E (lx)',
+   tableTitle1:'Table 14.1 (i ~ 1/r²)',tableTitle2:'Table 14.2 (i ~ cos θ)',
+   thead1:'<tr><th>№</th><th>r(cm)</th><th>i(μA)</th><th>i·r²</th><th>1/r²</th></tr>',
+   thead2:'<tr><th>№</th><th>θ(°)</th><th>cosθ</th><th>i(μA)</th><th>i/cosθ</th></tr>',
+   graphLbl:'Graph',resultLbl:'Result',avgConstLbl:'Average const',relDiffLbl:'Relative diff. ε',
+   measDone:'✓ Measurement #',measDoneMid1:': r=',measDoneMid2:'cm, θ=',measDoneMid3:'°, i=',measDoneEnd:' μA',
+   resText1:'i·r² = const ✓',resText2:'i/cos(θ) = const ✓',
+   finalStatus:'🎉 Law confirmed! const=',finalStatusMid:' (ε=',finalStatusEnd:'%)',
+   graphXlbl1:'1/r²',graphXlbl2:'cosθ'
+ }
+};
+function t(k){return I18N[LANG][k];}
+function setLang(l){
+  LANG=l;
+  document.getElementById('langUZ').className='langbtn'+(l==='uz'?' active':'');
+  document.getElementById('langRU').className='langbtn'+(l==='ru'?' active':'');
+  document.getElementById('langEN').className='langbtn'+(l==='en'?' active':'');
+  document.getElementById('tTitle').innerHTML=t('title');
+  document.getElementById('tHsub').textContent=t('hsub');
+  document.getElementById('tStartTitle').innerHTML=t('startTitle');
+  document.getElementById('tStartSub').textContent=t('startSub');
+  document.getElementById('tProcedure').textContent=t('procedure');
+  document.getElementById('tS1').innerHTML=t('s1');
+  document.getElementById('tS2').innerHTML=t('s2');
+  document.getElementById('tS3').innerHTML=t('s3');
+  document.getElementById('tStartBtn').textContent=t('startBtn');
+  document.getElementById('tTab1').textContent=t('tab1');
+  document.getElementById('tTab2').textContent=t('tab2');
+  document.getElementById('tChipRlbl').textContent=t('chipRlbl');
+  document.getElementById('tChipTlbl').textContent=t('chipTlbl');
+  document.getElementById('tChipIlbl').textContent=t('chipIlbl');
+  document.getElementById('tSmUnit1').textContent=t('smUnit1');
+  document.getElementById('tMeasLbl').textContent=t('measLbl');
+  document.getElementById('tDistLbl').textContent=t('distLbl');
+  document.getElementById('tDistFullLbl').textContent=t('distFullLbl');
+  document.getElementById('tAngleLbl').textContent=t('angleLbl');
+  document.getElementById('tAngleFullLbl').textContent=t('angleFullLbl');
+  document.getElementById('tLampLbl').textContent=t('lampLbl');
+  document.getElementById('tLampFullLbl').textContent=t('lampFullLbl');
+  document.getElementById('tFbox3').textContent=t('fbox3');
+  document.getElementById('tFbox4').textContent=t('fbox4');
+  document.getElementById('tStep1').textContent=t('step1');
+  document.getElementById('tStep2').textContent=t('step2');
+  document.getElementById('tStep3').textContent=t('step3');
+  document.getElementById('tStep4').textContent=t('step4');
+  document.getElementById('tStep5').textContent=t('step5');
+  document.getElementById('tMeasBtn').textContent=t('measBtn');
+  document.getElementById('tCalcBtn').textContent=t('calcBtn');
+  document.getElementById('tResetBtn').textContent=t('resetBtn');
+  document.getElementById('tCurMeasLbl').textContent=t('curMeasLbl');
+  document.getElementById('tDistLbl2').textContent=t('distLbl2');
+  document.getElementById('tAngleLbl2').textContent=t('angleLbl2');
+  document.getElementById('tPhotocurrentLbl').textContent=t('photocurrentLbl');
+  document.getElementById('tIllumLbl').textContent=t('illumLbl');
+  document.getElementById('tableTitle').textContent=tabMode===1?t('tableTitle1'):t('tableTitle2');
+  document.getElementById('thead').innerHTML=tabMode===1?t('thead1'):t('thead2');
+  document.getElementById('tGraphLbl').textContent=t('graphLbl');
+  document.getElementById('tResultLbl').textContent=t('resultLbl');
+  document.getElementById('tAvgConstLbl').textContent=t('avgConstLbl');
+  document.getElementById('tRelDiffLbl').textContent=t('relDiffLbl');
+  document.getElementById('statusTxt').textContent=t('statusDefault');
+  document.getElementById('instrBar').textContent=tabMode===1?t('instr1'):t('instr2');
+  drawGraph();
+}
+</script>
+<script>
+var tabMode=1,rv=30,thetaDeg=0,I0=100;
+var meas=[],cnt=0,animT=0;
+var c_const=500;
+var sc=document.getElementById('simCanvas');
+var sctx=sc.getContext('2d');
+var gc=document.getElementById('graphCanvas');
+var gctx=gc.getContext('2d');
+
+function resize(){sc.width=sc.offsetWidth;sc.height=sc.offsetHeight;drawSim();}
+window.addEventListener('resize',resize);
+setTimeout(resize,80);
+setTimeout(resize,400);
+setTimeout(resize,1000);
+if(window.ResizeObserver){
+  new ResizeObserver(function(){resize();}).observe(sc.parentElement);
+}
+(function loop(){animT+=0.01;drawSim();requestAnimationFrame(loop);})();
+
+function switchTab(n){
+  tabMode=n;
+  [1,2].forEach(function(i){document.getElementById('t'+i).classList.toggle('on',i===n);});
+  meas=[];cnt=0;
+  document.getElementById('tbody').innerHTML='';
+  document.getElementById('finalCard').style.display='none';
+  document.getElementById('calcBtn').disabled=true;
+  document.getElementById('chipCnt').textContent=0;
+  if(n===1){
+    thetaDeg=0;document.getElementById('sT').value=0;document.getElementById('dT').textContent='0°';
+    document.getElementById('chipT').textContent=0;
+    document.getElementById('tableTitle').textContent=t('tableTitle1');
+    document.getElementById('thead').innerHTML=t('thead1');
+    document.getElementById('instrBar').textContent=t('instr1');
+    setStep(1);
+  } else {
+    rv=30;document.getElementById('sR').value=30;document.getElementById('dR').textContent='30 sm';
+    document.getElementById('chipR').textContent=30;
+    document.getElementById('tableTitle').textContent=t('tableTitle2');
+    document.getElementById('thead').innerHTML=t('thead2');
+    document.getElementById('instrBar').textContent=t('instr2');
+    setStep(4);
+  }
+  updateLive();drawGraph();
+}
+
+function setR(v){rv=parseFloat(v);document.getElementById('dR').textContent=v+' sw';document.getElementById('chipR').textContent=v;document.getElementById('rR').textContent=v;updateLive();drawSim();}
+function setTheta(v){thetaDeg=parseFloat(v);document.getElementById('dT').textContent=v+'°';document.getElementById('chipT').textContent=v;document.getElementById('rT').textContent=v;updateLive();drawSim();}
+function setI0(v){I0=parseFloat(v);document.getElementById('dI0').textContent=v+' kd';updateLive();}
+
+function getI(){return c_const*I0/100*Math.cos(thetaDeg*Math.PI/180)/(rv*rv)*10000;}
+function getE(){return I0*Math.cos(thetaDeg*Math.PI/180)/(rv*rv)*10000;}
+
+function updateLive(){
+  var i=getI(),e=getE();
+  document.getElementById('chipI').textContent=i.toFixed(2);
+  document.getElementById('rI').textContent=i.toFixed(2);
+  document.getElementById('rIr2').textContent=(i*rv*rv/10000).toFixed(3);
+  document.getElementById('rE').textContent=e.toFixed(2);
+}
+
+function drawSim(){
+  var W=sc.width,H=sc.height;
+  if(!W||!H)return;
+  sctx.clearRect(0,0,W,H);
+  sctx.fillStyle='#040810';sctx.fillRect(0,0,W,H);
+  sctx.strokeStyle='rgba(16,185,129,.025)';sctx.lineWidth=1;
+  for(var x=0;x<W;x+=55){sctx.beginPath();sctx.moveTo(x,0);sctx.lineTo(x,H);sctx.stroke();}
+  for(var y=0;y<H;y+=55){sctx.beginPath();sctx.moveTo(0,y);sctx.lineTo(W,y);sctx.stroke();}
+
+  var cy=H/2;
+  var lampX=W*0.10;
+  var photoX=W*0.10+(rv/80)*(W*0.65);
+  var tRad=thetaDeg*Math.PI/180;
+  var i=getI();var brightness=Math.min(1,i/50);
+  // Uskunalar o'lchami — canvas balandligiga moslashadi (kattaroq va aniqroq ko'rinish uchun)
+  var s=Math.max(1.4,Math.min(H/300,3.2));
+
+  // OPTIK STOL
+  sctx.fillStyle='#1a2840';sctx.fillRect(W*0.05,cy+95*s,W*0.85,6*s);
+  for(var d=0;d<=80;d+=10){
+    var px=W*0.10+(d/80)*(W*0.65);
+    sctx.strokeStyle='rgba(16,185,129,.2)';sctx.lineWidth=1;
+    sctx.beginPath();sctx.moveTo(px,cy+101*s);sctx.lineTo(px,cy+109*s);sctx.stroke();
+    sctx.fillStyle='rgba(16,185,129,.3)';sctx.font=Math.round(8*s)+'px monospace';sctx.textAlign='center';sctx.fillText(d,px,cy+122*s);
+  }
+  sctx.fillStyle='rgba(16,185,129,.4)';sctx.font=Math.round(9*s)+'px Space Mono,monospace';sctx.textAlign='center';
+  sctx.fillText('OPTIK SKAMEYKA (sm)',W*0.42,cy+136*s);
+
+  // LAMPA
+  var lampGlow=sctx.createRadialGradient(lampX,cy,5*s,lampX,cy,100*s);
+  lampGlow.addColorStop(0,'rgba(255,240,180,0.28)');lampGlow.addColorStop(1,'rgba(255,240,180,0)');
+  sctx.fillStyle=lampGlow;sctx.beginPath();sctx.arc(lampX,cy,100*s,0,Math.PI*2);sctx.fill();
+  sctx.fillStyle='#1e3050';sctx.fillRect(lampX-26*s,cy-20*s,52*s,40*s);
+  sctx.strokeStyle='rgba(255,240,180,.4)';sctx.lineWidth=1.5;sctx.strokeRect(lampX-26*s,cy-20*s,52*s,40*s);
+  sctx.fillStyle='rgba(255,240,180,.85)';sctx.font=Math.round(16*s)+'px sans-serif';sctx.textAlign='center';sctx.textBaseline='middle';
+  sctx.fillText('💡',lampX,cy);sctx.textBaseline='alphabetic';
+  sctx.fillStyle='rgba(255,240,180,.5)';sctx.font=Math.round(9*s)+'px monospace';sctx.textAlign='center';
+  sctx.fillText('LAMPA',lampX,cy+30*s);sctx.fillText('I₀='+I0+'kd',lampX,cy+42*s);
+
+  // YORUG'LIK NURLARI (lampa)
+  var nRays=9;
+  for(var ri=0;ri<nRays;ri++){
+    var angle=-Math.PI*0.35+ri*(Math.PI*0.7/(nRays-1));
+    var rayLen=Math.min(photoX-lampX-35*s,(photoX-lampX-35*s));
+    var rayAlpha=0.08+0.13*(1-Math.abs(ri-nRays/2)/(nRays/2));
+    sctx.strokeStyle='rgba(255,240,180,'+rayAlpha.toFixed(2)+')';sctx.lineWidth=1.2;
+    sctx.beginPath();sctx.moveTo(lampX+26*s,cy);sctx.lineTo(lampX+26*s+rayLen*Math.cos(angle),cy+rayLen*Math.sin(angle));sctx.stroke();
+  }
+  var mainAlpha=0.35+brightness*0.5;
+  sctx.strokeStyle='rgba(255,240,180,'+mainAlpha+')';sctx.lineWidth=3;
+  sctx.shadowBlur=9;sctx.shadowColor='rgba(255,240,180,.4)';
+  sctx.beginPath();sctx.moveTo(lampX+26*s,cy);sctx.lineTo(photoX-6*s,cy);sctx.stroke();sctx.shadowBlur=0;
+
+  // FOTOELEMENT (burchak bilan)
+  sctx.save();sctx.translate(photoX,cy);sctx.rotate(tRad);
+  if(brightness>0.1){
+    var pg=sctx.createRadialGradient(0,0,2*s,0,0,40*s);
+    pg.addColorStop(0,'rgba(16,185,129,'+(brightness*0.45)+')');pg.addColorStop(1,'rgba(16,185,129,0)');
+    sctx.fillStyle=pg;sctx.beginPath();sctx.arc(0,0,40*s,0,Math.PI*2);sctx.fill();
+  }
+  sctx.fillStyle='rgba(16,185,129,.1)';sctx.fillRect(-9*s,-50*s,18*s,100*s);
+  sctx.strokeStyle='rgba(16,185,129,'+(0.45+brightness*0.4)+')';sctx.lineWidth=2.5;sctx.strokeRect(-9*s,-50*s,18*s,100*s);
+  sctx.fillStyle='rgba(16,185,129,.4)';sctx.font=Math.round(8*s)+'px monospace';sctx.textAlign='center';
+  sctx.fillText('FOTO',0,-56*s);sctx.fillText('ELEM.',0,63*s);
+  sctx.fillStyle='rgba(16,185,129,'+(0.06+brightness*0.18)+')';sctx.fillRect(-7*s,-46*s,14*s,92*s);
+  sctx.restore();
+
+  // Burchak yoyi
+  if(thetaDeg>0){
+    sctx.strokeStyle='rgba(16,185,129,.35)';sctx.lineWidth=1;
+    sctx.beginPath();sctx.arc(photoX,cy,42*s,0,tRad);sctx.stroke();
+    sctx.fillStyle='rgba(16,185,129,.7)';sctx.font='bold '+Math.round(11*s)+'px Space Mono,monospace';sctx.textAlign='center';
+    sctx.fillText('θ='+thetaDeg+'°',photoX+60*s,cy+24*s);
+  }
+
+  // Mikroampermetr
+  var ampX=W*0.84,ampY=cy-65*s;
+  sctx.strokeStyle='rgba(16,185,129,.3)';sctx.lineWidth=1.5;sctx.setLineDash([4,4]);
+  sctx.beginPath();sctx.moveTo(photoX,cy-50*s);sctx.lineTo(photoX,ampY+35*s);sctx.lineTo(ampX-32*s,ampY+35*s);sctx.lineTo(ampX,ampY);sctx.stroke();sctx.setLineDash([]);
+
+  sctx.strokeStyle='rgba(16,185,129,.45)';sctx.lineWidth=2.5;
+  sctx.beginPath();sctx.arc(ampX,ampY,36*s,0,Math.PI*2);sctx.stroke();
+  sctx.fillStyle='rgba(14,20,32,.9)';sctx.beginPath();sctx.arc(ampX,ampY,36*s,0,Math.PI*2);sctx.fill();
+  var frac=Math.min(1,i/60);
+  sctx.strokeStyle='rgba(16,185,129,.65)';sctx.lineWidth=5;
+  sctx.beginPath();sctx.arc(ampX,ampY,26*s,-Math.PI*0.8,-Math.PI*0.8+frac*Math.PI*1.6);sctx.stroke();
+  var needleA=-Math.PI*0.8+frac*Math.PI*1.6;
+  sctx.strokeStyle='rgba(16,185,129,.9)';sctx.lineWidth=2.5;
+  sctx.beginPath();sctx.moveTo(ampX,ampY);sctx.lineTo(ampX+24*s*Math.cos(needleA),ampY+24*s*Math.sin(needleA));sctx.stroke();
+  sctx.fillStyle='rgba(16,185,129,.9)';sctx.font='bold '+Math.round(13*s)+'px monospace';sctx.textAlign='center';sctx.fillText(i.toFixed(1),ampX,ampY+6*s);
+  sctx.fillStyle='rgba(16,185,129,.5)';sctx.font=Math.round(8*s)+'px monospace';sctx.fillText('μA',ampX,ampY+20*s);
+  sctx.fillText('MIKROAMPERMETR',ampX,ampY+46*s);
+
+  // r arrow
+  sctx.strokeStyle='rgba(16,185,129,.3)';sctx.lineWidth=1;sctx.setLineDash([4,4]);
+  sctx.beginPath();sctx.moveTo(lampX,cy+65*s);sctx.lineTo(photoX,cy+65*s);sctx.stroke();sctx.setLineDash([]);
+  sctx.fillStyle='rgba(16,185,129,.6)';sctx.beginPath();sctx.moveTo(lampX,cy+65*s);sctx.lineTo(lampX+9*s,cy+60*s);sctx.lineTo(lampX+9*s,cy+70*s);sctx.closePath();sctx.fill();
+  sctx.beginPath();sctx.moveTo(photoX,cy+65*s);sctx.lineTo(photoX-9*s,cy+60*s);sctx.lineTo(photoX-9*s,cy+70*s);sctx.closePath();sctx.fill();
+  sctx.fillStyle='rgba(16,185,129,.8)';sctx.font='bold '+Math.round(12*s)+'px Space Mono,monospace';sctx.textAlign='center';
+  sctx.fillText('r = '+rv+' '+t('smUnit1'),(lampX+photoX)/2,cy+58*s);
+
+  updateLive();
+}
+
+function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.lineTo(x+w-r,y);c.quadraticCurveTo(x+w,y,x+w,y+r);c.lineTo(x+w,y+h-r);c.quadraticCurveTo(x+w,y+h,x+w-r,y+h);c.lineTo(x+r,y+h);c.quadraticCurveTo(x,y+h,x,y+h-r);c.lineTo(x,y+r);c.quadraticCurveTo(x,y,x+r,y);c.closePath();}
+
+function drawGraph(){
+  var W2=gc.offsetWidth||220;gc.width=W2;var H=100;
+  gctx.clearRect(0,0,W2,H);gctx.fillStyle='#070c17';gctx.fillRect(0,0,W2,H);
+  var pad=26,gW=W2-pad*2,gH=H-pad-8;
+  gctx.strokeStyle='rgba(16,185,129,.3)';gctx.lineWidth=1;
+  gctx.beginPath();gctx.moveTo(pad,8);gctx.lineTo(pad,H-pad);gctx.lineTo(W2-pad+6,H-pad);gctx.stroke();
+  if(tabMode===1){
+    gctx.fillStyle='rgba(16,185,129,.5)';gctx.font='8px monospace';gctx.textAlign='center';gctx.fillText(t('graphXlbl1'),W2-pad+6,H-pad+3);
+    gctx.textAlign='right';gctx.fillText('i',pad-3,12);
+    if(meas.length>1){
+      var xs=meas.map(function(m){return 1/(m.r*m.r);});var ys=meas.map(function(m){return m.i;});
+      var maxX=Math.max.apply(null,xs),maxY=Math.max.apply(null,ys);
+      gctx.fillStyle='rgba(16,185,129,.9)';
+      meas.forEach(function(m){var px=pad+(1/(m.r*m.r)/maxX)*gW;var py=H-pad-(m.i/maxY)*gH;gctx.beginPath();gctx.arc(px,py,4,0,Math.PI*2);gctx.fill();});
+    }
+  } else {
+    gctx.fillStyle='rgba(16,185,129,.5)';gctx.font='8px monospace';gctx.textAlign='center';gctx.fillText(t('graphXlbl2'),W2-pad+8,H-pad+3);
+    gctx.textAlign='right';gctx.fillText('i',pad-3,12);
+    if(meas.length>1){
+      var ys2=meas.map(function(m){return m.i;});var maxY2=Math.max.apply(null,ys2);
+      gctx.fillStyle='rgba(16,185,129,.9)';
+      meas.forEach(function(m){var px=pad+Math.cos(m.theta*Math.PI/180)*gW;var py=H-pad-(m.i/maxY2)*gH;gctx.beginPath();gctx.arc(px,py,4,0,Math.PI*2);gctx.fill();});
+    }
+  }
+}
+
+function takeMeasure(){
+  var i=getI()+(Math.random()-.5)*0.3;
+  var e=getE();
+  cnt++;
+  var tr=document.createElement('tr');
+  if(tabMode===1){
+    meas.push({r:rv,theta:0,i:i,e:e});
+    var ir2=i*rv*rv/10000;
+    tr.innerHTML='<td>'+cnt+'</td><td>'+rv+'</td><td>'+i.toFixed(2)+'</td><td>'+ir2.toFixed(3)+'</td><td>'+(1/(rv*rv)).toFixed(5)+'</td>';
+  } else {
+    var cosT=Math.cos(thetaDeg*Math.PI/180);
+    meas.push({r:rv,theta:thetaDeg,i:i,e:e});
+    var icos=cosT>0.01?i/cosT:0;
+    tr.innerHTML='<td>'+cnt+'</td><td>'+thetaDeg+'</td><td>'+cosT.toFixed(3)+'</td><td>'+i.toFixed(2)+'</td><td>'+icos.toFixed(2)+'</td>';
+  }
+  document.getElementById('tbody').appendChild(tr);
+  document.getElementById('chipCnt').textContent=cnt;
+  document.getElementById('chipI').textContent=i.toFixed(2);
+  document.getElementById('rI').textContent=i.toFixed(2);
+  setDot(true);setTimeout(function(){setDot(false);},700);
+  document.getElementById('statusTxt').textContent=t('measDone')+cnt+t('measDoneMid1')+rv+t('measDoneMid2')+thetaDeg+t('measDoneMid3')+i.toFixed(2)+t('measDoneEnd');
+  if(tabMode===1&&meas.length<5){var rs=[15,20,25,30,40,50,60];rv=rs[cnt%rs.length];document.getElementById('sR').value=rv;document.getElementById('dR').textContent=rv+' sw';document.getElementById('chipR').textContent=rv;document.getElementById('rR').textContent=rv;}
+  else if(tabMode===2&&meas.length<5){var ts=[0,15,30,45,60,75];thetaDeg=ts[cnt%ts.length];document.getElementById('sT').value=thetaDeg;document.getElementById('dT').textContent=thetaDeg+'°';document.getElementById('chipT').textContent=thetaDeg;document.getElementById('rT').textContent=thetaDeg;}
+  if(cnt>=3){document.getElementById('calcBtn').disabled=false;setStep(tabMode===1?3:5);}else setStep(tabMode===1?2:4);
+  updateLive();drawGraph();
+}
+
+function calcResults(){
+  var vals=meas.map(function(m){return tabMode===1?m.i*m.r*m.r/10000:m.i/Math.max(0.01,Math.cos(m.theta*Math.PI/180));});
+  var avg=vals.reduce(function(a,b){return a+b;})/vals.length;
+  var dev=Math.sqrt(vals.reduce(function(a,b){return a+Math.pow(b-avg,2);},0)/Math.max(1,vals.length-1));
+  var err=(dev/avg*100);
+  document.getElementById('finalCard').style.display='block';
+  document.getElementById('resText').textContent=tabMode===1?t('resText1'):t('resText2');
+  document.getElementById('constVal').textContent=avg.toFixed(3);
+  document.getElementById('constErr').textContent=err.toFixed(2)+'%';
+  setStep(tabMode===1?3:5);
+  document.getElementById('statusTxt').textContent=t('finalStatus')+avg.toFixed(3)+t('finalStatusMid')+err.toFixed(2)+t('finalStatusEnd');
+  drawGraph();
+}
+
+function resetAll(){
+  meas=[];cnt=0;rv=30;thetaDeg=0;
+  document.getElementById('sR').value=30;document.getElementById('dR').textContent='30 sw';
+  document.getElementById('sT').value=0;document.getElementById('dT').textContent='0°';
+  document.getElementById('tbody').innerHTML='';
+  document.getElementById('finalCard').style.display='none';
+  document.getElementById('calcBtn').disabled=true;
+  document.getElementById('chipCnt').textContent=0;document.getElementById('chipI').textContent='—';
+  document.getElementById('statusTxt').textContent=t('statusDefault');
+  setDot(false);setStep(1);updateLive();drawGraph();
+}
+function setDot(on){document.getElementById('dot').classList.toggle('off',!on);}
+function setStep(n){for(var i=1;i<=5;i++){var el=document.getElementById('st'+i);if(!el)continue;el.className='step'+(i<n?' done':i===n?' active':'');el.querySelector('.snum').textContent=i<n?'✓':i;}}
+window.addEventListener('load',function(){setTimeout(function(){resize();updateLive();drawGraph();setLang('uz');},100);});
+</script>
+</body>
+</html>

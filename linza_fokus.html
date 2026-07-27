@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2-Lab — Linzaning fokus masofasi</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap');
+:root{
+  --bg:#07090f; --panel:#0e1420; --border:#1b2840;
+  --accent:#00d4ff; --green:#6fff5c; --yellow:#ffc947;
+  --red:#ff6b6b; --orange:#ff9f43; --text:#dde6f5; --muted:#4a6080;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;height:100vh;overflow:hidden;display:flex;flex-direction:column;}
+
+header{display:flex;align-items:center;gap:12px;padding:8px 20px;border-bottom:1px solid var(--border);background:linear-gradient(90deg,#07090f,#0d1828,#07090f);flex-shrink:0;}
+.badge{background:var(--orange);color:#000;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:3px 9px;letter-spacing:2px;border-radius:2px;flex-shrink:0;}
+.htitle{font-size:15px;font-weight:800;}
+.htitle span{color:var(--orange);}
+.hsub{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-left:auto;}
+
+/* TABS */
+.tabs{display:flex;border-bottom:1px solid var(--border);background:#0a0f1c;flex-shrink:0;}
+.tab{padding:8px 20px;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap;}
+.tab:hover{color:var(--text);}
+.tab.on{color:var(--orange);border-bottom-color:var(--orange);}
+
+.statusbar{background:#0a0f1c;border-bottom:1px solid var(--border);padding:5px 20px;display:flex;align-items:center;gap:14px;font-family:'Space Mono',monospace;font-size:11px;flex-shrink:0;}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:bl 1s infinite;flex-shrink:0;}
+.dot.off{background:var(--muted);animation:none;}
+@keyframes bl{0%,100%{opacity:1}50%{opacity:.2}}
+#statusTxt{color:var(--orange);}
+.chips{display:flex;gap:6px;margin-left:auto;}
+.chip{background:rgba(255,159,67,.08);border:1px solid rgba(255,159,67,.2);border-radius:10px;padding:2px 9px;font-size:10px;color:var(--muted);}
+.chip span{color:var(--orange);}
+
+.body{display:grid;grid-template-columns:220px 1fr 250px;flex:1;overflow:hidden;}
+
+/* LEFT */
+.left{background:var(--panel);border-right:1px solid var(--border);overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:9px;}
+.stitle{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--orange);text-transform:uppercase;margin-bottom:3px;opacity:.85;}
+.card{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:8px;padding:10px;}
+.card label{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:7px;}
+.vb{font-family:'Space Mono',monospace;font-size:11px;color:var(--orange);background:rgba(255,159,67,.12);padding:2px 7px;border-radius:3px;}
+input[type=range]{width:100%;-webkit-appearance:none;height:4px;background:var(--border);border-radius:2px;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;background:var(--orange);border-radius:50%;cursor:pointer;box-shadow:0 0 8px rgba(255,159,67,.7);}
+
+.lens-btns{display:flex;flex-direction:column;gap:4px;}
+.lb{border:1px solid var(--border);background:rgba(255,255,255,.03);color:var(--muted);padding:7px 10px;border-radius:6px;font-size:10px;font-family:'Space Mono',monospace;cursor:pointer;transition:all .2s;text-align:left;}
+.lb.on{background:rgba(255,159,67,.1);border-color:var(--orange);color:var(--orange);}
+.lb .ls{display:block;font-size:9px;color:var(--muted);margin-top:1px;}
+.lb.on .ls{color:rgba(255,159,67,.6);}
+
+.fbox{background:rgba(255,159,67,.04);border:1px solid rgba(255,159,67,.15);border-radius:7px;padding:9px;}
+.frow{display:flex;gap:6px;margin-bottom:4px;font-family:'Space Mono',monospace;font-size:10px;}
+.frow:last-child{margin-bottom:0;}
+.fl{color:var(--muted);min-width:22px;}
+.fe{color:var(--yellow);}
+
+.steps{display:flex;flex-direction:column;gap:3px;}
+.step{display:flex;align-items:center;gap:7px;padding:5px 8px;border-radius:5px;font-size:10px;color:var(--muted);border:1px solid transparent;transition:all .3s;}
+.step.active{background:rgba(255,159,67,.07);border-color:rgba(255,159,67,.2);color:var(--orange);}
+.step.done{color:var(--green);}
+.snum{font-family:'Space Mono',monospace;font-size:9px;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.05);flex-shrink:0;}
+.step.active .snum{background:rgba(255,159,67,.2);}
+.step.done .snum{background:rgba(111,255,92,.12);color:var(--green);}
+
+.btn{width:100%;padding:10px;border:none;border-radius:7px;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;cursor:pointer;transition:all .2s;}
+.btn-p{background:linear-gradient(135deg,#ff9f43,#e67e22);color:#000;}
+.btn-p:hover{transform:translateY(-1px);box-shadow:0 5px 18px rgba(255,159,67,.4);}
+.btn-p:disabled{opacity:.35;cursor:not-allowed;transform:none;}
+.btn-g{background:linear-gradient(135deg,#6fff5c,#33cc22);color:#000;margin-top:5px;}
+.btn-g:disabled{opacity:.35;cursor:not-allowed;}
+.btn-r{background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--border);margin-top:5px;font-size:11px;}
+
+/* CENTER */
+.center{position:relative;overflow:hidden;background:var(--bg);}
+#mainCanvas{position:absolute;top:0;left:0;width:100%;height:100%;}
+.instr-bar{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);background:rgba(7,9,15,.92);border:1px solid var(--border);border-radius:8px;padding:6px 18px;font-size:11px;color:var(--muted);white-space:nowrap;backdrop-filter:blur(8px);z-index:5;}
+
+/* RIGHT */
+.right{background:var(--panel);border-left:1px solid var(--border);overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:9px;}
+.rc{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:8px;padding:10px;}
+.rc.hi{border-color:rgba(255,159,67,.25);background:rgba(255,159,67,.05);}
+.rl{font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:3px;}
+.rv{font-size:24px;font-weight:800;line-height:1;color:#fff;}
+.ru{font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);margin-top:2px;}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+
+table{width:100%;border-collapse:collapse;font-family:'Space Mono',monospace;font-size:10px;}
+th{color:var(--orange);font-size:8px;letter-spacing:1px;border-bottom:1px solid var(--border);padding:5px 3px;text-align:center;}
+td{padding:4px 3px;border-bottom:1px solid rgba(255,255,255,.03);text-align:center;}
+tr.avg-r td{color:var(--yellow);border-top:1px solid var(--border);font-weight:700;}
+
+.final-card{background:rgba(255,159,67,.05);border:1px solid rgba(255,159,67,.2);border-radius:8px;padding:12px;}
+.err-row{display:flex;justify-content:space-between;margin-top:7px;font-family:'Space Mono',monospace;font-size:10px;}
+.err-row span:first-child{color:var(--muted);}
+.err-row span:last-child{color:var(--yellow);}
+
+/* DRAG hint */
+.drag-hint{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;font-family:'Space Mono',monospace;font-size:11px;color:rgba(255,159,67,.4);text-align:center;z-index:2;display:none;}
+.langsw{display:flex;gap:3px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;padding:3px;margin-left:10px;}
+.langbtn{background:transparent;border:none;color:var(--muted);font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:4px 9px;border-radius:5px;cursor:pointer;letter-spacing:1px;}
+.langbtn.active{background:var(--orange);color:#000;}
+</style>
+</head>
+<body>
+
+<!-- ===== BOSHLASH EKRANI ===== -->
+<div id="startScreen" style="
+  position:fixed;inset:0;z-index:9998;
+  background:radial-gradient(ellipse at 60% 40%, #1a0f05 0%, #07090f 70%);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+">
+  <canvas id="bgCanvas" style="position:absolute;inset:0;width:100%;height:100%;opacity:.4;pointer-events:none"></canvas>
+
+  <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:22px;max-width:560px;padding:20px;text-align:center">
+
+    <div style="display:flex;align-items:center;gap:10px">
+      <div style="background:#ff9f43;color:#000;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:4px 14px;letter-spacing:2px;border-radius:2px">LAB · 2</div>
+      <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:2px">OPTIKA · FIZPRAKTIKUM</div>
+    </div>
+
+    <div style="
+      width:100px;height:100px;border-radius:50%;
+      background:radial-gradient(circle,rgba(255,159,67,.15) 0%,rgba(255,159,67,.03) 70%);
+      border:2px solid rgba(255,159,67,.35);
+      display:flex;align-items:center;justify-content:center;
+      box-shadow:0 0 40px rgba(255,159,67,.2);
+      animation:pulse2 2.5s ease-in-out infinite;
+    ">
+      <span style="font-size:46px">🔭</span>
+    </div>
+
+    <div>
+      <h1 style="font-size:26px;font-weight:800;line-height:1.2;color:#fff" id="tStartTitle">
+        Linzaning <span style="color:#ff9f43">fokus masofasini</span> aniqlash
+      </h1>
+      <p style="font-size:13px;color:var(--muted);margin-top:8px;font-family:'Space Mono',monospace" id="tStartSub">
+        Optik skameyka yordamida f ni o'lchash — 2 xil usul
+      </p>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;width:100%">
+      <div style="background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:10px;padding:12px">
+        <div style="font-size:20px;margin-bottom:4px">⏱</div>
+        <div style="font-size:11px;color:var(--muted);font-family:'Space Mono',monospace" id="tInfoTime">Vaqt</div>
+        <div style="font-size:13px;font-weight:700;color:var(--text);margin-top:2px">30-45 min</div>
+      </div>
+      <div style="background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:10px;padding:12px">
+        <div style="font-size:20px;margin-bottom:4px">📐</div>
+        <div style="font-size:11px;color:var(--muted);font-family:'Space Mono',monospace" id="tInfoEx">Mashq</div>
+        <div style="font-size:13px;font-weight:700;color:var(--text);margin-top:2px" id="tInfoExVal">2 ta usul</div>
+      </div>
+      <div style="background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:10px;padding:12px">
+        <div style="font-size:20px;margin-bottom:4px">🎯</div>
+        <div style="font-size:11px;color:var(--muted);font-family:'Space Mono',monospace" id="tInfoGoal">Maqsad</div>
+        <div style="font-size:13px;font-weight:700;color:var(--text);margin-top:2px" id="tInfoGoalVal">f topish</div>
+      </div>
+    </div>
+
+    <div style="background:rgba(255,159,67,.05);border:1px solid rgba(255,159,67,.18);border-radius:12px;padding:16px;width:100%;text-align:left">
+      <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;color:#ff9f43;margin-bottom:12px" id="tProcedure">BAJARISH TARTIBI</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:#c5d3e8">
+          <div style="width:22px;height:22px;border-radius:50%;background:rgba(255,159,67,.2);display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:10px;color:#ff9f43;flex-shrink:0">1</div>
+          <span id="tPS1">L masofani va linza turini tanlang</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:#c5d3e8">
+          <div style="width:22px;height:22px;border-radius:50%;background:rgba(255,159,67,.2);display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:10px;color:#ff9f43;flex-shrink:0">2</div>
+          <span id="tPS2">Linzani <b style="color:#ff9f43">sichqoncha bilan suring</b> — tasvir aniq bo'lgunicha</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:#c5d3e8">
+          <div style="width:22px;height:22px;border-radius:50%;background:rgba(255,159,67,.2);display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:10px;color:#ff9f43;flex-shrink:0">3</div>
+          <span id="tPS3"><b style="color:#ff9f43">"O'lchov olish"</b> tugmasini bosing</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:#c5d3e8">
+          <div style="width:22px;height:22px;border-radius:50%;background:rgba(255,159,67,.2);display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:10px;color:#ff9f43;flex-shrink:0">4</div>
+          <span id="tPS4">3 marta takrorlang → <b style="color:var(--green)">"Hisoblash"</b></span>
+        </div>
+      </div>
+    </div>
+
+    <button onclick="startLab()" style="
+      background:linear-gradient(135deg,#ff9f43,#e67e22);
+      color:#000;border:none;border-radius:12px;
+      padding:16px 60px;font-size:16px;font-weight:800;
+      font-family:'Syne',sans-serif;cursor:pointer;
+      box-shadow:0 8px 30px rgba(255,159,67,.4);
+      transition:all .2s;width:100%;
+    "
+    onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 12px 40px rgba(255,159,67,.6)'"
+    onmouseout="this.style.transform='none';this.style.boxShadow='0 8px 30px rgba(255,159,67,.4)'"
+    >
+      <span id="tStartBtn">▶ Laboratoriyani boshlash</span>
+    </button>
+
+    <div style="display:flex;align-items:center;gap:6px;opacity:.6">
+      <span style="font-size:13px">🔬</span>
+      <span style="font-family:'Space Mono',monospace;font-size:10px;background:linear-gradient(90deg,#ff9f43,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;font-weight:700">Xosiyat Virtual Lab</span>
+    </div>
+
+  </div>
+</div>
+
+<style>
+@keyframes pulse2{0%,100%{box-shadow:0 0 40px rgba(255,159,67,.2)}50%{box-shadow:0 0 60px rgba(255,159,67,.45)}}
+@keyframes fadeOut{0%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.04)}}
+</style>
+
+<script>
+(function(){
+  var c=document.getElementById('bgCanvas');
+  var x=c.getContext('2d');
+  var pts=[];
+  function resize(){c.width=window.innerWidth;c.height=window.innerHeight;}
+  resize(); window.addEventListener('resize',resize);
+  for(var i=0;i<55;i++) pts.push({x:Math.random()*1600,y:Math.random()*900,r:Math.random()*1.5+.5,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,a:Math.random()});
+  function frame(){
+    x.clearRect(0,0,c.width,c.height);
+    pts.forEach(function(p){
+      p.x+=p.vx; p.y+=p.vy; p.a+=.005;
+      if(p.x<0)p.x=c.width; if(p.x>c.width)p.x=0;
+      if(p.y<0)p.y=c.height; if(p.y>c.height)p.y=0;
+      x.fillStyle='rgba(255,159,67,'+(0.3+Math.sin(p.a)*0.2)+')';
+      x.beginPath(); x.arc(p.x%(c.width),p.y%(c.height),p.r,0,Math.PI*2); x.fill();
+    });
+    requestAnimationFrame(frame);
+  }
+  frame();
+})();
+
+function startLab(){
+  var s=document.getElementById('startScreen');
+  s.style.animation='fadeOut .5s ease forwards';
+  setTimeout(function(){s.style.display='none';},480);
+}
+</script>
+
+<header>
+  <div class="badge">LAB · 2</div>
+  <h1 class="htitle" id="tTitle">Linzaning <span>fokus masofasini</span> aniqlash — Virtual Laboratoriya</h1>
+  <div class="hsub" id="tHsub">OPTIKA · FIZPRAKTIKUM · SDPI 2026</div>
+  <div class="langsw">
+    <button class="langbtn active" id="langUZ" onclick="setLang('uz')">UZ</button>
+    <button class="langbtn" id="langRU" onclick="setLang('ru')">RU</button>
+    <button class="langbtn" id="langEN" onclick="setLang('en')">EN</button>
+  </div>
+  <div style="display:flex;align-items:center;gap:6px;background:linear-gradient(135deg,rgba(255,159,67,.15),rgba(111,255,92,.1));border:1px solid rgba(255,159,67,.3);border-radius:20px;padding:4px 14px;margin-left:10px;flex-shrink:0">
+    <span style="font-size:14px">🔬</span>
+    <span style="font-family:Space Mono,monospace;font-size:10px;font-weight:700;background:linear-gradient(90deg,#ff9f43,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px">Xosiyat Virtual Lab</span>
+  </div>
+</header>
+
+<div class="tabs">
+  <div class="tab on" id="t1" onclick="switchTab(1)">🔬 <span id="tTab1">1-Mashq: a,b usuli</span></div>
+  <div class="tab" id="t2" onclick="switchTab(2)">⚡ <span id="tTab2">2-Mashq: Bessel usuli</span></div>
+</div>
+
+<div class="statusbar">
+  <div class="dot off" id="dot"></div>
+  <span id="statusTxt">Linzani optik skameyka bo'ylab suring</span>
+  <div class="chips">
+    <div class="chip">L = <span id="chipL">60</span> sm</div>
+    <div class="chip">f = <span id="chipF">~15</span> sm</div>
+    <div class="chip"><span id="tMeasLbl">O'lchov:</span> <span id="chipCnt">0</span>/3</div>
+  </div>
+</div>
+
+<div class="body">
+
+  <!-- LEFT -->
+  <div class="left">
+    <div class="stitle" id="tBenchSec">Optik skameyka</div>
+    <div class="card">
+      <label><span id="tLlbl">L — ob'ekt-ekran masofasi</span> <span class="vb" id="dL">60 sm</span></label>
+      <input type="range" id="sL" min="40" max="100" step="5" value="60" oninput="setL(this.value)">
+    </div>
+
+    <div class="stitle" id="tLensTypeSec">Linza turi</div>
+    <div class="lens-btns" id="lensBtns">
+      <div class="lb on" data-f="15" onclick="setLens(this)"><span id="tLens0">Yig'uvchi (konverging)</span><span class="ls">f ≈ 15 sm</span></div>
+      <div class="lb" data-f="10" onclick="setLens(this)"><span id="tLens1">Yig'uvchi (kuchli)</span><span class="ls">f ≈ 10 sm</span></div>
+      <div class="lb" data-f="20" onclick="setLens(this)"><span id="tLens2">Yig'uvchi (zaif)</span><span class="ls">f ≈ 20 sm</span></div>
+    </div>
+
+    <div class="stitle" id="formTitle">Formulalar (1-mashq)</div>
+    <div class="fbox" id="formBox">
+      <div class="frow"><span class="fl">f</span><span class="fe">= a·b / (a+b)</span></div>
+      <div class="frow"><span class="fl">1/f</span><span class="fe">= 1/a + 1/b</span></div>
+      <div class="frow"><span class="fl">f̄</span><span class="fe">= Σfᵢ / n</span></div>
+      <div class="frow"><span class="fl">ε</span><span class="fe">= Δf/f̄ · 100%</span></div>
+    </div>
+
+    <div class="stitle" id="tStepsSec">Bosqichlar</div>
+    <div class="steps" id="stepBox">
+      <div class="step active" id="st1"><div class="snum">1</div><span id="tStep1">L masofani beling</span></div>
+      <div class="step" id="st2"><div class="snum">2</div><span id="tStep2">Linzani suring → fokus</span></div>
+      <div class="step" id="st3"><div class="snum">3</div><span id="tStep3">a va b ni o'lchang</span></div>
+      <div class="step" id="st4"><div class="snum">4</div><span id="tStep4">3 marta takrorlang</span></div>
+      <div class="step" id="st5"><div class="snum">5</div><span id="tStep5">f ni hisoblang</span></div>
+    </div>
+
+    <button class="btn btn-p" onclick="takeMeasure()" id="measBtn">📏 <span id="tMeasBtn">O'lchov olish</span></button>
+    <button class="btn btn-g" onclick="calcResults()" id="calcBtn" disabled>📊 <span id="tCalcBtn">Hisoblash</span></button>
+    <button class="btn btn-r" onclick="resetAll()">↺ <span id="tResetBtn">Qayta boshlash</span></button>
+  </div>
+
+  <!-- CENTER -->
+  <div class="center">
+    <canvas id="mainCanvas"></canvas>
+    <div class="instr-bar" id="instrBar">🖱 Linzani sichqoncha bilan suring → tasvir aniq bo'lganda "O'lchov olish" tugmasini bosing</div>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="right">
+    <div class="stitle" id="tCurMeasSec">Joriy o'lchov</div>
+    <div class="two">
+      <div class="rc hi">
+        <div class="rl" id="tAlbl">a (ob'ekt)</div>
+        <div class="rv" id="rA">—</div>
+        <div class="ru">sm</div>
+      </div>
+      <div class="rc hi">
+        <div class="rl" id="tBlbl">b (tasvir)</div>
+        <div class="rv" id="rB">—</div>
+        <div class="ru">sm</div>
+      </div>
+    </div>
+    <div class="rc">
+      <div class="rl">f = a·b/(a+b)</div>
+      <div class="rv" style="font-size:22px;color:var(--orange)" id="rF">—</div>
+      <div class="ru">sm</div>
+    </div>
+    <div class="rc" id="besselBox" style="display:none">
+      <div class="rl">l = a₂ − a₁</div>
+      <div class="rv" style="font-size:20px;color:var(--accent)" id="rL2">—</div>
+      <div class="ru">sm</div>
+    </div>
+
+    <div class="stitle" id="tTableSec">Jadval</div>
+    <div style="overflow-x:auto">
+      <table>
+        <thead id="thead">
+          <tr><th>№</th><th>a (sm)</th><th>b (sm)</th><th>f (sm)</th></tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+
+    <div class="final-card" id="finalCard" style="display:none">
+      <div class="rl" id="tAvgFlbl">O'rtacha fokus uzunligi f̄</div>
+      <div class="rv" style="color:var(--green);font-size:28px" id="avgF">—</div>
+      <div class="ru">sm</div>
+      <div class="err-row"><span id="tAbsErr">Absolyut xatolik Δf</span><span id="absErr">—</span></div>
+      <div class="err-row"><span id="tRelErr">Nisbiy xatolik ε</span><span id="relErr">—</span></div>
+      <div class="err-row"><span id="tTrueF">Haqiqiy f (ma'lumot)</span><span id="trueF" style="color:var(--muted)">—</span></div>
+    </div>
+  </div>
+</div>
+
+<script>
+var LANG='uz';
+var I18N={
+ uz:{title:"Linzaning <span>fokus masofasini</span> aniqlash — Virtual Laboratoriya",hsub:'OPTIKA · FIZPRAKTIKUM · SDPI 2026',
+   tab1:'1-Mashq: a,b usuli',tab2:'2-Mashq: Bessel usuli',measLbl:"O'lchov:",
+   benchSec:'Optik skameyka',lLbl:"L — ob'ekt-ekran masofasi",lensTypeSec:'Linza turi',
+   lens0:"Yig'uvchi (konverging)",lens1:"Yig'uvchi (kuchli)",lens2:"Yig'uvchi (zaif)",
+   formTitle1:'Formulalar (1-mashq)',formTitle2:'Formulalar (2-mashq)',stepsSec:'Bosqichlar',
+   step1:'L masofani beling',step2:'Linzani suring → fokus',step3:'a va b ni o\'lchang',step4:'3 marta takrorlang',step5:'f ni hisoblang',
+   measBtn:"O'lchov olish",calcBtn:'Hisoblash',resetBtn:'Qayta boshlash',
+   curMeasSec:"Joriy o'lchov",aLbl:"a (ob'ekt)",bLbl:'b (tasvir)',tableSec:'Jadval',
+   avgFlbl:"O'rtacha fokus uzunligi f̄",absErr:'Absolyut xatolik Δf',relErr:'Nisbiy xatolik ε',trueF:'Haqiqiy f (ma\'lumot)',
+   startTitle:'Linzaning <span style="color:#ff9f43">fokus masofasini</span> aniqlash',startSub:"Optik skameyka yordamida f ni o'lchash — 2 xil usul",
+   infoTime:'Vaqt',infoEx:'Mashq',infoExVal:'2 ta usul',infoGoal:'Maqsad',infoGoalVal:'f topish',
+   procedure:'BAJARISH TARTIBI',ps1:'L masofani va linza turini tanlang',ps2:'Linzani <b style="color:#ff9f43">sichqoncha bilan suring</b> — tasvir aniq bo\'lgunicha',
+   ps3:'<b style="color:#ff9f43">"O\'lchov olish"</b> tugmasini bosing',ps4:'3 marta takrorlang → <b style="color:var(--green)">"Hisoblash"</b>',
+   startBtn:'▶ Laboratoriyani boshlash',
+   statusDefault1:"Linzani optik skameyka bo'ylab suring",statusDefault2:'Katta tasvir uchun linza pozitsiyasini toping (a₁)',
+   instrDefault:'🖱 Linzani sichqoncha bilan suring → tasvir aniq bo\'lganda "O\'lchov olish" tugmasini bosing',
+   notSharp:'⚠ Tasvir aniq emas! Linzani to\'g\'ri joylashtiring',
+   besselA1:' sw. Endi kichik tasvir uchun linzani o\'ng tomonga suring',
+   measAccepted:' qabul qilindi! f = ',measUnit:' sw',
+   nextL:'sw uchun linzani suring → aniq tasvir → o\'lchov oling',
+   instrEnough:'✅ Yetarli o\'lchov. "Hisoblash" tugmasini bosing',
+   finalStatus:'🎉 Yakuniy natija: f̄ = '
+ },
+ ru:{title:'Определение <span>фокусного расстояния</span> линзы — Виртуальная лаборатория',hsub:'ОПТИКА · ФИЗПРАКТИКУМ · SDPI 2026',
+   tab1:'Упр. 1: метод a,b',tab2:'Упр. 2: метод Бесселя',measLbl:'Измерений:',
+   benchSec:'Оптическая скамья',lLbl:'L — расстояние объект-экран',lensTypeSec:'Тип линзы',
+   lens0:'Собирающая (сходящаяся)',lens1:'Собирающая (сильная)',lens2:'Собирающая (слабая)',
+   formTitle1:'Формулы (упр. 1)',formTitle2:'Формулы (упр. 2)',stepsSec:'Этапы',
+   step1:'Задайте расстояние L',step2:'Двигайте линзу → фокус',step3:'Измерьте a и b',step4:'Повторите 3 раза',step5:'Вычислите f',
+   measBtn:'Сделать измерение',calcBtn:'Вычислить',resetBtn:'Начать заново',
+   curMeasSec:'Текущее измерение',aLbl:'a (объект)',bLbl:'b (изображение)',tableSec:'Таблица',
+   avgFlbl:'Среднее фокусное расстояние f̄',absErr:'Абс. погрешность Δf',relErr:'Отн. погрешность ε',trueF:'Реальное f (справочно)',
+   startTitle:'Определение <span style="color:#ff9f43">фокусного расстояния</span> линзы',startSub:'Измерение f с помощью оптической скамьи — 2 метода',
+   infoTime:'Время',infoEx:'Упражнения',infoExVal:'2 метода',infoGoal:'Цель',infoGoalVal:'найти f',
+   procedure:'ПОРЯДОК ВЫПОЛНЕНИЯ',ps1:'Выберите расстояние L и тип линзы',ps2:'Двигайте линзу <b style="color:#ff9f43">мышью</b> — пока изображение не станет чётким',
+   ps3:'<b style="color:#ff9f43">Нажмите "Сделать измерение"</b>',ps4:'Повторите 3 раза → <b style="color:var(--green)">"Вычислить"</b>',
+   startBtn:'▶ Начать лабораторную',
+   statusDefault1:'Двигайте линзу вдоль оптической скамьи',statusDefault2:'Найдите позицию линзы для большого изображения (a₁)',
+   instrDefault:'🖱 Двигайте линзу мышью → когда изображение чёткое, нажмите "Сделать измерение"',
+   notSharp:'⚠ Изображение нечёткое! Расположите линзу правильно',
+   besselA1:' см. Теперь сдвиньте линзу вправо для малого изображения',
+   measAccepted:' принято! f = ',measUnit:' см',
+   nextL:'см — сдвиньте линзу → чёткое изображение → измерьте',
+   instrEnough:'✅ Достаточно данных. Нажмите "Вычислить"',
+   finalStatus:'🎉 Итоговый результат: f̄ = '
+ },
+ en:{title:'Determining the <span>Focal Length</span> of a Lens — Virtual Lab',hsub:'OPTICS · PHYSICS LAB · SDPI 2026',
+   tab1:'Exercise 1: a,b method',tab2:'Exercise 2: Bessel method',measLbl:'Measurements:',
+   benchSec:'Optical bench',lLbl:'L — object-screen distance',lensTypeSec:'Lens type',
+   lens0:'Converging (regular)',lens1:'Converging (strong)',lens2:'Converging (weak)',
+   formTitle1:'Formulas (Exercise 1)',formTitle2:'Formulas (Exercise 2)',stepsSec:'Steps',
+   step1:'Set distance L',step2:'Move the lens → focus',step3:'Measure a and b',step4:'Repeat 3 times',step5:'Calculate f',
+   measBtn:'Take measurement',calcBtn:'Calculate',resetBtn:'Restart',
+   curMeasSec:'Current measurement',aLbl:'a (object)',bLbl:'b (image)',tableSec:'Table',
+   avgFlbl:'Average focal length f̄',absErr:'Absolute error Δf',relErr:'Relative error ε',trueF:'Real f (reference)',
+   startTitle:'Determining the <span style="color:#ff9f43">Focal Length</span> of a Lens',startSub:'Measuring f with an optical bench — 2 methods',
+   infoTime:'Time',infoEx:'Exercises',infoExVal:'2 methods',infoGoal:'Goal',infoGoalVal:'find f',
+   procedure:'PROCEDURE',ps1:'Choose distance L and lens type',ps2:'<b style="color:#ff9f43">Drag the lens with the mouse</b> until the image is sharp',
+   ps3:'<b style="color:#ff9f43">Press "Take measurement"</b>',ps4:'Repeat 3 times → <b style="color:var(--green)">"Calculate"</b>',
+   startBtn:'▶ Start the lab',
+   statusDefault1:'Move the lens along the optical bench',statusDefault2:'Find the lens position for a large image (a₁)',
+   instrDefault:'🖱 Drag the lens with the mouse → when the image is sharp, press "Take measurement"',
+   notSharp:'⚠ Image not sharp! Position the lens correctly',
+   besselA1:' cm. Now move the lens to the right for the small image',
+   measAccepted:' accepted! f = ',measUnit:' cm',
+   nextL:'cm — move the lens → sharp image → measure',
+   instrEnough:'✅ Enough data. Press "Calculate"',
+   finalStatus:'🎉 Final result: f̄ = '
+ }
+};
+function t(k){return I18N[LANG][k];}
+function updateFormulas(){
+  if(tabMode===2){
+    document.getElementById('formTitle').textContent=t('formTitle2');
+    document.getElementById('formBox').innerHTML=
+      '<div class="frow"><span class="fl">l</span><span class="fe">= a₂ − a₁</span></div>'+
+      '<div class="frow"><span class="fl">f</span><span class="fe">= (L²−l²) / 4L</span></div>'+
+      '<div class="frow"><span class="fl">a₁</span><span class="fe">= (L−l) / 2</span></div>'+
+      '<div class="frow"><span class="fl">a₂</span><span class="fe">= (L+l) / 2</span></div>';
+  } else {
+    document.getElementById('formTitle').textContent=t('formTitle1');
+    document.getElementById('formBox').innerHTML=
+      '<div class="frow"><span class="fl">f</span><span class="fe">= a·b / (a+b)</span></div>'+
+      '<div class="frow"><span class="fl">1/f</span><span class="fe">= 1/a + 1/b</span></div>'+
+      '<div class="frow"><span class="fl">f̄</span><span class="fe">= Σfᵢ / n</span></div>'+
+      '<div class="frow"><span class="fl">ε</span><span class="fe">= Δf/f̄ · 100%</span></div>';
+  }
+}
+function setLang(l){
+  LANG=l;
+  document.getElementById('langUZ').className='langbtn'+(l==='uz'?' active':'');
+  document.getElementById('langRU').className='langbtn'+(l==='ru'?' active':'');
+  document.getElementById('langEN').className='langbtn'+(l==='en'?' active':'');
+  document.getElementById('tTitle').innerHTML=t('title');
+  document.getElementById('tHsub').textContent=t('hsub');
+  document.getElementById('tTab1').textContent=t('tab1');
+  document.getElementById('tTab2').textContent=t('tab2');
+  document.getElementById('tMeasLbl').textContent=t('measLbl');
+  document.getElementById('tBenchSec').textContent=t('benchSec');
+  document.getElementById('tLlbl').textContent=t('lLbl');
+  document.getElementById('tLensTypeSec').textContent=t('lensTypeSec');
+  document.getElementById('tLens0').textContent=t('lens0');
+  document.getElementById('tLens1').textContent=t('lens1');
+  document.getElementById('tLens2').textContent=t('lens2');
+  document.getElementById('tStepsSec').textContent=t('stepsSec');
+  document.getElementById('tStep1').textContent=t('step1');
+  document.getElementById('tStep2').textContent=t('step2');
+  document.getElementById('tStep3').textContent=t('step3');
+  document.getElementById('tStep4').textContent=t('step4');
+  document.getElementById('tStep5').textContent=t('step5');
+  document.getElementById('tMeasBtn').textContent=t('measBtn');
+  document.getElementById('tCalcBtn').textContent=t('calcBtn');
+  document.getElementById('tResetBtn').textContent=t('resetBtn');
+  document.getElementById('tCurMeasSec').textContent=t('curMeasSec');
+  document.getElementById('tAlbl').textContent=t('aLbl');
+  document.getElementById('tBlbl').textContent=t('bLbl');
+  document.getElementById('tTableSec').textContent=t('tableSec');
+  document.getElementById('tAvgFlbl').textContent=t('avgFlbl');
+  document.getElementById('tAbsErr').textContent=t('absErr');
+  document.getElementById('tRelErr').textContent=t('relErr');
+  document.getElementById('tTrueF').textContent=t('trueF');
+  document.getElementById('tStartTitle').innerHTML=t('startTitle');
+  document.getElementById('tStartSub').textContent=t('startSub');
+  document.getElementById('tInfoTime').textContent=t('infoTime');
+  document.getElementById('tInfoEx').textContent=t('infoEx');
+  document.getElementById('tInfoExVal').textContent=t('infoExVal');
+  document.getElementById('tInfoGoal').textContent=t('infoGoal');
+  document.getElementById('tInfoGoalVal').textContent=t('infoGoalVal');
+  document.getElementById('tProcedure').textContent=t('procedure');
+  document.getElementById('tPS1').textContent=t('ps1');
+  document.getElementById('tPS2').innerHTML=t('ps2');
+  document.getElementById('tPS3').innerHTML=t('ps3');
+  document.getElementById('tPS4').innerHTML=t('ps4');
+  document.getElementById('tStartBtn').textContent=t('startBtn');
+  updateFormulas();
+  if(cnt===0){
+    document.getElementById('statusTxt').textContent=tabMode===2?t('statusDefault2'):t('statusDefault1');
+    document.getElementById('instrBar').textContent=t('instrDefault');
+  }
+}
+
+// ===== STATE =====
+var Lv=60, Ft=15, tabMode=1;
+var lensX=null; // lens position fraction (0..1) along L
+var dragging=false;
+var cnt=0, meas=[], busy=false;
+var animPhase='idle'; // idle | focusing | focused
+var focusBlur=1.0; // 1=max blur, 0=sharp
+
+// Bessel state
+var bPhase=0, bA1=null, bA2=null;
+
+var mc=document.getElementById('mainCanvas');
+var ctx=mc.getContext('2d');
+
+function resize(){mc.width=mc.offsetWidth;mc.height=mc.offsetHeight;initLens();draw();}
+window.addEventListener('resize',resize);
+setTimeout(resize,80);
+
+// ===== CONTROLS =====
+function setL(v){Lv=parseFloat(v);document.getElementById('dL').textContent=Lv+' sw';document.getElementById('chipL').textContent=Lv;resetAll();}
+function setLens(el){document.querySelectorAll('.lb').forEach(b=>b.classList.remove('on'));el.classList.add('on');Ft=parseFloat(el.dataset.f);document.getElementById('chipF').textContent='~'+Ft;resetAll();}
+
+function switchTab(n){
+  tabMode=n;
+  [1,2].forEach(i=>{document.getElementById('t'+i).classList.toggle('on',i===n);});
+  resetAll();
+  if(n===2){
+    document.getElementById('thead').innerHTML='<tr><th>№</th><th>L(sw)</th><th>a₁(sw)</th><th>a₂(sw)</th><th>l(sw)</th><th>f(sw)</th></tr>';
+    document.getElementById('besselBox').style.display='block';
+    document.getElementById('statusTxt').textContent=t('statusDefault2');
+  } else {
+    document.getElementById('thead').innerHTML='<tr><th>№</th><th>a (sm)</th><th>b (sm)</th><th>f (sm)</th></tr>';
+    document.getElementById('besselBox').style.display='none';
+    document.getElementById('statusTxt').textContent=t('statusDefault1');
+  }
+  updateFormulas();
+}
+
+// ===== LENS POSITION =====
+function initLens(){
+  // place lens at ideal focus point
+  if(lensX===null){
+    var idealA=Lv/2; // start in middle
+    lensX=idealA/Lv;
+  }
+  draw();
+}
+
+// get screen coordinates for optical bench
+function getBench(){
+  var W=mc.width, H=mc.height;
+  var by=H*0.55; // bench Y
+  var bx0=W*0.06, bx1=W*0.94; // bench start/end
+  var s=Math.max(0.9,Math.min(H/480,2.0)); // vertikal/komponent masshtab koeffitsienti
+  return {W,H,by,bx0,bx1,blen:bx1-bx0,s};
+}
+
+function lensScreenX(){
+  var b=getBench();
+  return b.bx0+lensX*b.blen;
+}
+
+// ===== DRAW =====
+function draw(){
+  var W=mc.width,H=mc.height;
+  if(!W||!H) return;
+  ctx.clearRect(0,0,W,H);
+
+  // bg
+  ctx.fillStyle='#07090f'; ctx.fillRect(0,0,W,H);
+  // grid
+  ctx.strokeStyle='rgba(0,212,255,.03)';ctx.lineWidth=1;
+  for(var x=0;x<W;x+=50){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+  for(var y=0;y<H;y+=50){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+
+  var b=getBench();
+  var lx=lensScreenX();
+
+  // compute a, b
+  var a=(lensX*Lv);
+  var bv=Lv-a;
+  var fIdeal=Ft;
+  // sharpness: 1/a+1/b vs 1/f
+  var inv_sum=(a>0&&bv>0)?(1/a+1/bv):999;
+  var inv_f=1/fIdeal;
+  var diff=Math.abs(inv_sum-inv_f);
+  var blur=Math.min(1,diff*30); // 0=sharp
+
+  // === OPTICAL BENCH ===
+  drawBench(b, lx, a, bv, blur);
+
+  // === SCREEN image ===
+  drawScreenImage(b, blur, a, bv);
+
+  // === INFO overlay ===
+  drawInfo(b, a, bv, blur);
+}
+
+function drawBench(b, lx, a, bv, blur){
+  var {W,H,by,bx0,bx1,blen,s}=b;
+
+  // bench rail
+  var railG=ctx.createLinearGradient(bx0,by-3*s,bx0,by+5*s);
+  railG.addColorStop(0,'#1e3050'); railG.addColorStop(1,'#0d1828');
+  ctx.fillStyle=railG;
+  ctx.fillRect(bx0,by-3*s,blen,8*s);
+  ctx.strokeStyle='rgba(0,212,255,.15)';ctx.lineWidth=1;
+  ctx.strokeRect(bx0,by-3*s,blen,8*s);
+
+  // ruler marks
+  ctx.fillStyle='rgba(0,212,255,.25)';ctx.font=Math.round(8*s)+'px monospace';ctx.textAlign='center';
+  for(var i=0;i<=Lv;i+=10){
+    var rx=bx0+(i/Lv)*blen;
+    ctx.strokeStyle='rgba(0,212,255,.2)';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(rx,by+5*s);ctx.lineTo(rx,by+10*s);ctx.stroke();
+    ctx.fillStyle='rgba(0,212,255,.25)';
+    ctx.fillText(i+'sw',rx,by+20*s);
+  }
+  ctx.fillStyle='rgba(0,212,255,.4)';ctx.font=Math.round(9*s)+'px Space Mono,monospace';ctx.textAlign='center';
+  ctx.fillText('OPTIK SKAMEYKA',W/2,by+32*s);
+
+  // === OBJECT (left) ===
+  drawObject(bx0, by, s);
+
+  // === SCREEN (right) ===
+  drawScreen(bx1, by, blur, a, bv, s);
+
+  // === LENS ===
+  drawLens(lx, by, blur, s);
+
+  // === RAYS ===
+  drawRays(bx0, bx1, lx, by, blur, a, bv, s);
+
+  // dimension arrows
+  // a arrow
+  ctx.strokeStyle='rgba(255,159,67,.4)';ctx.lineWidth=1;ctx.setLineDash([4,4]);
+  ctx.beginPath();ctx.moveTo(bx0,by-40*s);ctx.lineTo(lx,by-40*s);ctx.stroke();
+  ctx.setLineDash([]);
+  arrow(bx0,by-40*s,1,s); arrow(lx,by-40*s,-1,s);
+  ctx.fillStyle='rgba(255,159,67,.8)';ctx.font='bold '+Math.round(11*s)+'px Space Mono,monospace';ctx.textAlign='center';
+  ctx.fillText('a = '+a.toFixed(1)+' sw',(bx0+lx)/2,by-46*s);
+
+  // b arrow
+  ctx.strokeStyle='rgba(0,212,255,.4)';ctx.lineWidth=1;ctx.setLineDash([4,4]);
+  ctx.beginPath();ctx.moveTo(lx,by-40*s);ctx.lineTo(bx1,by-40*s);ctx.stroke();
+  ctx.setLineDash([]);
+  arrow(lx,by-40*s,1,s); arrow(bx1,by-40*s,-1,s);
+  ctx.fillStyle='rgba(0,212,255,.8)';ctx.font='bold '+Math.round(11*s)+'px Space Mono,monospace';ctx.textAlign='center';
+  ctx.fillText('b = '+bv.toFixed(1)+' sw',(lx+bx1)/2,by-46*s);
+}
+
+function arrow(x,y,dir,s){
+  s=s||1;
+  ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+dir*8*s,y-4*s);ctx.lineTo(x+dir*8*s,y+4*s);ctx.closePath();
+  ctx.fillStyle=ctx.strokeStyle.replace('0.4','0.6');ctx.fill();
+}
+
+function drawObject(x, by, s){
+  s=s||1;
+  var oy=by-15*s;
+  // stand
+  ctx.fillStyle='#1e3050';ctx.fillRect(x-5*s,by-60*s,10*s,60*s);
+  // arrow (object)
+  ctx.strokeStyle='#ffc947';ctx.lineWidth=2.5;ctx.shadowBlur=8;ctx.shadowColor='#ffc947';
+  ctx.beginPath();ctx.moveTo(x,by-15*s);ctx.lineTo(x,by-55*s);ctx.stroke();
+  ctx.shadowBlur=0;
+  // arrowhead
+  ctx.fillStyle='#ffc947';
+  ctx.beginPath();ctx.moveTo(x,by-60*s);ctx.lineTo(x-5*s,by-48*s);ctx.lineTo(x+5*s,by-48*s);ctx.closePath();ctx.fill();
+  // label
+  ctx.fillStyle='rgba(255,201,71,.7)';ctx.font=Math.round(9*s)+'px monospace';ctx.textAlign='center';
+  ctx.fillText('OB\'EKT',x,by-65*s);
+  ctx.fillText('(P)',x,by-73*s);
+  // base
+  ctx.fillStyle='#253550';ctx.fillRect(x-20*s,by-5*s,40*s,8*s);
+}
+
+function drawScreen(x, by, blur, a, bv, s){
+  s=s||1;
+  // stand
+  ctx.fillStyle='#1e3050';ctx.fillRect(x-5*s,by-70*s,10*s,72*s);
+  // screen panel
+  var sh=80*s, sw2=18*s;
+  ctx.fillStyle='#111e30';
+  ctx.fillRect(x-sw2,by-70*s,sw2*2,sh);
+  ctx.strokeStyle='rgba(0,212,255,.2)';ctx.lineWidth=1;
+  ctx.strokeRect(x-sw2,by-70*s,sw2*2,sh);
+
+  // image on screen
+  var sharpness=1-blur;
+  var imgH=Math.abs(bv/a)*40*s; // scaled image height
+  imgH=Math.min(imgH,65*s);
+  var iy=by-70*s+sh/2-imgH/2;
+
+  // glow if sharp
+  if(sharpness>0.5){
+    ctx.shadowBlur=15*sharpness;ctx.shadowColor=`rgba(111,255,92,${sharpness*0.5})`;
+  }
+  ctx.strokeStyle=`rgba(111,255,92,${0.3+sharpness*0.7})`;
+  ctx.lineWidth=2+sharpness*1.5;
+  ctx.beginPath();ctx.moveTo(x,by-70*s+sh/2);ctx.lineTo(x,iy);ctx.stroke();
+  ctx.shadowBlur=0;
+
+  // arrowhead (inverted image)
+  ctx.fillStyle=`rgba(111,255,92,${0.4+sharpness*0.6})`;
+  ctx.beginPath();ctx.moveTo(x,iy);ctx.lineTo(x-4*s,iy+8*s);ctx.lineTo(x+4*s,iy+8*s);ctx.closePath();ctx.fill();
+
+  // blur effect overlay
+  if(blur>0.05){
+    ctx.fillStyle=`rgba(111,255,92,${blur*0.08})`;
+    for(var bb=1;bb<=3;bb++){
+      ctx.beginPath();
+      ctx.ellipse(x,by-70*s+sh/2-imgH/4,bb*6*s,imgH/2,0,0,Math.PI*2);
+      ctx.fill();
+    }
+  }
+
+  // label
+  ctx.fillStyle='rgba(0,212,255,.5)';ctx.font=Math.round(9*s)+'px monospace';ctx.textAlign='center';
+  ctx.fillText('EKRAN',x,by+18*s);
+  // base
+  ctx.fillStyle='#253550';ctx.fillRect(x-20*s,by-5*s,40*s,8*s);
+}
+
+function drawLens(lx, by, blur, s){
+  s=s||1;
+  var lh=70*s;
+  // lens body
+  var lg=ctx.createLinearGradient(lx-12*s,0,lx+12*s,0);
+  lg.addColorStop(0,'rgba(0,212,255,.05)');
+  lg.addColorStop(0.5,'rgba(0,212,255,.25)');
+  lg.addColorStop(1,'rgba(0,212,255,.05)');
+  ctx.fillStyle=lg;
+  ctx.beginPath();
+  ctx.moveTo(lx-8*s,by-lh/2);
+  ctx.bezierCurveTo(lx+18*s,by-lh/2,lx+18*s,by+lh/2,lx-8*s,by+lh/2);
+  ctx.bezierCurveTo(lx-34*s,by+lh/2,lx-34*s,by-lh/2,lx-8*s,by-lh/2);
+  ctx.fill();
+  // lens outline
+  ctx.strokeStyle='rgba(0,212,255,.6)';ctx.lineWidth=2;
+  ctx.shadowBlur=12;ctx.shadowColor='rgba(0,212,255,.4)';
+  ctx.beginPath();
+  ctx.moveTo(lx-8*s,by-lh/2);
+  ctx.bezierCurveTo(lx+18*s,by-lh/2,lx+18*s,by+lh/2,lx-8*s,by+lh/2);
+  ctx.bezierCurveTo(lx-34*s,by+lh/2,lx-34*s,by-lh/2,lx-8*s,by-lh/2);
+  ctx.stroke();
+  ctx.shadowBlur=0;
+  // optical axis mark on lens
+  ctx.strokeStyle='rgba(0,212,255,.3)';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(lx-12*s,by);ctx.lineTo(lx+12*s,by);ctx.stroke();
+  // label
+  ctx.fillStyle='rgba(0,212,255,.6)';ctx.font=Math.round(9*s)+'px monospace';ctx.textAlign='center';
+  ctx.fillText('LINZA',lx,by+lh/2+16*s);
+  ctx.fillText('f≈'+Ft+'sw',lx,by+lh/2+26*s);
+  // drag handle
+  ctx.strokeStyle='rgba(255,159,67,.5)';ctx.lineWidth=2;
+  ctx.beginPath();ctx.moveTo(lx,by+lh/2+5*s);ctx.lineTo(lx,by+lh/2+35*s);ctx.stroke();
+  ctx.fillStyle='rgba(255,159,67,.5)';
+  ctx.beginPath();ctx.arc(lx,by+lh/2+35*s,5*s,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='rgba(255,159,67,.8)';ctx.font=Math.round(8*s)+'px monospace';ctx.textAlign='center';
+  ctx.fillText('← suring →',lx,by+lh/2+50*s);
+}
+
+function drawRays(bx0, bx1, lx, by, blur, a, bv, s){
+  s=s||1;
+  var fIdeal=Ft;
+  var sharpness=Math.max(0,1-blur);
+  var alpha=0.15+sharpness*0.5;
+
+  // principal rays (3 rays)
+  var objTop=by-50*s;
+  var imgTop=by-(bv/a)*50*s; // inverted & scaled
+
+  var rays=[
+    // ray 1: parallel to axis → through far focal
+    {x1:bx0,y1:objTop, xL:lx,yL:objTop, x2:bx1,y2:imgTop},
+    // ray 2: through center
+    {x1:bx0,y1:objTop, xL:lx,yL:by+(objTop-by)*(lx-bx0)/(bx1-bx0)*0, x2:bx1,y2:imgTop},
+    // ray 3: through near focal → parallel after
+    {x1:bx0,y1:objTop, xL:lx,yL:objTop*(0.5), x2:bx1,y2:imgTop},
+  ];
+
+  // simplified: draw 3 rays
+  var colors=['rgba(255,201,71,','rgba(255,159,67,','rgba(255,220,100,'];
+  // Ray 1: horizontal then to image
+  [0,1,2].forEach((i,idx)=>{
+    ctx.strokeStyle=colors[idx]+alpha+')';
+    ctx.lineWidth=1.2+sharpness*0.5;
+    ctx.setLineDash(sharpness<0.3?[5,4]:[]);
+    // from obj to lens
+    var ySrc=objTop+(i-1)*12*s;
+    var yDst=imgTop;
+    ctx.beginPath();ctx.moveTo(bx0,ySrc);ctx.lineTo(lx,ySrc+(i===1?0:0));ctx.stroke();
+    // from lens to screen
+    ctx.beginPath();ctx.moveTo(lx,ySrc+(i===1?0:0));ctx.lineTo(bx1,yDst);ctx.stroke();
+    ctx.setLineDash([]);
+  });
+
+  // optical axis
+  ctx.strokeStyle='rgba(255,255,255,.08)';ctx.lineWidth=1;ctx.setLineDash([8,6]);
+  ctx.beginPath();ctx.moveTo(bx0,by);ctx.lineTo(bx1,by);ctx.stroke();
+  ctx.setLineDash([]);
+
+  // focal points
+  var f_px=(fIdeal/Lv)*(bx1-bx0);
+  var fp1=lx-f_px, fp2=lx+f_px;
+  [fp1,fp2].forEach(fx=>{
+    ctx.fillStyle='rgba(255,159,67,.4)';
+    ctx.beginPath();ctx.arc(fx,by,4*s,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='rgba(255,159,67,.5)';ctx.font=Math.round(8*s)+'px monospace';ctx.textAlign='center';
+    ctx.fillText('F',fx,by-10*s);
+  });
+}
+
+function drawScreenImage(b, blur, a, bv){}
+
+function drawInfo(b, a, bv, blur){
+  var s=b.s||1;
+  var sharpness=1-blur;
+  var fCalc=(a>0&&bv>0)?a*bv/(a+bv):0;
+
+  // sharpness meter (top right)
+  var mx=b.W-20*s, my=50*s, mh=120*s, mw=14*s;
+  ctx.fillStyle='rgba(14,20,32,.8)';roundRect(ctx,mx-mw-10*s,my-10*s,mw+20*s,mh+30*s,6*s);ctx.fill();
+  ctx.strokeStyle='rgba(0,212,255,.15)';ctx.lineWidth=1;
+  roundRect(ctx,mx-mw-10*s,my-10*s,mw+20*s,mh+30*s,6*s);ctx.stroke();
+
+  ctx.fillStyle='rgba(255,255,255,.05)';ctx.fillRect(mx-mw/2,my,mw,mh);
+  var fillH=sharpness*mh;
+  var grd=ctx.createLinearGradient(0,my+mh,0,my);
+  grd.addColorStop(0,'rgba(255,107,107,.8)');
+  grd.addColorStop(0.5,'rgba(255,201,71,.8)');
+  grd.addColorStop(1,'rgba(111,255,92,.8)');
+  ctx.fillStyle=grd;ctx.fillRect(mx-mw/2,my+mh-fillH,mw,fillH);
+  ctx.strokeStyle='rgba(0,212,255,.2)';ctx.lineWidth=1;ctx.strokeRect(mx-mw/2,my,mw,mh);
+
+  ctx.fillStyle='rgba(0,212,255,.5)';ctx.font=Math.round(8*s)+'px monospace';ctx.textAlign='center';
+  ctx.fillText('FOKUS',mx,my-2*s);
+  ctx.fillText(Math.round(sharpness*100)+'%',mx,my+mh+20*s);
+
+  // status label
+  var label=blur<0.1?'✓ ANIQ TASVIR!':(blur<0.4?'◉ Yaqin...':'○ Xira tasvir');
+  var lcolor=blur<0.1?'#6fff5c':(blur<0.4?'#ffc947':'#ff6b6b');
+  ctx.fillStyle=lcolor;ctx.font='bold '+Math.round(11*s)+'px Space Mono,monospace';ctx.textAlign='center';
+  ctx.fillText(label,b.W/2,b.by-65*s);
+
+  // f display
+  if(fCalc>0){
+    ctx.fillStyle='rgba(14,20,32,.85)';
+    roundRect(ctx,b.W/2-60*s,b.by-58*s,120*s,22*s,5*s);ctx.fill();
+    ctx.strokeStyle='rgba(255,159,67,.2)';ctx.lineWidth=1;
+    roundRect(ctx,b.W/2-60*s,b.by-58*s,120*s,22*s,5*s);ctx.stroke();
+    ctx.fillStyle='rgba(255,159,67,.9)';ctx.font='bold '+Math.round(12*s)+'px Space Mono,monospace';ctx.textAlign='center';
+    ctx.fillText('f = '+fCalc.toFixed(2)+' sw',b.W/2,b.by-43*s);
+  }
+
+  // live values in right panel
+  document.getElementById('rA').textContent=a.toFixed(1);
+  document.getElementById('rB').textContent=bv.toFixed(1);
+  document.getElementById('rF').textContent=fCalc>0?fCalc.toFixed(2):'—';
+}
+
+function roundRect(ctx,x,y,w,h,r){
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+  ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+  ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();
+}
+
+// ===== DRAG =====
+mc.addEventListener('mousedown',function(e){
+  var lx=lensScreenX();
+  var b=getBench();
+  var mx=e.offsetX||e.clientX-mc.getBoundingClientRect().left;
+  var my=e.offsetY||e.clientY-mc.getBoundingClientRect().top;
+  if(Math.abs(mx-lx)<30*b.s && Math.abs(my-b.by)<50*b.s){dragging=true;}
+});
+mc.addEventListener('mousemove',function(e){
+  if(!dragging) return;
+  var b=getBench();
+  var mx=e.offsetX||e.clientX-mc.getBoundingClientRect().left;
+  lensX=Math.max(0.05,Math.min(0.95,(mx-b.bx0)/b.blen));
+  draw();
+});
+mc.addEventListener('mouseup',function(){dragging=false;});
+mc.addEventListener('mouseleave',function(){dragging=false;});
+
+// Touch support
+mc.addEventListener('touchstart',function(e){e.preventDefault();var t=e.touches[0];var b=getBench();var lx=lensScreenX();var mx=t.clientX-mc.getBoundingClientRect().left;var my=t.clientY-mc.getBoundingClientRect().top;if(Math.abs(mx-lx)<40*b.s&&Math.abs(my-b.by)<60*b.s)dragging=true;},{passive:false});
+mc.addEventListener('touchmove',function(e){e.preventDefault();if(!dragging)return;var b=getBench();var mx=e.touches[0].clientX-mc.getBoundingClientRect().left;lensX=Math.max(0.05,Math.min(0.95,(mx-b.bx0)/b.blen));draw();},{passive:false});
+mc.addEventListener('touchend',function(){dragging=false;});
+
+// ===== MEASURE =====
+function takeMeasure(){
+  var a=lensX*Lv;
+  var bv=Lv-a;
+  var inv_sum=(a>0&&bv>0)?(1/a+1/bv):999;
+  var inv_f=1/Ft;
+  var diff=Math.abs(inv_sum-inv_f);
+  var blur=Math.min(1,diff*30);
+
+  if(blur>0.25){
+    document.getElementById('statusTxt').textContent=t('notSharp');
+    shake();
+    return;
+  }
+
+  // Add small random noise
+  var nA=a+(Math.random()-.5)*0.8;
+  var nB=bv+(Math.random()-.5)*0.8;
+  var fCalc=nA*nB/(nA+nB);
+
+  cnt++;
+  if(tabMode===1){
+    meas.push({a:nA,b:nB,f:fCalc});
+    addRow1(cnt,nA,nB,fCalc);
+  } else {
+    // Bessel
+    if(bPhase===0){bA1=lensX;bPhase=1;document.getElementById('statusTxt').textContent='✓ a₁='+nA.toFixed(1)+t('besselA1');setStep(3);return;}
+    else{
+      var a1=bA1*Lv;
+      var a2=lensX*Lv;
+      var l=Math.abs(a2-a1)+(Math.random()-.5)*0.5;
+      var fB=(Lv*Lv-l*l)/(4*Lv);
+      meas.push({L:Lv,a1:a1,a2:a2,l:l,f:fB});
+      document.getElementById('rL2').textContent=l.toFixed(1);
+      addRow2(Math.ceil(meas.length),Lv,a1,a2,l,fB);
+      bPhase=0; bA1=null;
+      cnt=meas.length;
+    }
+  }
+
+  document.getElementById('chipCnt').textContent=cnt;
+  document.getElementById('statusTxt').textContent='✓ #'+cnt+t('measAccepted')+fCalc.toFixed(2)+t('measUnit');
+  setDot(true);setTimeout(()=>setDot(false),1000);
+  setStep(cnt>=3?4:3);
+
+  // Change L slightly for next measure
+  if(cnt<3){
+    Lv=Lv+5;
+    if(Lv>100)Lv=50;
+    document.getElementById('sL').value=Lv;
+    document.getElementById('dL').textContent=Lv+' sw';
+    document.getElementById('chipL').textContent=Lv;
+    lensX=0.5;
+    draw();
+    document.getElementById('instrBar').textContent='L='+Lv+t('nextL');
+  }
+
+  if(meas.length>=3) document.getElementById('calcBtn').disabled=false;
+  if(cnt>=3) document.getElementById('instrBar').textContent=t('instrEnough');
+}
+
+function shake(){
+  mc.style.transform='translateX(6px)';
+  setTimeout(()=>mc.style.transform='translateX(-6px)',80);
+  setTimeout(()=>mc.style.transform='none',160);
+}
+
+function addRow1(i,a,b,f){
+  var ar=document.getElementById('avgRow'); if(ar)ar.remove();
+  var tr=document.createElement('tr');
+  tr.innerHTML='<td>'+i+'</td><td>'+a.toFixed(1)+'</td><td>'+b.toFixed(1)+'</td><td>'+f.toFixed(2)+'</td>';
+  document.getElementById('tbody').appendChild(tr);
+}
+
+function addRow2(i,L,a1,a2,l,f){
+  var ar=document.getElementById('avgRow'); if(ar)ar.remove();
+  var tr=document.createElement('tr');
+  tr.innerHTML='<td>'+i+'</td><td>'+L+'</td><td>'+a1.toFixed(1)+'</td><td>'+a2.toFixed(1)+'</td><td>'+l.toFixed(2)+'</td><td>'+f.toFixed(2)+'</td>';
+  document.getElementById('tbody').appendChild(tr);
+}
+
+function calcResults(){
+  if(meas.length<2) return;
+  var fs=meas.map(m=>m.f);
+  var avg=fs.reduce((a,b)=>a+b,0)/fs.length;
+  var v=fs.reduce((a,b)=>a+Math.pow(b-avg,2),0);
+  var de=Math.sqrt(v/Math.max(1,fs.length*(fs.length-1)));
+  var re=(de/avg*100);
+
+  var ar=document.createElement('tr');ar.className='avg-r';ar.id='avgRow';
+  ar.innerHTML='<td colspan="'+(tabMode===1?3:5)+'" style="text-align:right;padding-right:6px">f̄ =</td><td>'+avg.toFixed(2)+'</td>';
+  document.getElementById('tbody').appendChild(ar);
+
+  document.getElementById('finalCard').style.display='block';
+  document.getElementById('avgF').textContent=avg.toFixed(2);
+  document.getElementById('absErr').textContent='± '+de.toFixed(2)+' sw';
+  document.getElementById('relErr').textContent=re.toFixed(2)+'%';
+  document.getElementById('trueF').textContent=Ft+' sw';
+  setStep(5);
+  document.getElementById('statusTxt').textContent=t('finalStatus')+avg.toFixed(2)+' ± '+de.toFixed(2)+' sw | ε = '+re.toFixed(2)+'%';
+}
+
+function resetAll(){
+  meas=[]; cnt=0; busy=false; bPhase=0; bA1=null;
+  lensX=0.5;
+  document.getElementById('tbody').innerHTML='';
+  var ar=document.getElementById('avgRow');if(ar)ar.remove();
+  document.getElementById('finalCard').style.display='none';
+  document.getElementById('calcBtn').disabled=true;
+  ['rA','rB','rF','rL2'].forEach(id=>{var el=document.getElementById(id);if(el)el.textContent='—';});
+  document.getElementById('chipCnt').textContent='0';
+  document.getElementById('statusTxt').textContent=tabMode===2?t('statusDefault2'):t('statusDefault1');
+  document.getElementById('instrBar').textContent=t('instrDefault');
+  setDot(false);setStep(1);
+  draw();
+}
+
+function setDot(on){document.getElementById('dot').classList.toggle('off',!on);}
+function setStep(n){
+  for(var i=1;i<=5;i++){
+    var el=document.getElementById('st'+i);
+    el.className='step'+(i<n?' done':i===n?' active':'');
+    el.querySelector('.snum').textContent=i<n?'✓':i;
+  }
+}
+
+window.addEventListener('load',function(){setTimeout(()=>{resize();setLang('uz');},100);});
+</script>
+<div style="position:fixed;bottom:14px;right:18px;display:flex;align-items:center;gap:7px;background:rgba(7,9,15,.75);border:1px solid rgba(255,159,67,.25);border-radius:30px;padding:5px 16px;backdrop-filter:blur(10px);z-index:9999;pointer-events:none">
+  <span style="font-size:13px">🔬</span>
+  <span style="font-family:Space Mono,monospace;font-size:11px;font-weight:700;background:linear-gradient(90deg,#ff9f43,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px">Xosiyat Virtual Lab</span>
+</div>
+</body>
+</html>

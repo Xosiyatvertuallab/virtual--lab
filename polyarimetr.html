@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>9-Lab — Polyarimetr. Shakar eritmasi</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap');
+:root{
+  --bg:#07090f;--panel:#0e1420;--border:#1b2840;
+  --accent:#fb923c;--green:#6fff5c;--yellow:#ffc947;
+  --text:#dde6f5;--muted:#4a6080;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;height:100vh;overflow:hidden;display:flex;flex-direction:column;}
+
+header{display:flex;align-items:center;gap:12px;padding:8px 20px;border-bottom:1px solid var(--border);background:linear-gradient(90deg,#07090f,#1a0a00,#07090f);flex-shrink:0;}
+.badge{background:var(--accent);color:#000;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:3px 9px;letter-spacing:2px;border-radius:2px;}
+.htitle{font-size:15px;font-weight:800;}
+.htitle span{color:var(--accent);}
+.hsub{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-left:auto;}
+.brand{display:flex;align-items:center;gap:6px;background:linear-gradient(135deg,rgba(251,146,60,.15),rgba(111,255,92,.1));border:1px solid rgba(251,146,60,.3);border-radius:20px;padding:4px 14px;margin-left:10px;flex-shrink:0;}
+.brand-txt{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;background:linear-gradient(90deg,#fb923c,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;}
+
+.statusbar{background:#0a0f1c;border-bottom:1px solid var(--border);padding:5px 20px;display:flex;align-items:center;gap:14px;font-family:'Space Mono',monospace;font-size:11px;flex-shrink:0;}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:bl 1s infinite;flex-shrink:0;}
+.dot.off{background:var(--muted);animation:none;}
+@keyframes bl{0%,100%{opacity:1}50%{opacity:.2}}
+#statusTxt{color:var(--accent);}
+.chips{display:flex;gap:6px;margin-left:auto;}
+.chip{background:rgba(251,146,60,.08);border:1px solid rgba(251,146,60,.2);border-radius:10px;padding:2px 9px;font-size:10px;color:var(--muted);}
+.chip span{color:var(--accent);}
+
+.body{display:grid;grid-template-columns:210px 1fr 250px;flex:1;overflow:hidden;}
+
+.left{background:var(--panel);border-right:1px solid var(--border);overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:9px;}
+.stitle{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--accent);text-transform:uppercase;margin-bottom:3px;opacity:.85;}
+.card{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:8px;padding:10px;}
+.card label{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:7px;}
+.vb{font-family:'Space Mono',monospace;font-size:11px;color:var(--accent);background:rgba(251,146,60,.12);padding:2px 7px;border-radius:3px;}
+input[type=range]{width:100%;-webkit-appearance:none;height:4px;background:var(--border);border-radius:2px;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;background:var(--accent);border-radius:50%;cursor:pointer;box-shadow:0 0 8px rgba(251,146,60,.7);}
+
+.fbox{background:rgba(251,146,60,.04);border:1px solid rgba(251,146,60,.15);border-radius:7px;padding:9px;}
+.frow{display:flex;gap:6px;margin-bottom:4px;font-family:'Space Mono',monospace;font-size:10px;}
+.frow:last-child{margin-bottom:0;}
+.fl{color:var(--muted);min-width:22px;}
+.fe{color:var(--yellow);}
+
+.steps{display:flex;flex-direction:column;gap:3px;}
+.step{display:flex;align-items:center;gap:7px;padding:5px 8px;border-radius:5px;font-size:10px;color:var(--muted);border:1px solid transparent;transition:all .3s;}
+.step.active{background:rgba(251,146,60,.07);border-color:rgba(251,146,60,.2);color:var(--accent);}
+.step.done{color:var(--green);}
+.snum{font-family:'Space Mono',monospace;font-size:9px;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.05);flex-shrink:0;}
+.step.active .snum{background:rgba(251,146,60,.2);}
+.step.done .snum{background:rgba(111,255,92,.12);color:var(--green);}
+
+.btn{width:100%;padding:10px;border:none;border-radius:7px;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;cursor:pointer;transition:all .2s;}
+.btn-p{background:linear-gradient(135deg,#fb923c,#ea580c);color:#000;}
+.btn-p:hover{transform:translateY(-1px);box-shadow:0 5px 18px rgba(251,146,60,.4);}
+.btn-p:disabled{opacity:.35;cursor:not-allowed;transform:none;}
+.btn-g{background:linear-gradient(135deg,#6fff5c,#33cc22);color:#000;margin-top:5px;}
+.btn-g:disabled{opacity:.35;cursor:not-allowed;}
+.btn-r{background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--border);margin-top:5px;font-size:11px;}
+
+.center{position:relative;overflow:hidden;background:#040810;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+#simCanvas{display:block;width:100%;height:100%;}
+.instr-bar{position:absolute;bottom:0;left:0;right:0;background:rgba(4,8,16,.92);border-top:1px solid var(--border);padding:6px 18px;font-size:11px;color:var(--muted);text-align:center;}
+
+.right{background:var(--panel);border-left:1px solid var(--border);overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:9px;}
+.rc{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:8px;padding:10px;}
+.rc.hi{border-color:rgba(251,146,60,.25);background:rgba(251,146,60,.05);}
+.rl{font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:3px;}
+.rv{font-size:22px;font-weight:800;line-height:1;color:#fff;}
+.ru{font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);margin-top:2px;}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+
+table{width:100%;border-collapse:collapse;font-family:'Space Mono',monospace;font-size:9px;}
+th{color:var(--accent);font-size:8px;letter-spacing:1px;border-bottom:1px solid var(--border);padding:4px 2px;text-align:center;}
+td{padding:3px 2px;border-bottom:1px solid rgba(255,255,255,.03);text-align:center;}
+tr.avg-r td{color:var(--yellow);border-top:1px solid var(--border);font-weight:700;}
+
+#graphCanvas{display:block;width:100%;border-radius:8px;border:1px solid var(--border);}
+.final-card{background:rgba(251,146,60,.05);border:1px solid rgba(251,146,60,.2);border-radius:8px;padding:12px;}
+.err-row{display:flex;justify-content:space-between;margin-top:6px;font-family:'Space Mono',monospace;font-size:10px;}
+.err-row span:first-child{color:var(--muted);}
+.err-row span:last-child{color:var(--yellow);}
+.langsw{display:flex;gap:3px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;padding:3px;margin-left:10px;}
+.langbtn{background:transparent;border:none;color:var(--muted);font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:4px 9px;border-radius:5px;cursor:pointer;letter-spacing:1px;}
+.langbtn.active{background:var(--accent);color:#000;}
+</style>
+</head>
+<body>
+
+<!-- BOSHLASH EKRANI -->
+<div id="startScreen" style="position:fixed;inset:0;z-index:9998;background:radial-gradient(ellipse at 50% 40%,#1a0800 0%,#07090f 70%);display:flex;align-items:center;justify-content:center;">
+  <canvas id="bgCanvas" style="position:absolute;inset:0;width:100%;height:100%;opacity:.4;pointer-events:none"></canvas>
+  <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:20px;max-width:560px;padding:20px;text-align:center">
+    <div style="display:flex;align-items:center;gap:10px">
+      <div style="background:#fb923c;color:#000;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:4px 14px;letter-spacing:2px;border-radius:2px">LAB · 9</div>
+      <div style="font-family:'Space Mono',monospace;font-size:10px;color:#4a6080;letter-spacing:2px">OPTIKA · POLYARIMETR</div>
+    </div>
+    <div style="width:100px;height:100px;border-radius:50%;background:radial-gradient(circle,rgba(251,146,60,.18) 0%,rgba(251,146,60,.02) 70%);border:2px solid rgba(251,146,60,.4);display:flex;align-items:center;justify-content:center;box-shadow:0 0 50px rgba(251,146,60,.3);animation:pulse9 2.5s ease-in-out infinite;"><span style="font-size:44px">🍬</span></div>
+    <div>
+      <h1 style="font-size:22px;font-weight:800;color:#fff" id="tStartTitle">Polyarimetr yordamida <span style="color:#fb923c">shakar eritmasini</span> aniqlash</h1>
+      <p style="font-size:13px;color:#4a6080;margin-top:8px;font-family:'Space Mono',monospace" id="tStartSub">Bio qonuni · φ = [α]·l·c · Konsentratsiyani topish</p>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;width:100%">
+      <div style="background:rgba(255,255,255,.04);border:1px solid #1b2840;border-radius:10px;padding:12px"><div style="font-size:20px;margin-bottom:4px">⏱</div><div style="font-size:11px;color:#4a6080;font-family:monospace" id="tInfoTime">Vaqt</div><div style="font-size:13px;font-weight:700;color:#dde6f5;margin-top:2px">30-45 min</div></div>
+      <div style="background:rgba(255,255,255,.04);border:1px solid #1b2840;border-radius:10px;padding:12px"><div style="font-size:20px;margin-bottom:4px">🔄</div><div style="font-size:11px;color:#4a6080;font-family:monospace" id="tInfoTube">Trubka</div><div style="font-size:13px;font-weight:700;color:#dde6f5;margin-top:2px" id="tInfoTubeVal">3 ta uzunlik</div></div>
+      <div style="background:rgba(255,255,255,.04);border:1px solid #1b2840;border-radius:10px;padding:12px"><div style="font-size:20px;margin-bottom:4px">🎯</div><div style="font-size:11px;color:#4a6080;font-family:monospace" id="tInfoGoal">Maqsad</div><div style="font-size:13px;font-weight:700;color:#dde6f5;margin-top:2px" id="tInfoGoalVal">c topish</div></div>
+    </div>
+    <div style="background:rgba(251,146,60,.05);border:1px solid rgba(251,146,60,.18);border-radius:12px;padding:16px;width:100%;text-align:left">
+      <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;color:#fb923c;margin-bottom:10px" id="tProcedure">BAJARISH TARTIBI</div>
+      <div style="display:flex;flex-direction:column;gap:7px">
+        <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:#c5d3e8"><div style="width:22px;height:22px;border-radius:50%;background:rgba(251,146,60,.2);display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:10px;color:#fb923c;flex-shrink:0">1</div><span id="tPS1">Polyarimetrni yoqing → φ₀ (nol) ni o'lchang</span></div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:#c5d3e8"><div style="width:22px;height:22px;border-radius:50%;background:rgba(251,146,60,.2);display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:10px;color:#fb923c;flex-shrink:0">2</div><span id="tPS2">Ko'rish maydoni <b style="color:#fb923c">bir xil yoritilgunicha</b> analizatorni burash</span></div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:#c5d3e8"><div style="width:22px;height:22px;border-radius:50%;background:rgba(251,146,60,.2);display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:10px;color:#fb923c;flex-shrink:0">3</div><span id="tPS3">φ = |φ' − φ₀| ni hisoblang → har uzunlik uchun</span></div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:#c5d3e8"><div style="width:22px;height:22px;border-radius:50%;background:rgba(251,146,60,.2);display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:10px;color:#fb923c;flex-shrink:0">4</div><span id="tPS4"><b style="color:#6fff5c">c = φ / ([α]·l)</b> — konsentratsiyani toping</span></div>
+      </div>
+    </div>
+    <button onclick="startLab()" style="background:linear-gradient(135deg,#fb923c,#ea580c);color:#000;border:none;border-radius:12px;padding:16px 60px;font-size:16px;font-weight:800;font-family:'Syne',sans-serif;cursor:pointer;box-shadow:0 8px 30px rgba(251,146,60,.4);transition:all .2s;width:100%"
+    onmouseover="this.style.transform='translateY(-2px)'"
+    onmouseout="this.style.transform='none'"><span id="tStartBtn">▶ Laboratoriyani boshlash</span></button>
+    <div style="display:flex;align-items:center;gap:6px;opacity:.6">
+      <span>🔬</span>
+      <span style="font-family:'Space Mono',monospace;font-size:10px;background:linear-gradient(90deg,#fb923c,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;font-weight:700">Xosiyat Virtual Lab</span>
+    </div>
+  </div>
+</div>
+<style>
+@keyframes pulse9{0%,100%{box-shadow:0 0 50px rgba(251,146,60,.25)}50%{box-shadow:0 0 70px rgba(251,146,60,.5)}}
+@keyframes fadeOut{0%{opacity:1}100%{opacity:0;transform:scale(1.04)}}
+</style>
+<script>
+(function(){var c=document.getElementById('bgCanvas');var x=c.getContext('2d');var pts=[];function rs(){c.width=window.innerWidth;c.height=window.innerHeight;}rs();window.addEventListener('resize',rs);for(var i=0;i<55;i++)pts.push({x:Math.random()*1600,y:Math.random()*900,r:Math.random()*1.5+.5,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,a:Math.random()});function fr(){x.clearRect(0,0,c.width,c.height);pts.forEach(function(p){p.x+=p.vx;p.y+=p.vy;p.a+=.005;if(p.x<0)p.x=c.width;if(p.x>c.width)p.x=0;if(p.y<0)p.y=c.height;if(p.y>c.height)p.y=0;x.fillStyle='rgba(251,146,60,'+(0.2+Math.sin(p.a)*0.15)+')';x.beginPath();x.arc(p.x%c.width,p.y%c.height,p.r,0,Math.PI*2);x.fill();});requestAnimationFrame(fr);}fr();})();
+function startLab(){var s=document.getElementById('startScreen');s.style.animation='fadeOut .5s ease forwards';setTimeout(function(){s.style.display='none';},480);}
+</script>
+
+<!-- MAIN -->
+<header>
+  <div class="badge">LAB · 9</div>
+  <h1 class="htitle" id="tTitle">Polyarimetr — <span>Shakar eritmasining konsentratsiyasi</span></h1>
+  <div class="hsub" id="tHsub">OPTIKA · FIZPRAKTIKUM · SDPI 2025</div>
+  <div class="langsw">
+    <button class="langbtn active" id="langUZ" onclick="setLang('uz')">UZ</button>
+    <button class="langbtn" id="langRU" onclick="setLang('ru')">RU</button>
+    <button class="langbtn" id="langEN" onclick="setLang('en')">EN</button>
+  </div>
+  <div class="brand"><span>🔬</span><span class="brand-txt">Xosiyat Virtual Lab</span></div>
+</header>
+
+<div class="statusbar">
+  <div class="dot off" id="dot"></div>
+  <span id="statusTxt">Ko'rish maydonini bir xil yoritilishiga keltiring → O'lchov oling</span>
+  <div class="chips">
+    <div class="chip">φ = <span id="chipPhi">—</span>°</div>
+    <div class="chip">l = <span id="chipL">10</span> sm</div>
+    <div class="chip">c = <span id="chipC">—</span> g/ml</div>
+    <div class="chip"><span id="tMeasLbl">O'lchov:</span> <span id="chipCnt">0</span></div>
+  </div>
+</div>
+
+<div class="body">
+  <!-- LEFT -->
+  <div class="left">
+    <div class="stitle" id="tTubeSec">Trubka uzunligi l</div>
+    <div class="card">
+      <label>l (sm) <span class="vb" id="dL">10 sm</span></label>
+      <input type="range" id="sL" min="5" max="20" step="5" value="10" oninput="setL(this.value)">
+    </div>
+
+    <div class="stitle" id="tAnalyzerSec">Analizator burchagi φ'</div>
+    <div class="card">
+      <label><span id="tAnalyzerLbl">φ' burchakni toping</span> <span class="vb" id="dPhi">0.0°</span></label>
+      <input type="range" id="sPhi" min="-45" max="45" step="0.5" value="0" oninput="setPhi(this.value)">
+      <!-- Ko'rish maydoni holati -->
+      <div id="viewBar" style="margin-top:10px;height:40px;border-radius:6px;overflow:hidden;border:1px solid var(--border);position:relative;cursor:pointer">
+        <canvas id="viewCanvas" style="display:block;width:100%;height:100%"></canvas>
+      </div>
+      <div id="balanceText" style="font-family:monospace;font-size:10px;color:var(--muted);margin-top:4px;text-align:center">Ko'rish maydoni</div>
+    </div>
+
+    <div class="stitle" id="tZeroSec">Nol o'lchov (φ₀)</div>
+    <div class="card" style="background:rgba(251,146,60,.04)">
+      <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:6px" id="tZeroNote">Eritmasiz o'lchangan:</div>
+      <div style="font-size:18px;font-weight:700;color:var(--accent)" id="phi0show">φ₀ = 0.00°</div>
+      <button onclick="measurePhi0()" style="width:100%;margin-top:8px;background:rgba(251,146,60,.2);border:1px solid rgba(251,146,60,.3);color:var(--accent);padding:6px;border-radius:5px;font-size:11px;cursor:pointer"><span id="tZeroBtn">Nol o'lchov olish</span></button>
+    </div>
+
+    <div class="fbox">
+      <div class="frow"><span class="fl">φ</span><span class="fe">= |φ' − φ₀|</span></div>
+      <div class="frow"><span class="fl">φ</span><span class="fe">= [α]·l·c</span></div>
+      <div class="frow"><span class="fl">c</span><span class="fe">= φ / ([α]·l)</span></div>
+      <div class="frow"><span class="fl">[α]</span><span class="fe">= 66.5°/(dm·g/ml)</span></div>
+    </div>
+
+    <div class="steps">
+      <div class="step active" id="st1"><div class="snum">1</div><span id="tStep1">φ₀ ni o'lchang</span></div>
+      <div class="step" id="st2"><div class="snum">2</div><span id="tStep2">l tanlang</span></div>
+      <div class="step" id="st3"><div class="snum">3</div><span id="tStep3">Ko'rish maydoni teng</span></div>
+      <div class="step" id="st4"><div class="snum">4</div><span id="tStep4">φ' o'lchang</span></div>
+      <div class="step" id="st5"><div class="snum">5</div><span id="tStep5">c hisoblang</span></div>
+    </div>
+
+    <button class="btn btn-p" onclick="takeMeasure()" id="measBtn">📏 <span id="tMeasBtn">O'lchov olish</span></button>
+    <button class="btn btn-g" onclick="calcC()" id="calcBtn" disabled>📊 <span id="tCalcBtn">c Hisoblash</span></button>
+    <button class="btn btn-r" onclick="resetAll()">↺ <span id="tResetBtn">Qayta boshlash</span></button>
+  </div>
+
+  <!-- CENTER: Polyarimetr ko'z oynasi -->
+  <div class="center">
+    <canvas id="simCanvas"></canvas>
+    <div class="instr-bar" id="instrBar">🍬 Analizator slayderni suring → ko'rish maydoni 3 qismi bir xil yorug'lik bo'lganda → O'lchov oling</div>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="right">
+    <div class="stitle" id="tCurMeasSec">Joriy o'lchov</div>
+    <div class="two">
+      <div class="rc hi"><div class="rl">φ' (°)</div><div class="rv" style="color:var(--accent)" id="rPhiP">—</div></div>
+      <div class="rc hi"><div class="rl">φ = |φ'−φ₀|</div><div class="rv" id="rPhi">—</div></div>
+    </div>
+    <div class="two">
+      <div class="rc"><div class="rl">l (sm)</div><div class="rv" style="font-size:18px" id="rL">10</div></div>
+      <div class="rc"><div class="rl">c (g/ml)</div><div class="rv" style="font-size:18px;color:var(--accent)" id="rC">—</div></div>
+    </div>
+
+    <div class="stitle" id="tTableSec">9.1-jadval</div>
+    <div style="overflow-x:auto">
+      <table>
+        <thead><tr><th>№</th><th>l(sm)</th><th>φ'(°)</th><th>φ(°)</th><th>c(g/ml)</th></tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+
+    <div class="stitle" id="tGraphSec">Grafik: φ = f(l)</div>
+    <canvas id="graphCanvas" height="110"></canvas>
+
+    <div class="final-card" id="finalCard" style="display:none">
+      <div class="rl" id="tAvgCLbl">O'rtacha konsentratsiya c̄</div>
+      <div class="rv" style="color:var(--green);font-size:28px" id="avgC">—</div>
+      <div class="ru">g/ml</div>
+      <div class="err-row"><span id="tAbsErrLbl">Absolyut xatolik Δc</span><span id="absErr">—</span></div>
+      <div class="err-row"><span id="tRelErrLbl">Nisbiy xatolik ε</span><span id="relErr">—</span></div>
+      <div class="err-row"><span id="tAlphaSugarLbl">[α] shakar uchun</span><span style="color:var(--muted)">66.5°/(dm·g/ml)</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- Watermark -->
+<div style="position:fixed;bottom:14px;right:18px;display:flex;align-items:center;gap:7px;background:rgba(7,9,15,.75);border:1px solid rgba(251,146,60,.2);border-radius:30px;padding:5px 16px;backdrop-filter:blur(10px);z-index:9999;pointer-events:none">
+  <span>🔬</span>
+  <span style="font-family:'Space Mono',monospace;font-size:11px;font-weight:700;background:linear-gradient(90deg,#fb923c,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px">Xosiyat Virtual Lab</span>
+</div>
+
+<script>
+var LANG='uz';
+var I18N={
+ uz:{
+   title:"Polyarimetr — <span>Shakar eritmasining konsentratsiyasi</span>",hsub:"OPTIKA · FIZPRAKTIKUM · SDPI 2025",measLbl:"O'lchov:",
+   startTitle:"Polyarimetr yordamida <span style=\"color:#fb923c\">shakar eritmasini</span> aniqlash",
+   startSub:"Bio qonuni · φ = [α]·l·c · Konsentratsiyani topish",
+   infoTime:"Vaqt",infoTube:"Trubka",infoTubeVal:"3 ta uzunlik",infoGoal:"Maqsad",infoGoalVal:"c topish",
+   procedure:"BAJARISH TARTIBI",
+   ps1:"Polyarimetrni yoqing → φ₀ (nol) ni o'lchang",
+   ps2:'Ko\'rish maydoni <b style="color:#fb923c">bir xil yoritilgunicha</b> analizatorni burash',
+   ps3:"φ = |φ' − φ₀| ni hisoblang → har uzunlik uchun",
+   ps4:'<b style="color:#6fff5c">c = φ / ([α]·l)</b> — konsentratsiyani toping',
+   startBtn:"▶ Laboratoriyani boshlash",
+   tubeSec:"Trubka uzunligi l",analyzerSec:"Analizator burchagi φ'",analyzerLbl:"φ' burchakni toping",
+   zeroSec:"Nol o'lchov (φ₀)",zeroNote:"Eritmasiz o'lchangan:",zeroBtn:"Nol o'lchov olish",
+   viewFieldLbl:"Ko'rish maydoni",
+   step1:"φ₀ ni o'lchang",step2:"l tanlang",step3:"Ko'rish maydoni teng",step4:"φ' o'lchang",step5:"c hisoblang",
+   measBtn:"O'lchov olish",calcBtn:"c Hisoblash",resetBtn:"Qayta boshlash",
+   curMeasSec:"Joriy o'lchov",tableSec:"9.1-jadval",graphSec:"Grafik: φ = f(l)",
+   avgCLbl:"O'rtacha konsentratsiya c̄",absErrLbl:"Absolyut xatolik Δc",relErrLbl:"Nisbiy xatolik ε",alphaSugarLbl:"[α] shakar uchun",
+   statusDefault:"Ko'rish maydonini bir xil yoritilishiga keltiring → O'lchov oling",
+   instrDefault:"🍬 Analizator slayderni suring → ko'rish maydoni 3 qismi bir xil yorug'lik bo'lganda → O'lchov oling",
+   balancedMsg:"✅ TENG — O'lchov oling!",notBalancedMsg:"⚠ Bir xil bo'lguncha surging...",
+   zeroMeasPrefix:"✓ Nol o'lchov: φ₀ = ",zeroMeasSuffix:"°. Endi shakar eritmasini kiriting",
+   notBalancedWarn:"⚠ Ko'rish maydoni hali teng emas! Slayderni to'g'rilang",
+   measPrefix:"✓ O'lchov #",measMid1:": φ=",measMid2:"°, c=",measUnit:" g/ml",
+   finalPrefix:"🎉 Konsentratsiya: c̄ = ",finalMid:" g/ml | ε = ",finalSuffix:"%",avgRowLbl:"c̄ ="
+ },
+ ru:{
+   title:"Поляриметр — <span>концентрация раствора сахара</span>",hsub:"ОПТИКА · ФИЗПРАКТИКУМ · SDPI 2025",measLbl:"Измерений:",
+   startTitle:'Определение <span style="color:#fb923c">концентрации раствора сахара</span> с поляриметром',
+   startSub:"Закон Био · φ = [α]·l·c · Определение концентрации",
+   infoTime:"Время",infoTube:"Трубка",infoTubeVal:"3 длины",infoGoal:"Цель",infoGoalVal:"Найти c",
+   procedure:"ПОРЯДОК ВЫПОЛНЕНИЯ",
+   ps1:"Включите поляриметр → измерьте φ₀ (ноль)",
+   ps2:'Вращайте анализатор, пока поле зрения не станет <b style="color:#fb923c">равномерно освещённым</b>',
+   ps3:"Вычислите φ = |φ' − φ₀| → для каждой длины",
+   ps4:'<b style="color:#6fff5c">c = φ / ([α]·l)</b> — найдите концентрацию',
+   startBtn:"▶ Начать лабораторную",
+   tubeSec:"Длина трубки l",analyzerSec:"Угол анализатора φ'",analyzerLbl:"Найдите угол φ'",
+   zeroSec:"Нулевое измерение (φ₀)",zeroNote:"Измерено без раствора:",zeroBtn:"Сделать нулевое измерение",
+   viewFieldLbl:"Поле зрения",
+   step1:"Измерьте φ₀",step2:"Выберите l",step3:"Поле зрения равномерно",step4:"Измерьте φ'",step5:"Вычислите c",
+   measBtn:"Сделать измерение",calcBtn:"Вычислить c",resetBtn:"Начать заново",
+   curMeasSec:"Текущее измерение",tableSec:"Таблица 9.1",graphSec:"График: φ = f(l)",
+   avgCLbl:"Средняя концентрация c̄",absErrLbl:"Абс. погрешность Δc",relErrLbl:"Отн. погрешность ε",alphaSugarLbl:"[α] для сахара",
+   statusDefault:"Добейтесь равномерной освещённости поля зрения → сделайте измерение",
+   instrDefault:"🍬 Двигайте слайдер анализатора → когда все 3 части поля зрения одинаково освещены → сделайте измерение",
+   balancedMsg:"✅ РАВНО — сделайте измерение!",notBalancedMsg:"⚠ Двигайте до выравнивания...",
+   zeroMeasPrefix:"✓ Нулевое измерение: φ₀ = ",zeroMeasSuffix:"°. Теперь введите раствор сахара",
+   notBalancedWarn:"⚠ Поле зрения ещё не выровнено! Отрегулируйте слайдер",
+   measPrefix:"✓ Измерение #",measMid1:": φ=",measMid2:"°, c=",measUnit:" г/мл",
+   finalPrefix:"🎉 Концентрация: c̄ = ",finalMid:" г/мл | ε = ",finalSuffix:"%",avgRowLbl:"c̄ ="
+ },
+ en:{
+   title:"Polarimeter — <span>Sugar Solution Concentration</span>",hsub:"OPTICS · PHYSICS LAB · SDPI 2025",measLbl:"Measurements:",
+   startTitle:"Determining <span style=\"color:#fb923c\">Sugar Solution</span> Concentration with a Polarimeter",
+   startSub:"Biot's law · φ = [α]·l·c · Finding the concentration",
+   infoTime:"Time",infoTube:"Tube",infoTubeVal:"3 lengths",infoGoal:"Goal",infoGoalVal:"Find c",
+   procedure:"PROCEDURE",
+   ps1:"Turn on the polarimeter → measure φ₀ (zero)",
+   ps2:'Rotate the analyzer until the field of view is <b style="color:#fb923c">evenly lit</b>',
+   ps3:"Calculate φ = |φ' − φ₀| → for each tube length",
+   ps4:'<b style="color:#6fff5c">c = φ / ([α]·l)</b> — find the concentration',
+   startBtn:"▶ Start the lab",
+   tubeSec:"Tube length l",analyzerSec:"Analyzer angle φ'",analyzerLbl:"Find angle φ'",
+   zeroSec:"Zero measurement (φ₀)",zeroNote:"Measured without solution:",zeroBtn:"Take zero measurement",
+   viewFieldLbl:"Field of view",
+   step1:"Measure φ₀",step2:"Choose l",step3:"Field of view equal",step4:"Measure φ'",step5:"Calculate c",
+   measBtn:"Take measurement",calcBtn:"Calculate c",resetBtn:"Restart",
+   curMeasSec:"Current measurement",tableSec:"Table 9.1",graphSec:"Graph: φ = f(l)",
+   avgCLbl:"Average concentration c̄",absErrLbl:"Absolute error Δc",relErrLbl:"Relative error ε",alphaSugarLbl:"[α] for sugar",
+   statusDefault:"Make the field of view evenly lit → take a measurement",
+   instrDefault:"🍬 Move the analyzer slider → when all 3 parts of the field of view are equally bright → take a measurement",
+   balancedMsg:"✅ EQUAL — take a measurement!",notBalancedMsg:"⚠ Keep sliding until equal...",
+   zeroMeasPrefix:"✓ Zero measurement: φ₀ = ",zeroMeasSuffix:"°. Now insert the sugar solution",
+   notBalancedWarn:"⚠ The field of view isn't equal yet! Adjust the slider",
+   measPrefix:"✓ Measurement #",measMid1:": φ=",measMid2:"°, c=",measUnit:" g/ml",
+   finalPrefix:"🎉 Concentration: c̄ = ",finalMid:" g/ml | ε = ",finalSuffix:"%",avgRowLbl:"c̄ ="
+ }
+};
+function t(k){return I18N[LANG][k];}
+function setLang(l){
+  LANG=l;
+  document.getElementById('langUZ').className='langbtn'+(l==='uz'?' active':'');
+  document.getElementById('langRU').className='langbtn'+(l==='ru'?' active':'');
+  document.getElementById('langEN').className='langbtn'+(l==='en'?' active':'');
+  document.getElementById('tTitle').innerHTML=t('title');
+  document.getElementById('tHsub').textContent=t('hsub');
+  document.getElementById('tMeasLbl').textContent=t('measLbl');
+  document.getElementById('tStartTitle').innerHTML=t('startTitle');
+  document.getElementById('tStartSub').textContent=t('startSub');
+  document.getElementById('tInfoTime').textContent=t('infoTime');
+  document.getElementById('tInfoTube').textContent=t('infoTube');
+  document.getElementById('tInfoTubeVal').textContent=t('infoTubeVal');
+  document.getElementById('tInfoGoal').textContent=t('infoGoal');
+  document.getElementById('tInfoGoalVal').textContent=t('infoGoalVal');
+  document.getElementById('tProcedure').textContent=t('procedure');
+  document.getElementById('tPS1').textContent=t('ps1');
+  document.getElementById('tPS2').innerHTML=t('ps2');
+  document.getElementById('tPS3').textContent=t('ps3');
+  document.getElementById('tPS4').innerHTML=t('ps4');
+  document.getElementById('tStartBtn').textContent=t('startBtn');
+  document.getElementById('tTubeSec').textContent=t('tubeSec');
+  document.getElementById('tAnalyzerSec').textContent=t('analyzerSec');
+  document.getElementById('tAnalyzerLbl').textContent=t('analyzerLbl');
+  document.getElementById('tZeroSec').textContent=t('zeroSec');
+  document.getElementById('tZeroNote').textContent=t('zeroNote');
+  document.getElementById('tZeroBtn').textContent=t('zeroBtn');
+  document.getElementById('tStep1').textContent=t('step1');
+  document.getElementById('tStep2').textContent=t('step2');
+  document.getElementById('tStep3').textContent=t('step3');
+  document.getElementById('tStep4').textContent=t('step4');
+  document.getElementById('tStep5').textContent=t('step5');
+  document.getElementById('tMeasBtn').textContent=t('measBtn');
+  document.getElementById('tCalcBtn').textContent=t('calcBtn');
+  document.getElementById('tResetBtn').textContent=t('resetBtn');
+  document.getElementById('tCurMeasSec').textContent=t('curMeasSec');
+  document.getElementById('tTableSec').textContent=t('tableSec');
+  document.getElementById('tGraphSec').textContent=t('graphSec');
+  document.getElementById('tAvgCLbl').textContent=t('avgCLbl');
+  document.getElementById('tAbsErrLbl').textContent=t('absErrLbl');
+  document.getElementById('tRelErrLbl').textContent=t('relErrLbl');
+  document.getElementById('tAlphaSugarLbl').textContent=t('alphaSugarLbl');
+  if(cnt===0){
+    document.getElementById('statusTxt').textContent=t('statusDefault');
+    document.getElementById('instrBar').textContent=t('instrDefault');
+    document.getElementById('balanceText').textContent=t('viewFieldLbl');
+  }
+}
+
+// ===== STATE =====
+var lv=10, phiDeg=0, phi0=0;
+var trueC=0.15; // g/ml — noma'lum konsentratsiya
+var alpha=66.5; // shakar uchun [α]
+var meas=[], cnt=0, animT=0;
+
+var sc=document.getElementById('simCanvas');
+var sctx=sc.getContext('2d');
+var vc=document.getElementById('viewCanvas');
+var vctx=vc.getContext('2d');
+var gc=document.getElementById('graphCanvas');
+var gctx=gc.getContext('2d');
+
+function resize(){sc.width=sc.offsetWidth;sc.height=sc.offsetHeight;drawSim();}
+window.addEventListener('resize',resize);
+setTimeout(resize,80);
+(function loop(){animT+=0.01;drawSim();requestAnimationFrame(loop);})();
+
+// ===== CONTROLS =====
+function setL(v){lv=parseFloat(v);document.getElementById('dL').textContent=v+' sm';document.getElementById('chipL').textContent=v;document.getElementById('rL').textContent=v;drawSim();}
+function setPhi(v){phiDeg=parseFloat(v);document.getElementById('dPhi').textContent=phiDeg.toFixed(1)+'°';drawView();drawSim();}
+
+function getTruePhi(){return alpha*(lv/10)*trueC;}  // l sm->dm
+
+function getBalance(){
+  // balanced when phi' matches phi0+truePhi
+  var target=phi0+getTruePhi();
+  var diff=phiDeg-target;
+  return diff; // 0=balanced
+}
+
+function isBalanced(){return Math.abs(getBalance())<3;}
+
+function drawView(){
+  var W=vc.offsetWidth||180,H=40;
+  vc.width=W;vc.height=H;
+  var bal=getBalance();
+  var maxDiff=20;
+  var norm=Math.max(-1,Math.min(1,bal/maxDiff));
+
+  // 3 bo'lim
+  var w3=W/3;
+  // Chap (I1 = I3)
+  var leftBright=0.3+0.4*(1-Math.abs(norm));
+  // O'rta (I2)
+  var midBright=0.3+0.4*(1-Math.abs(norm)*0.8);
+
+  if(isBalanced()){
+    leftBright=0.65;midBright=0.65;
+  } else if(norm>0){
+    leftBright=0.55;midBright=0.25;
+  } else {
+    leftBright=0.25;midBright=0.55;
+  }
+
+  // Left
+  vctx.fillStyle='rgba(255,180,80,'+leftBright+')';vctx.fillRect(0,0,w3,H);
+  // Mid
+  vctx.fillStyle='rgba(255,180,80,'+midBright+')';vctx.fillRect(w3,0,w3,H);
+  // Right
+  vctx.fillStyle='rgba(255,180,80,'+leftBright+')';vctx.fillRect(w3*2,0,w3,H);
+
+  // dividers
+  vctx.strokeStyle='rgba(0,0,0,.4)';vctx.lineWidth=2;
+  vctx.beginPath();vctx.moveTo(w3,0);vctx.lineTo(w3,H);vctx.stroke();
+  vctx.beginPath();vctx.moveTo(w3*2,0);vctx.lineTo(w3*2,H);vctx.stroke();
+
+  // status
+  var btxt=isBalanced()?t('balancedMsg'):t('notBalancedMsg');
+  var bclr=isBalanced()?'#6fff5c':'rgba(251,146,60,.8)';
+  document.getElementById('balanceText').textContent=btxt;
+  document.getElementById('balanceText').style.color=bclr;
+}
+
+// ===== MAIN SIM =====
+function drawSim(){
+  var W=sc.width,H=sc.height;
+  if(!W||!H)return;
+  sctx.clearRect(0,0,W,H);
+  sctx.fillStyle='#040810';sctx.fillRect(0,0,W,H);
+
+  // faint grid
+  sctx.strokeStyle='rgba(251,146,60,.02)';sctx.lineWidth=1;
+  for(var x=0;x<W;x+=50){sctx.beginPath();sctx.moveTo(x,0);sctx.lineTo(x,H);sctx.stroke();}
+  for(var y=0;y<H;y+=50){sctx.beginPath();sctx.moveTo(0,y);sctx.lineTo(W,y);sctx.stroke();}
+
+  var cx=W/2,cy=H/2;
+
+  // ===== POLYARIMETR KO'Z OYNASI (katta, markazda) =====
+  var vr=Math.min(W,H)*0.40;
+
+  // Tashqi ramka
+  var outerG=sctx.createRadialGradient(cx,cy,vr+2,cx,cy,vr+16);
+  outerG.addColorStop(0,'#1e2840');outerG.addColorStop(1,'#0d1828');
+  sctx.fillStyle=outerG;sctx.beginPath();sctx.arc(cx,cy,vr+16,0,Math.PI*2);sctx.fill();
+  sctx.strokeStyle='rgba(251,146,60,.35)';sctx.lineWidth=2;
+  sctx.beginPath();sctx.arc(cx,cy,vr+16,0,Math.PI*2);sctx.stroke();
+
+  // Klip
+  sctx.save();
+  sctx.beginPath();sctx.arc(cx,cy,vr,0,Math.PI*2);sctx.clip();
+
+  var bal=getBalance();
+  var maxD=20;
+  var norm=Math.max(-1,Math.min(1,bal/maxD));
+  var balanced=isBalanced();
+
+  // 3 ta bo'lim yorug'ligi
+  var lBright=balanced?0.62:(norm>0?0.55:0.25);
+  var mBright=balanced?0.62:(norm>0?0.25:0.55);
+
+  // CHAP qism
+  sctx.fillStyle='rgba(255,180,60,'+lBright.toFixed(2)+')';
+  sctx.fillRect(cx-vr,cy-vr,vr*0.45,vr*2);
+
+  // O'RTA qism
+  sctx.fillStyle='rgba(255,180,60,'+mBright.toFixed(2)+')';
+  sctx.fillRect(cx-vr*0.55+vr*0.45,cy-vr,vr*0.55,vr*2);
+  sctx.fillRect(cx,cy-vr,vr*0.55,vr*2);
+
+  // O'NG qism
+  sctx.fillStyle='rgba(255,180,60,'+lBright.toFixed(2)+')';
+  sctx.fillRect(cx+vr*0.55,cy-vr,vr*0.45,vr*2);
+
+  // Bo'luvchi chiziqlar
+  sctx.strokeStyle='rgba(0,0,0,.5)';sctx.lineWidth=3;
+  sctx.beginPath();sctx.moveTo(cx-vr*0.1,cy-vr);sctx.lineTo(cx-vr*0.1,cy+vr);sctx.stroke();
+  sctx.beginPath();sctx.moveTo(cx+vr*0.1,cy-vr);sctx.lineTo(cx+vr*0.1,cy+vr);sctx.stroke();
+
+  // Animatsion chiziq (buralish effekti)
+  if(!balanced){
+    var wave=Math.sin(animT*3)*3;
+    sctx.strokeStyle='rgba(0,0,0,'+(0.3+Math.abs(norm)*0.3)+')';sctx.lineWidth=2;
+    sctx.setLineDash([8,6]);
+    sctx.beginPath();sctx.moveTo(cx-vr*0.1+wave,cy-vr*0.5);sctx.lineTo(cx-vr*0.1-wave,cy+vr*0.5);sctx.stroke();
+    sctx.setLineDash([]);
+  }
+
+  // TENG bo'lganda yashil glow
+  if(balanced){
+    var glow=sctx.createRadialGradient(cx,cy,0,cx,cy,vr);
+    glow.addColorStop(0,'rgba(111,255,92,0.08)');
+    glow.addColorStop(1,'rgba(111,255,92,0)');
+    sctx.fillStyle=glow;sctx.beginPath();sctx.arc(cx,cy,vr,0,Math.PI*2);sctx.fill();
+  }
+
+  // Crosshair
+  sctx.strokeStyle='rgba(251,146,60,.1)';sctx.lineWidth=1;sctx.setLineDash([3,5]);
+  sctx.beginPath();sctx.moveTo(cx,cy-vr);sctx.lineTo(cx,cy+vr);sctx.stroke();
+  sctx.beginPath();sctx.moveTo(cx-vr,cy);sctx.lineTo(cx+vr,cy);sctx.stroke();
+  sctx.setLineDash([]);
+
+  sctx.restore();
+
+  // === TASHQI YOZUVLAR ===
+  // Status
+  if(balanced){
+    sctx.fillStyle='rgba(111,255,92,.9)';sctx.font='bold 13px Space Mono,monospace';sctx.textAlign='center';
+    sctx.fillText('✓ KO\'RISH MAYDONI TENG!',cx,cy-vr-24);
+    sctx.fillStyle='rgba(111,255,92,.6)';sctx.font='11px monospace';
+    sctx.fillText('O\'lchov olishga tayyor',cx,cy-vr-10);
+  } else {
+    sctx.fillStyle='rgba(251,146,60,.7)';sctx.font='bold 12px Space Mono,monospace';sctx.textAlign='center';
+    sctx.fillText(bal>0?'▶ Slayderni chapga suring':'◀ Slayderni o\'ngga suring',cx,cy-vr-18);
+  }
+
+  // Ma'lumot yozuvi olib tashlandi (toza ko'rinish uchun)
+
+  // Limbas shkala (arc)
+  drawLimb(cx,cy,vr+28,phiDeg);
+
+  // Side: trubka
+  drawTube(cx-vr-80,cy,lv);
+
+  drawView();
+}
+
+function drawLimb(cx,cy,r,phi){
+  // Limbas shkala yoyi
+  sctx.strokeStyle='rgba(251,146,60,.2)';sctx.lineWidth=1;
+  for(var a=-60;a<=60;a+=5){
+    var aRad=((a-phi)*Math.PI/180)-Math.PI/2;
+    var isMain=a%10===0;
+    var len=isMain?10:5;
+    sctx.strokeStyle=isMain?'rgba(251,146,60,.4)':'rgba(251,146,60,.2)';
+    sctx.beginPath();
+    sctx.moveTo(cx+(r-len)*Math.cos(aRad),cy+(r-len)*Math.sin(aRad));
+    sctx.lineTo(cx+r*Math.cos(aRad),cy+r*Math.sin(aRad));sctx.stroke();
+    if(isMain){
+      sctx.fillStyle='rgba(251,146,60,.5)';sctx.font='7px monospace';sctx.textAlign='center';sctx.textBaseline='middle';
+      sctx.fillText(a,cx+(r-18)*Math.cos(aRad),cy+(r-18)*Math.sin(aRad));
+    }
+  }
+  sctx.textBaseline='alphabetic';
+  // Pointer (o'q)
+  sctx.fillStyle='rgba(255,201,71,.8)';
+  sctx.beginPath();sctx.moveTo(cx,cy-r+2);sctx.lineTo(cx-5,cy-r+12);sctx.lineTo(cx+5,cy-r+12);sctx.closePath();sctx.fill();
+}
+
+function drawTube(x,cy,len){
+  var tw=len*4, th=22;
+  sctx.fillStyle='rgba(251,146,60,.06)';sctx.fillRect(x-tw/2,cy-th/2,tw,th);
+  sctx.strokeStyle='rgba(251,146,60,.3)';sctx.lineWidth=1.5;sctx.strokeRect(x-tw/2,cy-th/2,tw,th);
+  // liquid inside (amber)
+  var liqG=sctx.createLinearGradient(x-tw/2,cy-th/2,x-tw/2,cy+th/2);
+  liqG.addColorStop(0,'rgba(255,180,60,.2)');liqG.addColorStop(0.5,'rgba(255,150,40,.35)');liqG.addColorStop(1,'rgba(255,180,60,.2)');
+  sctx.fillStyle=liqG;sctx.fillRect(x-tw/2+4,cy-th/2+4,tw-8,th-8);
+  sctx.fillStyle='rgba(251,146,60,.6)';sctx.font='8px monospace';sctx.textAlign='center';
+  sctx.fillText('TRUBKA l='+len+'sm',x,cy+th/2+12);
+  sctx.fillStyle='rgba(255,180,60,.5)';sctx.font='7px monospace';
+  sctx.fillText('SHAKAR ERITMASI c=?',x,cy+th/2+22);
+}
+
+// ===== MEASURE =====
+function measurePhi0(){
+  phi0=(Math.random()-.5)*0.2;
+  document.getElementById('phi0show').textContent='φ₀ = '+phi0.toFixed(2)+'°';
+  document.getElementById('statusTxt').textContent=t('zeroMeasPrefix')+phi0.toFixed(2)+t('zeroMeasSuffix');
+  setStep(2);
+}
+
+function takeMeasure(){
+  if(!isBalanced()){
+    document.getElementById('statusTxt').textContent=t('notBalancedWarn');
+    return;
+  }
+  var phiP=phiDeg+(Math.random()-.5)*0.1;
+  var phi=Math.abs(phiP-phi0);
+  var ldm=lv/10;
+  var c=phi/(alpha*ldm);
+  cnt++;
+  meas.push({l:lv,phiP:phiP,phi:phi,c:c});
+  document.getElementById('chipPhi').textContent=phi.toFixed(2);
+  document.getElementById('chipC').textContent=c.toFixed(4);
+  document.getElementById('chipCnt').textContent=cnt;
+  document.getElementById('rPhiP').textContent=phiP.toFixed(2);
+  document.getElementById('rPhi').textContent=phi.toFixed(2);
+  document.getElementById('rC').textContent=c.toFixed(4);
+
+  var ar=document.getElementById('avgRow');if(ar)ar.remove();
+  var tr=document.createElement('tr');
+  tr.innerHTML='<td>'+cnt+'</td><td>'+lv+'</td><td>'+phiP.toFixed(2)+'</td><td>'+phi.toFixed(2)+'</td><td>'+c.toFixed(4)+'</td>';
+  document.getElementById('tbody').appendChild(tr);
+
+  setDot(true);setTimeout(function(){setDot(false);},800);
+  document.getElementById('statusTxt').textContent=t('measPrefix')+cnt+t('measMid1')+phi.toFixed(2)+t('measMid2')+c.toFixed(4)+t('measUnit');
+
+  // Keyingi uzunlik
+  var ls=[10,15,20];
+  var next=ls[cnt%ls.length];
+  lv=next;
+  document.getElementById('sL').value=next;
+  document.getElementById('dL').textContent=next+' sm';
+  document.getElementById('chipL').textContent=next;
+  document.getElementById('rL').textContent=next;
+
+  if(cnt>=3){document.getElementById('calcBtn').disabled=false;setStep(5);}
+  else setStep(4);
+  drawGraph();drawSim();
+}
+
+function calcC(){
+  var cs=meas.map(function(m){return m.c;});
+  var avg=cs.reduce(function(a,b){return a+b;},0)/cs.length;
+  var v=cs.reduce(function(a,b){return a+Math.pow(b-avg,2);},0);
+  var de=Math.sqrt(v/Math.max(1,cs.length*(cs.length-1)));
+  var re=(de/avg*100);
+
+  var ar=document.createElement('tr');ar.className='avg-r';ar.id='avgRow';
+  ar.innerHTML='<td colspan="4" style="text-align:right">'+t('avgRowLbl')+'</td><td>'+avg.toFixed(4)+'</td>';
+  document.getElementById('tbody').appendChild(ar);
+
+  document.getElementById('finalCard').style.display='block';
+  document.getElementById('avgC').textContent=avg.toFixed(4);
+  document.getElementById('absErr').textContent='± '+de.toFixed(4)+' g/ml';
+  document.getElementById('relErr').textContent=re.toFixed(2)+'%';
+  setStep(5);
+  document.getElementById('statusTxt').textContent=t('finalPrefix')+avg.toFixed(4)+t('finalMid')+re.toFixed(2)+t('finalSuffix');
+  drawGraph();
+}
+
+function drawGraph(){
+  var W=gc.offsetWidth||220;gc.width=W;var H=110;
+  gctx.clearRect(0,0,W,H);gctx.fillStyle='#070c17';gctx.fillRect(0,0,W,H);
+  var pad=26,gW=W-pad*2,gH=H-pad-10;
+
+  gctx.strokeStyle='rgba(251,146,60,.3)';gctx.lineWidth=1;
+  gctx.beginPath();gctx.moveTo(pad,10);gctx.lineTo(pad,H-pad);gctx.lineTo(W-pad+8,H-pad);gctx.stroke();
+  gctx.fillStyle='rgba(251,146,60,.5)';gctx.font='8px monospace';
+  gctx.textAlign='center';gctx.fillText('l(sm)',W-pad+8,H-pad+3);
+  gctx.textAlign='right';gctx.fillText('φ',pad-3,14);
+
+  // Theory line
+  var maxL=20,maxPhi=alpha*(maxL/10)*trueC;
+  gctx.strokeStyle='rgba(251,146,60,.2)';gctx.lineWidth=1;gctx.setLineDash([3,4]);
+  gctx.beginPath();gctx.moveTo(pad,H-pad);gctx.lineTo(pad+gW,(1-maxPhi/maxPhi)*gH+10);
+  gctx.moveTo(pad,H-pad);gctx.lineTo(pad+(20/20)*gW,10);
+  gctx.stroke();gctx.setLineDash([]);
+
+  if(meas.length>0){
+    meas.forEach(function(d,i){
+      var px=pad+(d.l/maxL)*gW;
+      var py=H-pad-(d.phi/maxPhi)*gH;
+      gctx.fillStyle='rgba(251,146,60,.9)';
+      gctx.beginPath();gctx.arc(px,py,4,0,Math.PI*2);gctx.fill();
+    });
+    gctx.strokeStyle='rgba(251,146,60,.4)';gctx.lineWidth=1.5;
+    gctx.beginPath();
+    meas.forEach(function(d,i){
+      var px=pad+(d.l/maxL)*gW;
+      var py=H-pad-(d.phi/maxPhi)*gH;
+      if(i===0)gctx.moveTo(px,py);else gctx.lineTo(px,py);
+    });gctx.stroke();
+  }
+
+  [5,10,15,20].forEach(function(l){
+    gctx.fillStyle='rgba(251,146,60,.35)';gctx.font='7px monospace';gctx.textAlign='center';
+    gctx.fillText(l,pad+(l/maxL)*gW,H-pad+10);
+  });
+}
+
+function resetAll(){
+  meas=[];cnt=0;phi0=0;phiDeg=0;lv=10;
+  trueC=0.10+Math.random()*0.15;
+  document.getElementById('sL').value=10;document.getElementById('dL').textContent='10 sm';
+  document.getElementById('sPhi').value=0;document.getElementById('dPhi').textContent='0.0°';
+  document.getElementById('phi0show').textContent='φ₀ = 0.00°';
+  document.getElementById('tbody').innerHTML='';
+  document.getElementById('finalCard').style.display='none';
+  document.getElementById('calcBtn').disabled=true;
+  document.getElementById('chipPhi').textContent='—';document.getElementById('chipC').textContent='—';document.getElementById('chipCnt').textContent=0;
+  document.getElementById('rPhiP').textContent='—';document.getElementById('rPhi').textContent='—';document.getElementById('rC').textContent='—';
+  document.getElementById('statusTxt').textContent=t('statusDefault');
+  setDot(false);setStep(1);drawSim();drawGraph();
+}
+
+function setDot(on){document.getElementById('dot').classList.toggle('off',!on);}
+function setStep(n){for(var i=1;i<=5;i++){var el=document.getElementById('st'+i);el.className='step'+(i<n?' done':i===n?' active':'');el.querySelector('.snum').textContent=i<n?'✓':i;}}
+
+window.addEventListener('load',function(){setTimeout(function(){resize();drawGraph();setLang('uz');},100);});
+</script>
+</body>
+</html>

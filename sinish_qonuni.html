@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yorug'lik Sinishi — Snel Qonuni</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap');
+:root{--bg:#07090f;--panel:#0e1420;--border:#1b2840;--accent:#f97316;--green:#6fff5c;--blue:#818cf8;--yellow:#ffc947;--red:#ff6060;--text:#dde6f5;--muted:#4a6080;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;height:100vh;overflow:hidden;display:flex;flex-direction:column;}
+header{display:flex;align-items:center;gap:12px;padding:8px 20px;border-bottom:1px solid var(--border);background:linear-gradient(90deg,#07090f,#150800,#07090f);flex-shrink:0;}
+.badge{background:var(--accent);color:#000;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:3px 9px;letter-spacing:2px;border-radius:2px;}
+.htitle{font-size:14px;font-weight:800;}.htitle span{color:var(--accent);}
+.hsub{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-left:auto;}
+.brand{display:flex;align-items:center;gap:6px;background:linear-gradient(135deg,rgba(249,115,22,.12),rgba(111,255,92,.08));border:1px solid rgba(249,115,22,.3);border-radius:20px;padding:4px 14px;margin-left:10px;flex-shrink:0;}
+.brand-txt{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;background:linear-gradient(90deg,#f97316,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;}
+.statusbar{background:#0a0f1c;border-bottom:1px solid var(--border);padding:5px 20px;display:flex;align-items:center;gap:14px;font-family:'Space Mono',monospace;font-size:11px;flex-shrink:0;}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:bl 1s infinite;flex-shrink:0;}
+.dot.off{background:var(--muted);animation:none;}
+@keyframes bl{0%,100%{opacity:1}50%{opacity:.2}}
+#statusTxt{color:var(--accent);}
+.chips{display:flex;gap:6px;margin-left:auto;}
+.chip{background:rgba(249,115,22,.08);border:1px solid rgba(249,115,22,.2);border-radius:10px;padding:2px 9px;font-size:10px;color:var(--muted);}
+.chip span{color:var(--accent);}
+.body{display:grid;grid-template-columns:215px 1fr 260px;flex:1;overflow:hidden;}
+.left{background:var(--panel);border-right:1px solid var(--border);overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:9px;}
+.stitle{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--accent);text-transform:uppercase;margin-bottom:3px;}
+.card{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:8px;padding:10px;}
+.card label{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:7px;}
+.vb{font-family:'Space Mono',monospace;font-size:11px;color:var(--accent);background:rgba(249,115,22,.12);padding:2px 7px;border-radius:3px;}
+input[type=range]{width:100%;-webkit-appearance:none;height:4px;background:var(--border);border-radius:2px;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;background:var(--accent);border-radius:50%;cursor:pointer;box-shadow:0 0 8px rgba(249,115,22,.7);}
+select{width:100%;background:rgba(14,20,32,.9);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:6px 8px;font-family:'Space Mono',monospace;font-size:10px;cursor:pointer;margin-bottom:6px;}
+.fbox{background:rgba(249,115,22,.04);border:1px solid rgba(249,115,22,.15);border-radius:7px;padding:9px;}
+.frow{display:flex;gap:6px;margin-bottom:4px;font-family:'Space Mono',monospace;font-size:9px;}
+.fl{color:var(--muted);min-width:28px;}.fe{color:var(--accent);}
+.steps{display:flex;flex-direction:column;gap:3px;}
+.step{display:flex;align-items:center;gap:7px;padding:5px 8px;border-radius:5px;font-size:10px;color:var(--muted);border:1px solid transparent;transition:all .3s;}
+.step.active{background:rgba(249,115,22,.07);border-color:rgba(249,115,22,.2);color:var(--accent);}
+.step.done{color:var(--green);}
+.snum{font-family:'Space Mono',monospace;font-size:9px;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.05);flex-shrink:0;}
+.step.active .snum{background:rgba(249,115,22,.2);}
+.step.done .snum{background:rgba(111,255,92,.12);color:var(--green);}
+.btn{width:100%;padding:9px;border:none;border-radius:7px;font-family:'Syne',sans-serif;font-weight:700;font-size:12px;cursor:pointer;transition:all .2s;margin-top:4px;}
+.btn-p{background:linear-gradient(135deg,#f97316,#ea580c);color:#000;}
+.btn-p:hover{transform:translateY(-1px);box-shadow:0 5px 18px rgba(249,115,22,.4);}
+.btn-r{background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--border);font-size:11px;}
+.center{position:relative;overflow:hidden;background:#040810;}
+#simCanvas{display:block;width:100%;height:100%;}
+.instr-bar{position:absolute;bottom:0;left:0;right:0;background:rgba(4,8,16,.92);border-top:1px solid var(--border);padding:5px 18px;font-size:10px;color:var(--muted);text-align:center;}
+.right{background:var(--panel);border-left:1px solid var(--border);overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:9px;}
+.rc{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:8px;padding:10px;}
+.rc.hi{border-color:rgba(249,115,22,.3);background:rgba(249,115,22,.05);}
+.rl{font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:3px;}
+.rv{font-size:22px;font-weight:800;line-height:1;color:#fff;}
+.ru{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-top:2px;}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;}
+table{width:100%;border-collapse:collapse;font-family:'Space Mono',monospace;font-size:9px;}
+th{color:var(--accent);font-size:7px;letter-spacing:1px;border-bottom:1px solid var(--border);padding:4px 2px;text-align:center;}
+td{padding:3px 2px;border-bottom:1px solid rgba(255,255,255,.03);text-align:center;}
+.final-card{background:rgba(249,115,22,.05);border:1px solid rgba(249,115,22,.2);border-radius:8px;padding:12px;display:none;}
+.err-row{display:flex;justify-content:space-between;margin-top:5px;font-family:'Space Mono',monospace;font-size:10px;}
+.err-row span:first-child{color:var(--muted);}
+.err-row span:last-child{color:var(--yellow);}
+#graphCanvas{display:block;width:100%;border-radius:8px;border:1px solid var(--border);}
+.tiq-msg{background:rgba(255,96,96,.1);border:1px solid rgba(255,96,96,.3);border-radius:6px;padding:8px;font-family:'Space Mono',monospace;font-size:10px;color:var(--red);text-align:center;display:none;}
+.langsw{display:flex;gap:3px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;padding:3px;margin-left:10px;}
+.langbtn{background:transparent;border:none;color:var(--muted);font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:4px 9px;border-radius:5px;cursor:pointer;letter-spacing:1px;}
+.langbtn.active{background:var(--accent);color:#000;}
+</style>
+</head>
+<body>
+
+<!-- START SCREEN -->
+<div id="startScreen" style="position:fixed;inset:0;z-index:9999;background:radial-gradient(ellipse at 50% 40%,#1a0800 0%,#07090f 70%);display:flex;align-items:center;justify-content:center;">
+  <canvas id="bgCanvas" style="position:absolute;inset:0;width:100%;height:100%;opacity:.4;pointer-events:none"></canvas>
+  <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:18px;max-width:580px;padding:20px;text-align:center;">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div style="background:#f97316;color:#000;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:4px 14px;letter-spacing:2px;border-radius:2px;">OPTIKA · LAB</div>
+      <div style="font-family:'Space Mono',monospace;font-size:10px;color:#4a6080;letter-spacing:2px;">SNEL QONUNI · SINISH · QAYTISH</div>
+    </div>
+    <div style="width:110px;height:110px;border-radius:50%;background:radial-gradient(circle,rgba(249,115,22,.18),rgba(249,115,22,.02));border:2px solid rgba(249,115,22,.4);display:flex;align-items:center;justify-content:center;box-shadow:0 0 55px rgba(249,115,22,.3);animation:pulseSn 2.5s ease-in-out infinite;"><span style="font-size:48px;">🔴</span></div>
+    <h1 style="font-size:20px;font-weight:800;color:#fff;" id="tStartTitle">Yorug'likning Sinishi va Qaytishi — <span style="color:#f97316;">Snel Qonuni</span></h1>
+    <p style="font-size:11px;color:#4a6080;font-family:'Space Mono',monospace;" id="tStartSub">n₁·sin(α) = n₂·sin(β) · To'la ichki qaytish burchagi</p>
+    <div style="background:rgba(249,115,22,.05);border:1px solid rgba(249,115,22,.15);border-radius:12px;padding:15px;width:100%;text-align:left;">
+      <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;color:#f97316;margin-bottom:10px;" id="tProcedure">BAJARISH TARTIBI</div>
+      <div style="display:flex;flex-direction:column;gap:7px;">
+        <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#c5d3e8;"><div style="width:20px;height:20px;border-radius:50%;background:rgba(249,115,22,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#f97316;flex-shrink:0;">1</div><span id="tPS1">1-muhit (n₁) va 2-muhit (n₂) ni tanlang</span></div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#c5d3e8;"><div style="width:20px;height:20px;border-radius:50%;background:rgba(249,115,22,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#f97316;flex-shrink:0;">2</div><span id="tPS2">α tushish burchagini o'zgartiring</span></div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#c5d3e8;"><div style="width:20px;height:20px;border-radius:50%;background:rgba(249,115,22,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#f97316;flex-shrink:0;">3</div><span id="tPS3">β sinish burchagini o'lchab, Snel qonunini tekshiring</span></div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#c5d3e8;"><div style="width:20px;height:20px;border-radius:50%;background:rgba(249,115,22,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#f97316;flex-shrink:0;">4</div><span id="tPS4">To'la ichki qaytish burchagini aniqlang</span></div>
+      </div>
+    </div>
+    <button onclick="startLab()" style="background:linear-gradient(135deg,#f97316,#ea580c);color:#000;border:none;border-radius:12px;padding:15px 60px;font-size:15px;font-weight:800;font-family:'Syne',sans-serif;cursor:pointer;box-shadow:0 8px 30px rgba(249,115,22,.35);width:100%;"><span id="tStartBtn">▶ Laboratoriyani boshlash</span></button>
+    <div style="display:flex;align-items:center;gap:6px;opacity:.6;"><span>🔬</span><span style="font-family:'Space Mono',monospace;font-size:10px;font-weight:700;background:linear-gradient(90deg,#f97316,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;">Xosiyat Virtual Lab</span></div>
+  </div>
+</div>
+<style>
+@keyframes pulseSn{0%,100%{box-shadow:0 0 55px rgba(249,115,22,.2)}50%{box-shadow:0 0 80px rgba(249,115,22,.5)}}
+@keyframes fadeOut{0%{opacity:1}100%{opacity:0;transform:scale(1.04)}}
+</style>
+<script>
+(function(){var c=document.getElementById('bgCanvas');var x=c.getContext('2d');var pts=[];function rs(){c.width=window.innerWidth;c.height=window.innerHeight;}rs();window.addEventListener('resize',rs);for(var i=0;i<55;i++)pts.push({x:Math.random()*1600,y:Math.random()*900,r:Math.random()*1.5+.5,vx:(Math.random()-.5)*.35,vy:(Math.random()-.5)*.35,a:Math.random()});function fr(){x.clearRect(0,0,c.width,c.height);pts.forEach(function(p){p.x+=p.vx;p.y+=p.vy;p.a+=.005;if(p.x<0)p.x=c.width;if(p.x>c.width)p.x=0;if(p.y<0)p.y=c.height;if(p.y>c.height)p.y=0;x.fillStyle='rgba(249,115,22,'+(0.15+Math.sin(p.a)*0.12)+')';x.beginPath();x.arc(p.x%c.width,p.y%c.height,p.r,0,Math.PI*2);x.fill();});requestAnimationFrame(fr);}fr();})();
+function startLab(){var s=document.getElementById('startScreen');s.style.animation='fadeOut .5s ease forwards';setTimeout(function(){s.style.display='none';},480);}
+</script>
+
+<header>
+  <div class="badge">OPTIKA · LAB</div>
+  <h1 class="htitle" id="tTitle">Yorug'lik Sinishi — <span>Snel Qonuni: n₁·sin(α) = n₂·sin(β)</span></h1>
+  <div class="hsub" id="tHsub">OPTIKA · FIZPRAKTIKUM · SDPI 2026</div>
+  <div class="langsw">
+    <button class="langbtn active" id="langUZ" onclick="setLang('uz')">UZ</button>
+    <button class="langbtn" id="langRU" onclick="setLang('ru')">RU</button>
+    <button class="langbtn" id="langEN" onclick="setLang('en')">EN</button>
+  </div>
+  <div class="brand"><span>🔬</span><span class="brand-txt">Xosiyat Virtual Lab</span></div>
+</header>
+
+<div class="statusbar">
+  <div class="dot on" id="dot"></div>
+  <span id="statusTxt">n₁ va n₂ muhitlarini tanlang → α burchakni o'zgartiring → β ni kuzating</span>
+  <div class="chips">
+    <div class="chip">n₁=<span id="cN1">1.00</span></div>
+    <div class="chip">n₂=<span id="cN2">1.33</span></div>
+    <div class="chip">α=<span id="cAlpha">45</span>°</div>
+    <div class="chip">β=<span id="cBeta">32</span>°</div>
+    <div class="chip"><span id="tMeasLbl">O'lchov:</span><span id="chipCnt">0</span></div>
+  </div>
+</div>
+
+<div class="body">
+<div class="left">
+  <div class="stitle" id="tMedium1Sec">1-Muhit (Yuqori)</div>
+  <div class="card">
+    <select id="n1Sel" onchange="n1Change(this)">
+      <option value="1.0">Havo (n=1.00)</option>
+      <option value="1.33">Suv (n=1.33)</option>
+      <option value="1.5">Shisha (n=1.50)</option>
+    </select>
+    <label>n₁ <span class="vb" id="dN1">1.00</span></label>
+    <input type="range" id="sN1" min="1" max="2.5" step="0.01" value="1.0" oninput="setN1(this.value)">
+  </div>
+
+  <div class="stitle" id="tMedium2Sec">2-Muhit (Pastki)</div>
+  <div class="card">
+    <select id="n2Sel" onchange="n2Change(this)">
+      <option value="1.0">Havo (n=1.00)</option>
+      <option value="1.33" selected>Suv (n=1.33)</option>
+      <option value="1.5">Shisha (n=1.50)</option>
+      <option value="2.42">Olmos (n=2.42)</option>
+    </select>
+    <label>n₂ <span class="vb" id="dN2">1.33</span></label>
+    <input type="range" id="sN2" min="1" max="2.5" step="0.01" value="1.33" oninput="setN2(this.value)">
+  </div>
+
+  <div class="stitle" id="tAlphaSec">Tushish burchagi α</div>
+  <div class="card">
+    <label><span id="tAlphaLbl">α (daraja)</span> <span class="vb" id="dAlpha">45°</span></label>
+    <input type="range" id="sAlpha" min="1" max="89" value="45" oninput="setAlpha(this.value)">
+  </div>
+
+  <div class="tiq-msg" id="tiqMsg"><span id="tTiqMsg">⚠️ TO'LA ICHKI QAYTISH!<br>β mavjud emas (sinBeta > 1)</span></div>
+
+  <div class="fbox">
+    <div class="frow"><span class="fl">Snel:</span><span class="fe">n₁·sin(α) = n₂·sin(β)</span></div>
+    <div class="frow"><span class="fl">β</span><span class="fe">= arcsin(n₁·sin(α)/n₂)</span></div>
+    <div class="frow"><span class="fl">α_kr</span><span class="fe">= arcsin(n₂/n₁) [TIQ]</span></div>
+    <div class="frow"><span class="fl">ε</span><span class="fe">= |n₁sinα − n₂sinβ|</span></div>
+  </div>
+
+  <div class="steps">
+    <div class="step active" id="st1"><div class="snum">1</div><span id="tStep1">Muhitlarni tanlang</span></div>
+    <div class="step" id="st2"><div class="snum">2</div><span id="tStep2">α o'zgartiring</span></div>
+    <div class="step" id="st3"><div class="snum">3</div><span id="tStep3">β kuzating</span></div>
+    <div class="step" id="st4"><div class="snum">4</div><span id="tStep4">O'lchov yozing</span></div>
+    <div class="step" id="st5"><div class="snum">5</div><span id="tStep5">Tahlil</span></div>
+  </div>
+
+  <button class="btn btn-p" onclick="addMeas()">+ <span id="tAddBtn">O'lchovni yozish</span></button>
+  <button class="btn btn-r" onclick="resetAll()">↺ <span id="tResetBtn">Tozalash</span></button>
+</div>
+
+<div class="center">
+  <canvas id="simCanvas"></canvas>
+  <div class="instr-bar" id="instrBar">🔴 Lazyer nuri muhitlar chegarasida sinadi va qaytadi · α — tushish burchagi · β — sinish burchagi · To'la ichki qaytishda β mavjud emas</div>
+</div>
+
+<div class="right">
+  <div class="stitle" id="tCurMeasSec">Joriy o'lchov</div>
+  <div class="two">
+    <div class="rc hi"><div class="rl" id="tAlphaFallLbl">α tushish</div><div class="rv" id="rAlpha">45</div><div class="ru" id="tDegreeWord1">daraja</div></div>
+    <div class="rc hi"><div class="rl" id="tBetaRefrLbl">β sinish</div><div class="rv" style="color:var(--accent)" id="rBeta">32</div><div class="ru" id="tDegreeWord2">daraja</div></div>
+  </div>
+  <div class="two">
+    <div class="rc"><div class="rl">n₁·sin(α)</div><div class="rv" style="font-size:14px;color:var(--yellow)" id="rN1S">—</div><div class="ru" id="tLeftWord">chaplar</div></div>
+    <div class="rc"><div class="rl">n₂·sin(β)</div><div class="rv" style="font-size:14px;color:var(--blue)" id="rN2S">—</div><div class="ru" id="tRightWord">o'nglar</div></div>
+  </div>
+  <div class="rc" style="text-align:center">
+    <div class="rl" id="tCritLbl">Kritik burchak (TIQ)</div>
+    <div class="rv" style="font-size:16px;color:var(--red)" id="rCrit">—</div>
+    <div class="ru" id="tCritNote">faqat n₁ > n₂ da mavjud</div>
+  </div>
+
+  <div class="stitle">Jadval: n₁·sinα = n₂·sinβ</div>
+  <table>
+    <thead><tr><th>№</th><th>n₁</th><th>n₂</th><th>α°</th><th>β°</th><th>n₁sinα</th><th>n₂sinβ</th><th>ε</th></tr></thead>
+    <tbody id="tbody"></tbody>
+  </table>
+
+  <div class="stitle" id="tGraphSec">Grafik: β = f(α)</div>
+  <canvas id="graphCanvas" height="110"></canvas>
+
+  <div class="final-card" id="finalCard">
+    <div class="rl" id="tAnalysisLbl">Tahlil — Snel qonuni tekshiruvi</div>
+    <div class="rv" style="color:var(--green);font-size:18px;margin-top:6px;" id="resMain">—</div>
+    <div class="err-row"><span id="tAvgEpsLbl">O'rtacha ε (farq)</span><span id="resEps">—</span></div>
+    <div class="err-row"><span id="tMeasCountLbl">O'lchashlar</span><span id="resCnt">—</span></div>
+    <div class="err-row"><span id="tTiqAngleLbl">TIQ burchagi</span><span id="resCrit">—</span></div>
+  </div>
+</div>
+</div>
+
+<div style="position:fixed;bottom:14px;right:18px;display:flex;align-items:center;gap:7px;background:rgba(7,9,15,.75);border:1px solid rgba(249,115,22,.2);border-radius:30px;padding:5px 16px;backdrop-filter:blur(10px);z-index:9999;pointer-events:none;">
+  <span>🔬</span><span style="font-family:'Space Mono',monospace;font-size:11px;font-weight:700;background:linear-gradient(90deg,#f97316,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;">Xosiyat Virtual Lab</span>
+</div>
+
+<script>
+var LANG='uz';
+var I18N={
+ uz:{
+   title:"Yorug'lik Sinishi — <span>Snel Qonuni: n₁·sin(α) = n₂·sin(β)</span>",hsub:"OPTIKA · FIZPRAKTIKUM · SDPI 2026",measLbl:"O'lchov:",
+   startTitle:"Yorug'likning Sinishi va Qaytishi — <span style=\"color:#f97316;\">Snel Qonuni</span>",
+   startSub:"n₁·sin(α) = n₂·sin(β) · To'la ichki qaytish burchagi",
+   procedure:"BAJARISH TARTIBI",
+   ps1:"1-muhit (n₁) va 2-muhit (n₂) ni tanlang",
+   ps2:"α tushish burchagini o'zgartiring",
+   ps3:"β sinish burchagini o'lchab, Snel qonunini tekshiring",
+   ps4:"To'la ichki qaytish burchagini aniqlang",
+   startBtn:"▶ Laboratoriyani boshlash",
+   medium1Sec:"1-Muhit (Yuqori)",medium2Sec:"2-Muhit (Pastki)",
+   optAir:"Havo",optWater:"Suv",optGlass:"Shisha",optDiamond:"Olmos",
+   alphaSec:"Tushish burchagi α",alphaLbl:"α (daraja)",
+   tiqMsg:"⚠️ TO'LA ICHKI QAYTISH!<br>β mavjud emas (sinBeta > 1)",
+   step1:"Muhitlarni tanlang",step2:"α o'zgartiring",step3:"β kuzating",step4:"O'lchov yozing",step5:"Tahlil",
+   addBtn:"O'lchovni yozish",resetBtn:"Tozalash",
+   instrDefault:"🔴 Lazyer nuri muhitlar chegarasida sinadi va qaytadi · α — tushish burchagi · β — sinish burchagi · To'la ichki qaytishda β mavjud emas",
+   curMeasSec:"Joriy o'lchov",alphaFallLbl:"α tushish",betaRefrLbl:"β sinish",degreeWord:"daraja",
+   leftWord:"chaplar",rightWord:"o'nglar",
+   critLbl:"Kritik burchak (TIQ)",critNote:"faqat n₁ > n₂ da mavjud",
+   graphSec:"Grafik: β = f(α)",
+   analysisLbl:"Tahlil — Snel qonuni tekshiruvi",avgEpsLbl:"O'rtacha ε (farq)",measCountLbl:"O'lchashlar",tiqAngleLbl:"TIQ burchagi",
+   statusDefault:"n₁ va n₂ muhitlarini tanlang → α burchakni o'zgartiring → β ni kuzating",
+   statusMain:"α=",statusMid1:"° | β=",statusMid2:"° | n₁sinα=",statusMid3:" ≈ n₂sinβ=",
+   statusTIQ:"⚠️ To'la ichki qaytish! α=",statusTIQMid:"° > α_kr=",statusTIQSuffix:"°",
+   dashWord:"—",tonta:" ta",
+   confirmedMsg:"Snel qonuni tasdiqlandi! ε_o'rt=",notAvail:"n₁<n₂ (mavjud emas)",noTIQ:"n₁<n₂ (TIQ yo'q)"
+ },
+ ru:{
+   title:"Преломление света — <span>Закон Снеллиуса: n₁·sin(α) = n₂·sin(β)</span>",hsub:"ОПТИКА · ФИЗПРАКТИКУМ · SDPI 2026",measLbl:"Измерений:",
+   startTitle:'Преломление и отражение света — <span style="color:#f97316;">Закон Снеллиуса</span>',
+   startSub:"n₁·sin(α) = n₂·sin(β) · Угол полного внутреннего отражения",
+   procedure:"ПОРЯДОК ВЫПОЛНЕНИЯ",
+   ps1:"Выберите 1-ю среду (n₁) и 2-ю среду (n₂)",
+   ps2:"Изменяйте угол падения α",
+   ps3:"Измерьте угол преломления β и проверьте закон Снеллиуса",
+   ps4:"Определите угол полного внутреннего отражения",
+   startBtn:"▶ Начать лабораторную",
+   medium1Sec:"1-я среда (верхняя)",medium2Sec:"2-я среда (нижняя)",
+   optAir:"Воздух",optWater:"Вода",optGlass:"Стекло",optDiamond:"Алмаз",
+   alphaSec:"Угол падения α",alphaLbl:"α (градус)",
+   tiqMsg:"⚠️ ПОЛНОЕ ВНУТРЕННЕЕ ОТРАЖЕНИЕ!<br>β не существует (sinβ > 1)",
+   step1:"Выберите среды",step2:"Измените α",step3:"Наблюдайте β",step4:"Запишите измерение",step5:"Анализ",
+   addBtn:"Записать измерение",resetBtn:"Очистить",
+   instrDefault:"🔴 Луч лазера преломляется и отражается на границе сред · α — угол падения · β — угол преломления · При полном внутреннем отражении β не существует",
+   curMeasSec:"Текущее измерение",alphaFallLbl:"α падения",betaRefrLbl:"β преломления",degreeWord:"градус",
+   leftWord:"левая часть",rightWord:"правая часть",
+   critLbl:"Критический угол (ПВО)",critNote:"существует только при n₁ > n₂",
+   graphSec:"График: β = f(α)",
+   analysisLbl:"Анализ — проверка закона Снеллиуса",avgEpsLbl:"Средняя ε (разница)",measCountLbl:"Измерений",tiqAngleLbl:"Угол ПВО",
+   statusDefault:"Выберите среды n₁ и n₂ → изменяйте угол α → наблюдайте β",
+   statusMain:"α=",statusMid1:"° | β=",statusMid2:"° | n₁sinα=",statusMid3:" ≈ n₂sinβ=",
+   statusTIQ:"⚠️ Полное внутреннее отражение! α=",statusTIQMid:"° > α_кр=",statusTIQSuffix:"°",
+   dashWord:"—",tonta:"",
+   confirmedMsg:"Закон Снеллиуса подтверждён! ε_ср=",notAvail:"n₁<n₂ (не существует)",noTIQ:"n₁<n₂ (ПВО нет)"
+ },
+ en:{
+   title:"Light Refraction — <span>Snell's Law: n₁·sin(α) = n₂·sin(β)</span>",hsub:"OPTICS · PHYSICS LAB · SDPI 2026",measLbl:"Measurements:",
+   startTitle:'Refraction and Reflection of Light — <span style="color:#f97316;">Snell\'s Law</span>',
+   startSub:"n₁·sin(α) = n₂·sin(β) · Critical angle of total internal reflection",
+   procedure:"PROCEDURE",
+   ps1:"Choose medium 1 (n₁) and medium 2 (n₂)",
+   ps2:"Change the angle of incidence α",
+   ps3:"Measure the refraction angle β and verify Snell's law",
+   ps4:"Determine the critical angle of total internal reflection",
+   startBtn:"▶ Start the lab",
+   medium1Sec:"Medium 1 (Top)",medium2Sec:"Medium 2 (Bottom)",
+   optAir:"Air",optWater:"Water",optGlass:"Glass",optDiamond:"Diamond",
+   alphaSec:"Angle of incidence α",alphaLbl:"α (degrees)",
+   tiqMsg:"⚠️ TOTAL INTERNAL REFLECTION!<br>β does not exist (sinβ > 1)",
+   step1:"Choose the media",step2:"Change α",step3:"Observe β",step4:"Record measurement",step5:"Analysis",
+   addBtn:"Record measurement",resetBtn:"Clear",
+   instrDefault:"🔴 The laser beam refracts and reflects at the boundary between media · α — angle of incidence · β — angle of refraction · β doesn't exist under total internal reflection",
+   curMeasSec:"Current measurement",alphaFallLbl:"α incidence",betaRefrLbl:"β refraction",degreeWord:"degrees",
+   leftWord:"left side",rightWord:"right side",
+   critLbl:"Critical angle (TIR)",critNote:"only exists when n₁ > n₂",
+   graphSec:"Graph: β = f(α)",
+   analysisLbl:"Analysis — Snell's law verification",avgEpsLbl:"Average ε (difference)",measCountLbl:"Measurements",tiqAngleLbl:"TIR angle",
+   statusDefault:"Choose media n₁ and n₂ → change angle α → observe β",
+   statusMain:"α=",statusMid1:"° | β=",statusMid2:"° | n₁sinα=",statusMid3:" ≈ n₂sinβ=",
+   statusTIQ:"⚠️ Total internal reflection! α=",statusTIQMid:"° > α_cr=",statusTIQSuffix:"°",
+   dashWord:"—",tonta:"",
+   confirmedMsg:"Snell's law confirmed! ε_avg=",notAvail:"n₁<n₂ (does not exist)",noTIQ:"n₁<n₂ (no TIR)"
+ }
+};
+function t(k){return I18N[LANG][k];}
+var OPT_KEYS={'Havo':'optAir','Suv':'optWater','Shisha':'optGlass','Olmos':'optDiamond'};
+var ORIG_OPT_TEXT={};
+function setLang(l){
+  LANG=l;
+  document.getElementById('langUZ').className='langbtn'+(l==='uz'?' active':'');
+  document.getElementById('langRU').className='langbtn'+(l==='ru'?' active':'');
+  document.getElementById('langEN').className='langbtn'+(l==='en'?' active':'');
+  document.getElementById('tTitle').innerHTML=t('title');
+  document.getElementById('tHsub').textContent=t('hsub');
+  document.getElementById('tMeasLbl').textContent=t('measLbl');
+  document.getElementById('tStartTitle').innerHTML=t('startTitle');
+  document.getElementById('tStartSub').textContent=t('startSub');
+  document.getElementById('tProcedure').textContent=t('procedure');
+  document.getElementById('tPS1').textContent=t('ps1');
+  document.getElementById('tPS2').textContent=t('ps2');
+  document.getElementById('tPS3').textContent=t('ps3');
+  document.getElementById('tPS4').textContent=t('ps4');
+  document.getElementById('tStartBtn').textContent=t('startBtn');
+  document.getElementById('tMedium1Sec').textContent=t('medium1Sec');
+  document.getElementById('tMedium2Sec').textContent=t('medium2Sec');
+  document.getElementById('tAlphaSec').textContent=t('alphaSec');
+  document.getElementById('tAlphaLbl').textContent=t('alphaLbl');
+  document.getElementById('tTiqMsg').innerHTML=t('tiqMsg');
+  document.getElementById('tStep1').textContent=t('step1');
+  document.getElementById('tStep2').textContent=t('step2');
+  document.getElementById('tStep3').textContent=t('step3');
+  document.getElementById('tStep4').textContent=t('step4');
+  document.getElementById('tStep5').textContent=t('step5');
+  document.getElementById('tAddBtn').textContent=t('addBtn');
+  document.getElementById('tResetBtn').textContent=t('resetBtn');
+  document.getElementById('tCurMeasSec').textContent=t('curMeasSec');
+  document.getElementById('tAlphaFallLbl').textContent=t('alphaFallLbl');
+  document.getElementById('tBetaRefrLbl').textContent=t('betaRefrLbl');
+  document.getElementById('tDegreeWord1').textContent=t('degreeWord');
+  document.getElementById('tDegreeWord2').textContent=t('degreeWord');
+  document.getElementById('tLeftWord').textContent=t('leftWord');
+  document.getElementById('tRightWord').textContent=t('rightWord');
+  document.getElementById('tCritLbl').textContent=t('critLbl');
+  document.getElementById('tCritNote').textContent=t('critNote');
+  document.getElementById('tGraphSec').textContent=t('graphSec');
+  document.getElementById('tAnalysisLbl').textContent=t('analysisLbl');
+  document.getElementById('tAvgEpsLbl').textContent=t('avgEpsLbl');
+  document.getElementById('tMeasCountLbl').textContent=t('measCountLbl');
+  document.getElementById('tTiqAngleLbl').textContent=t('tiqAngleLbl');
+  ['n1Sel','n2Sel'].forEach(function(selId){
+    var sel=document.getElementById(selId);
+    Array.prototype.forEach.call(sel.options,function(opt){
+      if(!ORIG_OPT_TEXT[selId])ORIG_OPT_TEXT[selId]={};
+      var origLabel=ORIG_OPT_TEXT[selId][opt.value]||opt.textContent.split(' (')[0];
+      ORIG_OPT_TEXT[selId][opt.value]=origLabel;
+      var key=OPT_KEYS[origLabel];
+      var nVal=opt.value;
+      if(key)opt.textContent=t(key)+' (n='+parseFloat(nVal).toFixed(2)+')';
+    });
+  });
+  if(measList.length===0){
+    document.getElementById('statusTxt').textContent=t('statusDefault');
+  }
+  document.getElementById('instrBar').textContent=t('instrDefault');
+  update();
+}
+
+var n1=1.0, n2=1.33, alpha=45;
+var measList=[], cnt=0;
+var sc=document.getElementById('simCanvas'), ctx=sc.getContext('2d');
+var gc=document.getElementById('graphCanvas'), gctx=gc.getContext('2d');
+var animT=0;
+
+function setN1(v){n1=parseFloat(v);document.getElementById('dN1').textContent=parseFloat(v).toFixed(2);document.getElementById('cN1').textContent=parseFloat(v).toFixed(2);update();}
+function setN2(v){n2=parseFloat(v);document.getElementById('dN2').textContent=parseFloat(v).toFixed(2);document.getElementById('cN2').textContent=parseFloat(v).toFixed(2);update();}
+function setAlpha(v){alpha=parseFloat(v);document.getElementById('dAlpha').textContent=v+'°';document.getElementById('cAlpha').textContent=v;update();}
+function n1Change(el){document.getElementById('sN1').value=el.value;setN1(el.value);}
+function n2Change(el){document.getElementById('sN2').value=el.value;setN2(el.value);}
+
+function calcBeta(){
+  var sinB=n1*Math.sin(alpha*Math.PI/180)/n2;
+  if(sinB>1)return null;
+  return Math.asin(sinB)*180/Math.PI;
+}
+function calcCrit(){
+  if(n1<=n2)return null;
+  return Math.asin(n2/n1)*180/Math.PI;
+}
+
+function update(){
+  var beta=calcBeta();
+  var crit=calcCrit();
+  var isTIQ=beta===null;
+  document.getElementById('tiqMsg').style.display=isTIQ?'block':'none';
+  document.getElementById('rAlpha').textContent=alpha;
+  document.getElementById('cAlpha').textContent=alpha;
+  if(!isTIQ){
+    document.getElementById('rBeta').textContent=beta.toFixed(1);
+    document.getElementById('cBeta').textContent=beta.toFixed(1);
+    var l=n1*Math.sin(alpha*Math.PI/180), r=n2*Math.sin(beta*Math.PI/180);
+    document.getElementById('rN1S').textContent=l.toFixed(4);
+    document.getElementById('rN2S').textContent=r.toFixed(4);
+    document.getElementById('statusTxt').textContent=t('statusMain')+alpha+t('statusMid1')+beta.toFixed(1)+t('statusMid2')+l.toFixed(4)+t('statusMid3')+r.toFixed(4);
+    setStep(3);
+  } else {
+    document.getElementById('rBeta').textContent='TIQ!';
+    document.getElementById('cBeta').textContent='TIQ';
+    document.getElementById('rN1S').textContent=t('dashWord');
+    document.getElementById('rN2S').textContent=t('dashWord');
+    document.getElementById('statusTxt').textContent=t('statusTIQ')+alpha+t('statusTIQMid')+(crit?crit.toFixed(1):t('dashWord'))+t('statusTIQSuffix');
+  }
+  if(crit) document.getElementById('rCrit').textContent=crit.toFixed(1)+'°';
+  else document.getElementById('rCrit').textContent=t('notAvail');
+}
+
+function addMeas(){
+  var beta=calcBeta(); if(!beta)return;
+  cnt++;
+  var l=n1*Math.sin(alpha*Math.PI/180), r=n2*Math.sin(beta*Math.PI/180);
+  var eps=Math.abs(l-r);
+  measList.push({n1:n1,n2:n2,alpha:alpha,beta:beta,l:l,r:r,eps:eps});
+  document.getElementById('chipCnt').textContent=cnt;
+  var tr=document.createElement('tr');
+  tr.innerHTML='<td>'+cnt+'</td><td>'+n1.toFixed(2)+'</td><td>'+n2.toFixed(2)+'</td><td>'+alpha+'</td><td>'+beta.toFixed(1)+'</td><td>'+l.toFixed(4)+'</td><td>'+r.toFixed(4)+'</td><td>'+eps.toFixed(4)+'</td>';
+  document.getElementById('tbody').appendChild(tr);
+  setStep(4);
+  if(measList.length>=2){
+    var sEps=measList.reduce(function(a,b){return a+b.eps;},0)/measList.length;
+    var crit=calcCrit();
+    document.getElementById('finalCard').style.display='block';
+    document.getElementById('resMain').textContent=t('confirmedMsg')+sEps.toFixed(5);
+    document.getElementById('resEps').textContent=sEps.toFixed(5);
+    document.getElementById('resCnt').textContent=measList.length+t('tonta');
+    document.getElementById('resCrit').textContent=crit?crit.toFixed(1)+'°':t('noTIQ');
+    setStep(5);
+  }
+  drawGraph();
+}
+
+function resetAll(){
+  measList=[];cnt=0;
+  document.getElementById('tbody').innerHTML='';
+  document.getElementById('finalCard').style.display='none';
+  document.getElementById('chipCnt').textContent=0;
+  setStep(1); update(); drawGraph();
+}
+function setStep(n){for(var i=1;i<=5;i++){var el=document.getElementById('st'+i);el.className='step'+(i<n?' done':i===n?' active':'');el.querySelector('.snum').textContent=i<n?'✓':i;}}
+
+function resize(){sc.width=sc.offsetWidth;sc.height=sc.offsetHeight;}
+window.addEventListener('resize',resize);setTimeout(resize,80);
+
+(function loop(){
+  animT+=0.016;
+  drawSim();
+  requestAnimationFrame(loop);
+})();
+
+function drawSim(){
+  var W=sc.width,H=sc.height;if(!W||!H)return;
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='#040810';ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle='rgba(249,115,22,.02)';ctx.lineWidth=1;
+  for(var xi=0;xi<W;xi+=60){ctx.beginPath();ctx.moveTo(xi,0);ctx.lineTo(xi,H);ctx.stroke();}
+  for(var yi=0;yi<H;yi+=60){ctx.beginPath();ctx.moveTo(0,yi);ctx.lineTo(W,yi);ctx.stroke();}
+
+  var cx=W/2, cy=H/2;
+
+  // 2-muhit foni
+  var alpha2=Math.min((n2-1)*0.35,0.4);
+  ctx.fillStyle='rgba(56,189,248,'+alpha2+')';
+  ctx.fillRect(0,cy,W,cy);
+
+  // Muhit nomlari
+  ctx.fillStyle='rgba(200,220,255,.5)';ctx.font='12px Space Mono,monospace';ctx.textAlign='left';
+  ctx.fillText('1-muhit: n₁='+n1.toFixed(2),16,cy-12);
+  ctx.fillText('2-muhit: n₂='+n2.toFixed(2),16,cy+22);
+
+  // Chegara
+  ctx.strokeStyle='rgba(148,163,184,.6)';ctx.lineWidth=2;ctx.setLineDash([6,6]);
+  ctx.beginPath();ctx.moveTo(40,cy);ctx.lineTo(W-40,cy);ctx.stroke();ctx.setLineDash([]);
+
+  // Normal (vertikal)
+  ctx.strokeStyle='rgba(148,163,184,.4)';ctx.lineWidth=1;ctx.setLineDash([5,5]);
+  ctx.beginPath();ctx.moveTo(cx,cy-200);ctx.lineTo(cx,cy+200);ctx.stroke();ctx.setLineDash([]);
+  ctx.fillStyle='rgba(148,163,184,.5)';ctx.font='9px monospace';ctx.textAlign='center';
+  ctx.fillText('NORMAL',cx,cy-205);
+
+  var rAlpha=alpha*Math.PI/180;
+  var len=Math.min(W,H)*0.38;
+
+  // Tushuvchi nur
+  var x1=cx-Math.sin(rAlpha)*len, y1=cy-Math.cos(rAlpha)*len;
+  beam(x1,y1,cx,cy,'#ff4400',3,true);
+
+  // Qaytgan nur
+  beam(cx,cy,cx+Math.sin(rAlpha)*len,cy-Math.cos(rAlpha)*len,'rgba(255,68,0,.3)',2,false);
+
+  // Singan nur
+  var sinB=n1*Math.sin(rAlpha)/n2;
+  if(sinB<=1){
+    var rBeta=Math.asin(sinB);
+    beam(cx,cy,cx+Math.sin(rBeta)*len,cy+Math.cos(rBeta)*len,'#ff8844',3,true);
+    // β yoyi
+    ctx.strokeStyle='rgba(129,140,248,.5)';ctx.lineWidth=1;
+    ctx.beginPath();ctx.arc(cx,cy,55,-Math.PI/2,-Math.PI/2+rBeta);ctx.stroke();
+    ctx.fillStyle='rgba(129,140,248,.7)';ctx.font='11px monospace';ctx.textAlign='left';
+    ctx.fillText('β='+Math.round(rBeta*180/Math.PI)+'°',cx+60,cy+25);
+  } else {
+    // TIQ — kuchli qaytgan nur
+    beam(cx,cy,cx+Math.sin(rAlpha)*len,cy-Math.cos(rAlpha)*len,'#ff0000',4,true);
+    ctx.fillStyle='rgba(255,96,96,.8)';ctx.font='bold 13px Syne';ctx.textAlign='center';
+    ctx.fillText('TO\'LA ICHKI QAYTISH',cx,cy+35);
+  }
+
+  // α yoyi
+  ctx.strokeStyle='rgba(249,115,22,.5)';ctx.lineWidth=1;
+  ctx.beginPath();ctx.arc(cx,cy,55,-Math.PI/2,-Math.PI/2+rAlpha,false);
+  ctx.moveTo(cx,cy);
+  ctx.arc(cx,cy,55,-Math.PI/2+rAlpha,-Math.PI/2,true);
+  ctx.stroke();
+  ctx.beginPath();ctx.arc(cx,cy,55,-Math.PI/2+rAlpha,-Math.PI/2);ctx.stroke();
+  ctx.fillStyle='rgba(249,115,22,.8)';ctx.font='11px monospace';ctx.textAlign='right';
+  ctx.fillText('α='+alpha+'°',cx-60,cy-22);
+
+}
+
+function beam(x1,y1,x2,y2,col,w,glow){
+  if(glow){ctx.shadowBlur=18;ctx.shadowColor=col;}
+  ctx.strokeStyle=col;ctx.lineWidth=w;
+  ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();
+  ctx.shadowBlur=0;
+  // Strelka
+  var dx=x2-x1,dy=y2-y1,len=Math.sqrt(dx*dx+dy*dy);
+  var ux=dx/len,uy=dy/len,mx=x1+dx*.7,my=y1+dy*.7;
+  ctx.fillStyle=col;ctx.beginPath();ctx.moveTo(mx,my);ctx.lineTo(mx-ux*12+uy*5,my-uy*12-ux*5);ctx.lineTo(mx-ux*12-uy*5,my-uy*12+ux*5);ctx.closePath();ctx.fill();
+}
+function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.lineTo(x+w-r,y);c.quadraticCurveTo(x+w,y,x+w,y+r);c.lineTo(x+w,y+h-r);c.quadraticCurveTo(x+w,y+h,x+w-r,y+h);c.lineTo(x+r,y+h);c.quadraticCurveTo(x,y+h,x,y+h-r);c.lineTo(x,y+r);c.quadraticCurveTo(x,y,x+r,y);c.closePath();}
+
+function drawGraph(){
+  var W2=gc.offsetWidth||240;gc.width=W2;var GH=110;
+  gctx.clearRect(0,0,W2,GH);gctx.fillStyle='#070c17';gctx.fillRect(0,0,W2,GH);
+  var pad=28,gW=W2-pad*2,gHH=GH-pad-8;
+  gctx.strokeStyle='rgba(249,115,22,.3)';gctx.lineWidth=1;
+  gctx.beginPath();gctx.moveTo(pad,8);gctx.lineTo(pad,GH-pad);gctx.lineTo(W2-pad+6,GH-pad);gctx.stroke();
+  gctx.fillStyle='rgba(249,115,22,.5)';gctx.font='7px monospace';gctx.textAlign='center';gctx.fillText('α°',W2-pad+8,GH-pad+3);
+  gctx.textAlign='right';gctx.fillText('β°',pad-3,12);
+  if(!measList.length)return;
+  var avals=measList.map(function(m){return m.alpha;}),bvals=measList.map(function(m){return m.beta;});
+  var minA=0,maxA=90,minB=0,maxB=90;
+  measList.forEach(function(m){
+    var px=pad+(m.alpha/90)*gW,py=GH-pad-(m.beta/90)*gHH;
+    gctx.fillStyle='rgba(249,115,22,.9)';gctx.beginPath();gctx.arc(px,py,5,0,Math.PI*2);gctx.fill();
+  });
+}
+
+window.addEventListener('load',function(){setTimeout(function(){resize();update();drawGraph();setLang('uz');},100);});
+</script>
+</body>
+</html>

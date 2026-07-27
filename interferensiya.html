@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>5-Lab — Yorug'lik interferensiyasi</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap');
+:root{
+  --bg:#07090f;--panel:#0e1420;--border:#1b2840;
+  --accent:#22d3ee;--green:#6fff5c;--yellow:#ffc947;
+  --red:#ff6b6b;--laser:#ff3030;--text:#dde6f5;--muted:#4a6080;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;height:100vh;overflow:hidden;display:flex;flex-direction:column;}
+
+header{display:flex;align-items:center;gap:12px;padding:8px 20px;border-bottom:1px solid var(--border);background:linear-gradient(90deg,#07090f,#001a1f,#07090f);flex-shrink:0;}
+.badge{background:var(--accent);color:#000;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:3px 9px;letter-spacing:2px;border-radius:2px;}
+.htitle{font-size:15px;font-weight:800;}
+.htitle span{color:var(--accent);}
+.hsub{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-left:auto;}
+.brand{display:flex;align-items:center;gap:6px;background:linear-gradient(135deg,rgba(34,211,238,.15),rgba(111,255,92,.1));border:1px solid rgba(34,211,238,.3);border-radius:20px;padding:4px 14px;margin-left:10px;flex-shrink:0;}
+.brand-txt{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;background:linear-gradient(90deg,#22d3ee,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;}
+
+.tabs{display:flex;border-bottom:1px solid var(--border);background:#0a0f1c;flex-shrink:0;}
+.tab{padding:8px 18px;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap;}
+.tab:hover{color:var(--text);}
+.tab.on{color:var(--accent);border-bottom-color:var(--accent);}
+
+.statusbar{background:#0a0f1c;border-bottom:1px solid var(--border);padding:5px 20px;display:flex;align-items:center;gap:14px;font-family:'Space Mono',monospace;font-size:11px;flex-shrink:0;}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:bl 1s infinite;flex-shrink:0;}
+.dot.off{background:var(--muted);animation:none;}
+@keyframes bl{0%,100%{opacity:1}50%{opacity:.2}}
+#statusTxt{color:var(--accent);}
+.chips{display:flex;gap:6px;margin-left:auto;}
+.chip{background:rgba(34,211,238,.08);border:1px solid rgba(34,211,238,.2);border-radius:10px;padding:2px 9px;font-size:10px;color:var(--muted);}
+.chip span{color:var(--accent);}
+
+.body{display:grid;grid-template-columns:210px 1fr 255px;flex:1;overflow:hidden;}
+
+.left{background:var(--panel);border-right:1px solid var(--border);overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:9px;}
+.stitle{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--accent);text-transform:uppercase;margin-bottom:3px;opacity:.85;}
+.card{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:8px;padding:10px;}
+.card label{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:7px;}
+.vb{font-family:'Space Mono',monospace;font-size:11px;color:var(--accent);background:rgba(34,211,238,.12);padding:2px 7px;border-radius:3px;}
+input[type=range]{width:100%;-webkit-appearance:none;height:4px;background:var(--border);border-radius:2px;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;background:var(--accent);border-radius:50%;cursor:pointer;box-shadow:0 0 8px rgba(34,211,238,.7);}
+
+.fbox{background:rgba(34,211,238,.04);border:1px solid rgba(34,211,238,.15);border-radius:7px;padding:9px;}
+.frow{display:flex;gap:6px;margin-bottom:4px;font-family:'Space Mono',monospace;font-size:10px;}
+.frow:last-child{margin-bottom:0;}
+.fl{color:var(--muted);min-width:16px;}
+.fe{color:var(--yellow);}
+
+.steps{display:flex;flex-direction:column;gap:3px;}
+.step{display:flex;align-items:center;gap:7px;padding:5px 8px;border-radius:5px;font-size:10px;color:var(--muted);border:1px solid transparent;transition:all .3s;}
+.step.active{background:rgba(34,211,238,.07);border-color:rgba(34,211,238,.2);color:var(--accent);}
+.step.done{color:var(--green);}
+.snum{font-family:'Space Mono',monospace;font-size:9px;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.05);flex-shrink:0;}
+.step.active .snum{background:rgba(34,211,238,.2);}
+.step.done .snum{background:rgba(111,255,92,.12);color:var(--green);}
+
+.btn{width:100%;padding:10px;border:none;border-radius:7px;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;cursor:pointer;transition:all .2s;}
+.btn-p{background:linear-gradient(135deg,#22d3ee,#0891b2);color:#000;}
+.btn-p:hover{transform:translateY(-1px);box-shadow:0 5px 18px rgba(34,211,238,.4);}
+.btn-p:disabled{opacity:.35;cursor:not-allowed;transform:none;}
+.btn-g{background:linear-gradient(135deg,#6fff5c,#33cc22);color:#000;margin-top:5px;}
+.btn-g:disabled{opacity:.35;cursor:not-allowed;}
+.btn-r{background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--border);margin-top:5px;font-size:11px;}
+
+.center{position:relative;overflow:hidden;background:var(--bg);display:flex;flex-direction:column;}
+#simCanvas{flex:1;display:block;width:100%;}
+.instr-bar{background:rgba(7,9,15,.92);border-top:1px solid var(--border);padding:6px 18px;font-size:11px;color:var(--muted);text-align:center;flex-shrink:0;}
+
+.right{background:var(--panel);border-left:1px solid var(--border);overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:9px;}
+.rc{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:8px;padding:10px;}
+.rc.hi{border-color:rgba(34,211,238,.25);background:rgba(34,211,238,.05);}
+.rl{font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:3px;}
+.rv{font-size:22px;font-weight:800;line-height:1;color:#fff;}
+.ru{font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);margin-top:2px;}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+.three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;}
+
+table{width:100%;border-collapse:collapse;font-family:'Space Mono',monospace;font-size:9px;}
+th{color:var(--accent);font-size:8px;letter-spacing:1px;border-bottom:1px solid var(--border);padding:4px 2px;text-align:center;}
+td{padding:3px 2px;border-bottom:1px solid rgba(255,255,255,.03);text-align:center;}
+tr.avg-r td{color:var(--yellow);border-top:1px solid var(--border);font-weight:700;}
+tr:last-child td{border-bottom:none;}
+
+#screenCanvas{display:block;width:100%;border-radius:8px;border:1px solid var(--border);}
+
+.final-card{background:rgba(34,211,238,.05);border:1px solid rgba(34,211,238,.2);border-radius:8px;padding:12px;}
+.err-row{display:flex;justify-content:space-between;margin-top:6px;font-family:'Space Mono',monospace;font-size:10px;}
+.err-row span:first-child{color:var(--muted);}
+.err-row span:last-child{color:var(--yellow);}
+.langsw{display:flex;gap:3px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;padding:3px;margin-left:10px;}
+.langbtn{background:transparent;border:none;color:var(--muted);font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:4px 9px;border-radius:5px;cursor:pointer;letter-spacing:1px;}
+.langbtn.active{background:var(--accent);color:#000;}
+</style>
+</head>
+<body>
+
+<!-- BOSHLASH EKRANI -->
+<div id="startScreen" style="position:fixed;inset:0;z-index:9998;background:radial-gradient(ellipse at 40% 50%,#001520 0%,#07090f 70%);display:flex;align-items:center;justify-content:center;">
+  <canvas id="bgCanvas" style="position:absolute;inset:0;width:100%;height:100%;opacity:.5;pointer-events:none"></canvas>
+  <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:20px;max-width:580px;padding:20px;text-align:center">
+    <div style="display:flex;align-items:center;gap:10px">
+      <div style="background:#22d3ee;color:#000;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:4px 14px;letter-spacing:2px;border-radius:2px">LAB · 5</div>
+      <div style="font-family:'Space Mono',monospace;font-size:10px;color:#4a6080;letter-spacing:2px">OPTIKA · INTERFERENSIYA</div>
+    </div>
+    <div style="width:100px;height:100px;border-radius:50%;background:radial-gradient(circle,rgba(34,211,238,.18) 0%,rgba(34,211,238,.02) 70%);border:2px solid rgba(34,211,238,.4);display:flex;align-items:center;justify-content:center;box-shadow:0 0 50px rgba(34,211,238,.3);animation:pulse5 2.5s ease-in-out infinite;">
+      <span style="font-size:44px">🌊</span>
+    </div>
+    <div>
+      <h1 style="font-size:24px;font-weight:800;line-height:1.2;color:#fff" id="tStartTitle">Yorug'likning <span style="color:#22d3ee">interferensiyasi</span></h1>
+      <p style="font-size:13px;color:#4a6080;margin-top:8px;font-family:'Space Mono',monospace" id="tStartSub">Frenel biprizmasi · Lazer to'lqin uzunligini aniqlash</p>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;width:100%">
+      <div style="background:rgba(255,255,255,.04);border:1px solid #1b2840;border-radius:10px;padding:12px"><div style="font-size:20px;margin-bottom:4px">⏱</div><div style="font-size:11px;color:#4a6080;font-family:monospace" id="tInfoTime">Vaqt</div><div style="font-size:13px;font-weight:700;color:#dde6f5;margin-top:2px">45-60 min</div></div>
+      <div style="background:rgba(255,255,255,.04);border:1px solid #1b2840;border-radius:10px;padding:12px"><div style="font-size:20px;margin-bottom:4px">🔴</div><div style="font-size:11px;color:#4a6080;font-family:monospace" id="tInfoEx">Mashq</div><div style="font-size:13px;font-weight:700;color:#dde6f5;margin-top:2px" id="tInfoExVal">3 ta</div></div>
+      <div style="background:rgba(255,255,255,.04);border:1px solid #1b2840;border-radius:10px;padding:12px"><div style="font-size:20px;margin-bottom:4px">🎯</div><div style="font-size:11px;color:#4a6080;font-family:monospace" id="tInfoGoal">Maqsad</div><div style="font-size:13px;font-weight:700;color:#dde6f5;margin-top:2px" id="tInfoGoalVal">λ topish</div></div>
+    </div>
+    <div style="background:rgba(34,211,238,.05);border:1px solid rgba(34,211,238,.18);border-radius:12px;padding:16px;width:100%;text-align:left">
+      <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;color:#22d3ee;margin-bottom:10px" id="tProcedure">BAJARISH TARTIBI</div>
+      <div style="display:flex;flex-direction:column;gap:7px">
+        <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:#c5d3e8"><div style="width:22px;height:22px;border-radius:50%;background:rgba(34,211,238,.2);display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:10px;color:#22d3ee;flex-shrink:0">1</div><span id="tPS1">Lazer, biprizma va ekranni optik skameykaga o'rnating</span></div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:#c5d3e8"><div style="width:22px;height:22px;border-radius:50%;background:rgba(34,211,238,.2);display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:10px;color:#22d3ee;flex-shrink:0">2</div><span id="tPS2">Ekrandagi <b style="color:#22d3ee">interferensiya chiziqlarini</b> sanang (N)</span></div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:#c5d3e8"><div style="width:22px;height:22px;border-radius:50%;background:rgba(34,211,238,.2);display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:10px;color:#22d3ee;flex-shrink:0">3</div><span id="tPS3">Δx, D, Z, d, f larni o'lchang → <b style="color:#22d3ee">"O'lchov olish"</b></span></div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:#c5d3e8"><div style="width:22px;height:22px;border-radius:50%;background:rgba(34,211,238,.2);display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:10px;color:#22d3ee;flex-shrink:0">4</div><span id="tPS4">λ = d·Z·Δx / (f·D) formulasi bilan hisoblang</span></div>
+      </div>
+    </div>
+    <button onclick="startLab()" style="background:linear-gradient(135deg,#22d3ee,#0891b2);color:#000;border:none;border-radius:12px;padding:16px 60px;font-size:16px;font-weight:800;font-family:'Syne',sans-serif;cursor:pointer;box-shadow:0 8px 30px rgba(34,211,238,.4);transition:all .2s;width:100%"
+    onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 12px 40px rgba(34,211,238,.6)'"
+    onmouseout="this.style.transform='none';this.style.boxShadow='0 8px 30px rgba(34,211,238,.4)'">
+      <span id="tStartBtn">▶ Laboratoriyani boshlash</span>
+    </button>
+    <div style="display:flex;align-items:center;gap:6px;opacity:.6">
+      <span style="font-size:13px">🔬</span>
+      <span style="font-family:'Space Mono',monospace;font-size:10px;background:linear-gradient(90deg,#22d3ee,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;font-weight:700">Xosiyat Virtual Lab</span>
+    </div>
+  </div>
+</div>
+<style>
+@keyframes pulse5{0%,100%{box-shadow:0 0 50px rgba(34,211,238,.25)}50%{box-shadow:0 0 70px rgba(34,211,238,.5)}}
+@keyframes fadeOut{0%{opacity:1}100%{opacity:0;transform:scale(1.04)}}
+</style>
+<script>
+(function(){var c=document.getElementById('bgCanvas');var x=c.getContext('2d');var pts=[];function resize(){c.width=window.innerWidth;c.height=window.innerHeight;}resize();window.addEventListener('resize',resize);for(var i=0;i<60;i++)pts.push({x:Math.random()*1600,y:Math.random()*900,r:Math.random()*1.5+.5,vx:(Math.random()-.5)*.35,vy:(Math.random()-.5)*.35,a:Math.random()});function frame(){x.clearRect(0,0,c.width,c.height);pts.forEach(function(p){p.x+=p.vx;p.y+=p.vy;p.a+=.005;if(p.x<0)p.x=c.width;if(p.x>c.width)p.x=0;if(p.y<0)p.y=c.height;if(p.y>c.height)p.y=0;x.fillStyle='rgba(34,211,238,'+(0.25+Math.sin(p.a)*0.18)+')';x.beginPath();x.arc(p.x%c.width,p.y%c.height,p.r,0,Math.PI*2);x.fill();});requestAnimationFrame(frame);}frame();})();
+function startLab(){var s=document.getElementById('startScreen');s.style.animation='fadeOut .5s ease forwards';setTimeout(function(){s.style.display='none';},480);}
+</script>
+
+<!-- MAIN -->
+<header>
+  <div class="badge">LAB · 5</div>
+  <h1 class="htitle" id="tTitle">Yorug'likning <span>interferensiyasi</span> — Frenel biprizmasi</h1>
+  <div class="hsub" id="tHsub">OPTIKA · FIZPRAKTIKUM · SDPI 2026</div>
+  <div class="langsw">
+    <button class="langbtn active" id="langUZ" onclick="setLang('uz')">UZ</button>
+    <button class="langbtn" id="langRU" onclick="setLang('ru')">RU</button>
+    <button class="langbtn" id="langEN" onclick="setLang('en')">EN</button>
+  </div>
+  <div class="brand"><span style="font-size:12px">🔬</span><span class="brand-txt">Xosiyat Virtual Lab</span></div>
+</header>
+
+<div class="tabs">
+  <div class="tab on" id="t1" onclick="switchTab(1)"><span id="tTab1">a) Δx aniqlash</span></div>
+  <div class="tab" id="t2" onclick="switchTab(2)"><span id="tTab2">b) Z aniqlash</span></div>
+  <div class="tab" id="t3" onclick="switchTab(3)"><span id="tTab3">v) λ hisoblash</span></div>
+</div>
+
+<div class="statusbar">
+  <div class="dot off" id="dot"></div>
+  <span id="statusTxt">D masofasini tanlang va N — chiziqlar sonini kiriting</span>
+  <div class="chips">
+    <div class="chip">λ = <span id="chipL">—</span> nm</div>
+    <div class="chip">Δx = <span id="chipDx">—</span> mm</div>
+    <div class="chip"><span id="tMeasLbl">O'lchov:</span> <span id="chipCnt">0</span>/3</div>
+  </div>
+</div>
+
+<div class="body">
+  <!-- LEFT -->
+  <div class="left">
+    <div class="stitle" id="paramTitle">a-mashq parametrlari</div>
+
+    <div id="paramsA">
+      <div class="card">
+        <label><span id="tDlbl">D — manba-ekran</span> <span class="vb" id="dD">0.80 m</span></label>
+        <input type="range" id="sD" min="0.4" max="1.4" step="0.05" value="0.80" oninput="setParam('D',this.value)">
+      </div>
+      <div class="card">
+        <label><span id="tNlbl">N — chiziqlar soni</span> <span class="vb" id="dN">10</span></label>
+        <input type="range" id="sN" min="5" max="25" step="1" value="10" oninput="setParam('N',this.value)">
+      </div>
+      <div class="card">
+        <label><span id="tLlbl">l — chiziqlar oralig'i</span> <span class="vb" id="dl">5.5 mm</span></label>
+        <input type="range" id="sl" min="2" max="12" step="0.5" value="5.5" oninput="setParam('l',this.value)">
+      </div>
+    </div>
+
+    <div id="paramsB" style="display:none">
+      <div class="card">
+        <label><span id="tdLbl">d — manba-linza</span> <span class="vb" id="dd">0.30 m</span></label>
+        <input type="range" id="sd" min="0.1" max="0.6" step="0.05" value="0.30" oninput="setParam('d',this.value)">
+      </div>
+      <div class="card">
+        <label><span id="tfLbl">f — linza-ekran</span> <span class="vb" id="df">0.50 m</span></label>
+        <input type="range" id="sf" min="0.2" max="0.9" step="0.05" value="0.50" oninput="setParam('f',this.value)">
+      </div>
+    </div>
+
+    <div id="paramsC" style="display:none">
+      <div class="card" style="background:rgba(34,211,238,.04);border-color:rgba(34,211,238,.2)">
+        <div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--accent);margin-bottom:8px" id="tFinalFormula">YAKUNIY FORMULA</div>
+        <div style="font-family:'Space Mono',monospace;font-size:11px;color:var(--yellow);text-align:center;padding:8px;background:#0a0f1c;border-radius:6px">λ = d·Z·Δx / (f·D)</div>
+      </div>
+    </div>
+
+    <div class="fbox">
+      <div class="frow"><span class="fl">Δx</span><span class="fe">= l / N</span></div>
+      <div class="frow"><span class="fl">l₀</span><span class="fe">= (d/f) · Z</span></div>
+      <div class="frow"><span class="fl">λ</span><span class="fe">= d·Z·Δx / (f·D)</span></div>
+      <div class="frow"><span class="fl">λ</span><span class="fe" id="tRedLambda">≈ 630–680 nm (qizil)</span></div>
+    </div>
+
+    <div class="steps">
+      <div class="step active" id="st1"><div class="snum">1</div><span id="tStep1">Δx ni o'lchang (a-mashq)</span></div>
+      <div class="step" id="st2"><div class="snum">2</div><span id="tStep2">Z ni aniqlang (b-mashq)</span></div>
+      <div class="step" id="st3"><div class="snum">3</div><span id="tStep3">λ hisoblang (v-mashq)</span></div>
+      <div class="step" id="st4"><div class="snum">4</div><span id="tStep4">Xatoni baholang</span></div>
+    </div>
+
+    <button class="btn btn-p" id="measBtn" onclick="takeMeasure()">📏 <span id="tMeasBtn">O'lchov olish</span></button>
+    <button class="btn btn-g" id="calcBtn" onclick="calcLambda()" disabled>📊 <span id="tCalcBtn">λ Hisoblash</span></button>
+    <button class="btn btn-r" onclick="resetAll()">↺ <span id="tResetBtn">Qayta boshlash</span></button>
+  </div>
+
+  <!-- CENTER -->
+  <div class="center">
+    <canvas id="simCanvas"></canvas>
+    <div class="instr-bar" id="instrBar">🔴 Lazer nuri biprizmadan o'tib ikki kogerent manbaga ajraladi → ekranda interferensiya chiziqlar hosil bo'ladi</div>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="right">
+    <div class="stitle" id="tResultsSec">O'lchov natijalari</div>
+    <div class="three">
+      <div class="rc hi">
+        <div class="rl">Δx</div>
+        <div class="rv" style="font-size:16px" id="rDx">—</div>
+        <div class="ru">mm</div>
+      </div>
+      <div class="rc hi">
+        <div class="rl">Z</div>
+        <div class="rv" style="font-size:16px" id="rZ">—</div>
+        <div class="ru">mm</div>
+      </div>
+      <div class="rc hi">
+        <div class="rl">λ</div>
+        <div class="rv" style="font-size:16px;color:var(--accent)" id="rLambda">—</div>
+        <div class="ru">nm</div>
+      </div>
+    </div>
+    <div class="two">
+      <div class="rc"><div class="rl">D (m)</div><div class="rv" style="font-size:16px" id="rD">—</div></div>
+      <div class="rc"><div class="rl">N</div><div class="rv" style="font-size:16px" id="rN">—</div></div>
+      <div class="rc"><div class="rl">d (m)</div><div class="rv" style="font-size:16px" id="rd">—</div></div>
+      <div class="rc"><div class="rl">f (m)</div><div class="rv" style="font-size:16px" id="rf">—</div></div>
+    </div>
+
+    <!-- Ekran ko'rinishi -->
+    <div class="stitle" id="tScreenSec">Interferensiya ekrani</div>
+    <canvas id="screenCanvas" height="80"></canvas>
+
+    <div class="stitle" id="tTableSec">Jadval (5.1-jadval)</div>
+    <div style="overflow-x:auto">
+      <table>
+        <thead><tr><th>№</th><th>N</th><th>l(mm)</th><th>Δx(mm)</th><th>D(m)</th><th>Z(mm)</th><th>λ(nm)</th></tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+
+    <div class="final-card" id="finalCard" style="display:none">
+      <div class="rl" id="tAvgLambda">O'rtacha to'lqin uzunligi λ̄</div>
+      <div class="rv" style="color:var(--green);font-size:28px" id="avgL">—</div>
+      <div class="ru" id="tNmLbl">nanometr (nm)</div>
+      <div class="err-row"><span id="tAbsErr">Absolyut xatolik Δλ</span><span id="absErr">—</span></div>
+      <div class="err-row"><span id="tRelErr">Nisbiy xatolik ε</span><span id="relErr">—</span></div>
+      <div class="err-row"><span id="tTrueLambda">Haqiqiy λ (qizil lazer)</span><span style="color:rgba(255,48,48,.8)">630–680 nm</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- Watermark -->
+<div style="position:fixed;bottom:14px;right:18px;display:flex;align-items:center;gap:7px;background:rgba(7,9,15,.75);border:1px solid rgba(34,211,238,.2);border-radius:30px;padding:5px 16px;backdrop-filter:blur(10px);z-index:9999;pointer-events:none">
+  <span style="font-size:13px">🔬</span>
+  <span style="font-family:'Space Mono',monospace;font-size:11px;font-weight:700;background:linear-gradient(90deg,#22d3ee,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px">Xosiyat Virtual Lab</span>
+</div>
+
+<script>
+var LANG='uz';
+var I18N={
+ uz:{title:"Yorug'likning <span>interferensiyasi</span> — Frenel biprizmasi",hsub:'OPTIKA · FIZPRAKTIKUM · SDPI 2026',measLbl:"O'lchov:",
+   tab1:'a) Δx aniqlash',tab2:'b) Z aniqlash',tab3:'v) λ hisoblash',
+   paramTitleA:'a-mashq parametrlari',paramTitleB:'b-mashq parametrlari',paramTitleC:'v-mashq parametrlari',
+   dLbl:'D — manba-ekran',nLbl:'N — chiziqlar soni',lLbl:"l — chiziqlar oralig'i",dLbl2:'d — manba-linza',fLbl:'f — linza-ekran',
+   finalFormula:'YAKUNIY FORMULA',redLambda:'≈ 630–680 nm (qizil)',
+   step1:"Δx ni o'lchang (a-mashq)",step2:'Z ni aniqlang (b-mashq)',step3:'λ hisoblang (v-mashq)',step4:'Xatoni baholang',
+   measBtn:"O'lchov olish",calcBtn:'λ Hisoblash',resetBtn:'Qayta boshlash',resultsSec:"O'lchov natijalari",
+   screenSec:'Interferensiya ekrani',tableSec:'Jadval (5.1-jadval)',avgLambda:"O'rtacha to'lqin uzunligi λ̄",nmLbl:'nanometr (nm)',
+   absErr:'Absolyut xatolik Δλ',relErr:'Nisbiy xatolik ε',trueLambda:'Haqiqiy λ (qizil lazer)',
+   startTitle:"Yorug'likning <span style=\"color:#22d3ee\">interferensiyasi</span>",startSub:"Frenel biprizmasi · Lazer to'lqin uzunligini aniqlash",
+   infoTime:'Vaqt',infoEx:'Mashq',infoExVal:'3 ta',infoGoal:'Maqsad',infoGoalVal:'λ topish',
+   procedure:'BAJARISH TARTIBI',ps1:"Lazer, biprizma va ekranni optik skameykaga o'rnating",
+   ps2:'Ekrandagi <b style="color:#22d3ee">interferensiya chiziqlarini</b> sanang (N)',
+   ps3:'Δx, D, Z, d, f larni o\'lchang → <b style="color:#22d3ee">"O\'lchov olish"</b>',ps4:'λ = d·Z·Δx / (f·D) formulasi bilan hisoblang',
+   startBtn:'▶ Laboratoriyani boshlash',
+   statusDefault:'D masofasini tanlang va N — chiziqlar sonini kiriting',
+   tabTitles:['a-mashq: Δx aniqlash','b-mashq: Z aniqlash','v-mashq: λ hisoblash'],
+   tabInstrs:['🔴 N ta chiziq orasidagi l masofani o\'lchang → Δx = l/N','🔍 Linzani harakatlantiring → S₁S₂ tasvirini toping → Z ni o\'lchang','📊 λ = d·Z·Δx / (f·D) — barcha qiymatlar kiritilganda hisoblang'],
+   fringesLbl:' chiziq  |  Δx=',mmLbl:' mm',measStatus:': Δx=',measStatus2:' mm, λ=',measStatus3:' nm',
+   instrEnough:'✅ Yetarli o\'lchov. "λ Hisoblash" tugmasini bosing',avgRowLbl:'λ̄ =',
+   finalStatus:'🎉 Lazer to\'lqin uzunligi: λ̄ = ',finalStatus2:' nm | ε = '
+ },
+ ru:{title:'Интерференция <span>света</span> — Бипризма Френеля',hsub:'ОПТИКА · ФИЗПРАКТИКУМ · SDPI 2026',measLbl:'Измерений:',
+   tab1:'а) Определение Δx',tab2:'б) Определение Z',tab3:'в) Вычисление λ',
+   paramTitleA:'Параметры упр. а',paramTitleB:'Параметры упр. б',paramTitleC:'Параметры упр. в',
+   dLbl:'D — источник-экран',nLbl:'N — число полос',lLbl:'l — расстояние между полосами',dLbl2:'d — источник-линза',fLbl:'f — линза-экран',
+   finalFormula:'ИТОГОВАЯ ФОРМУЛА',redLambda:'≈ 630–680 нм (красный)',
+   step1:'Измерьте Δx (упр. а)',step2:'Определите Z (упр. б)',step3:'Вычислите λ (упр. в)',step4:'Оцените погрешность',
+   measBtn:'Сделать измерение',calcBtn:'Вычислить λ',resetBtn:'Начать заново',resultsSec:'Результаты измерений',
+   screenSec:'Экран интерференции',tableSec:'Таблица (табл. 5.1)',avgLambda:'Средняя длина волны λ̄',nmLbl:'нанометр (нм)',
+   absErr:'Абс. погрешность Δλ',relErr:'Отн. погрешность ε',trueLambda:'Реальное λ (красный лазер)',
+   startTitle:'Интерференция <span style="color:#22d3ee">света</span>',startSub:'Бипризма Френеля · Определение длины волны лазера',
+   infoTime:'Время',infoEx:'Упражнения',infoExVal:'3 шт.',infoGoal:'Цель',infoGoalVal:'найти λ',
+   procedure:'ПОРЯДОК ВЫПОЛНЕНИЯ',ps1:'Установите лазер, бипризму и экран на оптической скамье',
+   ps2:'Сосчитайте <b style="color:#22d3ee">интерференционные полосы</b> на экране (N)',
+   ps3:'Измерьте Δx, D, Z, d, f → <b style="color:#22d3ee">"Сделать измерение"</b>',ps4:'Вычислите по формуле λ = d·Z·Δx / (f·D)',
+   startBtn:'▶ Начать лабораторную',
+   statusDefault:'Выберите расстояние D и введите N — число полос',
+   tabTitles:['Упр. а: Определение Δx','Упр. б: Определение Z','Упр. в: Вычисление λ'],
+   tabInstrs:['🔴 Измерьте расстояние l между N полосами → Δx = l/N','🔍 Двигайте линзу → найдите изображение S₁S₂ → измерьте Z','📊 λ = d·Z·Δx / (f·D) — вычислите, когда все значения введены'],
+   fringesLbl:' полос  |  Δx=',mmLbl:' мм',measStatus:': Δx=',measStatus2:' мм, λ=',measStatus3:' нм',
+   instrEnough:'✅ Достаточно данных. Нажмите "Вычислить λ"',avgRowLbl:'λ̄ =',
+   finalStatus:'🎉 Длина волны лазера: λ̄ = ',finalStatus2:' нм | ε = '
+ },
+ en:{title:'Light <span>Interference</span> — Fresnel Biprism',hsub:'OPTICS · PHYSICS LAB · SDPI 2026',measLbl:'Measurements:',
+   tab1:'a) Find Δx',tab2:'b) Find Z',tab3:'c) Calculate λ',
+   paramTitleA:'Exercise a parameters',paramTitleB:'Exercise b parameters',paramTitleC:'Exercise c parameters',
+   dLbl:'D — source-screen',nLbl:'N — number of fringes',lLbl:'l — fringe spacing',dLbl2:'d — source-lens',fLbl:'f — lens-screen',
+   finalFormula:'FINAL FORMULA',redLambda:'≈ 630–680 nm (red)',
+   step1:'Measure Δx (exercise a)',step2:'Determine Z (exercise b)',step3:'Calculate λ (exercise c)',step4:'Assess the error',
+   measBtn:'Take measurement',calcBtn:'Calculate λ',resetBtn:'Restart',resultsSec:'Measurement results',
+   screenSec:'Interference screen',tableSec:'Table (Table 5.1)',avgLambda:'Average wavelength λ̄',nmLbl:'nanometers (nm)',
+   absErr:'Absolute error Δλ',relErr:'Relative error ε',trueLambda:'Real λ (red laser)',
+   startTitle:'Light <span style="color:#22d3ee">Interference</span>',startSub:'Fresnel biprism · Determining the laser wavelength',
+   infoTime:'Time',infoEx:'Exercises',infoExVal:'3',infoGoal:'Goal',infoGoalVal:'find λ',
+   procedure:'PROCEDURE',ps1:'Set up the laser, biprism, and screen on the optical bench',
+   ps2:'Count the <b style="color:#22d3ee">interference fringes</b> on the screen (N)',
+   ps3:'Measure Δx, D, Z, d, f → <b style="color:#22d3ee">"Take measurement"</b>',ps4:'Calculate using λ = d·Z·Δx / (f·D)',
+   startBtn:'▶ Start the lab',
+   statusDefault:'Choose distance D and enter N — the number of fringes',
+   tabTitles:['Exercise a: Find Δx','Exercise b: Find Z','Exercise c: Calculate λ'],
+   tabInstrs:['🔴 Measure distance l across N fringes → Δx = l/N','🔍 Move the lens → find the S₁S₂ image → measure Z','📊 λ = d·Z·Δx / (f·D) — calculate once all values are entered'],
+   fringesLbl:' fringes  |  Δx=',mmLbl:' mm',measStatus:': Δx=',measStatus2:' mm, λ=',measStatus3:' nm',
+   instrEnough:'✅ Enough data. Press "Calculate λ"',avgRowLbl:'λ̄ =',
+   finalStatus:'🎉 Laser wavelength: λ̄ = ',finalStatus2:' nm | ε = '
+ }
+};
+function t(k){return I18N[LANG][k];}
+function setLang(l){
+  LANG=l;
+  document.getElementById('langUZ').className='langbtn'+(l==='uz'?' active':'');
+  document.getElementById('langRU').className='langbtn'+(l==='ru'?' active':'');
+  document.getElementById('langEN').className='langbtn'+(l==='en'?' active':'');
+  document.getElementById('tTitle').innerHTML=t('title');
+  document.getElementById('tHsub').textContent=t('hsub');
+  document.getElementById('tMeasLbl').textContent=t('measLbl');
+  document.getElementById('tTab1').textContent=t('tab1');
+  document.getElementById('tTab2').textContent=t('tab2');
+  document.getElementById('tTab3').textContent=t('tab3');
+  document.getElementById('tDlbl').textContent=t('dLbl');
+  document.getElementById('tNlbl').textContent=t('nLbl');
+  document.getElementById('tLlbl').textContent=t('lLbl');
+  document.getElementById('tdLbl').textContent=t('dLbl2');
+  document.getElementById('tfLbl').textContent=t('fLbl');
+  document.getElementById('tFinalFormula').textContent=t('finalFormula');
+  document.getElementById('tRedLambda').textContent=t('redLambda');
+  document.getElementById('tStep1').textContent=t('step1');
+  document.getElementById('tStep2').textContent=t('step2');
+  document.getElementById('tStep3').textContent=t('step3');
+  document.getElementById('tStep4').textContent=t('step4');
+  document.getElementById('tMeasBtn').textContent=t('measBtn');
+  document.getElementById('tCalcBtn').textContent=t('calcBtn');
+  document.getElementById('tResetBtn').textContent=t('resetBtn');
+  document.getElementById('tResultsSec').textContent=t('resultsSec');
+  document.getElementById('tScreenSec').textContent=t('screenSec');
+  document.getElementById('tTableSec').textContent=t('tableSec');
+  document.getElementById('tAvgLambda').textContent=t('avgLambda');
+  document.getElementById('tNmLbl').textContent=t('nmLbl');
+  document.getElementById('tAbsErr').textContent=t('absErr');
+  document.getElementById('tRelErr').textContent=t('relErr');
+  document.getElementById('tTrueLambda').textContent=t('trueLambda');
+  document.getElementById('tStartTitle').innerHTML=t('startTitle');
+  document.getElementById('tStartSub').textContent=t('startSub');
+  document.getElementById('tInfoTime').textContent=t('infoTime');
+  document.getElementById('tInfoEx').textContent=t('infoEx');
+  document.getElementById('tInfoExVal').textContent=t('infoExVal');
+  document.getElementById('tInfoGoal').textContent=t('infoGoal');
+  document.getElementById('tInfoGoalVal').textContent=t('infoGoalVal');
+  document.getElementById('tProcedure').textContent=t('procedure');
+  document.getElementById('tPS1').textContent=t('ps1');
+  document.getElementById('tPS2').innerHTML=t('ps2');
+  document.getElementById('tPS3').innerHTML=t('ps3');
+  document.getElementById('tPS4').textContent=t('ps4');
+  document.getElementById('tStartBtn').textContent=t('startBtn');
+  if(cnt===0){
+    document.getElementById('statusTxt').textContent=t('statusDefault');
+  }
+  var titles=t('tabTitles');
+  document.getElementById('paramTitle').textContent=titles[tabMode-1];
+  document.getElementById('instrBar').textContent=t('tabInstrs')[tabMode-1];
+  if(typeof drawScreen==='function')drawScreen();
+}
+
+// ===== STATE =====
+var tabMode=1;
+var Dv=0.80, Nv=10, lv=5.5, dv=0.30, fv=0.50;
+var trueZ=1.2; // mm, hidden
+var trueLambda=650; // nm, hidden
+var meas=[], cnt=0;
+var animT=0;
+
+var sc=document.getElementById('simCanvas');
+var sctx=sc.getContext('2d');
+var ec=document.getElementById('screenCanvas');
+var ectx=ec.getContext('2d');
+
+function resize(){sc.width=sc.offsetWidth;sc.height=sc.offsetHeight;drawAll();}
+window.addEventListener('resize',resize);
+setTimeout(resize,80);
+
+// Animate
+function animate(){animT+=0.02;drawSim();requestAnimationFrame(animate);}
+animate();
+
+// ===== TABS =====
+function switchTab(n){
+  tabMode=n;
+  [1,2,3].forEach(function(i){document.getElementById('t'+i).classList.toggle('on',i===n);});
+  document.getElementById('paramsA').style.display=n===1?'block':'none';
+  document.getElementById('paramsB').style.display=n===2?'block':'none';
+  document.getElementById('paramsC').style.display=n===3?'block':'none';
+  var titles=t('tabTitles');
+  document.getElementById('paramTitle').textContent=titles[n-1];
+  var instrs=t('tabInstrs');
+  document.getElementById('instrBar').textContent=instrs[n-1];
+  setStep(n);
+  drawAll();
+}
+
+// ===== CONTROLS =====
+function setParam(name,v){
+  var val=parseFloat(v);
+  if(name==='D'){Dv=val;document.getElementById('dD').textContent=val+' m';}
+  if(name==='N'){Nv=parseInt(val);document.getElementById('dN').textContent=val;}
+  if(name==='l'){lv=val;document.getElementById('dl').textContent=val+' mm';}
+  if(name==='d'){dv=val;document.getElementById('dd').textContent=val+' m';}
+  if(name==='f'){fv=val;document.getElementById('df').textContent=val+' m';}
+  drawAll();
+}
+
+function getDx(){return lv/Nv;}
+function getZ(){return (dv/fv)*trueZ;}
+function getLambda(){return dv*trueZ*getDx()/(fv*Dv)*1e6;} // nm
+
+// ===== DRAW =====
+function drawAll(){drawSim();drawScreen();updateLive();}
+
+function updateLive(){
+  var dx=getDx(), z=getZ(), lam=getLambda();
+  document.getElementById('chipDx').textContent=dx.toFixed(2);
+  document.getElementById('chipL').textContent=lam.toFixed(0);
+  document.getElementById('rDx').textContent=dx.toFixed(3);
+  document.getElementById('rZ').textContent=z.toFixed(3);
+  document.getElementById('rLambda').textContent=lam.toFixed(0);
+  document.getElementById('rD').textContent=Dv.toFixed(2);
+  document.getElementById('rN').textContent=Nv;
+  document.getElementById('rd').textContent=dv.toFixed(2);
+  document.getElementById('rf').textContent=fv.toFixed(2);
+}
+
+function drawSim(){
+  var W=sc.width,H=sc.height;
+  if(!W||!H) return;
+  sctx.clearRect(0,0,W,H);
+  sctx.fillStyle='#07090f';sctx.fillRect(0,0,W,H);
+
+  // grid
+  sctx.strokeStyle='rgba(34,211,238,.025)';sctx.lineWidth=1;
+  for(var x=0;x<W;x+=50){sctx.beginPath();sctx.moveTo(x,0);sctx.lineTo(x,H);sctx.stroke();}
+  for(var y=0;y<H;y+=50){sctx.beginPath();sctx.moveTo(0,y);sctx.lineTo(W,y);sctx.stroke();}
+
+  var cy=H/2;
+  var x0=W*0.05, xE=W*0.97;
+
+  // === OPTICAL BENCH ===
+  sctx.fillStyle='#1a2840';sctx.fillRect(x0,cy+30,xE-x0,6);
+  sctx.strokeStyle='rgba(34,211,238,.12)';sctx.lineWidth=1;sctx.strokeRect(x0,cy+30,xE-x0,6);
+
+  // === COMPONENTS positions ===
+  var xLaser=x0+10;
+  var xPrism=x0+(xE-x0)*0.28;
+  var xLens=x0+(xE-x0)*0.55;
+  var xScreen=xE-20;
+
+  // === LASER ===
+  drawLaser(xLaser,cy);
+
+  // === BIPRIZMA ===
+  drawBiprism(xPrism,cy);
+
+  // === LENS (b-mashq) ===
+  if(tabMode===2||tabMode===3){
+    drawThinLens(xLens,cy);
+  }
+
+  // === SCREEN ===
+  drawScreenDevice(xScreen,cy);
+
+  // === RAYS ===
+  drawRays(xLaser,xPrism,xScreen,cy,tabMode===2||tabMode===3?xLens:null);
+
+  // === LABELS ===
+  // D arrow
+  sctx.strokeStyle='rgba(34,211,238,.3)';sctx.lineWidth=1;sctx.setLineDash([4,4]);
+  sctx.beginPath();sctx.moveTo(xLaser,cy-65);sctx.lineTo(xScreen,cy-65);sctx.stroke();
+  sctx.setLineDash([]);
+  arrSim(xLaser,cy-65,1);arrSim(xScreen,cy-65,-1);
+  sctx.fillStyle='rgba(34,211,238,.7)';sctx.font='bold 11px Space Mono,monospace';sctx.textAlign='center';
+  sctx.fillText('D = '+Dv.toFixed(2)+' m',(xLaser+xScreen)/2,cy-72);
+
+  if(tabMode===2||tabMode===3){
+    // d arrow
+    sctx.strokeStyle='rgba(255,201,71,.25)';sctx.lineWidth=1;sctx.setLineDash([3,4]);
+    sctx.beginPath();sctx.moveTo(xLaser,cy+50);sctx.lineTo(xLens,cy+50);sctx.stroke();
+    sctx.setLineDash([]);
+    sctx.fillStyle='rgba(255,201,71,.6)';sctx.font='9px monospace';sctx.textAlign='center';
+    sctx.fillText('d='+dv+'m',(xLaser+xLens)/2,cy+62);
+    // f arrow
+    sctx.strokeStyle='rgba(111,255,92,.25)';sctx.lineWidth=1;sctx.setLineDash([3,4]);
+    sctx.beginPath();sctx.moveTo(xLens,cy+50);sctx.lineTo(xScreen,cy+50);sctx.stroke();
+    sctx.setLineDash([]);
+    sctx.fillStyle='rgba(111,255,92,.6)';sctx.font='9px monospace';sctx.textAlign='center';
+    sctx.fillText('f='+fv+'m',(xLens+xScreen)/2,cy+62);
+  }
+}
+
+function drawLaser(x,cy){
+  // body
+  var g=sctx.createLinearGradient(x-10,cy-10,x+50,cy+10);
+  g.addColorStop(0,'#1e3050');g.addColorStop(1,'#253550');
+  sctx.fillStyle=g;sctx.fillRect(x-10,cy-10,60,20);
+  sctx.strokeStyle='rgba(34,211,238,.3)';sctx.lineWidth=1;sctx.strokeRect(x-10,cy-10,60,20);
+  // aperture
+  sctx.fillStyle='#ff3030';sctx.beginPath();sctx.arc(x+50,cy,5,0,Math.PI*2);sctx.fill();
+  var lg=sctx.createRadialGradient(x+50,cy,0,x+50,cy,12);
+  lg.addColorStop(0,'rgba(255,48,48,.5)');lg.addColorStop(1,'rgba(255,48,48,0)');
+  sctx.fillStyle=lg;sctx.beginPath();sctx.arc(x+50,cy,12,0,Math.PI*2);sctx.fill();
+  sctx.fillStyle='rgba(255,255,255,.6)';sctx.font='7px monospace';sctx.textAlign='center';
+  sctx.fillText('LAZER',x+20,cy-14);
+  sctx.fillText('He-Ne',x+20,cy+22);
+}
+
+function drawBiprism(x,cy){
+  var h=50;
+  sctx.save();
+  // top prism
+  sctx.fillStyle='rgba(34,211,238,.08)';
+  sctx.beginPath();sctx.moveTo(x,cy);sctx.lineTo(x-20,cy-h);sctx.lineTo(x+20,cy-h);sctx.closePath();sctx.fill();
+  sctx.strokeStyle='rgba(34,211,238,.5)';sctx.lineWidth=1.5;sctx.stroke();
+  // bottom prism
+  sctx.fillStyle='rgba(34,211,238,.08)';
+  sctx.beginPath();sctx.moveTo(x,cy);sctx.lineTo(x-20,cy+h);sctx.lineTo(x+20,cy+h);sctx.closePath();sctx.fill();
+  sctx.strokeStyle='rgba(34,211,238,.5)';sctx.stroke();
+  sctx.restore();
+  sctx.fillStyle='rgba(34,211,238,.5)';sctx.font='7px monospace';sctx.textAlign='center';
+  sctx.fillText('BIPRIZMA',x,cy+h+14);
+}
+
+function drawThinLens(x,cy){
+  sctx.strokeStyle='rgba(111,255,92,.6)';sctx.lineWidth=2;
+  sctx.beginPath();sctx.moveTo(x,cy-50);sctx.lineTo(x,cy+50);sctx.stroke();
+  // lens curves
+  sctx.strokeStyle='rgba(111,255,92,.4)';sctx.lineWidth=1.5;
+  sctx.beginPath();sctx.arc(x-15,cy,30,-Math.PI/3,Math.PI/3);sctx.stroke();
+  sctx.beginPath();sctx.arc(x+15,cy,30,Math.PI*2/3,Math.PI*4/3);sctx.stroke();
+  sctx.fillStyle='rgba(111,255,92,.5)';sctx.font='7px monospace';sctx.textAlign='center';
+  sctx.fillText('LINZA',x,cy+58);
+  sctx.fillText('L',x,cy+68);
+}
+
+function drawScreenDevice(x,cy){
+  sctx.fillStyle='#1a2840';sctx.fillRect(x-5,cy-60,10,120);
+  sctx.strokeStyle='rgba(34,211,238,.3)';sctx.lineWidth=1;sctx.strokeRect(x-5,cy-60,10,120);
+  // interference pattern on screen
+  var stripe=8;
+  for(var i=-7;i<=7;i++){
+    var bright=Math.pow(Math.cos(i*Math.PI/2),2);
+    sctx.fillStyle='rgba(255,48,48,'+(bright*0.5)+')';
+    sctx.fillRect(x-4,cy+i*stripe-stripe/2,8,stripe);
+  }
+  sctx.fillStyle='rgba(34,211,238,.4)';sctx.font='7px monospace';sctx.textAlign='center';
+  sctx.fillText('EKRAN',x,cy+72);
+}
+
+function drawRays(xL,xP,xS,cy,xLens){
+  // Main beam to prism
+  sctx.strokeStyle='rgba(255,48,48,.7)';sctx.lineWidth=2;sctx.shadowBlur=6;sctx.shadowColor='rgba(255,48,48,.4)';
+  sctx.beginPath();sctx.moveTo(xL+60,cy);sctx.lineTo(xP,cy);sctx.stroke();
+  sctx.shadowBlur=0;
+
+  // After prism - two diverging beams (S1, S2)
+  var spread=35;
+  // upper ray
+  sctx.strokeStyle='rgba(255,100,100,.5)';sctx.lineWidth=1.5;
+  sctx.beginPath();sctx.moveTo(xP,cy);
+  if(xLens){
+    sctx.lineTo(xLens,cy-spread*0.6);
+    sctx.lineTo(xS,cy-spread*0.3);
+  } else {
+    sctx.lineTo(xS,cy-spread);
+  }
+  sctx.stroke();
+  // lower ray
+  sctx.beginPath();sctx.moveTo(xP,cy);
+  if(xLens){
+    sctx.lineTo(xLens,cy+spread*0.6);
+    sctx.lineTo(xS,cy+spread*0.3);
+  } else {
+    sctx.lineTo(xS,cy+spread);
+  }
+  sctx.stroke();
+
+  // S1, S2 virtual source dots
+  var sx=xP+40;
+  sctx.fillStyle='rgba(255,180,180,.6)';
+  sctx.beginPath();sctx.arc(sx,cy-12,3,0,Math.PI*2);sctx.fill();
+  sctx.beginPath();sctx.arc(sx,cy+12,3,0,Math.PI*2);sctx.fill();
+  sctx.fillStyle='rgba(255,180,180,.5)';sctx.font='8px monospace';sctx.textAlign='left';
+  sctx.fillText('S₁',sx+5,cy-8);sctx.fillText('S₂',sx+5,cy+16);
+
+  // Interference zone - animated fringes
+  var zoneX=xP+80, zoneW=xS-xP-100;
+  if(zoneW>20){
+    for(var i=0;i<12;i++){
+      var xpos=zoneX+i*(zoneW/12);
+      var bright=Math.pow(Math.cos(i*Math.PI/2+animT*0.5),2)*0.15;
+      sctx.fillStyle='rgba(255,48,48,'+bright+')';
+      sctx.fillRect(xpos,cy-40,zoneW/14,80);
+    }
+  }
+}
+
+function arrSim(x,y,d){
+  sctx.fillStyle='rgba(34,211,238,.4)';
+  sctx.beginPath();sctx.moveTo(x,y);sctx.lineTo(x+d*8,y-4);sctx.lineTo(x+d*8,y+4);sctx.closePath();sctx.fill();
+}
+
+// ===== SCREEN CANVAS =====
+function drawScreen(){
+  var W=ec.offsetWidth||220; ec.width=W; var H=80;
+  ectx.clearRect(0,0,W,H);ectx.fillStyle='#030608';ectx.fillRect(0,0,W,H);
+
+  var dx=getDx(); // mm per fringe
+  var nFringes=Math.ceil(W/20);
+  var pxPerFringe=W/Math.max(5,Nv);
+
+  for(var px=0;px<W;px++){
+    var phase=(px/pxPerFringe)*Math.PI;
+    var bright=Math.pow(Math.cos(phase),2);
+    ectx.fillStyle='rgba(255,50,50,'+bright.toFixed(2)+')';
+    ectx.fillRect(px,0,1,H);
+  }
+
+  // fringe markers
+  for(var i=0;i<=Nv;i++){
+    var fx=i*pxPerFringe;
+    if(fx>W) break;
+    ectx.strokeStyle='rgba(255,255,255,.15)';ectx.lineWidth=1;ectx.setLineDash([2,4]);
+    ectx.beginPath();ectx.moveTo(fx,0);ectx.lineTo(fx,H);ectx.stroke();
+    ectx.setLineDash([]);
+  }
+
+  // labels
+  ectx.fillStyle='rgba(34,211,238,.6)';ectx.font='8px monospace';ectx.textAlign='center';
+  ectx.fillText('N='+Nv+t('fringesLbl')+getDx().toFixed(2)+t('mmLbl'),W/2,H-4);
+}
+
+// ===== MEASURE =====
+function takeMeasure(){
+  var dx=getDx()+(Math.random()-.5)*0.05;
+  var z=getZ()+(Math.random()-.5)*0.05;
+  var lam=dv*trueZ*dx/(fv*Dv)*1e6;
+  lam=lam+(Math.random()-.5)*5;
+
+  cnt++;
+  meas.push({N:Nv,l:lv,dx:dx,D:Dv,Z:z,lambda:lam});
+  document.getElementById('chipCnt').textContent=cnt;
+
+  var ar=document.getElementById('avgRow');if(ar)ar.remove();
+  var tr=document.createElement('tr');
+  tr.innerHTML='<td>'+cnt+'</td><td>'+Nv+'</td><td>'+lv.toFixed(1)+'</td><td>'+dx.toFixed(3)+'</td><td>'+Dv.toFixed(2)+'</td><td>'+z.toFixed(3)+'</td><td>'+lam.toFixed(0)+'</td>';
+  document.getElementById('tbody').appendChild(tr);
+
+  setDot(true);setTimeout(function(){setDot(false);},900);
+  document.getElementById('statusTxt').textContent='✓ #'+cnt+t('measStatus')+dx.toFixed(3)+t('measStatus2')+lam.toFixed(0)+t('measStatus3');
+
+  if(cnt>=3){
+    document.getElementById('calcBtn').disabled=false;
+    document.getElementById('instrBar').textContent=t('instrEnough');
+    setStep(4);
+  }
+
+  // nudge params for next
+  if(cnt<3){
+    Nv=Nv+2;document.getElementById('sN').value=Nv;document.getElementById('dN').textContent=Nv;
+    Dv=parseFloat((Dv+0.1).toFixed(2));document.getElementById('sD').value=Dv;document.getElementById('dD').textContent=Dv+' m';
+    drawAll();
+  }
+}
+
+function calcLambda(){
+  var ls=meas.map(function(m){return m.lambda;});
+  var avg=ls.reduce(function(a,b){return a+b;},0)/ls.length;
+  var v=ls.reduce(function(a,b){return a+Math.pow(b-avg,2);},0);
+  var de=Math.sqrt(v/Math.max(1,ls.length*(ls.length-1)));
+  var re=(de/avg*100);
+
+  var ar=document.createElement('tr');ar.className='avg-r';ar.id='avgRow';
+  ar.innerHTML='<td colspan="6" style="text-align:right">'+t('avgRowLbl')+'</td><td>'+avg.toFixed(0)+'</td>';
+  document.getElementById('tbody').appendChild(ar);
+
+  document.getElementById('finalCard').style.display='block';
+  document.getElementById('avgL').textContent=avg.toFixed(0);
+  document.getElementById('absErr').textContent='± '+de.toFixed(1)+' nm';
+  document.getElementById('relErr').textContent=re.toFixed(2)+'%';
+  document.getElementById('chipL').textContent=avg.toFixed(0);
+  setStep(4);
+  document.getElementById('statusTxt').textContent=t('finalStatus')+avg.toFixed(0)+t('finalStatus2')+re.toFixed(2)+'%';
+}
+
+function resetAll(){
+  meas=[];cnt=0;Dv=0.80;Nv=10;lv=5.5;dv=0.30;fv=0.50;
+  ['sD','sN','sl','sd','sf'].forEach(function(id){
+    var el=document.getElementById(id);
+    if(el){
+      if(id==='sD')el.value=0.80;
+      if(id==='sN')el.value=10;
+      if(id==='sl')el.value=5.5;
+      if(id==='sd')el.value=0.30;
+      if(id==='sf')el.value=0.50;
+    }
+  });
+  document.getElementById('dD').textContent='0.80 m';document.getElementById('dN').textContent='10';
+  document.getElementById('dl').textContent='5.5 mm';document.getElementById('dd').textContent='0.30 m';document.getElementById('df').textContent='0.50 m';
+  document.getElementById('tbody').innerHTML='';
+  document.getElementById('finalCard').style.display='none';
+  document.getElementById('calcBtn').disabled=true;
+  document.getElementById('chipCnt').textContent='0';document.getElementById('chipDx').textContent='—';document.getElementById('chipL').textContent='—';
+  document.getElementById('statusTxt').textContent=t('statusDefault');
+  document.getElementById('instrBar').textContent=t('tabInstrs')[0];
+  setDot(false);setStep(1);switchTab(1);
+  drawAll();
+}
+
+function setDot(on){document.getElementById('dot').classList.toggle('off',!on);}
+function setStep(n){for(var i=1;i<=4;i++){var el=document.getElementById('st'+i);el.className='step'+(i<n?' done':i===n?' active':'');el.querySelector('.snum').textContent=i<n?'✓':i;}}
+
+window.addEventListener('load',function(){setTimeout(function(){resize();setLang('uz');},100);});
+</script>
+</body>
+</html>

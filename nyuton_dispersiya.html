@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>13-Lab — Nyuton tajribalari. Dispersiya va Rekombinatsiya</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap');
+:root{--bg:#07090f;--panel:#0e1420;--border:#1b2840;--accent:#a78bfa;--green:#6fff5c;--yellow:#ffc947;--text:#dde6f5;--muted:#4a6080;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;height:100vh;overflow:hidden;display:flex;flex-direction:column;}
+header{display:flex;align-items:center;gap:12px;padding:8px 20px;border-bottom:1px solid var(--border);background:linear-gradient(90deg,#07090f,#120a1f,#07090f);flex-shrink:0;}
+.badge{background:linear-gradient(90deg,#f87171,#fbbf24,#34d399,#60a5fa,#a78bfa);color:#000;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:3px 9px;letter-spacing:2px;border-radius:2px;}
+.htitle{font-size:15px;font-weight:800;}.htitle span{color:var(--accent);}
+.hsub{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-left:auto;}
+.brand{display:flex;align-items:center;gap:6px;background:linear-gradient(135deg,rgba(167,139,250,.15),rgba(111,255,92,.1));border:1px solid rgba(167,139,250,.3);border-radius:20px;padding:4px 14px;margin-left:10px;flex-shrink:0;}
+.brand-txt{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;background:linear-gradient(90deg,#a78bfa,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;}
+.tabs{display:flex;background:#0a0f1c;border-bottom:1px solid var(--border);flex-shrink:0;}
+.tab{padding:8px 20px;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap;}
+.tab:hover{color:var(--text);}
+.tab.on{color:var(--accent);border-bottom-color:var(--accent);}
+.statusbar{background:#0a0f1c;border-bottom:1px solid var(--border);padding:5px 20px;display:flex;align-items:center;gap:14px;font-family:'Space Mono',monospace;font-size:11px;flex-shrink:0;}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:bl 1s infinite;flex-shrink:0;}
+.dot.off{background:var(--muted);animation:none;}
+@keyframes bl{0%,100%{opacity:1}50%{opacity:.2}}
+#statusTxt{color:var(--accent);}
+.chips{display:flex;gap:6px;margin-left:auto;}
+.chip{background:rgba(167,139,250,.08);border:1px solid rgba(167,139,250,.2);border-radius:10px;padding:2px 9px;font-size:10px;color:var(--muted);}
+.chip span{color:var(--accent);}
+.body{display:grid;grid-template-columns:210px 1fr 240px;flex:1;overflow:hidden;}
+.left{background:var(--panel);border-right:1px solid var(--border);overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:9px;}
+.stitle{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--accent);text-transform:uppercase;margin-bottom:3px;opacity:.85;}
+.card{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:8px;padding:10px;}
+.card label{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:7px;}
+.vb{font-family:'Space Mono',monospace;font-size:11px;color:var(--accent);background:rgba(167,139,250,.12);padding:2px 7px;border-radius:3px;}
+input[type=range]{width:100%;-webkit-appearance:none;height:4px;background:var(--border);border-radius:2px;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;background:var(--accent);border-radius:50%;cursor:pointer;box-shadow:0 0 8px rgba(167,139,250,.7);}
+.filter-btns{display:flex;flex-direction:column;gap:4px;}
+.fb{border:1px solid var(--border);background:rgba(255,255,255,.03);color:var(--muted);padding:7px 10px;border-radius:6px;font-size:11px;cursor:pointer;transition:all .2s;font-family:'Space Mono',monospace;}
+.fb.on{font-weight:700;border-color:rgba(167,139,250,.4);}
+.fbox{background:rgba(167,139,250,.04);border:1px solid rgba(167,139,250,.15);border-radius:7px;padding:9px;}
+.frow{display:flex;gap:6px;margin-bottom:4px;font-family:'Space Mono',monospace;font-size:10px;}
+.frow:last-child{margin-bottom:0;}
+.fl{color:var(--muted);min-width:20px;}.fe{color:var(--yellow);}
+.steps{display:flex;flex-direction:column;gap:3px;}
+.step{display:flex;align-items:center;gap:7px;padding:5px 8px;border-radius:5px;font-size:10px;color:var(--muted);border:1px solid transparent;transition:all .3s;}
+.step.active{background:rgba(167,139,250,.07);border-color:rgba(167,139,250,.2);color:var(--accent);}
+.step.done{color:var(--green);}
+.snum{font-family:'Space Mono',monospace;font-size:9px;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.05);flex-shrink:0;}
+.step.active .snum{background:rgba(167,139,250,.2);}
+.step.done .snum{background:rgba(111,255,92,.12);color:var(--green);}
+.btn{width:100%;padding:10px;border:none;border-radius:7px;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;cursor:pointer;transition:all .2s;}
+.btn-p{background:linear-gradient(135deg,#a78bfa,#7c3aed);color:#fff;}
+.btn-p:hover{transform:translateY(-1px);box-shadow:0 5px 18px rgba(167,139,250,.4);}
+.btn-r{background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--border);margin-top:5px;font-size:11px;}
+.center{position:relative;overflow:hidden;background:#040810;}
+#simCanvas{display:block;width:100%;height:100%;}
+.instr-bar{position:absolute;bottom:0;left:0;right:0;background:rgba(4,8,16,.92);border-top:1px solid var(--border);padding:6px 18px;font-size:11px;color:var(--muted);text-align:center;}
+.right{background:var(--panel);border-left:1px solid var(--border);overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:9px;}
+.rc{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:8px;padding:10px;}
+.rl{font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:3px;}
+#specCanvas{display:block;width:100%;border-radius:8px;border:1px solid var(--border);}
+#recomCanvas{display:block;width:100%;border-radius:8px;border:1px solid var(--border);}
+table{width:100%;border-collapse:collapse;font-family:'Space Mono',monospace;font-size:9px;}
+th{color:var(--accent);font-size:8px;letter-spacing:1px;border-bottom:1px solid var(--border);padding:4px 2px;text-align:center;}
+td{padding:3px 2px;border-bottom:1px solid rgba(255,255,255,.03);text-align:center;}
+.langsw{display:flex;gap:2px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:6px;padding:2px;margin-left:8px;}
+.langbtn{background:transparent;border:none;color:var(--muted);font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:4px 8px;border-radius:4px;cursor:pointer;letter-spacing:1px;}
+.langbtn.active{background:var(--accent);color:#000;}
+</style>
+</head>
+<body>
+<!-- BOSHLASH EKRANI -->
+<div id="startScreen" style="position:fixed;inset:0;z-index:9998;background:radial-gradient(ellipse at 50% 40%,#12001f 0%,#07090f 70%);display:flex;align-items:center;justify-content:center;">
+  <canvas id="bgCanvas" style="position:absolute;inset:0;width:100%;height:100%;opacity:.5;pointer-events:none"></canvas>
+  <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:18px;max-width:580px;padding:20px;text-align:center">
+    <div style="display:flex;align-items:center;gap:10px">
+      <div style="background:linear-gradient(90deg,#f87171,#fbbf24,#34d399,#60a5fa,#a78bfa);color:#000;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:4px 14px;letter-spacing:2px;border-radius:2px">LAB · 13</div>
+      <div style="font-family:'Space Mono',monospace;font-size:10px;color:#4a6080;letter-spacing:2px">OPTIKA · DISPERSIYA</div>
+    </div>
+    <div style="width:90px;height:90px;border-radius:50%;background:conic-gradient(#f87171,#fbbf24,#34d399,#60a5fa,#a78bfa,#f87171);display:flex;align-items:center;justify-content:center;box-shadow:0 0 50px rgba(167,139,250,.4);animation:spin13 6s linear infinite;"><span style="font-size:38px;background:#07090f;border-radius:50%;width:68px;height:68px;display:flex;align-items:center;justify-content:center;">🌈</span></div>
+    <h1 style="font-size:22px;font-weight:800;color:#fff" id="tStartTitle">Oq yorug'likning <span style="color:#a78bfa">dispersiyasi</span> va rekombinatsiyasi</h1>
+    <p style="font-size:12px;color:#4a6080;font-family:'Space Mono',monospace" id="tStartSub">Nyuton tajribalari · Prizma · Spektr · Oq yorug'lik tiklanishi</p>
+    <div style="background:rgba(167,139,250,.05);border:1px solid rgba(167,139,250,.18);border-radius:12px;padding:16px;width:100%;text-align:left">
+      <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;color:#a78bfa;margin-bottom:10px" id="tProcedure">BAJARISH TARTIBI</div>
+      <div style="display:flex;flex-direction:column;gap:7px">
+        <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:#c5d3e8"><div style="width:22px;height:22px;border-radius:50%;background:rgba(167,139,250,.2);display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:10px;color:#a78bfa;flex-shrink:0">1</div><span id="tS1"><b style="color:#a78bfa">1-Tajriba:</b> Oq nur → 1-prizma → Rangli spektr</span></div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:#c5d3e8"><div style="width:22px;height:22px;border-radius:50%;background:rgba(167,139,250,.2);display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:10px;color:#a78bfa;flex-shrink:0">2</div><span id="tS2">Filtr → bitta rang ajrating → 2-prizmadan o'tkazing</span></div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:#c5d3e8"><div style="width:22px;height:22px;border-radius:50%;background:rgba(167,139,250,.2);display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:10px;color:#a78bfa;flex-shrink:0">3</div><span id="tS3"><b style="color:#6fff5c">2-Tajriba:</b> 1-prizma + linza + 2-prizma → OQ yorug'lik!</span></div>
+      </div>
+    </div>
+    <button onclick="startLab()" style="background:linear-gradient(135deg,#a78bfa,#7c3aed);color:#fff;border:none;border-radius:12px;padding:16px 60px;font-size:16px;font-weight:800;font-family:'Syne',sans-serif;cursor:pointer;box-shadow:0 8px 30px rgba(167,139,250,.4);width:100%"
+    onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'"><span id="tStartBtn">▶ Laboratoriyani boshlash</span></button>
+    <div style="display:flex;align-items:center;gap:6px;opacity:.6"><span>🔬</span><span style="font-family:'Space Mono',monospace;font-size:10px;background:linear-gradient(90deg,#a78bfa,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;font-weight:700">Xosiyat Virtual Lab</span></div>
+  </div>
+</div>
+<style>
+@keyframes spin13{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes fadeOut{0%{opacity:1}100%{opacity:0;transform:scale(1.04)}}
+</style>
+<script>
+(function(){var c=document.getElementById('bgCanvas');var x=c.getContext('2d');var pts=[];function rs(){c.width=window.innerWidth;c.height=window.innerHeight;}rs();window.addEventListener('resize',rs);
+var cols=['rgba(248,113,113,','rgba(251,191,36,','rgba(52,211,153,','rgba(96,165,250,','rgba(167,139,250,'];
+for(var i=0;i<60;i++)pts.push({x:Math.random()*1600,y:Math.random()*900,r:Math.random()*1.5+.5,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,a:Math.random(),ci:Math.floor(Math.random()*5)});
+function fr(){x.clearRect(0,0,c.width,c.height);pts.forEach(function(p){p.x+=p.vx;p.y+=p.vy;p.a+=.005;if(p.x<0)p.x=c.width;if(p.x>c.width)p.x=0;if(p.y<0)p.y=c.height;if(p.y>c.height)p.y=0;x.fillStyle=cols[p.ci]+(0.2+Math.sin(p.a)*0.15)+')';x.beginPath();x.arc(p.x%c.width,p.y%c.height,p.r,0,Math.PI*2);x.fill();});requestAnimationFrame(fr);}fr();})();
+function startLab(){var s=document.getElementById('startScreen');s.style.animation='fadeOut .5s ease forwards';setTimeout(function(){s.style.display='none';},480);}
+</script>
+
+<header>
+  <div class="badge">LAB · 13</div>
+  <h1 class="htitle" id="tTitle">Nyuton tajribalari — <span>Dispersiya va Rekombinatsiya</span></h1>
+  <div class="hsub" id="tHsub">OPTIKA · FIZPRAKTIKUM · SDPI 2025</div>
+  <div class="langsw">
+    <button class="langbtn active" id="langUZ" onclick="setLang('uz')">UZ</button>
+    <button class="langbtn" id="langRU" onclick="setLang('ru')">RU</button>
+    <button class="langbtn" id="langEN" onclick="setLang('en')">EN</button>
+  </div>
+  <div class="brand"><span>🔬</span><span class="brand-txt">Xosiyat Virtual Lab</span></div>
+</header>
+
+<div class="tabs">
+  <div class="tab on" id="t1" onclick="switchTab(1)">🌈 <span id="tTab1">1-Tajriba: Dispersiya</span></div>
+  <div class="tab" id="t2" onclick="switchTab(2)">⚪ <span id="tTab2">2-Tajriba: Rekombinatsiya</span></div>
+  <div class="tab" id="t3" onclick="switchTab(3)">🔬 <span id="tTab3">Qo'sh dispersiya</span></div>
+</div>
+
+<div class="statusbar">
+  <div class="dot off" id="dot"></div>
+  <span id="statusTxt">Oq nur prizmadan o'tib ranglarga ajraladi — spektrni kuzating</span>
+  <div class="chips">
+    <div class="chip"><span id="tChipTabLbl">Tajriba:</span> <span id="chipTab">1</span></div>
+    <div class="chip"><span id="tChipFilterLbl">Filtr:</span> <span id="chipFilter">Oq</span></div>
+    <div class="chip"><span id="tChipResultLbl">Natija:</span> <span id="chipResult">Spektr</span></div>
+  </div>
+</div>
+
+<div class="body">
+<div class="left">
+  <div class="stitle" id="tLightSrcLbl">Yorug'lik manbai</div>
+  <div class="card">
+    <label><span id="tIntensityLbl">Intensivlik</span> <span class="vb" id="dInt">100%</span></label>
+    <input type="range" id="sInt" min="20" max="100" step="10" value="100" oninput="setInt(this.value)">
+  </div>
+  <div class="stitle" id="filterTitle">Rang filtri (1-Tajriba)</div>
+  <div class="filter-btns" id="filterBtns">
+    <div class="fb on" data-color="white" onclick="setFilter(this)" style="border-color:rgba(255,255,255,.4);color:#fff;background:rgba(255,255,255,.08)">⬤ <span id="tFilterWhite">Oq (barcha ranglar)</span></div>
+    <div class="fb" data-color="red" onclick="setFilter(this)" style="color:#ff6060">⬤ <span id="tFilterRed">Qizil (656nm)</span></div>
+    <div class="fb" data-color="yellow" onclick="setFilter(this)" style="color:#ffd700">⬤ <span id="tFilterYellow">Sariq (589nm)</span></div>
+    <div class="fb" data-color="green" onclick="setFilter(this)" style="color:#50ff50">⬤ <span id="tFilterGreen">Yashil (546nm)</span></div>
+    <div class="fb" data-color="blue" onclick="setFilter(this)" style="color:#6090ff">⬤ <span id="tFilterBlue">Ko'k (486nm)</span></div>
+    <div class="fb" data-color="violet" onclick="setFilter(this)" style="color:#c060ff">⬤ <span id="tFilterViolet">Binafsha (436nm)</span></div>
+  </div>
+  <div class="fbox">
+    <div class="frow"><span class="fl">n(λ)</span><span class="fe" id="tFbox1">sindirish ko'rsatkichi</span></div>
+    <div class="frow"><span class="fl">δ</span><span class="fe" id="tFbox2">= (n-1)·A (og'ish)</span></div>
+    <div class="frow"><span class="fl">Σ</span><span class="fe" id="tFbox3">spektr = barcha λ</span></div>
+    <div class="frow"><span class="fl" id="tFbox4l">oq</span><span class="fe" id="tFbox4">= rekombinatsiya</span></div>
+  </div>
+  <div class="steps">
+    <div class="step active" id="st1"><div class="snum">1</div><span id="tStep1">Oq nur → 1-prizma</span></div>
+    <div class="step" id="st2"><div class="snum">2</div><span id="tStep2">Spektr kuzating</span></div>
+    <div class="step" id="st3"><div class="snum">3</div><span id="tStep3">Bir rang ajrating</span></div>
+    <div class="step" id="st4"><div class="snum">4</div><span id="tStep4">Rekombinatsiya</span></div>
+  </div>
+  <button class="btn btn-p" onclick="nextStep()">▶ <span id="tNextBtn">Keyingi bosqich</span></button>
+  <button class="btn btn-r" onclick="resetAll()">↺ <span id="tResetBtn">Qayta boshlash</span></button>
+</div>
+
+<div class="center">
+  <canvas id="simCanvas"></canvas>
+  <div class="instr-bar" id="instrBar">🌈 Oq nur 1-prizmadan o'tib spektrga ajraladi — har bir rang o'z burchagida og'adi</div>
+</div>
+
+<div class="right">
+  <div class="stitle" id="tScreenLbl">Ekrandagi ko'rinish</div>
+  <canvas id="specCanvas" height="80"></canvas>
+  <div class="stitle" id="recomTitle" style="margin-top:6px">Rekombinatsiya natijasi</div>
+  <canvas id="recomCanvas" height="55"></canvas>
+  <div class="stitle" style="margin-top:6px" id="tSpectralTableLbl">Spektral ranglar va n(λ)</div>
+  <table>
+    <thead><tr><th id="tThColor">Rang</th><th>λ(nm)</th><th>n</th><th>δ(°)</th></tr></thead>
+    <tbody>
+      <tr><td style="color:#ff4040" id="tColorRed">Qizil</td><td>656</td><td>1.514</td><td>24.8°</td></tr>
+      <tr><td style="color:#ff8800" id="tColorOrange">To'q sariq</td><td>620</td><td>1.516</td><td>25.0°</td></tr>
+      <tr><td style="color:#ffd700" id="tColorYellow">Sariq</td><td>589</td><td>1.519</td><td>25.3°</td></tr>
+      <tr><td style="color:#80ff00" id="tColorGreen">Yashil</td><td>546</td><td>1.523</td><td>25.8°</td></tr>
+      <tr><td style="color:#00aaff" id="tColorBlue">Ko'k</td><td>486</td><td>1.528</td><td>26.4°</td></tr>
+      <tr><td style="color:#8800ff" id="tColorViolet">Binafsha</td><td>436</td><td>1.534</td><td>27.1°</td></tr>
+    </tbody>
+  </table>
+  <div class="rc" style="background:rgba(167,139,250,.04);border-color:rgba(167,139,250,.2);margin-top:4px">
+    <div class="rl" style="margin-bottom:6px" id="tConclusionLbl">Nyuton xulosasi</div>
+    <div style="font-size:11px;color:#c5d3e8;line-height:1.6" id="tConclusionText">
+      Oq yorug'lik — barcha spektral ranglarning <span style="color:#a78bfa">yig'indisi</span>. Prizma ularni <span style="color:#ffc947">ajratadi</span>, linza + teskari prizma esa <span style="color:#6fff5c">qayta birlashtiradi</span>.
+    </div>
+  </div>
+</div>
+</div>
+
+<div style="position:fixed;bottom:14px;right:18px;display:flex;align-items:center;gap:7px;background:rgba(7,9,15,.75);border:1px solid rgba(167,139,250,.2);border-radius:30px;padding:5px 16px;backdrop-filter:blur(10px);z-index:9999;pointer-events:none">
+  <span>🔬</span><span style="font-family:'Space Mono',monospace;font-size:11px;font-weight:700;background:linear-gradient(90deg,#a78bfa,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px">Xosiyat Virtual Lab</span>
+</div>
+
+<script>
+var LANG='uz';
+var I18N={
+ uz:{title:'Nyuton tajribalari — <span>Dispersiya va Rekombinatsiya</span>',hsub:'OPTIKA · FIZPRAKTIKUM · SDPI 2025',
+   startTitle:"Oq yorug'likning <span style=\"color:#a78bfa;\">dispersiyasi</span> va rekombinatsiyasi",
+   startSub:"Nyuton tajribalari · Prizma · Spektr · Oq yorug'lik tiklanishi",procedure:'BAJARISH TARTIBI',
+   s1:'<b style="color:#a78bfa">1-Tajriba:</b> Oq nur → 1-prizma → Rangli spektr',
+   s2:"Filtr → bitta rang ajrating → 2-prizmadan o'tkazing",
+   s3:'<b style="color:#6fff5c">2-Tajriba:</b> 1-prizma + linza + 2-prizma → OQ yorug\'lik!',
+   startBtn:'▶ Laboratoriyani boshlash',
+   tab1:'1-Tajriba: Dispersiya',tab2:'2-Tajriba: Rekombinatsiya',tab3:"Qo'sh dispersiya",
+   statusDefault:"Oq nur prizmadan o'tib ranglarga ajraladi — spektrni kuzating",
+   chipTabLbl:'Tajriba:',chipFilterLbl:'Filtr:',chipResultLbl:'Natija:',
+   lightSrcLbl:"Yorug'lik manbai",intensityLbl:'Intensivlik',filterTitle:'Rang filtri (1-Tajriba)',
+   filterWhite:'Oq (barcha ranglar)',filterRed:'Qizil (656nm)',filterYellow:'Sariq (589nm)',filterGreen:'Yashil (546nm)',filterBlue:"Ko'k (486nm)",filterViolet:'Binafsha (436nm)',
+   fbox1:"sindirish ko'rsatkichi",fbox2:"= (n-1)·A (og'ish)",fbox3:'spektr = barcha λ',fbox4l:'oq',fbox4:'= rekombinatsiya',
+   step1:'Oq nur → 1-prizma',step2:'Spektr kuzating',step3:'Bir rang ajrating',step4:'Rekombinatsiya',
+   nextBtn:'Keyingi bosqich',resetBtn:'Qayta boshlash',
+   instr1:"🌈 Oq nur 1-prizmadan o'tib spektrga ajraladi — har bir rang o'z burchagida og'adi",
+   instr2:"⚪ Dispersiyalangan nur linza orqali 2-prizmaga tushadi → ranglar qayta birlashadi → OQ YORUG'LIK!",
+   instr3:"🔬 Qo'sh dispersiya: 1-prizma → tirqish → bitta rang → 2-prizma → og'adi, parchalanmaydi",
+   screenLbl:"Ekrandagi ko'rinish",recomTitle:'Rekombinatsiya natijasi',recomTitle2:"2-Tajribada ko'rinadi",
+   spectralTableLbl:'Spektral ranglar va n(λ)',thColor:'Rang',
+   colorRed:'Qizil',colorOrange:"To'q sariq",colorYellow:'Sariq',colorGreen:'Yashil',colorBlue:"Ko'k",colorViolet:'Binafsha',
+   conclusionLbl:'Nyuton xulosasi',
+   conclusionText:'Oq yorug\'lik — barcha spektral ranglarning <span style="color:#a78bfa;">yig\'indisi</span>. Prizma ularni <span style="color:#ffc947;">ajratadi</span>, linza + teskari prizma esa <span style="color:#6fff5c;">qayta birlashtiradi</span>.',
+   filterNames:{white:'Oq',red:'Qizil',yellow:'Sariq',green:'Yashil',blue:"Ko'k",violet:'Binafsha'},
+   specLabelSpectrum:'SPEKTR: 436nm ←→ 656nm',specLabelSingle:'Bir rang — parchalanmaydi!',
+   simLabelSpectrum:'SPEKTR (6 ta rang)',simLabelSingle:'Bitta rang — parchalanmaydi',
+   simWhiteResult:'OQ YORUG\'LIK!',simRecombOk:'(Rekombinatsiya ✓)',simRedOnly:'Faqat QIZIL',simNotSplit:'(parchalanmadi!)',
+   recomWhite:"OQ YORUG'LIK ✓",recomWhiteSub:'Rekombinatsiya amalga oshdi',
+   lblPrism1:'1-PRIZMA',lblPrism2:'2-PRIZMA',lblLens:'LINZA',lblSlit:'TIRQISH',lblSlitSub:'(bir rang)',lblScreen:'EKRAN'
+ },
+ ru:{title:'Опыты Ньютона — <span>Дисперсия и Рекомбинация</span>',hsub:'ОПТИКА · ФИЗПРАКТИКУМ · SDPI 2025',
+   startTitle:'Дисперсия и рекомбинация <span style="color:#a78bfa;">белого света</span>',
+   startSub:'Опыты Ньютона · Призма · Спектр · Восстановление белого света',procedure:'ПОРЯДОК ВЫПОЛНЕНИЯ',
+   s1:'<b style="color:#a78bfa">Опыт 1:</b> Белый луч → 1-я призма → Цветной спектр',
+   s2:'Фильтр → выделите один цвет → пропустите через 2-ю призму',
+   s3:'<b style="color:#6fff5c">Опыт 2:</b> 1-я призма + линза + 2-я призма → БЕЛЫЙ свет!',
+   startBtn:'▶ Начать лабораторную',
+   tab1:'Опыт 1: Дисперсия',tab2:'Опыт 2: Рекомбинация',tab3:'Двойная дисперсия',
+   statusDefault:'Белый луч, проходя через призму, разлагается на цвета — наблюдайте спектр',
+   chipTabLbl:'Опыт:',chipFilterLbl:'Фильтр:',chipResultLbl:'Результат:',
+   lightSrcLbl:'Источник света',intensityLbl:'Интенсивность',filterTitle:'Цветной фильтр (Опыт 1)',
+   filterWhite:'Белый (все цвета)',filterRed:'Красный (656нм)',filterYellow:'Жёлтый (589нм)',filterGreen:'Зелёный (546нм)',filterBlue:'Синий (486нм)',filterViolet:'Фиолетовый (436нм)',
+   fbox1:'показатель преломления',fbox2:'= (n-1)·A (отклонение)',fbox3:'спектр = все λ',fbox4l:'белый',fbox4:'= рекомбинация',
+   step1:'Белый луч → 1-я призма',step2:'Наблюдайте спектр',step3:'Выделите цвет',step4:'Рекомбинация',
+   nextBtn:'Следующий этап',resetBtn:'Начать заново',
+   instr1:'🌈 Белый луч, проходя через 1-ю призму, разлагается в спектр — каждый цвет отклоняется на свой угол',
+   instr2:'⚪ Разложенный луч через линзу попадает на 2-ю призму → цвета снова соединяются → БЕЛЫЙ СВЕТ!',
+   instr3:'🔬 Двойная дисперсия: 1-я призма → щель → один цвет → 2-я призма → отклоняется, не разлагается',
+   screenLbl:'Вид на экране',recomTitle:'Результат рекомбинации',recomTitle2:'Видно в Опыте 2',
+   spectralTableLbl:'Спектральные цвета и n(λ)',thColor:'Цвет',
+   colorRed:'Красный',colorOrange:'Оранжевый',colorYellow:'Жёлтый',colorGreen:'Зелёный',colorBlue:'Синий',colorViolet:'Фиолетовый',
+   conclusionLbl:'Вывод Ньютона',
+   conclusionText:'Белый свет — это <span style="color:#a78bfa;">сумма</span> всех спектральных цветов. Призма их <span style="color:#ffc947;">разделяет</span>, а линза + обратная призма — <span style="color:#6fff5c;">снова объединяет</span>.',
+   filterNames:{white:'Белый',red:'Красный',yellow:'Жёлтый',green:'Зелёный',blue:'Синий',violet:'Фиолетовый'},
+   specLabelSpectrum:'СПЕКТР: 436нм ←→ 656нм',specLabelSingle:'Один цвет — не разлагается!',
+   simLabelSpectrum:'СПЕКТР (6 цветов)',simLabelSingle:'Один цвет — не разлагается',
+   simWhiteResult:'БЕЛЫЙ СВЕТ!',simRecombOk:'(Рекомбинация ✓)',simRedOnly:'Только КРАСНЫЙ',simNotSplit:'(не разложился!)',
+   recomWhite:'БЕЛЫЙ СВЕТ ✓',recomWhiteSub:'Рекомбинация произошла',
+   lblPrism1:'1-ПРИЗМА',lblPrism2:'2-ПРИЗМА',lblLens:'ЛИНЗА',lblSlit:'ЩЕЛЬ',lblSlitSub:'(один цвет)',lblScreen:'ЭКРАН'
+ },
+ en:{title:"Newton's Experiments — <span>Dispersion and Recombination</span>",hsub:'OPTICS · PHYSICS LAB · SDPI 2025',
+   startTitle:'Dispersion and recombination of <span style="color:#a78bfa;">white light</span>',
+   startSub:"Newton's experiments · Prism · Spectrum · Restoring white light",procedure:'PROCEDURE',
+   s1:'<b style="color:#a78bfa">Experiment 1:</b> White beam → 1st prism → Colored spectrum',
+   s2:'Filter → isolate one color → pass through the 2nd prism',
+   s3:'<b style="color:#6fff5c">Experiment 2:</b> 1st prism + lens + 2nd prism → WHITE light!',
+   startBtn:'▶ Start the lab',
+   tab1:'Experiment 1: Dispersion',tab2:'Experiment 2: Recombination',tab3:'Double dispersion',
+   statusDefault:'The white beam splits into colors through the prism — observe the spectrum',
+   chipTabLbl:'Experiment:',chipFilterLbl:'Filter:',chipResultLbl:'Result:',
+   lightSrcLbl:'Light source',intensityLbl:'Intensity',filterTitle:'Color filter (Experiment 1)',
+   filterWhite:'White (all colors)',filterRed:'Red (656nm)',filterYellow:'Yellow (589nm)',filterGreen:'Green (546nm)',filterBlue:'Blue (486nm)',filterViolet:'Violet (436nm)',
+   fbox1:'refractive index',fbox2:'= (n-1)·A (deviation)',fbox3:'spectrum = all λ',fbox4l:'white',fbox4:'= recombination',
+   step1:'White beam → 1st prism',step2:'Observe the spectrum',step3:'Isolate one color',step4:'Recombination',
+   nextBtn:'Next stage',resetBtn:'Restart',
+   instr1:"🌈 The white beam splits into a spectrum through the 1st prism — each color deviates at its own angle",
+   instr2:'⚪ The dispersed beam passes through a lens into the 2nd prism → the colors recombine → WHITE LIGHT!',
+   instr3:'🔬 Double dispersion: 1st prism → slit → one color → 2nd prism → deviates, does not split',
+   screenLbl:'View on screen',recomTitle:'Recombination result',recomTitle2:'Visible in Experiment 2',
+   spectralTableLbl:'Spectral colors and n(λ)',thColor:'Color',
+   colorRed:'Red',colorOrange:'Orange',colorYellow:'Yellow',colorGreen:'Green',colorBlue:'Blue',colorViolet:'Violet',
+   conclusionLbl:"Newton's conclusion",
+   conclusionText:'White light is the <span style="color:#a78bfa;">sum</span> of all spectral colors. A prism <span style="color:#ffc947;">splits</span> them, while a lens plus an inverted prism <span style="color:#6fff5c;">recombines</span> them.',
+   filterNames:{white:'White',red:'Red',yellow:'Yellow',green:'Green',blue:'Blue',violet:'Violet'},
+   specLabelSpectrum:'SPECTRUM: 436nm ←→ 656nm',specLabelSingle:'Single color — does not split!',
+   simLabelSpectrum:'SPECTRUM (6 colors)',simLabelSingle:'Single color — does not split',
+   simWhiteResult:'WHITE LIGHT!',simRecombOk:'(Recombination ✓)',simRedOnly:'RED only',simNotSplit:'(not split!)',
+   recomWhite:'WHITE LIGHT ✓',recomWhiteSub:'Recombination achieved',
+   lblPrism1:'PRISM 1',lblPrism2:'PRISM 2',lblLens:'LENS',lblSlit:'SLIT',lblSlitSub:'(single color)',lblScreen:'SCREEN'
+ }
+};
+function t(k){return I18N[LANG][k];}
+function setLang(l){
+  LANG=l;
+  document.getElementById('langUZ').className='langbtn'+(l==='uz'?' active':'');
+  document.getElementById('langRU').className='langbtn'+(l==='ru'?' active':'');
+  document.getElementById('langEN').className='langbtn'+(l==='en'?' active':'');
+  document.getElementById('tTitle').innerHTML=t('title');
+  document.getElementById('tHsub').textContent=t('hsub');
+  document.getElementById('tStartTitle').innerHTML=t('startTitle');
+  document.getElementById('tStartSub').textContent=t('startSub');
+  document.getElementById('tProcedure').textContent=t('procedure');
+  document.getElementById('tS1').innerHTML=t('s1');
+  document.getElementById('tS2').textContent=t('s2');
+  document.getElementById('tS3').innerHTML=t('s3');
+  document.getElementById('tStartBtn').textContent=t('startBtn');
+  document.getElementById('tTab1').textContent=t('tab1');
+  document.getElementById('tTab2').textContent=t('tab2');
+  document.getElementById('tTab3').textContent=t('tab3');
+  document.getElementById('tChipTabLbl').textContent=t('chipTabLbl');
+  document.getElementById('tChipFilterLbl').textContent=t('chipFilterLbl');
+  document.getElementById('tChipResultLbl').textContent=t('chipResultLbl');
+  document.getElementById('tLightSrcLbl').textContent=t('lightSrcLbl');
+  document.getElementById('tIntensityLbl').textContent=t('intensityLbl');
+  document.getElementById('filterTitle').textContent=t('filterTitle');
+  document.getElementById('tFilterWhite').textContent=t('filterWhite');
+  document.getElementById('tFilterRed').textContent=t('filterRed');
+  document.getElementById('tFilterYellow').textContent=t('filterYellow');
+  document.getElementById('tFilterGreen').textContent=t('filterGreen');
+  document.getElementById('tFilterBlue').textContent=t('filterBlue');
+  document.getElementById('tFilterViolet').textContent=t('filterViolet');
+  document.getElementById('tFbox1').textContent=t('fbox1');
+  document.getElementById('tFbox2').textContent=t('fbox2');
+  document.getElementById('tFbox3').textContent=t('fbox3');
+  document.getElementById('tFbox4l').textContent=t('fbox4l');
+  document.getElementById('tFbox4').textContent=t('fbox4');
+  document.getElementById('tStep1').textContent=t('step1');
+  document.getElementById('tStep2').textContent=t('step2');
+  document.getElementById('tStep3').textContent=t('step3');
+  document.getElementById('tStep4').textContent=t('step4');
+  document.getElementById('tNextBtn').textContent=t('nextBtn');
+  document.getElementById('tResetBtn').textContent=t('resetBtn');
+  document.getElementById('tScreenLbl').textContent=t('screenLbl');
+  document.getElementById('tSpectralTableLbl').textContent=t('spectralTableLbl');
+  document.getElementById('tThColor').textContent=t('thColor');
+  document.getElementById('tColorRed').textContent=t('colorRed');
+  document.getElementById('tColorOrange').textContent=t('colorOrange');
+  document.getElementById('tColorYellow').textContent=t('colorYellow');
+  document.getElementById('tColorGreen').textContent=t('colorGreen');
+  document.getElementById('tColorBlue').textContent=t('colorBlue');
+  document.getElementById('tColorViolet').textContent=t('colorViolet');
+  document.getElementById('tConclusionLbl').textContent=t('conclusionLbl');
+  document.getElementById('tConclusionText').innerHTML=t('conclusionText');
+  document.getElementById('recomTitle').textContent=(tabMode===2||tabMode===3)?t('recomTitle'):t('recomTitle');
+  document.getElementById('statusTxt').textContent=t('statusDefault');
+  var instrs=[t('instr1'),t('instr2'),t('instr3')];
+  document.getElementById('instrBar').textContent=instrs[tabMode-1];
+  var names=t('filterNames');
+  document.getElementById('chipFilter').textContent=names[filterColor]||filterColor;
+  drawSpectrum();drawRecom();
+}
+</script>
+<script>
+var tabMode=1,filterColor='white',intVal=100,animT=0,stepNum=1;
+var sc=document.getElementById('simCanvas');
+var sctx=sc.getContext('2d');
+var spec=document.getElementById('specCanvas');
+var spctx=spec.getContext('2d');
+var rec=document.getElementById('recomCanvas');
+var rctx=rec.getContext('2d');
+
+var COLORS=[
+  {name:'Qizil',lam:656,r:255,g:40,b:40,n:1.514},
+  {name:'To\'q sariq',lam:620,r:255,g:120,b:0,n:1.516},
+  {name:'Sariq',lam:589,r:255,g:210,b:0,n:1.519},
+  {name:'Yashil',lam:546,r:80,g:255,b:50,n:1.523},
+  {name:'Ko\'k',lam:486,r:60,g:140,b:255,n:1.528},
+  {name:'Binafsha',lam:436,r:160,g:40,b:255,n:1.534}
+];
+
+function resize(){sc.width=sc.offsetWidth;sc.height=sc.offsetHeight;drawSim();}
+window.addEventListener('resize',resize);
+setTimeout(resize,80);
+(function loop(){animT+=0.008;drawSim();drawSpectrum();if(tabMode===2||tabMode===3)drawRecom();requestAnimationFrame(loop);})();
+
+function switchTab(n){
+  tabMode=n;
+  [1,2,3].forEach(function(i){document.getElementById('t'+i).classList.toggle('on',i===n);});
+  var instrs=[t('instr1'),t('instr2'),t('instr3')];
+  document.getElementById('instrBar').textContent=instrs[n-1];
+  document.getElementById('chipTab').textContent=n;
+}
+
+function setFilter(el){
+  document.querySelectorAll('#filterBtns .fb').forEach(function(b){b.classList.remove('on');});
+  el.classList.add('on');filterColor=el.dataset.color;
+  var names=t('filterNames');
+  document.getElementById('chipFilter').textContent=names[filterColor]||filterColor;
+}
+function setInt(v){intVal=parseFloat(v);document.getElementById('dInt').textContent=v+'%';}
+
+function nextStep(){
+  stepNum=Math.min(4,stepNum+1);setStep(stepNum);
+  if(stepNum===2)switchTab(1);
+  if(stepNum===3){filterColor='red';document.querySelectorAll('#filterBtns .fb').forEach(function(b){b.classList.remove('on');});document.querySelector('[data-color="red"]').classList.add('on');document.getElementById('chipFilter').textContent=t('filterNames').red;}
+  if(stepNum===4)switchTab(2);
+}
+
+function getInColors(){
+  if(filterColor==='white')return COLORS;
+  if(filterColor==='red')return [COLORS[0]];
+  if(filterColor==='yellow')return [COLORS[2]];
+  if(filterColor==='green')return [COLORS[3]];
+  if(filterColor==='blue')return [COLORS[4]];
+  if(filterColor==='violet')return [COLORS[5]];
+  return COLORS;
+}
+
+function drawSim(){
+  var W=sc.width,H=sc.height;
+  if(!W||!H)return;
+  sctx.clearRect(0,0,W,H);
+  sctx.fillStyle='#040810';sctx.fillRect(0,0,W,H);
+  sctx.strokeStyle='rgba(167,139,250,.02)';sctx.lineWidth=1;
+  for(var x=0;x<W;x+=55){sctx.beginPath();sctx.moveTo(x,0);sctx.lineTo(x,H);sctx.stroke();}
+  for(var y=0;y<H;y+=55){sctx.beginPath();sctx.moveTo(0,y);sctx.lineTo(W,y);sctx.stroke();}
+  var cy=H/2;
+  // Uskunalar o'lchami — canvas balandligiga moslashadi (kattaroq va aniqroq ko'rinish uchun)
+  var s=Math.max(0.9,Math.min(H/480,2.0));
+  if(tabMode===1)drawDisp(W,H,cy,s);
+  else if(tabMode===2)drawRecom1(W,H,cy,s);
+  else drawDoubleDisp(W,H,cy,s);
+}
+
+function drawDisp(W,H,cy,s){
+  s=s||1;
+  var lampX=W*0.07,pr1X=W*0.36,screenX=W*0.82;
+  drawLamp(lampX,cy,'rgba(255,240,180,',s);
+  drawPrism(pr1X,cy,'rgba(167,139,250,',70*s,t('lblPrism1'),s);
+  drawScreen(screenX,cy,110*s,s);
+  var inColors=getInColors();
+  // Kiruvchi nur
+  if(filterColor==='white'){
+    sctx.strokeStyle='rgba(255,255,255,0.6)';sctx.lineWidth=3.5;sctx.shadowBlur=8;sctx.shadowColor='rgba(255,255,255,.3)';
+    sctx.beginPath();sctx.moveTo(lampX+26*s,cy);sctx.lineTo(pr1X-22*s,cy);sctx.stroke();sctx.shadowBlur=0;
+  } else {
+    var fc=inColors[0];
+    sctx.strokeStyle='rgba('+fc.r+','+fc.g+','+fc.b+',0.75)';sctx.lineWidth=3.5;sctx.shadowBlur=6;sctx.shadowColor='rgba('+fc.r+','+fc.g+','+fc.b+',.4)';
+    sctx.beginPath();sctx.moveTo(lampX+26*s,cy);sctx.lineTo(pr1X-22*s,cy);sctx.stroke();sctx.shadowBlur=0;
+  }
+  // Dispersiyalangan nurlar
+  inColors.forEach(function(c,i){
+    var spread=(i-(inColors.length-1)/2)*(inColors.length>1?16*s:0);
+    var endY=cy+spread;
+    sctx.strokeStyle='rgba('+c.r+','+c.g+','+c.b+',0.75)';sctx.lineWidth=2.5;
+    sctx.shadowBlur=6;sctx.shadowColor='rgba('+c.r+','+c.g+','+c.b+',.4)';
+    sctx.beginPath();sctx.moveTo(pr1X+22*s,cy);sctx.lineTo(screenX,endY);sctx.stroke();sctx.shadowBlur=0;
+    // Ekranda chiziq
+    sctx.strokeStyle='rgba('+c.r+','+c.g+','+c.b+',0.9)';sctx.lineWidth=4;
+    sctx.shadowBlur=8;sctx.shadowColor='rgba('+c.r+','+c.g+','+c.b+',.6)';
+    sctx.beginPath();sctx.moveTo(screenX-4*s,endY-4*s);sctx.lineTo(screenX-4*s,endY+4*s);sctx.stroke();sctx.shadowBlur=0;
+    if(inColors.length>1){
+      sctx.fillStyle='rgba('+c.r+','+c.g+','+c.b+',.6)';sctx.font=Math.round(8*s)+'px monospace';sctx.textAlign='left';
+      sctx.fillText(c.name,screenX+10*s,endY+4*s);
+    }
+  });
+  // Label
+  sctx.fillStyle='rgba(167,139,250,.7)';sctx.font='bold '+Math.round(11*s)+'px Space Mono,monospace';sctx.textAlign='center';
+  sctx.fillText(filterColor==='white'?t('simLabelSpectrum'):t('simLabelSingle'),screenX,(inColors.length>1?cy-inColors.length*10*s-22*s:cy-28*s));
+}
+
+function drawRecom1(W,H,cy,s){
+  s=s||1;
+  var lampX=W*0.05,pr1X=W*0.22,lensX=W*0.44,pr2X=W*0.62,screenX=W*0.88;
+  drawLamp(lampX,cy,'rgba(255,240,180,',s);
+  drawPrism(pr1X,cy,'rgba(167,139,250,',60*s,t('lblPrism1'),s);
+  // Linza
+  sctx.strokeStyle='rgba(52,211,153,.65)';sctx.lineWidth=2;
+  sctx.beginPath();sctx.moveTo(lensX,cy-50*s);sctx.lineTo(lensX,cy+50*s);sctx.stroke();
+  sctx.beginPath();sctx.arc(lensX-15*s,cy,28*s,-Math.PI/3,Math.PI/3);sctx.stroke();
+  sctx.beginPath();sctx.arc(lensX+15*s,cy,28*s,Math.PI*2/3,Math.PI*4/3);sctx.stroke();
+  sctx.fillStyle='rgba(52,211,153,.5)';sctx.font=Math.round(7*s)+'px monospace';sctx.textAlign='center';sctx.fillText(t('lblLens'),lensX,cy+58*s);
+  // Teskari prizma
+  drawPrismInv(pr2X,cy,'rgba(251,191,36,',60*s,t('lblPrism2'),s);
+  drawScreen(screenX,cy,105*s,s);
+  // Oq nur
+  sctx.strokeStyle='rgba(255,255,255,.55)';sctx.lineWidth=3.5;
+  sctx.beginPath();sctx.moveTo(lampX+26*s,cy);sctx.lineTo(pr1X-18*s,cy);sctx.stroke();
+  // Spektral nurlar pr1→lens
+  COLORS.forEach(function(c,i){
+    var sp=(i-2.5)*12*s;
+    sctx.strokeStyle='rgba('+c.r+','+c.g+','+c.b+',0.6)';sctx.lineWidth=2;
+    sctx.beginPath();sctx.moveTo(pr1X+18*s,cy);sctx.lineTo(lensX,cy+sp);sctx.stroke();
+  });
+  // Linzadan pr2
+  COLORS.forEach(function(c,i){
+    var sp=(i-2.5)*12*s;
+    sctx.strokeStyle='rgba('+c.r+','+c.g+','+c.b+',0.6)';sctx.lineWidth=2;
+    sctx.beginPath();sctx.moveTo(lensX,cy+sp);sctx.lineTo(pr2X-18*s,cy+sp*0.25);sctx.stroke();
+  });
+  // pr2→ekran (birlashib oq)
+  COLORS.forEach(function(c,i){
+    var sp=(i-2.5)*3*s;
+    sctx.strokeStyle='rgba('+c.r+','+c.g+','+c.b+',0.5)';sctx.lineWidth=2;
+    sctx.beginPath();sctx.moveTo(pr2X+18*s,cy+sp);sctx.lineTo(screenX,cy);sctx.stroke();
+  });
+  // Ekranda OQ
+  sctx.fillStyle='rgba(255,255,255,.9)';sctx.font='bold '+Math.round(13*s)+'px Space Mono,monospace';sctx.textAlign='center';
+  sctx.shadowBlur=18;sctx.shadowColor='rgba(255,255,255,.6)';
+  sctx.fillText(t('simWhiteResult'),screenX,cy-35*s);sctx.shadowBlur=0;
+  sctx.fillStyle='rgba(111,255,92,.7)';sctx.font=Math.round(10*s)+'px monospace';
+  sctx.fillText(t('simRecombOk'),screenX,cy-18*s);
+}
+
+function drawDoubleDisp(W,H,cy,s){
+  s=s||1;
+  var lampX=W*0.06,pr1X=W*0.25,slitX=W*0.44,pr2X=W*0.62,screenX=W*0.85;
+  drawLamp(lampX,cy,'rgba(255,240,180,',s);
+  drawPrism(pr1X,cy,'rgba(167,139,250,',60*s,t('lblPrism1'),s);
+  // Tirqish
+  sctx.fillStyle='#1a2840';sctx.fillRect(slitX-5*s,cy-55*s,10*s,42*s);sctx.fillRect(slitX-5*s,cy+13*s,10*s,42*s);
+  sctx.strokeStyle='rgba(167,139,250,.35)';sctx.lineWidth=1;
+  sctx.strokeRect(slitX-5*s,cy-55*s,10*s,42*s);sctx.strokeRect(slitX-5*s,cy+13*s,10*s,42*s);
+  sctx.fillStyle='rgba(167,139,250,.5)';sctx.font=Math.round(7*s)+'px monospace';sctx.textAlign='center';
+  sctx.fillText(t('lblSlit'),slitX,cy+64*s);sctx.fillText(t('lblSlitSub'),slitX,cy+74*s);
+  drawPrism(pr2X,cy,'rgba(251,191,36,',60*s,t('lblPrism2'),s);
+  drawScreen(screenX,cy,100*s,s);
+  // Oq nur
+  sctx.strokeStyle='rgba(255,255,255,.55)';sctx.lineWidth=3.5;
+  sctx.beginPath();sctx.moveTo(lampX+26*s,cy);sctx.lineTo(pr1X-18*s,cy);sctx.stroke();
+  // Spektral pr1→tirqish
+  COLORS.forEach(function(c,i){
+    var sp=(i-2.5)*14*s;
+    sctx.strokeStyle='rgba('+c.r+','+c.g+','+c.b+',0.55)';sctx.lineWidth=2;
+    sctx.beginPath();sctx.moveTo(pr1X+18*s,cy);sctx.lineTo(slitX-5*s,cy+sp);sctx.stroke();
+  });
+  // Qizil rang tirqishdan o'tadi
+  var chosen=COLORS[0];
+  sctx.strokeStyle='rgba('+chosen.r+','+chosen.g+','+chosen.b+',0.85)';sctx.lineWidth=3;
+  sctx.shadowBlur=8;sctx.shadowColor='rgba('+chosen.r+','+chosen.g+','+chosen.b+',.5)';
+  sctx.beginPath();sctx.moveTo(slitX+5*s,cy);sctx.lineTo(pr2X-18*s,cy);sctx.stroke();sctx.shadowBlur=0;
+  // 2-prizmadan
+  sctx.strokeStyle='rgba('+chosen.r+','+chosen.g+','+chosen.b+',0.75)';sctx.lineWidth=2.5;
+  sctx.beginPath();sctx.moveTo(pr2X+18*s,cy);sctx.lineTo(screenX,cy+20*s);sctx.stroke();
+  sctx.fillStyle='rgba(255,80,80,.9)';sctx.font='bold '+Math.round(11*s)+'px monospace';sctx.textAlign='center';
+  sctx.fillText(t('simRedOnly'),screenX,cy+12*s);
+  sctx.fillStyle='rgba(255,80,80,.6)';sctx.font=Math.round(9*s)+'px monospace';sctx.fillText(t('simNotSplit'),screenX,cy+26*s);
+  // Optik o'q
+  sctx.strokeStyle='rgba(255,255,255,.05)';sctx.lineWidth=1;sctx.setLineDash([5,6]);
+  sctx.beginPath();sctx.moveTo(lampX,cy);sctx.lineTo(screenX,cy);sctx.stroke();sctx.setLineDash([]);
+}
+
+function drawLamp(x,cy,clr,s){
+  s=s||1;
+  var g=sctx.createRadialGradient(x,cy,5*s,x,cy,42*s);
+  g.addColorStop(0,clr+'0.25)');g.addColorStop(1,clr+'0)');
+  sctx.fillStyle=g;sctx.beginPath();sctx.arc(x,cy,42*s,0,Math.PI*2);sctx.fill();
+  sctx.fillStyle='#1e3050';sctx.fillRect(x-24*s,cy-16*s,48*s,32*s);
+  sctx.strokeStyle=clr+'0.35)';sctx.lineWidth=1;sctx.strokeRect(x-24*s,cy-16*s,48*s,32*s);
+  sctx.fillStyle=clr+'0.85)';sctx.font=Math.round(13*s)+'px sans-serif';sctx.textAlign='center';sctx.textBaseline='middle';
+  sctx.fillText('💡',x,cy);sctx.textBaseline='alphabetic';
+  sctx.fillStyle=clr+'0.45)';sctx.font=Math.round(7*s)+'px monospace';sctx.textAlign='center';sctx.fillText('6V/30W',x,cy+22*s);
+}
+function drawPrism(cx,cy,clr,h,lbl,s){
+  s=s||1;
+  sctx.fillStyle=clr+'0.08)';
+  sctx.beginPath();sctx.moveTo(cx,cy-h*0.68);sctx.lineTo(cx-h*0.45,cy+h*0.32);sctx.lineTo(cx+h*0.45,cy+h*0.32);sctx.closePath();sctx.fill();
+  sctx.strokeStyle=clr+'0.65)';sctx.lineWidth=2;sctx.stroke();
+  sctx.fillStyle=clr+'0.7)';sctx.font=Math.round(8*s)+'px monospace';sctx.textAlign='center';
+  sctx.fillText(lbl,cx,cy+h*0.32+14*s);sctx.fillText('60°',cx,cy-h*0.68-10*s);
+}
+function drawPrismInv(cx,cy,clr,h,lbl,s){
+  s=s||1;
+  sctx.fillStyle=clr+'0.08)';
+  sctx.beginPath();sctx.moveTo(cx,cy+h*0.68);sctx.lineTo(cx-h*0.45,cy-h*0.32);sctx.lineTo(cx+h*0.45,cy-h*0.32);sctx.closePath();sctx.fill();
+  sctx.strokeStyle=clr+'0.65)';sctx.lineWidth=2;sctx.stroke();
+  sctx.fillStyle=clr+'0.7)';sctx.font=Math.round(8*s)+'px monospace';sctx.textAlign='center';sctx.fillText(lbl,cx,cy+h*0.68+14*s);
+}
+function drawScreen(x,cy,h,s){
+  s=s||1;
+  sctx.fillStyle='#1e2840';sctx.fillRect(x-5*s,cy-h,10*s,h*2);
+  sctx.strokeStyle='rgba(167,139,250,.25)';sctx.lineWidth=1;sctx.strokeRect(x-5*s,cy-h,10*s,h*2);
+  sctx.fillStyle='rgba(167,139,250,.4)';sctx.font=Math.round(7*s)+'px monospace';sctx.textAlign='center';sctx.fillText(t('lblScreen'),x,cy+h+12*s);
+}
+
+function drawSpectrum(){
+  var W=spec.offsetWidth||220;spec.width=W;var H=80;
+  spctx.clearRect(0,0,W,H);spctx.fillStyle='#030608';spctx.fillRect(0,0,W,H);
+  if(filterColor==='white'){
+    var grd=spctx.createLinearGradient(8,0,W-8,0);
+    grd.addColorStop(0,'#ff2020');grd.addColorStop(0.15,'#ff8800');grd.addColorStop(0.3,'#ffdd00');
+    grd.addColorStop(0.45,'#44ff44');grd.addColorStop(0.65,'#2266ff');grd.addColorStop(0.85,'#8800ff');grd.addColorStop(1,'#ff00ff');
+    spctx.fillStyle=grd;spctx.fillRect(8,14,W-16,50);
+    spctx.strokeStyle='rgba(167,139,250,.3)';spctx.lineWidth=1;spctx.strokeRect(8,14,W-16,50);
+    spctx.fillStyle='rgba(255,255,255,.7)';spctx.font='9px monospace';spctx.textAlign='center';
+    spctx.fillText(t('specLabelSpectrum'),W/2,H-4);
+  } else {
+    var cm={red:[255,40,40],yellow:[255,210,0],green:[80,255,50],blue:[60,140,255],violet:[160,40,255]};
+    var col=cm[filterColor]||[255,255,255];
+    var bg=spctx.createLinearGradient(0,0,W,0);
+    bg.addColorStop(0,'rgba('+col[0]+','+col[1]+','+col[2]+',0)');
+    bg.addColorStop(0.5,'rgba('+col[0]+','+col[1]+','+col[2]+',0.9)');
+    bg.addColorStop(1,'rgba('+col[0]+','+col[1]+','+col[2]+',0)');
+    spctx.fillStyle=bg;spctx.fillRect(0,12,W,55);
+    spctx.fillStyle='rgba('+col[0]+','+col[1]+','+col[2]+',.7)';
+    spctx.font='10px monospace';spctx.textAlign='center';spctx.fillText(t('specLabelSingle'),W/2,H-4);
+  }
+}
+
+function drawRecom(){
+  var W=rec.offsetWidth||220;rec.width=W;var H=55;
+  rctx.clearRect(0,0,W,H);rctx.fillStyle='#030608';rctx.fillRect(0,0,W,H);
+  if(tabMode===2){
+    var g=rctx.createRadialGradient(W/2,H/2,0,W/2,H/2,W/2);
+    g.addColorStop(0,'rgba(255,255,255,0.92)');g.addColorStop(0.5,'rgba(255,255,255,0.35)');g.addColorStop(1,'rgba(255,255,255,0)');
+    rctx.fillStyle=g;rctx.fillRect(0,0,W,H);
+    rctx.fillStyle='rgba(0,0,0,.75)';rctx.font='bold 11px Space Mono,monospace';rctx.textAlign='center';
+    rctx.fillText(t('recomWhite'),W/2,H/2+4);
+    rctx.fillStyle='rgba(0,0,0,.55)';rctx.font='8px monospace';rctx.fillText(t('recomWhiteSub'),W/2,H/2+16);
+  } else {
+    rctx.fillStyle='rgba(167,139,250,.3)';rctx.font='10px monospace';rctx.textAlign='center';
+    rctx.fillText(t('recomTitle2'),W/2,H/2+4);
+  }
+}
+
+function setStep(n){for(var i=1;i<=4;i++){var el=document.getElementById('st'+i);el.className='step'+(i<n?' done':i===n?' active':'');el.querySelector('.snum').textContent=i<n?'✓':i;}}
+function resetAll(){tabMode=1;filterColor='white';stepNum=1;switchTab(1);setStep(1);document.querySelectorAll('#filterBtns .fb').forEach(function(b){b.classList.remove('on');});document.querySelector('[data-color="white"]').classList.add('on');document.getElementById('chipFilter').textContent=t('filterNames').white;document.getElementById('statusTxt').textContent=t('statusDefault');}
+function setDot(on){document.getElementById('dot').classList.toggle('off',!on);}
+window.addEventListener('load',function(){setTimeout(function(){resize();drawSpectrum();drawRecom();setLang('uz');},100);});
+</script>
+</body>
+</html>

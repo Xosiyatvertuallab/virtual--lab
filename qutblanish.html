@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>8-Lab — Yorug'lik qutblanish qonunlari</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap');
+:root{
+  --bg:#07090f;--panel:#0e1420;--border:#1b2840;
+  --accent:#f472b6;--green:#6fff5c;--yellow:#ffc947;
+  --red:#ff6b6b;--text:#dde6f5;--muted:#4a6080;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;height:100vh;overflow:hidden;display:flex;flex-direction:column;}
+
+header{display:flex;align-items:center;gap:12px;padding:8px 20px;border-bottom:1px solid var(--border);background:linear-gradient(90deg,#07090f,#1a0010,#07090f);flex-shrink:0;}
+.badge{background:var(--accent);color:#000;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:3px 9px;letter-spacing:2px;border-radius:2px;}
+.htitle{font-size:15px;font-weight:800;}
+.htitle span{color:var(--accent);}
+.hsub{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-left:auto;}
+.brand{display:flex;align-items:center;gap:6px;background:linear-gradient(135deg,rgba(244,114,182,.15),rgba(111,255,92,.1));border:1px solid rgba(244,114,182,.3);border-radius:20px;padding:4px 14px;margin-left:10px;flex-shrink:0;}
+.brand-txt{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;background:linear-gradient(90deg,#f472b6,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;}
+
+.tabs{display:flex;border-bottom:1px solid var(--border);background:#0a0f1c;flex-shrink:0;}
+.tab{padding:8px 18px;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap;}
+.tab:hover{color:var(--text);}
+.tab.on{color:var(--accent);border-bottom-color:var(--accent);}
+
+.statusbar{background:#0a0f1c;border-bottom:1px solid var(--border);padding:5px 20px;display:flex;align-items:center;gap:14px;font-family:'Space Mono',monospace;font-size:11px;flex-shrink:0;}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:bl 1s infinite;flex-shrink:0;}
+.dot.off{background:var(--muted);animation:none;}
+@keyframes bl{0%,100%{opacity:1}50%{opacity:.2}}
+#statusTxt{color:var(--accent);}
+.chips{display:flex;gap:6px;margin-left:auto;}
+.chip{background:rgba(244,114,182,.08);border:1px solid rgba(244,114,182,.2);border-radius:10px;padding:2px 9px;font-size:10px;color:var(--muted);}
+.chip span{color:var(--accent);}
+
+.body{display:grid;grid-template-columns:210px 1fr 255px;flex:1;overflow:hidden;}
+
+.left{background:var(--panel);border-right:1px solid var(--border);overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:9px;}
+.stitle{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--accent);text-transform:uppercase;margin-bottom:3px;opacity:.85;}
+.card{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:8px;padding:10px;}
+.card label{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:7px;}
+.vb{font-family:'Space Mono',monospace;font-size:11px;color:var(--accent);background:rgba(244,114,182,.12);padding:2px 7px;border-radius:3px;}
+input[type=range]{width:100%;-webkit-appearance:none;height:4px;background:var(--border);border-radius:2px;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;background:var(--accent);border-radius:50%;cursor:pointer;box-shadow:0 0 8px rgba(244,114,182,.7);}
+
+.mat-btns{display:flex;flex-direction:column;gap:4px;}
+.mb{border:1px solid var(--border);background:rgba(255,255,255,.03);color:var(--muted);padding:7px 10px;border-radius:6px;font-size:10px;font-family:'Space Mono',monospace;cursor:pointer;transition:all .2s;text-align:left;}
+.mb.on{background:rgba(244,114,182,.1);border-color:var(--accent);color:var(--accent);}
+.mb .ms{display:block;font-size:9px;color:var(--muted);margin-top:1px;}
+.mb.on .ms{color:rgba(244,114,182,.6);}
+
+.fbox{background:rgba(244,114,182,.04);border:1px solid rgba(244,114,182,.15);border-radius:7px;padding:9px;}
+.frow{display:flex;gap:6px;margin-bottom:4px;font-family:'Space Mono',monospace;font-size:10px;}
+.frow:last-child{margin-bottom:0;}
+.fl{color:var(--muted);min-width:28px;}
+.fe{color:var(--yellow);}
+
+.steps{display:flex;flex-direction:column;gap:3px;}
+.step{display:flex;align-items:center;gap:7px;padding:5px 8px;border-radius:5px;font-size:10px;color:var(--muted);border:1px solid transparent;transition:all .3s;}
+.step.active{background:rgba(244,114,182,.07);border-color:rgba(244,114,182,.2);color:var(--accent);}
+.step.done{color:var(--green);}
+.snum{font-family:'Space Mono',monospace;font-size:9px;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.05);flex-shrink:0;}
+.step.active .snum{background:rgba(244,114,182,.2);}
+.step.done .snum{background:rgba(111,255,92,.12);color:var(--green);}
+
+.btn{width:100%;padding:10px;border:none;border-radius:7px;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;cursor:pointer;transition:all .2s;}
+.btn-p{background:linear-gradient(135deg,#f472b6,#be185d);color:#fff;}
+.btn-p:hover{transform:translateY(-1px);box-shadow:0 5px 18px rgba(244,114,182,.4);}
+.btn-p:disabled{opacity:.35;cursor:not-allowed;transform:none;}
+.btn-g{background:linear-gradient(135deg,#6fff5c,#33cc22);color:#000;margin-top:5px;}
+.btn-g:disabled{opacity:.35;cursor:not-allowed;}
+.btn-r{background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--border);margin-top:5px;font-size:11px;}
+
+.center{position:relative;overflow:hidden;background:var(--bg);display:flex;flex-direction:column;}
+#simCanvas{flex:1;display:block;width:100%;}
+.instr-bar{background:rgba(7,9,15,.92);border-top:1px solid var(--border);padding:6px 18px;font-size:11px;color:var(--muted);text-align:center;flex-shrink:0;}
+
+.right{background:var(--panel);border-left:1px solid var(--border);overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:9px;}
+.rc{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:8px;padding:10px;}
+.rc.hi{border-color:rgba(244,114,182,.25);background:rgba(244,114,182,.05);}
+.rl{font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:3px;}
+.rv{font-size:22px;font-weight:800;line-height:1;color:#fff;}
+.ru{font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);margin-top:2px;}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+.three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;}
+
+table{width:100%;border-collapse:collapse;font-family:'Space Mono',monospace;font-size:9px;}
+th{color:var(--accent);font-size:8px;letter-spacing:1px;border-bottom:1px solid var(--border);padding:4px 2px;text-align:center;}
+td{padding:3px 2px;border-bottom:1px solid rgba(255,255,255,.03);text-align:center;}
+tr.avg-r td{color:var(--yellow);border-top:1px solid var(--border);font-weight:700;}
+tr:last-child td{border-bottom:none;}
+
+#graphCanvas{display:block;width:100%;border-radius:8px;border:1px solid var(--border);}
+
+.final-card{background:rgba(244,114,182,.05);border:1px solid rgba(244,114,182,.2);border-radius:8px;padding:12px;}
+.err-row{display:flex;justify-content:space-between;margin-top:6px;font-family:'Space Mono',monospace;font-size:10px;}
+.err-row span:first-child{color:var(--muted);}
+.err-row span:last-child{color:var(--yellow);}
+.langsw{display:flex;gap:3px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;padding:3px;margin-left:10px;}
+.langbtn{background:transparent;border:none;color:var(--muted);font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:4px 9px;border-radius:5px;cursor:pointer;letter-spacing:1px;}
+.langbtn.active{background:var(--accent);color:#000;}
+</style>
+</head>
+<body>
+
+<!-- BOSHLASH EKRANI -->
+<div id="startScreen" style="position:fixed;inset:0;z-index:9998;background:radial-gradient(ellipse at 50% 40%,#1a0015 0%,#07090f 70%);display:flex;align-items:center;justify-content:center;">
+  <canvas id="bgCanvas" style="position:absolute;inset:0;width:100%;height:100%;opacity:.4;pointer-events:none"></canvas>
+  <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:20px;max-width:580px;padding:20px;text-align:center">
+    <div style="display:flex;align-items:center;gap:10px">
+      <div style="background:#f472b6;color:#000;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:4px 14px;letter-spacing:2px;border-radius:2px">LAB · 8</div>
+      <div style="font-family:'Space Mono',monospace;font-size:10px;color:#4a6080;letter-spacing:2px">OPTIKA · QUTBLANISH</div>
+    </div>
+    <div style="width:100px;height:100px;border-radius:50%;background:radial-gradient(circle,rgba(244,114,182,.18) 0%,rgba(244,114,182,.02) 70%);border:2px solid rgba(244,114,182,.4);display:flex;align-items:center;justify-content:center;box-shadow:0 0 50px rgba(244,114,182,.3);animation:pulse8 2.5s ease-in-out infinite;">
+      <span style="font-size:44px">🔮</span>
+    </div>
+    <div>
+      <h1 style="font-size:22px;font-weight:800;line-height:1.2;color:#fff" id="tStartTitle">Yorug'likning <span style="color:#f472b6">qutblanish qonunlari</span></h1>
+      <p style="font-size:13px;color:#4a6080;margin-top:8px;font-family:'Space Mono',monospace" id="tStartSub">Bryuster burchagi · P = f(α) · sindirish ko'rsatkichi n</p>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;width:100%">
+      <div style="background:rgba(255,255,255,.04);border:1px solid #1b2840;border-radius:10px;padding:12px"><div style="font-size:20px;margin-bottom:4px">⏱</div><div style="font-size:11px;color:#4a6080;font-family:monospace" id="tInfoTime">Vaqt</div><div style="font-size:13px;font-weight:700;color:#dde6f5;margin-top:2px">30-45 min</div></div>
+      <div style="background:rgba(255,255,255,.04);border:1px solid #1b2840;border-radius:10px;padding:12px"><div style="font-size:20px;margin-bottom:4px">📐</div><div style="font-size:11px;color:#4a6080;font-family:monospace" id="tInfoAngle">Burchak</div><div style="font-size:13px;font-weight:700;color:#dde6f5;margin-top:2px">30°→75°</div></div>
+      <div style="background:rgba(255,255,255,.04);border:1px solid #1b2840;border-radius:10px;padding:12px"><div style="font-size:20px;margin-bottom:4px">🎯</div><div style="font-size:11px;color:#4a6080;font-family:monospace" id="tInfoGoal">Maqsad</div><div style="font-size:13px;font-weight:700;color:#dde6f5;margin-top:2px" id="tInfoGoalVal">αBr, n topish</div></div>
+    </div>
+    <div style="background:rgba(244,114,182,.05);border:1px solid rgba(244,114,182,.18);border-radius:12px;padding:16px;width:100%;text-align:left">
+      <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;color:#f472b6;margin-bottom:10px" id="tProcedure">BAJARISH TARTIBI</div>
+      <div style="display:flex;flex-direction:column;gap:7px">
+        <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:#c5d3e8"><div style="width:22px;height:22px;border-radius:50%;background:rgba(244,114,182,.2);display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:10px;color:#f472b6;flex-shrink:0">1</div><span id="tPS1">Dielektrik materialni tanlang, tushish burchagi α ni kiriting</span></div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:#c5d3e8"><div style="width:22px;height:22px;border-radius:50%;background:rgba(244,114,182,.2);display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:10px;color:#f472b6;flex-shrink:0">2</div><span id="tPS2">Analizatorni aylantiring → <b style="color:#f472b6">Imax va Imin</b> ni o'lchang</span></div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:#c5d3e8"><div style="width:22px;height:22px;border-radius:50%;background:rgba(244,114,182,.2);display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:10px;color:#f472b6;flex-shrink:0">3</div><span id="tPS3"><b style="color:#f472b6">P = (Imax−Imin)/(Imax+Imin)</b> ni hisoblang</span></div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:#c5d3e8"><div style="width:22px;height:22px;border-radius:50%;background:rgba(244,114,182,.2);display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:10px;color:#f472b6;flex-shrink:0">4</div><span id="tPS4">P maksimal bo'lgan α_Br dan → <b style="color:#6fff5c">n = tg(α_Br)</b></span></div>
+      </div>
+    </div>
+    <button onclick="startLab()" style="background:linear-gradient(135deg,#f472b6,#be185d);color:#fff;border:none;border-radius:12px;padding:16px 60px;font-size:16px;font-weight:800;font-family:'Syne',sans-serif;cursor:pointer;box-shadow:0 8px 30px rgba(244,114,182,.4);transition:all .2s;width:100%"
+    onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 12px 40px rgba(244,114,182,.6)'"
+    onmouseout="this.style.transform='none';this.style.boxShadow='0 8px 30px rgba(244,114,182,.4)'">
+      <span id="tStartBtn">▶ Laboratoriyani boshlash</span>
+    </button>
+    <div style="display:flex;align-items:center;gap:6px;opacity:.6">
+      <span style="font-size:13px">🔬</span>
+      <span style="font-family:'Space Mono',monospace;font-size:10px;background:linear-gradient(90deg,#f472b6,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;font-weight:700">Xosiyat Virtual Lab</span>
+    </div>
+  </div>
+</div>
+<style>
+@keyframes pulse8{0%,100%{box-shadow:0 0 50px rgba(244,114,182,.25)}50%{box-shadow:0 0 70px rgba(244,114,182,.5)}}
+@keyframes fadeOut{0%{opacity:1}100%{opacity:0;transform:scale(1.04)}}
+</style>
+<script>
+(function(){var c=document.getElementById('bgCanvas');var x=c.getContext('2d');var pts=[];function resize(){c.width=window.innerWidth;c.height=window.innerHeight;}resize();window.addEventListener('resize',resize);for(var i=0;i<60;i++)pts.push({x:Math.random()*1600,y:Math.random()*900,r:Math.random()*1.5+.5,vx:(Math.random()-.5)*.35,vy:(Math.random()-.5)*.35,a:Math.random()});function frame(){x.clearRect(0,0,c.width,c.height);pts.forEach(function(p){p.x+=p.vx;p.y+=p.vy;p.a+=.005;if(p.x<0)p.x=c.width;if(p.x>c.width)p.x=0;if(p.y<0)p.y=c.height;if(p.y>c.height)p.y=0;x.fillStyle='rgba(244,114,182,'+(0.25+Math.sin(p.a)*0.18)+')';x.beginPath();x.arc(p.x%c.width,p.y%c.height,p.r,0,Math.PI*2);x.fill();});requestAnimationFrame(frame);}frame();})();
+function startLab(){var s=document.getElementById('startScreen');s.style.animation='fadeOut .5s ease forwards';setTimeout(function(){s.style.display='none';},480);}
+</script>
+
+<!-- MAIN -->
+<header>
+  <div class="badge">LAB · 8</div>
+  <h1 class="htitle" id="tTitle">Yorug'likning <span>qutblanish qonunlari</span> — Bryuster burchagi</h1>
+  <div class="hsub" id="tHsub">OPTIKA · FIZPRAKTIKUM · SDPI 2025</div>
+  <div class="langsw">
+    <button class="langbtn active" id="langUZ" onclick="setLang('uz')">UZ</button>
+    <button class="langbtn" id="langRU" onclick="setLang('ru')">RU</button>
+    <button class="langbtn" id="langEN" onclick="setLang('en')">EN</button>
+  </div>
+  <div class="brand"><span style="font-size:12px">🔬</span><span class="brand-txt">Xosiyat Virtual Lab</span></div>
+</header>
+
+<div class="tabs">
+  <div class="tab on" id="t1" onclick="switchTab(1)"><span id="tTab1">1-mashq: P=f(α)</span></div>
+  <div class="tab" id="t2" onclick="switchTab(2)"><span id="tTab2">2-mashq: αBr va n</span></div>
+</div>
+
+<div class="statusbar">
+  <div class="dot off" id="dot"></div>
+  <span id="statusTxt">Tushish burchagi α ni tanlang → Imax va Imin ni o'lchang</span>
+  <div class="chips">
+    <div class="chip">α = <span id="chipAlpha">30</span>°</div>
+    <div class="chip">P = <span id="chipP">—</span></div>
+    <div class="chip">αBr = <span id="chipBr">—</span>°</div>
+    <div class="chip">n = <span id="chipN">—</span></div>
+  </div>
+</div>
+
+<div class="body">
+  <!-- LEFT -->
+  <div class="left">
+    <div class="stitle" id="tMatSec">Dielektrik material</div>
+    <div class="mat-btns" id="matBtns">
+      <div class="mb on" data-n="1.52" onclick="setMat(this)"><span id="tMatCrown">Krona shisha</span><span class="ms">n = 1.52 | αBr = 56.7°</span></div>
+      <div class="mb" data-n="1.62" onclick="setMat(this)"><span id="tMatFlint">Flint shisha</span><span class="ms">n = 1.62 | αBr = 58.3°</span></div>
+      <div class="mb" data-n="1.333" onclick="setMat(this)"><span id="tMatWater">Suv</span><span class="ms">n = 1.333 | αBr = 53.1°</span></div>
+      <div class="mb" data-n="1.46" onclick="setMat(this)"><span id="tMatQuartz">Kvarts</span><span class="ms">n = 1.46 | αBr = 55.6°</span></div>
+    </div>
+
+    <div class="stitle" id="tAngleSec">Tushish burchagi α</div>
+    <div class="card">
+      <label><span id="tAngleLbl">α burchak</span> <span class="vb" id="dAlpha">30°</span></label>
+      <input type="range" id="sAlpha" min="10" max="85" step="5" value="30" oninput="setAlpha(this.value)">
+    </div>
+
+    <div id="tab2Params" style="display:none">
+      <div class="stitle" id="tAutoScanSec">Avtomatik skan</div>
+      <div class="card">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:8px" id="tScanRange">α = 30° → 75° gacha (5°dan)</div>
+        <button class="btn btn-p" onclick="autoScan()" id="scanBtn" style="font-size:11px;padding:8px">⚡ <span id="tScanBtn">Barcha burchaklar uchun o'lchash</span></button>
+      </div>
+    </div>
+
+    <div class="fbox">
+      <div class="frow"><span class="fl">P</span><span class="fe">= (Imax−Imin)/(Imax+Imin)</span></div>
+      <div class="frow"><span class="fl">tgαBr</span><span class="fe">= n₁₂</span></div>
+      <div class="frow"><span class="fl">n</span><span class="fe">= tg(αBr)</span></div>
+      <div class="frow"><span class="fl">I</span><span class="fe">= I₀·cos²φ (<span id="tMalus">Malyus</span>)</span></div>
+    </div>
+
+    <div class="steps">
+      <div class="step active" id="st1"><div class="snum">1</div><span id="tStep1">Material va α ni tanlang</span></div>
+      <div class="step" id="st2"><div class="snum">2</div><span id="tStep2">Imax, Imin o'lchang</span></div>
+      <div class="step" id="st3"><div class="snum">3</div><span id="tStep3">P hisoblang</span></div>
+      <div class="step" id="st4"><div class="snum">4</div><span id="tStep4">αBr ni toping</span></div>
+      <div class="step" id="st5"><div class="snum">5</div><span id="tStep5">n = tg(αBr)</span></div>
+    </div>
+
+    <button class="btn btn-p" id="measBtn" onclick="takeMeasure()">📏 <span id="tMeasBtn">O'lchov olish</span></button>
+    <button class="btn btn-g" id="calcBtn" onclick="calcResults()" disabled>📊 <span id="tCalcBtn">Hisoblash</span></button>
+    <button class="btn btn-r" onclick="resetAll()">↺ <span id="tResetBtn">Qayta boshlash</span></button>
+  </div>
+
+  <!-- CENTER -->
+  <div class="center">
+    <canvas id="simCanvas"></canvas>
+    <div class="instr-bar" id="instrBar">🔮 Yorug'lik dielektrik plastinkaga tushadi → qaytgan nurning qutblanish darajasi P ni o'lchang</div>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="right">
+    <div class="stitle" id="tCurMeasSec">Joriy o'lchov</div>
+    <div class="three">
+      <div class="rc hi">
+        <div class="rl">α (°)</div>
+        <div class="rv" id="rAlpha">30</div>
+      </div>
+      <div class="rc hi">
+        <div class="rl">Imax</div>
+        <div class="rv" style="font-size:18px" id="rImax">—</div>
+        <div class="ru">μA</div>
+      </div>
+      <div class="rc hi">
+        <div class="rl">Imin</div>
+        <div class="rv" style="font-size:18px" id="rImin">—</div>
+        <div class="ru">μA</div>
+      </div>
+    </div>
+    <div class="two">
+      <div class="rc">
+        <div class="rl" id="tPqutbLbl">P qutblanish</div>
+        <div class="rv" style="color:var(--accent)" id="rP">—</div>
+      </div>
+      <div class="rc">
+        <div class="rl" id="tBetaLbl">Sinish β (°)</div>
+        <div class="rv" style="font-size:18px" id="rBeta">—</div>
+      </div>
+    </div>
+
+    <div class="stitle" id="tTableSec">8.1-jadval</div>
+    <div style="overflow-x:auto;max-height:180px;overflow-y:auto">
+      <table>
+        <thead><tr><th>α(°)</th><th>Imax</th><th>Imin</th><th>P</th><th>α+β</th></tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+
+    <div class="stitle" id="tGraphSec">Grafik: P = f(α)</div>
+    <canvas id="graphCanvas" height="120"></canvas>
+
+    <div class="final-card" id="finalCard" style="display:none">
+      <div class="rl" id="tBrLbl">Bryuster burchagi αBr</div>
+      <div class="rv" style="color:var(--accent);font-size:26px" id="resBr">—</div>
+      <div class="ru" id="tDarajaLbl">daraja</div>
+      <div style="margin-top:10px;border-top:1px solid var(--border);padding-top:10px">
+        <div class="rl" id="tNLbl">Sindirish ko'rsatkichi n</div>
+        <div class="rv" style="color:var(--green);font-size:26px" id="resN">—</div>
+      </div>
+      <div class="err-row"><span id="tTrueNLbl">Haqiqiy n</span><span id="trueN" style="color:var(--muted)">—</span></div>
+      <div class="err-row"><span id="tBrCondLbl">Bryuster sharti α+β</span><span style="color:var(--green)">= 90° ✓</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- Watermark -->
+<div style="position:fixed;bottom:14px;right:18px;display:flex;align-items:center;gap:7px;background:rgba(7,9,15,.75);border:1px solid rgba(244,114,182,.2);border-radius:30px;padding:5px 16px;backdrop-filter:blur(10px);z-index:9999;pointer-events:none">
+  <span style="font-size:13px">🔬</span>
+  <span style="font-family:'Space Mono',monospace;font-size:11px;font-weight:700;background:linear-gradient(90deg,#f472b6,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px">Xosiyat Virtual Lab</span>
+</div>
+
+<script>
+var LANG='uz';
+var I18N={
+ uz:{
+   title:"Yorug'likning <span>qutblanish qonunlari</span> — Bryuster burchagi",hsub:"OPTIKA · FIZPRAKTIKUM · SDPI 2025",
+   tab1:"1-mashq: P=f(α)",tab2:"2-mashq: αBr va n",
+   startTitle:"Yorug'likning <span style=\"color:#f472b6\">qutblanish qonunlari</span>",
+   startSub:"Bryuster burchagi · P = f(α) · sindirish ko'rsatkichi n",
+   infoTime:"Vaqt",infoAngle:"Burchak",infoGoal:"Maqsad",infoGoalVal:"αBr, n topish",
+   procedure:"BAJARISH TARTIBI",
+   ps1:"Dielektrik materialni tanlang, tushish burchagi α ni kiriting",
+   ps2:'Analizatorni aylantiring → <b style="color:#f472b6">Imax va Imin</b> ni o\'lchang',
+   ps3:'<b style="color:#f472b6">P = (Imax−Imin)/(Imax+Imin)</b> ni hisoblang',
+   ps4:'P maksimal bo\'lgan α_Br dan → <b style="color:#6fff5c">n = tg(α_Br)</b>',
+   startBtn:"▶ Laboratoriyani boshlash",
+   matSec:"Dielektrik material",matCrown:"Krona shisha",matFlint:"Flint shisha",matWater:"Suv",matQuartz:"Kvarts",
+   angleSec:"Tushish burchagi α",angleLbl:"α burchak",
+   autoScanSec:"Avtomatik skan",scanRange:"α = 30° → 75° gacha (5°dan)",scanBtn:"Barcha burchaklar uchun o'lchash",
+   malus:"Malyus",
+   step1:"Material va α ni tanlang",step2:"Imax, Imin o'lchang",step3:"P hisoblang",step4:"αBr ni toping",step5:"n = tg(αBr)",
+   measBtn:"O'lchov olish",calcBtn:"Hisoblash",resetBtn:"Qayta boshlash",
+   curMeasSec:"Joriy o'lchov",pqutbLbl:"P qutblanish",betaLbl:"Sinish β (°)",
+   tableSec:"8.1-jadval",graphSec:"Grafik: P = f(α)",
+   brLbl:"Bryuster burchagi αBr",darajaLbl:"daraja",nLbl:"Sindirish ko'rsatkichi n",trueNLbl:"Haqiqiy n",brCondLbl:"Bryuster sharti α+β",
+   statusDefault:"Tushish burchagi α ni tanlang → Imax va Imin ni o'lchang",
+   instrDefault:"🔮 Yorug'lik dielektrik plastinkaga tushadi → qaytgan nurning qutblanish darajasi P ni o'lchang",
+   instrTab1:'🔮 Har 5° da α ni o\'zgartiring → Imax, Imin o\'lchang → P = f(α) grafigini chizing',
+   instrTab2:"⚡ Barcha burchaklar uchun bir marta skanlab, αBr va n ni toping",
+   measPrefix:"✓ α=",measMid1:"°: Imax=",measMid2:", Imin=",measMid3:", P=",
+   finalPrefix:"🎉 αBr = ",finalMid1:"° → n = tg(",finalMid2:"°) = "
+ },
+ ru:{
+   title:"<span>Законы поляризации</span> света — Угол Брюстера",hsub:"ОПТИКА · ФИЗПРАКТИКУМ · SDPI 2025",
+   tab1:"Упражн. 1: P=f(α)",tab2:"Упражн. 2: αBr и n",
+   startTitle:'Законы поляризации <span style="color:#f472b6">света</span>',
+   startSub:"Угол Брюстера · P = f(α) · показатель преломления n",
+   infoTime:"Время",infoAngle:"Угол",infoGoal:"Цель",infoGoalVal:"Найти αBr, n",
+   procedure:"ПОРЯДОК ВЫПОЛНЕНИЯ",
+   ps1:"Выберите диэлектрический материал, задайте угол падения α",
+   ps2:'Вращайте анализатор → измерьте <b style="color:#f472b6">Imax и Imin</b>',
+   ps3:'Вычислите <b style="color:#f472b6">P = (Imax−Imin)/(Imax+Imin)</b>',
+   ps4:'По α_Br, где P максимально → <b style="color:#6fff5c">n = tg(α_Br)</b>',
+   startBtn:"▶ Начать лабораторную",
+   matSec:"Диэлектрический материал",matCrown:"Кроновое стекло",matFlint:"Флинтовое стекло",matWater:"Вода",matQuartz:"Кварц",
+   angleSec:"Угол падения α",angleLbl:"Угол α",
+   autoScanSec:"Автоматическое сканирование",scanRange:"α = 30° → 75° (шаг 5°)",scanBtn:"Измерить для всех углов",
+   malus:"Малюс",
+   step1:"Выберите материал и α",step2:"Измерьте Imax, Imin",step3:"Вычислите P",step4:"Найдите αBr",step5:"n = tg(αBr)",
+   measBtn:"Сделать измерение",calcBtn:"Вычислить",resetBtn:"Начать заново",
+   curMeasSec:"Текущее измерение",pqutbLbl:"Степень поляризации P",betaLbl:"Угол преломления β (°)",
+   tableSec:"Таблица 8.1",graphSec:"График: P = f(α)",
+   brLbl:"Угол Брюстера αBr",darajaLbl:"градус",nLbl:"Показатель преломления n",trueNLbl:"Истинное n",brCondLbl:"Условие Брюстера α+β",
+   statusDefault:"Выберите угол падения α → измерьте Imax и Imin",
+   instrDefault:"🔮 Свет падает на диэлектрическую пластину → измерьте степень поляризации P отражённого луча",
+   instrTab1:'🔮 Меняйте α через каждые 5° → измерьте Imax, Imin → постройте график P = f(α)',
+   instrTab2:"⚡ Просканируйте все углы за один раз, найдите αBr и n",
+   measPrefix:"✓ α=",measMid1:"°: Imax=",measMid2:", Imin=",measMid3:", P=",
+   finalPrefix:"🎉 αBr = ",finalMid1:"° → n = tg(",finalMid2:"°) = "
+ },
+ en:{
+   title:"Laws of <span>Light Polarization</span> — Brewster's Angle",hsub:"OPTICS · PHYSICS LAB · SDPI 2025",
+   tab1:"Exercise 1: P=f(α)",tab2:"Exercise 2: αBr and n",
+   startTitle:'Laws of <span style="color:#f472b6">Light Polarization</span>',
+   startSub:"Brewster's angle · P = f(α) · refractive index n",
+   infoTime:"Time",infoAngle:"Angle",infoGoal:"Goal",infoGoalVal:"Find αBr, n",
+   procedure:"PROCEDURE",
+   ps1:"Choose the dielectric material, set the angle of incidence α",
+   ps2:'Rotate the analyzer → measure <b style="color:#f472b6">Imax and Imin</b>',
+   ps3:'Calculate <b style="color:#f472b6">P = (Imax−Imin)/(Imax+Imin)</b>',
+   ps4:'From α_Br where P is maximal → <b style="color:#6fff5c">n = tan(α_Br)</b>',
+   startBtn:"▶ Start the lab",
+   matSec:"Dielectric material",matCrown:"Crown glass",matFlint:"Flint glass",matWater:"Water",matQuartz:"Quartz",
+   angleSec:"Angle of incidence α",angleLbl:"Angle α",
+   autoScanSec:"Automatic scan",scanRange:"α = 30° → 75° (step 5°)",scanBtn:"Measure for all angles",
+   malus:"Malus",
+   step1:"Choose material and α",step2:"Measure Imax, Imin",step3:"Calculate P",step4:"Find αBr",step5:"n = tan(αBr)",
+   measBtn:"Take measurement",calcBtn:"Calculate",resetBtn:"Restart",
+   curMeasSec:"Current measurement",pqutbLbl:"Degree of polarization P",betaLbl:"Refraction angle β (°)",
+   tableSec:"Table 8.1",graphSec:"Graph: P = f(α)",
+   brLbl:"Brewster's angle αBr",darajaLbl:"degrees",nLbl:"Refractive index n",trueNLbl:"True n",brCondLbl:"Brewster condition α+β",
+   statusDefault:"Choose the angle of incidence α → measure Imax and Imin",
+   instrDefault:"🔮 Light hits the dielectric plate → measure the polarization degree P of the reflected ray",
+   instrTab1:'🔮 Change α every 5° → measure Imax, Imin → plot P = f(α)',
+   instrTab2:"⚡ Scan all angles at once to find αBr and n",
+   measPrefix:"✓ α=",measMid1:"°: Imax=",measMid2:", Imin=",measMid3:", P=",
+   finalPrefix:"🎉 αBr = ",finalMid1:"° → n = tan(",finalMid2:"°) = "
+ }
+};
+function t(k){return I18N[LANG][k];}
+function setLang(l){
+  LANG=l;
+  document.getElementById('langUZ').className='langbtn'+(l==='uz'?' active':'');
+  document.getElementById('langRU').className='langbtn'+(l==='ru'?' active':'');
+  document.getElementById('langEN').className='langbtn'+(l==='en'?' active':'');
+  document.getElementById('tTitle').innerHTML=t('title');
+  document.getElementById('tHsub').textContent=t('hsub');
+  document.getElementById('tTab1').textContent=t('tab1');
+  document.getElementById('tTab2').textContent=t('tab2');
+  document.getElementById('tStartTitle').innerHTML=t('startTitle');
+  document.getElementById('tStartSub').textContent=t('startSub');
+  document.getElementById('tInfoTime').textContent=t('infoTime');
+  document.getElementById('tInfoAngle').textContent=t('infoAngle');
+  document.getElementById('tInfoGoal').textContent=t('infoGoal');
+  document.getElementById('tInfoGoalVal').textContent=t('infoGoalVal');
+  document.getElementById('tProcedure').textContent=t('procedure');
+  document.getElementById('tPS1').textContent=t('ps1');
+  document.getElementById('tPS2').innerHTML=t('ps2');
+  document.getElementById('tPS3').innerHTML=t('ps3');
+  document.getElementById('tPS4').innerHTML=t('ps4');
+  document.getElementById('tStartBtn').textContent=t('startBtn');
+  document.getElementById('tMatSec').textContent=t('matSec');
+  document.getElementById('tMatCrown').textContent=t('matCrown');
+  document.getElementById('tMatFlint').textContent=t('matFlint');
+  document.getElementById('tMatWater').textContent=t('matWater');
+  document.getElementById('tMatQuartz').textContent=t('matQuartz');
+  document.getElementById('tAngleSec').textContent=t('angleSec');
+  document.getElementById('tAngleLbl').textContent=t('angleLbl');
+  document.getElementById('tAutoScanSec').textContent=t('autoScanSec');
+  document.getElementById('tScanRange').textContent=t('scanRange');
+  document.getElementById('tScanBtn').textContent=t('scanBtn');
+  document.getElementById('tMalus').textContent=t('malus');
+  document.getElementById('tStep1').textContent=t('step1');
+  document.getElementById('tStep2').textContent=t('step2');
+  document.getElementById('tStep3').textContent=t('step3');
+  document.getElementById('tStep4').textContent=t('step4');
+  document.getElementById('tStep5').textContent=t('step5');
+  document.getElementById('tMeasBtn').textContent=t('measBtn');
+  document.getElementById('tCalcBtn').textContent=t('calcBtn');
+  document.getElementById('tResetBtn').textContent=t('resetBtn');
+  document.getElementById('tCurMeasSec').textContent=t('curMeasSec');
+  document.getElementById('tPqutbLbl').textContent=t('pqutbLbl');
+  document.getElementById('tBetaLbl').textContent=t('betaLbl');
+  document.getElementById('tTableSec').textContent=t('tableSec');
+  document.getElementById('tGraphSec').textContent=t('graphSec');
+  document.getElementById('tBrLbl').textContent=t('brLbl');
+  document.getElementById('tDarajaLbl').textContent=t('darajaLbl');
+  document.getElementById('tNLbl').textContent=t('nLbl');
+  document.getElementById('tTrueNLbl').textContent=t('trueNLbl');
+  document.getElementById('tBrCondLbl').textContent=t('brCondLbl');
+  if(meas.length===0){
+    document.getElementById('statusTxt').textContent=t('statusDefault');
+    document.getElementById('instrBar').textContent=tabMode===1?t('instrTab1'):t('instrTab2');
+  }
+  if(cnt===0 && meas.length===0){
+    document.getElementById('instrBar').textContent=t('instrDefault');
+  }
+}
+
+var nv=1.52, alphaDeg=30, tabMode=1;
+var meas=[], cnt=0;
+var sc=document.getElementById('simCanvas');
+var sctx=sc.getContext('2d');
+var gc=document.getElementById('graphCanvas');
+var gctx=gc.getContext('2d');
+
+function resize(){sc.width=sc.offsetWidth;sc.height=sc.offsetHeight;drawSim();}
+window.addEventListener('resize',resize);
+setTimeout(resize,80);
+
+function switchTab(n){
+  tabMode=n;
+  [1,2].forEach(function(i){document.getElementById('t'+i).classList.toggle('on',i===n);});
+  document.getElementById('tab2Params').style.display=n===2?'block':'none';
+  document.getElementById('instrBar').textContent=n===1?t('instrTab1'):t('instrTab2');
+}
+
+function setMat(el){
+  document.querySelectorAll('.mb').forEach(function(b){b.classList.remove('on');});
+  el.classList.add('on');
+  nv=parseFloat(el.dataset.n);
+  resetAll();
+}
+function setAlpha(v){
+  alphaDeg=parseFloat(v);
+  document.getElementById('dAlpha').textContent=alphaDeg+'°';
+  document.getElementById('chipAlpha').textContent=alphaDeg;
+  document.getElementById('rAlpha').textContent=alphaDeg;
+  drawSim(); updateLive();
+}
+
+function getBeta(alpha,n){
+  var sinBeta=Math.sin(alpha*Math.PI/180)/n;
+  if(sinBeta>1) return null;
+  return Math.asin(sinBeta)*180/Math.PI;
+}
+
+function getP(alpha,n){
+  // Fresnel equations approximation for P polarization
+  var aRad=alpha*Math.PI/180;
+  var sinB=Math.sin(aRad)/n;
+  if(sinB>1) return 0;
+  var bRad=Math.asin(sinB);
+  // Rs = sin²(α-β)/sin²(α+β), Rp = tan²(α-β)/tan²(α+β)
+  var diff=aRad-bRad, sum=aRad+bRad;
+  var Rs=Math.sin(diff)>0&&Math.sin(sum)>0?Math.pow(Math.sin(diff)/Math.sin(sum),2):0;
+  var Rp=Math.cos(diff)>0&&Math.cos(sum)>0?Math.pow(Math.tan(diff)/Math.tan(sum),2):0;
+  // For reflected light
+  var Imax=Math.max(Rs,Rp)*100;
+  var Imin=Math.min(Rs,Rp)*100;
+  return {Imax:Imax,Imin:Imin,P:(Imax-Imin)/(Imax+Imin+0.001)};
+}
+
+function updateLive(){
+  var res=getP(alphaDeg,nv);
+  var beta=getBeta(alphaDeg,nv);
+  document.getElementById('chipP').textContent=res?res.P.toFixed(3):'—';
+  document.getElementById('rBeta').textContent=beta?beta.toFixed(1):'—';
+  document.getElementById('rImax').textContent=res?(res.Imax).toFixed(2):'—';
+  document.getElementById('rImin').textContent=res?(res.Imin).toFixed(2):'—';
+  document.getElementById('rP').textContent=res?res.P.toFixed(3):'—';
+  // Bryuster angle
+  var aBr=Math.atan(nv)*180/Math.PI;
+  document.getElementById('chipBr').textContent=aBr.toFixed(1);
+  document.getElementById('chipN').textContent=nv.toFixed(3);
+}
+
+// ===== SIMULATION =====
+function drawSim(){
+  var W=sc.width,H=sc.height;
+  if(!W||!H) return;
+  sctx.clearRect(0,0,W,H);
+  sctx.fillStyle='#07090f';sctx.fillRect(0,0,W,H);
+  // grid
+  sctx.strokeStyle='rgba(244,114,182,.025)';sctx.lineWidth=1;
+  for(var x=0;x<W;x+=50){sctx.beginPath();sctx.moveTo(x,0);sctx.lineTo(x,H);sctx.stroke();}
+  for(var y=0;y<H;y+=50){sctx.beginPath();sctx.moveTo(0,y);sctx.lineTo(W,y);sctx.stroke();}
+
+  var cx=W*0.5, cy=H*0.5;
+  var aRad=alphaDeg*Math.PI/180;
+  var sinB=Math.sin(aRad)/nv;
+  var bRad=sinB<=1?Math.asin(sinB):0;
+  var L=Math.min(W,H)*0.35;
+  var res=getP(alphaDeg,nv);
+  var aBr=Math.atan(nv)*180/Math.PI;
+  var isBryuster=Math.abs(alphaDeg-aBr)<3;
+
+  // === DIELEKTRIK PLASTINKA ===
+  var pw=W*0.55, ph=25;
+  var px0=cx-pw/2, py0=cy;
+  sctx.fillStyle='rgba(244,114,182,.06)';
+  sctx.fillRect(px0,py0,pw,ph);
+  sctx.strokeStyle='rgba(244,114,182,.3)';sctx.lineWidth=1.5;
+  sctx.strokeRect(px0,py0,pw,ph);
+  sctx.fillStyle='rgba(244,114,182,.4)';sctx.font='9px monospace';sctx.textAlign='center';
+  sctx.fillText('DIELEKTRIK PLASTINKA (n='+nv+')',cx,py0+ph+14);
+
+  // Normal line
+  sctx.strokeStyle='rgba(255,255,255,.1)';sctx.lineWidth=1;sctx.setLineDash([5,5]);
+  sctx.beginPath();sctx.moveTo(cx,cy-L*1.1);sctx.lineTo(cx,cy+L*0.6);sctx.stroke();
+  sctx.setLineDash([]);
+  sctx.fillStyle='rgba(255,255,255,.2)';sctx.font='8px monospace';sctx.textAlign='center';
+  sctx.fillText('Normal',cx+12,cy-L*1.05);
+
+  // === INCIDENT RAY ===
+  var ix=cx-L*Math.sin(aRad), iy=cy-L*Math.cos(aRad);
+  sctx.strokeStyle='rgba(255,220,80,.7)';sctx.lineWidth=2.5;sctx.shadowBlur=6;sctx.shadowColor='rgba(255,220,80,.4)';
+  sctx.beginPath();sctx.moveTo(ix,iy);sctx.lineTo(cx,cy);sctx.stroke();
+  sctx.shadowBlur=0;
+  // arrow
+  drawArrow(sctx,ix,iy,cx,cy,'rgba(255,220,80,.7)');
+  sctx.fillStyle='rgba(255,220,80,.8)';sctx.font='bold 10px Space Mono,monospace';sctx.textAlign='center';
+  sctx.fillText('α='+alphaDeg+'°',ix-18,iy+15);
+
+  // === REFLECTED RAY ===
+  var rx=cx+L*Math.sin(aRad), ry=cy-L*Math.cos(aRad);
+  var refBright=isBryuster?0.2:(res?Math.max(0.3,res.P):0.5);
+  sctx.strokeStyle='rgba(244,114,182,'+refBright+')';sctx.lineWidth=2;
+  sctx.shadowBlur=isBryuster?0:5;sctx.shadowColor='rgba(244,114,182,.4)';
+  sctx.beginPath();sctx.moveTo(cx,cy);sctx.lineTo(rx,ry);sctx.stroke();
+  sctx.shadowBlur=0;
+  drawArrow(sctx,cx,cy,rx,ry,'rgba(244,114,182,'+refBright+')');
+  sctx.fillStyle='rgba(244,114,182,.7)';sctx.font='bold 10px Space Mono,monospace';sctx.textAlign='center';
+  sctx.fillText('Qaytgan',rx+22,ry+10);
+  if(isBryuster){
+    sctx.fillStyle='rgba(111,255,92,.8)';sctx.font='bold 9px monospace';
+    sctx.fillText('P≈1 (Bryuster!)',rx+22,ry+22);
+  }
+
+  // === REFRACTED RAY ===
+  if(sinB<=1){
+    var tx=cx+L*0.5*Math.sin(bRad), ty=cy+L*0.5*Math.cos(bRad);
+    sctx.strokeStyle='rgba(100,200,255,.4)';sctx.lineWidth=1.5;
+    sctx.beginPath();sctx.moveTo(cx,cy+ph);sctx.lineTo(tx,ty+ph);sctx.stroke();
+    drawArrow(sctx,cx,cy+ph,tx,ty+ph,'rgba(100,200,255,.4)');
+    sctx.fillStyle='rgba(100,200,255,.5)';sctx.font='9px monospace';sctx.textAlign='center';
+    sctx.fillText('β='+getBeta(alphaDeg,nv).toFixed(1)+'°',tx+20,ty+ph-5);
+    // Bryuster condition: α+β=90
+    var sum=(alphaDeg+getBeta(alphaDeg,nv)).toFixed(1);
+    sctx.fillStyle='rgba(111,255,92,.4)';sctx.font='8px monospace';
+    sctx.fillText('α+β='+sum+'°',cx,cy+ph+45);
+  }
+
+  // === Alpha arc ===
+  sctx.strokeStyle='rgba(255,220,80,.3)';sctx.lineWidth=1;
+  sctx.beginPath();sctx.arc(cx,cy,45,-Math.PI/2-aRad,-Math.PI/2);sctx.stroke();
+
+  // === POLARIZATION indicator ===
+  var px=W*0.83, py=H*0.35;
+  drawPolarimeter(px,py,res?res.P:0,alphaDeg,aBr);
+
+  // INFO paneli olib tashlandi (toza ko'rinish uchun)
+
+  updateLive();
+}
+
+function drawPolarimeter(cx,cy,P,alpha,aBr){
+  // circle
+  sctx.strokeStyle='rgba(244,114,182,.25)';sctx.lineWidth=2;
+  sctx.beginPath();sctx.arc(cx,cy,40,0,Math.PI*2);sctx.stroke();
+  sctx.fillStyle='rgba(14,20,32,.7)';sctx.beginPath();sctx.arc(cx,cy,40,0,Math.PI*2);sctx.fill();
+  // P fill
+  var fillAngle=-Math.PI/2+P*Math.PI*2;
+  var g=sctx.createRadialGradient(cx,cy,0,cx,cy,40);
+  g.addColorStop(0,'rgba(244,114,182,0.4)');g.addColorStop(1,'rgba(244,114,182,0.1)');
+  sctx.fillStyle=g;
+  sctx.beginPath();sctx.moveTo(cx,cy);sctx.arc(cx,cy,40,-Math.PI/2,fillAngle);sctx.closePath();sctx.fill();
+  // labels
+  sctx.fillStyle='rgba(244,114,182,.7)';sctx.font='bold 11px monospace';sctx.textAlign='center';
+  sctx.fillText((P*100).toFixed(0)+'%',cx,cy+5);
+  sctx.fillStyle='rgba(244,114,182,.5)';sctx.font='8px monospace';
+  sctx.fillText('P',cx,cy-15);
+  sctx.fillText('QUTBLANISH',cx,cy+52);
+  // Bryuster marker
+  if(Math.abs(alpha-aBr)<5){
+    sctx.strokeStyle='rgba(111,255,92,.6)';sctx.lineWidth=2;
+    sctx.beginPath();sctx.arc(cx,cy,44,0,Math.PI*2);sctx.stroke();
+    sctx.fillStyle='rgba(111,255,92,.8)';sctx.font='bold 8px monospace';sctx.textAlign='center';
+    sctx.fillText('BRYUSTER!',cx,cy+65);
+  }
+}
+
+function drawArrow(ctx,x1,y1,x2,y2,clr){
+  var ang=Math.atan2(y2-y1,x2-x1);
+  ctx.fillStyle=clr;
+  ctx.beginPath();
+  ctx.moveTo(x2,y2);
+  ctx.lineTo(x2-10*Math.cos(ang-0.4),y2-10*Math.sin(ang-0.4));
+  ctx.lineTo(x2-10*Math.cos(ang+0.4),y2-10*Math.sin(ang+0.4));
+  ctx.closePath();ctx.fill();
+}
+
+function roundRect2(ctx,x,y,w,h,r){
+  ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();
+}
+
+// ===== MEASURE =====
+function takeMeasure(){
+  var res=getP(alphaDeg,nv);
+  var beta=getBeta(alphaDeg,nv);
+  if(!res) return;
+  var noise=Math.random()*0.005;
+  var Imax=res.Imax+noise, Imin=res.Imin+noise;
+  var P=(Imax-Imin)/(Imax+Imin);
+  var sum=beta?(alphaDeg+beta).toFixed(1):'—';
+  cnt++;
+  meas.push({alpha:alphaDeg,Imax:Imax,Imin:Imin,P:P,sum:sum});
+  document.getElementById('chipP').textContent=P.toFixed(3);
+
+  var ar=document.getElementById('avgRow');if(ar)ar.remove();
+  var tr=document.createElement('tr');
+  tr.innerHTML='<td>'+alphaDeg+'</td><td>'+Imax.toFixed(2)+'</td><td>'+Imin.toFixed(2)+'</td><td>'+P.toFixed(3)+'</td><td>'+sum+'</td>';
+  document.getElementById('tbody').appendChild(tr);
+  setDot(true);setTimeout(function(){setDot(false);},700);
+  document.getElementById('statusTxt').textContent=t('measPrefix')+alphaDeg+t('measMid1')+Imax.toFixed(2)+t('measMid2')+Imin.toFixed(2)+t('measMid3')+P.toFixed(3);
+  if(meas.length>=4){document.getElementById('calcBtn').disabled=false;setStep(4);}
+  else setStep(3);
+  // next angle
+  var nextA=alphaDeg+5; if(nextA>85)nextA=30;
+  alphaDeg=nextA;
+  document.getElementById('sAlpha').value=nextA;
+  document.getElementById('dAlpha').textContent=nextA+'°';
+  document.getElementById('chipAlpha').textContent=nextA;
+  document.getElementById('rAlpha').textContent=nextA;
+  drawSim();drawGraph();
+}
+
+function autoScan(){
+  var angles=[30,35,40,45,50,55,56,57,58,60,65,70,75];
+  var i=0;
+  document.getElementById('scanBtn').disabled=true;
+  document.getElementById('measBtn').disabled=true;
+  function next(){
+    if(i>=angles.length){
+      document.getElementById('scanBtn').disabled=false;
+      document.getElementById('measBtn').disabled=false;
+      document.getElementById('calcBtn').disabled=false;
+      setStep(4);return;
+    }
+    alphaDeg=angles[i];
+    document.getElementById('sAlpha').value=alphaDeg;
+    document.getElementById('dAlpha').textContent=alphaDeg+'°';
+    document.getElementById('chipAlpha').textContent=alphaDeg;
+    document.getElementById('rAlpha').textContent=alphaDeg;
+    drawSim();takeMeasure2();i++;setTimeout(next,300);
+  }next();
+}
+
+function takeMeasure2(){
+  var res=getP(alphaDeg,nv);
+  var beta=getBeta(alphaDeg,nv);
+  if(!res)return;
+  var noise=Math.random()*0.003;
+  var Imax=res.Imax+noise,Imin=res.Imin+noise;
+  var P=(Imax-Imin)/(Imax+Imin);
+  var sum=beta?(alphaDeg+beta).toFixed(1):'—';
+  meas.push({alpha:alphaDeg,Imax:Imax,Imin:Imin,P:P,sum:sum});
+  var tr=document.createElement('tr');
+  tr.innerHTML='<td>'+alphaDeg+'</td><td>'+Imax.toFixed(2)+'</td><td>'+Imin.toFixed(2)+'</td><td>'+P.toFixed(3)+'</td><td>'+sum+'</td>';
+  document.getElementById('tbody').appendChild(tr);
+  drawGraph();
+}
+
+function drawGraph(){
+  var W=gc.offsetWidth||220;gc.width=W;var H=120;
+  gctx.clearRect(0,0,W,H);gctx.fillStyle='#070c17';gctx.fillRect(0,0,W,H);
+  var pad=25,gW=W-pad*2,gH=H-pad*2;
+
+  // axes
+  gctx.strokeStyle='rgba(244,114,182,.3)';gctx.lineWidth=1;
+  gctx.beginPath();gctx.moveTo(pad,pad);gctx.lineTo(pad,H-pad);gctx.lineTo(W-pad+8,H-pad);gctx.stroke();
+  gctx.fillStyle='rgba(244,114,182,.5)';gctx.font='8px monospace';gctx.textAlign='center';
+  gctx.fillText('α(°)',W-pad+8,H-pad+3);
+  gctx.textAlign='right';gctx.fillText('P',pad-3,pad+5);
+
+  // theory curve
+  gctx.strokeStyle='rgba(244,114,182,.2)';gctx.lineWidth=1;gctx.setLineDash([3,4]);
+  gctx.beginPath();
+  for(var a=10;a<=85;a+=1){
+    var res2=getP(a,nv);
+    if(!res2)continue;
+    var px=pad+((a-10)/75)*gW;
+    var py=H-pad-(res2.P)*gH;
+    if(a===10)gctx.moveTo(px,py);else gctx.lineTo(px,py);
+  }
+  gctx.stroke();gctx.setLineDash([]);
+
+  // measured points
+  if(meas.length>0){
+    gctx.fillStyle='rgba(244,114,182,.9)';
+    meas.forEach(function(m2){
+      var px=pad+((m2.alpha-10)/75)*gW;
+      var py=H-pad-(m2.P)*gH;
+      gctx.beginPath();gctx.arc(px,py,3,0,Math.PI*2);gctx.fill();
+    });
+  }
+
+  // Bryuster marker
+  var aBr=Math.atan(nv)*180/Math.PI;
+  var bx=pad+((aBr-10)/75)*gW;
+  gctx.strokeStyle='rgba(111,255,92,.5)';gctx.lineWidth=1;gctx.setLineDash([3,3]);
+  gctx.beginPath();gctx.moveTo(bx,pad);gctx.lineTo(bx,H-pad);gctx.stroke();
+  gctx.setLineDash([]);
+  gctx.fillStyle='rgba(111,255,92,.7)';gctx.font='8px monospace';gctx.textAlign='center';
+  gctx.fillText('αBr='+aBr.toFixed(0)+'°',bx,pad+10);
+
+  // axis labels
+  [30,45,60,75].forEach(function(a){
+    var px=pad+((a-10)/75)*gW;
+    gctx.fillStyle='rgba(244,114,182,.35)';gctx.font='7px monospace';gctx.textAlign='center';
+    gctx.fillText(a,px,H-pad+10);
+  });
+  [0,0.5,1].forEach(function(p){
+    var py=H-pad-p*gH;
+    gctx.fillStyle='rgba(244,114,182,.3)';gctx.font='7px monospace';gctx.textAlign='right';
+    gctx.fillText(p.toFixed(1),pad-4,py+3);
+  });
+}
+
+function calcResults(){
+  if(meas.length<3)return;
+  var maxP=0,bestAlpha=0;
+  meas.forEach(function(m2){if(m2.P>maxP){maxP=m2.P;bestAlpha=m2.alpha;}});
+  var aBr=Math.atan(nv)*180/Math.PI;
+  var nCalc=Math.tan(bestAlpha*Math.PI/180);
+  document.getElementById('finalCard').style.display='block';
+  document.getElementById('resBr').textContent=bestAlpha+'°';
+  document.getElementById('resN').textContent=nCalc.toFixed(3);
+  document.getElementById('trueN').textContent=nv.toFixed(3);
+  document.getElementById('chipBr').textContent=bestAlpha;
+  document.getElementById('chipN').textContent=nCalc.toFixed(3);
+  setStep(5);
+  document.getElementById('statusTxt').textContent=t('finalPrefix')+bestAlpha+t('finalMid1')+bestAlpha+t('finalMid2')+nCalc.toFixed(3);
+  drawGraph();
+}
+
+function resetAll(){
+  meas=[];cnt=0;alphaDeg=30;
+  document.getElementById('sAlpha').value=30;document.getElementById('dAlpha').textContent='30°';
+  document.getElementById('chipAlpha').textContent=30;document.getElementById('chipP').textContent='—';
+  document.getElementById('chipBr').textContent='—';document.getElementById('chipN').textContent='—';
+  document.getElementById('tbody').innerHTML='';
+  document.getElementById('finalCard').style.display='none';
+  document.getElementById('calcBtn').disabled=true;
+  if(document.getElementById('scanBtn'))document.getElementById('scanBtn').disabled=false;
+  document.getElementById('measBtn').disabled=false;
+  document.getElementById('statusTxt').textContent=t('statusDefault');
+  setDot(false);setStep(1);drawSim();drawGraph();
+}
+
+function setDot(on){document.getElementById('dot').classList.toggle('off',!on);}
+function setStep(n){for(var i=1;i<=5;i++){var el=document.getElementById('st'+i);el.className='step'+(i<n?' done':i===n?' active':'');el.querySelector('.snum').textContent=i<n?'✓':i;}}
+
+window.addEventListener('load',function(){setTimeout(function(){resize();updateLive();drawGraph();setLang('uz');},100);});
+</script>
+</body>
+</html>
