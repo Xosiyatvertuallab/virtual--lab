@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diod va Tranzistor — Yarimo'tkazgichli Qurilmalar — Virtual Laboratoriya</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap');
+:root {
+  --bg: #0a0e1a; --panel: #111827; --border: #1e2d45;
+  --accent: #00d4ff; --accent3: #7fff6b; --text: #e2e8f0; --muted: #64748b;
+  --p: #ff8a3d; --n: #60a5fa;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--bg); color:var(--text); font-family:'Syne',sans-serif; min-height:100vh; overflow-x:hidden; }
+header { padding:14px 28px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:14px; background:linear-gradient(90deg,#0a0e1a,#0d1528); }
+.badge { background:var(--accent); color:#000; font-family:'Space Mono',monospace; font-size:10px; font-weight:700; padding:3px 8px; letter-spacing:2px; border-radius:2px; }
+header h1 { font-size:17px; font-weight:800; color:#fff; }
+header h1 span { color:var(--accent); }
+.sub { font-family:'Space Mono',monospace; font-size:10px; color:var(--muted); margin-left:auto; }
+.layout { display:grid; grid-template-columns:300px 1fr 280px; height:calc(100vh - 53px); }
+.left { background:var(--panel); border-right:1px solid var(--border); padding:16px; overflow-y:auto; display:flex; flex-direction:column; gap:12px; }
+.stitle { font-family:'Space Mono',monospace; font-size:9px; letter-spacing:3px; color:var(--accent); text-transform:uppercase; margin-bottom:2px; }
+.cg { background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:8px; padding:12px; }
+.cg label { display:flex; justify-content:space-between; align-items:center; font-size:12px; margin-bottom:8px; }
+.vb { font-family:'Space Mono',monospace; font-size:12px; color:var(--accent); background:rgba(0,212,255,0.1); padding:2px 8px; border-radius:4px; min-width:72px; text-align:center; }
+input[type=range] { width:100%; -webkit-appearance:none; height:5px; background:var(--border); border-radius:3px; outline:none; cursor:pointer; }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:20px; height:20px; background:var(--accent); border-radius:50%; cursor:pointer; box-shadow:0 0 12px rgba(0,212,255,0.8); }
+.rg { display:flex; gap:6px; flex-wrap:wrap; }
+.rb { background:rgba(255,255,255,0.05); border:1px solid var(--border); color:var(--muted); padding:9px 12px; border-radius:6px; font-size:12px; font-family:'Space Mono',monospace; cursor:pointer; transition:all 0.2s; user-select:none; flex:1 1 auto; text-align:center; }
+.rb.on { background:rgba(0,212,255,0.15); border-color:var(--accent); color:var(--accent); }
+.fbox { background:rgba(0,212,255,0.05); border:1px solid rgba(0,212,255,0.2); border-radius:8px; padding:12px; }
+.fr { display:flex; gap:8px; margin-bottom:6px; font-family:'Space Mono',monospace; font-size:10.5px; }
+.fr:last-child { margin-bottom:0; }
+.fl { color:var(--muted); min-width:46px; font-style:italic; }
+.fe { color:var(--accent3); }
+.btn { width:100%; padding:14px; border:none; border-radius:8px; font-family:'Syne',sans-serif; font-weight:700; font-size:15px; cursor:pointer; transition:all 0.2s; }
+#startBtn { background:linear-gradient(135deg,#00d4ff,#0099cc); color:#000; }
+#startBtn:hover { transform:translateY(-1px); box-shadow:0 6px 24px rgba(0,212,255,0.5); }
+#resetBtn { background:rgba(255,255,255,0.07); color:var(--text); border:1px solid var(--border); margin-top:8px; font-size:13px; }
+#resetBtn:hover { background:rgba(255,255,255,0.13); }
+#finishBtn { background:rgba(127,255,107,0.12); color:var(--accent3); border:1px solid rgba(127,255,107,0.4); margin-top:8px; font-size:13px; }
+#finishBtn:hover { background:rgba(127,255,107,0.22); }
+.nt { width:100%; border-collapse:collapse; font-family:'Space Mono',monospace; font-size:9.5px; }
+.nt th { color:var(--accent); font-size:8.5px; letter-spacing:1px; border-bottom:1px solid var(--border); padding:5px 3px; text-align:left; }
+.nt td { padding:4px 3px; border-bottom:1px solid rgba(255,255,255,0.04); }
+.nt tr:last-child td { border-bottom:none; }
+.center { position:relative; overflow:hidden; background:var(--bg); }
+#cv { position:absolute; top:0; left:0; width:100%; height:100%; }
+.tdisp { position:absolute; top:14px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.8); border:1px solid var(--border); padding:6px 20px; border-radius:20px; font-family:'Space Mono',monospace; font-size:13px; color:var(--accent); backdrop-filter:blur(8px); white-space:nowrap; z-index:10; pointer-events:none; }
+.dot { display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--accent3); margin-right:6px; animation:bl 1s infinite; vertical-align:middle; }
+.dot.off { background:var(--muted); animation:none; }
+@keyframes bl { 0%,100%{opacity:1} 50%{opacity:0.2} }
+.right { background:var(--panel); border-left:1px solid var(--border); padding:16px; overflow-y:auto; display:flex; flex-direction:column; gap:12px; }
+.rc { background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:8px; padding:12px; }
+.rc.hi { border-color:rgba(0,212,255,0.3); background:rgba(0,212,255,0.06); }
+.rl { font-family:'Space Mono',monospace; font-size:9px; color:var(--muted); letter-spacing:2px; text-transform:uppercase; margin-bottom:4px; }
+.rv { font-size:24px; font-weight:800; color:#fff; line-height:1; }
+.ru { font-family:'Space Mono',monospace; font-size:11px; color:var(--muted); margin-top:3px; }
+.gt { font-family:'Space Mono',monospace; font-size:9px; color:var(--muted); margin-bottom:4px; letter-spacing:1px; }
+.gb { background:rgba(0,0,0,0.35); border:1px solid var(--border); border-radius:8px; padding:8px; }
+.gb canvas { display:block; border-radius:4px; }
+.hidden { display:none !important; }
+#startScreen{position:fixed;inset:0;z-index:9999;background:radial-gradient(circle at 50% 30%,#0d1830,#060910 70%);display:flex;align-items:center;justify-content:center;}
+#startScreen .inner{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:16px;max-width:560px;padding:20px;text-align:center;}
+#startScreen .icon{width:100px;height:100px;border-radius:50%;background:radial-gradient(circle,rgba(0,212,255,.18) 0%,rgba(0,212,255,.02) 70%);border:2px solid rgba(0,212,255,.4);display:flex;align-items:center;justify-content:center;box-shadow:0 0 55px rgba(0,212,255,.3);animation:pulseFall 2.5s ease-in-out infinite;}
+@keyframes pulseFall{0%,100%{box-shadow:0 0 55px rgba(0,212,255,.2)}50%{box-shadow:0 0 80px rgba(0,212,255,.5)}}
+@keyframes fadeOutFall{0%{opacity:1}100%{opacity:0;transform:scale(1.04)}}
+#startScreen h1{font-size:21px;font-weight:800;color:#fff;}
+#startScreen h1 span{color:var(--accent);}
+#startScreen p.formula{font-size:11px;color:var(--muted);margin-top:8px;font-family:'Space Mono',monospace;}
+#startScreen .order-box{background:rgba(0,212,255,.05);border:1px solid rgba(0,212,255,.15);border-radius:12px;padding:15px;width:100%;text-align:left;}
+#startScreen .order-label{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--accent);margin-bottom:8px;}
+#startScreen .order-item{display:flex;align-items:center;gap:8px;font-size:11px;color:#c5d3e8;margin-bottom:7px;}
+#startScreen .order-item:last-child{margin-bottom:0;}
+#startScreen .order-num{width:20px;height:20px;border-radius:50%;background:rgba(0,212,255,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--accent);flex-shrink:0;}
+#startScreen .startlab-btn{background:linear-gradient(135deg,#00d4ff,#0099cc);color:#000;border:none;border-radius:12px;padding:15px 60px;font-size:15px;font-weight:800;font-family:'Syne',sans-serif;cursor:pointer;box-shadow:0 8px 30px rgba(0,212,255,.35);width:100%;}
+.lang-btns-inject{display:flex;gap:4px;margin-left:auto;flex-shrink:0;}
+.lb-inject{background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--muted);font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:5px 9px;border-radius:6px;cursor:pointer;user-select:none;}
+.lb-inject.on{background:rgba(0,212,255,.12);border-color:var(--accent);color:var(--accent);}
+#endScreen{position:fixed;inset:0;z-index:9998;background:radial-gradient(circle at 50% 30%,#0d1830,#060910 70%);display:none;align-items:center;justify-content:center;opacity:0;transition:opacity .5s ease;}
+#endScreen.show{display:flex;opacity:1;}
+#endScreen .inner{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:14px;max-width:480px;padding:24px;text-align:center;}
+#endScreen .checkicon{width:80px;height:80px;border-radius:50%;background:radial-gradient(circle,rgba(127,255,107,.18) 0%,rgba(127,255,107,.02) 70%);border:2px solid rgba(127,255,107,.4);display:flex;align-items:center;justify-content:center;box-shadow:0 0 45px rgba(127,255,107,.25);font-size:38px;}
+#endScreen h2{font-size:20px;font-weight:800;color:#fff;}
+#endScreen p.res{font-family:'Space Mono',monospace;font-size:12px;color:var(--accent3);}
+#endScreen .qrbox{background:#fff;padding:14px;border-radius:14px;box-shadow:0 8px 30px rgba(0,212,255,.25);}
+#endScreen .qrcap{font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1px;max-width:320px;}
+#endScreen .retry-btn{background:rgba(255,255,255,.07);color:var(--text);border:1px solid var(--border);border-radius:10px;padding:11px 40px;font-size:13px;font-weight:700;font-family:'Syne',sans-serif;cursor:pointer;margin-top:4px;}
+#endScreen .retry-btn:hover{background:rgba(255,255,255,.13);}
+@keyframes fadeInEnd{0%{opacity:0;transform:scale(.96)}100%{opacity:1;transform:scale(1)}}
+#endScreen.show .inner{animation:fadeInEnd .4s ease forwards;}
+</style>
+</head>
+<body>
+<div id="startScreen">
+  <canvas id="bgCanvas" style="position:absolute;inset:0;width:100%;height:100%;opacity:.4;pointer-events:none"></canvas>
+  <div class="inner">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div class="badge" id="txtStartBadge" style="font-size:10px;padding:4px 14px;">LAB</div>
+      <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:2px;" id="txtStartSub">ELEKTRONIKA · YARIMO'TKAZGICHLAR</div>
+    </div>
+    <div class="icon"><span style="font-size:42px;">🔌</span></div>
+    <h1><span id="txtStartH1">Diod va Tranzistor — </span><span id="txtStartH1Span">Yarimo'tkazgichli Qurilmalar</span></h1>
+    <p class="formula">I = (U−0.7)/R · Ic = β·Ib · p–n o'tish: to'g'ri va teskari burilish</p>
+    <div class="order-box">
+      <div class="order-label" id="txtOrderLabel">BAJARISH TARTIBI</div>
+      <div class="order-item"><span class="order-num">1</span><span id="txtOrd1">Qurilma turini tanlang: Diod yoki Tranzistor</span></div>
+      <div class="order-item"><span class="order-num">2</span><span id="txtOrd2">Kuchlanishni (U yoki Vbe) sozlang</span></div>
+      <div class="order-item"><span class="order-num">3</span><span id="txtOrd3">BOSHLASH tugmasini bosib, avtomatik kuchlanish tekshiruvini kuzating</span></div>
+      <div class="order-item"><span class="order-num">4</span><span id="txtOrd4">Oqim-kuchlanish grafigi va qurilma holatini tahlil qiling</span></div>
+    </div>
+    <button class="startlab-btn" onclick="startLab()" id="txtStartBtn">▶ Laboratoriyani boshlash</button>
+  </div>
+</div>
+<script>
+(function(){var c=document.getElementById('bgCanvas');if(!c)return;var x=c.getContext('2d');var pts=[];function rs(){c.width=window.innerWidth;c.height=window.innerHeight;}rs();window.addEventListener('resize',rs);for(var i=0;i<50;i++)pts.push({x:Math.random()*1600,y:Math.random()*900,r:Math.random()*1.5+.5,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,a:Math.random()});function fr(){x.clearRect(0,0,c.width,c.height);pts.forEach(function(p){p.x+=p.vx;p.y+=p.vy;p.a+=.005;if(p.x<0)p.x=c.width;if(p.x>c.width)p.x=0;if(p.y<0)p.y=c.height;if(p.y>c.height)p.y=0;x.fillStyle='rgba(0,212,255,'+(0.15+Math.sin(p.a)*0.12)+')';x.beginPath();x.arc(p.x%c.width,p.y%c.height,p.r,0,Math.PI*2);x.fill();});requestAnimationFrame(fr);}fr();})();
+function startLab(){var s=document.getElementById('startScreen');s.style.animation='fadeOutFall .5s ease forwards';setTimeout(function(){s.style.display='none';},480);}
+</script>
+<div id="endScreen">
+  <div class="inner">
+    <div class="checkicon">✅</div>
+    <h2 id="txtEndTitle">Laboratoriya tugadi!</h2>
+    <p class="res" id="txtEndResult"></p>
+    <div class="qrbox"><div id="qrcodeCanvas"></div></div>
+    <div class="qrcap" id="txtEndCaption">Ko'proq fizika simulyatsiyalarini ko'rish uchun QR kodni skanerlang</div>
+    <button class="retry-btn" onclick="hideEndScreen()" id="txtEndRetry">↺ Yana urinish</button>
+  </div>
+</div>
+<header>
+  <div class="badge" id="txtBadge">LAB</div>
+  <h1><span id="txtHMain">Diod & Tranzistor — </span><span id="txtHSpan1">Yarimo'tkazgichlar</span><span id="txtHDash"> — Virtual Laboratoriya</span></h1>
+  <div class="sub" id="txtSub">ELEKTRONIKA · YARIMO'TKAZGICHLAR</div>
+  <div class="lang-btns-inject" id="_langbtns">
+    <div class="lb-inject on" id="_lbuz" onclick="window._changeLang('uz')">🇺🇿 UZ</div>
+    <div class="lb-inject" id="_lbru" onclick="window._changeLang('ru')">🇷🇺 RU</div>
+    <div class="lb-inject" id="_lben" onclick="window._changeLang('en')">🇬🇧 EN</div>
+  </div>
+</header>
+<div class="layout">
+  <div class="left">
+    <div class="stitle" id="txtLeft1">Qurilma turi</div>
+    <div class="cg">
+      <div class="rg" id="modeGroup">
+        <div class="rb on" data-mode="diod"><span id="txtModeDiod">Diod</span></div>
+        <div class="rb" data-mode="tran"><span id="txtModeTran">Tranzistor</span></div>
+      </div>
+    </div>
+
+    <div id="diodControls">
+      <div class="stitle" id="txtLeft2d">Parametr</div>
+      <div class="cg">
+        <label><span id="txtULabel">Kuchlanish (U)</span> <span class="vb" id="dU">0.0 V</span></label>
+        <input type="range" id="sU" min="-5" max="5" step="0.1" value="0">
+      </div>
+    </div>
+    <div id="tranControls" class="hidden">
+      <div class="stitle" id="txtLeft2t">Parametr</div>
+      <div class="cg">
+        <label><span id="txtVbeLabel">Baza kuchlanishi (Vbe)</span> <span class="vb" id="dVbe">0.00 V</span></label>
+        <input type="range" id="sVbe" min="0" max="1.2" step="0.01" value="0">
+      </div>
+    </div>
+
+    <div>
+      <div class="stitle" id="txtFormulas">Formulalar</div>
+      <div class="fbox" id="diodFormulas">
+        <div class="fr"><span class="fl">I</span><span class="fe">= 0, U &lt; 0.7V</span></div>
+        <div class="fr"><span class="fl">I</span><span class="fe">= (U−0.7)/R, U ≥ 0.7V</span></div>
+        <div class="fr"><span class="fl">R</span><span class="fe">= 100 Ω (qator qarshilik)</span></div>
+      </div>
+      <div class="fbox hidden" id="tranFormulas">
+        <div class="fr"><span class="fl">Ib</span><span class="fe">= (Vbe−0.7)/Rb</span></div>
+        <div class="fr"><span class="fl">Ic</span><span class="fe">= β·Ib (to'yinishgacha)</span></div>
+        <div class="fr"><span class="fl">β</span><span class="fe">= 100, Rb=1kΩ, Rc=220Ω</span></div>
+      </div>
+    </div>
+
+    <button class="btn" id="startBtn">▶ <span id="txtBtnStart">BOSHLASH</span></button>
+    <button class="btn" id="resetBtn">↺ <span id="txtBtnReset">QAYTA BOSHLASH</span></button>
+    <button class="btn" id="finishBtn">✓ <span id="txtBtnFinish">ISHNI YAKUNLASH</span></button>
+
+    <div>
+      <div class="stitle" id="txtTableTitle">Qiymatlar jadvali</div>
+      <div class="cg" style="padding:10px">
+        <table class="nt" id="tblDiod">
+          <thead><tr><th id="txtThU">U (V)</th><th id="txtThI">I (mA)</th></tr></thead>
+          <tbody id="ntbDiod"></tbody>
+        </table>
+        <table class="nt hidden" id="tblTran">
+          <thead><tr><th id="txtThVbe">Vbe (V)</th><th id="txtThIb">Ib (µA)</th><th id="txtThIc">Ic (mA)</th></tr></thead>
+          <tbody id="ntbTran"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="center">
+    <canvas id="cv"></canvas>
+    <div class="tdisp" id="tdispBox"><span class="dot off" id="dot"></span><span id="tt">U = 0.0 V</span></div>
+  </div>
+  <div class="right">
+    <div class="stitle" id="txtResults">Natijalar</div>
+    <div id="diodResults">
+      <div class="rc hi"><div class="rl" id="txtRU">Kuchlanish U</div><div class="rv" id="rU">0.0</div><div class="ru">V</div></div>
+      <div class="rc"><div class="rl" id="txtRI">Tok I</div><div class="rv" id="rI">0.00</div><div class="ru">mA</div></div>
+      <div class="rc"><div class="rl" id="txtRState">Holat</div><div class="rv" id="rState" style="font-size:16px;">—</div><div class="ru">&nbsp;</div></div>
+      <div class="rc"><div class="rl" id="txtRDepl">Kamayish qatlami</div><div class="rv" id="rDepl" style="font-size:16px;">—</div><div class="ru">&nbsp;</div></div>
+    </div>
+    <div id="tranResults" class="hidden">
+      <div class="rc hi"><div class="rl" id="txtRVbe">Baza kuchlanishi</div><div class="rv" id="rVbe">0.00</div><div class="ru">V</div></div>
+      <div class="rc"><div class="rl" id="txtRIb">Baza toki Ib</div><div class="rv" id="rIb">0.0</div><div class="ru">µA</div></div>
+      <div class="rc"><div class="rl" id="txtRIc">Kollektor toki Ic</div><div class="rv" id="rIc">0.00</div><div class="ru">mA</div></div>
+      <div class="rc"><div class="rl" id="txtRState2">Holat</div><div class="rv" id="rState2" style="font-size:16px;">—</div><div class="ru">&nbsp;</div></div>
+    </div>
+    <div><div class="gt" id="txtGraphTitle">OQIM–KUCHLANISH XARAKTERISTIKASI</div><div class="gb"><canvas id="cg" width="240" height="160"></canvas></div></div>
+  </div>
+</div>
+<script>
+var MODE='diod';
+var U=0, Vbe=0;
+var simT=0, running=false, rafId=null, prevTS=null, labDone=false;
+var MAXT=6;
+
+var cv=document.getElementById('cv');
+var ctx=cv.getContext('2d');
+var cgc=document.getElementById('cg').getContext('2d');
+
+function resize(){ cv.width=cv.offsetWidth; cv.height=cv.offsetHeight; }
+resize();
+window.addEventListener('resize',function(){ resize(); if(!running) redrawAll(); });
+
+// ---- physics ----
+function computeDiode(u){
+  var Vf=0.7, R=100, I;
+  if(u>=Vf) I=(u-Vf)/R*1000;
+  else if(u>=0) I=0;
+  else I=-0.001;
+  return I;
+}
+function depletionFrac(u){
+  if(u<0) return Math.min(1, 0.4+(-u)*0.09);
+  if(u<0.7) return 0.4-(u/0.7)*0.32;
+  return 0.08;
+}
+function diodeState(u){
+  if(u<0) return t('stRev');
+  if(u<0.7) return t('stBlocked');
+  return t('stCond');
+}
+function computeTransistor(vbe){
+  var Rb=1000, Rc=220, Vcc=5, beta=100;
+  var IbA = vbe>0.7 ? (vbe-0.7)/Rb : 0;
+  var IcA = beta*IbA;
+  var IcSatA = Vcc/Rc;
+  var state;
+  if(vbe<0.7){ IcA=0; state='cutoff'; }
+  else if(IcA>=IcSatA){ IcA=IcSatA; state='sat'; }
+  else state='active';
+  return {Ib:IbA*1e6, Ic:IcA*1000, IcSat:IcSatA*1000, state:state};
+}
+function tranStateLabel(st){
+  if(st==='cutoff')return t('stCutoff');
+  if(st==='sat')return t('stSat');
+  return t('stActive');
+}
+
+// ---- mode switching ----
+document.querySelectorAll('#modeGroup .rb').forEach(function(b){
+  b.addEventListener('click',function(){
+    document.querySelectorAll('#modeGroup .rb').forEach(function(x){x.classList.remove('on');});
+    this.classList.add('on');
+    MODE=this.getAttribute('data-mode');
+    var isD=MODE==='diod';
+    document.getElementById('diodControls').classList.toggle('hidden',!isD);
+    document.getElementById('tranControls').classList.toggle('hidden',isD);
+    document.getElementById('diodFormulas').classList.toggle('hidden',!isD);
+    document.getElementById('tranFormulas').classList.toggle('hidden',isD);
+    document.getElementById('diodResults').classList.toggle('hidden',!isD);
+    document.getElementById('tranResults').classList.toggle('hidden',isD);
+    document.getElementById('tblDiod').classList.toggle('hidden',!isD);
+    document.getElementById('tblTran').classList.toggle('hidden',isD);
+    doReset();
+  });
+});
+
+document.getElementById('sU').oninput=function(){ U=parseFloat(this.value); document.getElementById('dU').textContent=U.toFixed(1)+' V'; buildTable(); redrawAll(); };
+document.getElementById('sVbe').oninput=function(){ Vbe=parseFloat(this.value); document.getElementById('dVbe').textContent=Vbe.toFixed(2)+' V'; buildTable(); redrawAll(); };
+
+document.getElementById('startBtn').addEventListener('click',function(){ if(!running) startSim(); });
+document.getElementById('resetBtn').addEventListener('click',function(){ doReset(); });
+document.getElementById('finishBtn').addEventListener('click',function(){
+  if(!labDone){
+    alert(window._T?window._T('finishNotDone'):"Avval BOSHLASH tugmasini bosib, tekshiruvning to'liq yakunlanishini kuting.");
+    return;
+  }
+  var res;
+  if(MODE==='diod'){
+    var I=computeDiode(U);
+    res=t('endResultTplD').replace('{u}',U.toFixed(1)).replace('{i}',I.toFixed(2));
+  } else {
+    var r=computeTransistor(Vbe);
+    res=t('endResultTplT').replace('{vbe}',Vbe.toFixed(2)).replace('{ic}',r.Ic.toFixed(2)).replace('{st}',tranStateLabel(r.state));
+  }
+  document.getElementById('txtEndResult').textContent=res;
+  document.getElementById('endScreen').classList.add('show');
+});
+
+// ---- drawing helpers ----
+function drawArrow(c,x0,y0,x1,y1,color){
+  c.strokeStyle=color; c.fillStyle=color; c.lineWidth=2;
+  c.beginPath(); c.moveTo(x0,y0); c.lineTo(x1,y1); c.stroke();
+  var ang=Math.atan2(y1-y0,x1-x0), ah=7;
+  c.beginPath();
+  c.moveTo(x1,y1);
+  c.lineTo(x1-ah*Math.cos(ang-0.4),y1-ah*Math.sin(ang-0.4));
+  c.lineTo(x1-ah*Math.cos(ang+0.4),y1-ah*Math.sin(ang+0.4));
+  c.closePath(); c.fill();
+}
+function drawBattery(c,cx,cy,flipped){
+  c.save(); c.strokeStyle='#e2e8f0'; c.lineWidth=3;
+  c.beginPath(); c.moveTo(cx-6,cy-14); c.lineTo(cx-6,cy+14); c.stroke();
+  c.lineWidth=2;
+  c.beginPath(); c.moveTo(cx+6,cy-8); c.lineTo(cx+6,cy+8); c.stroke();
+  c.font="14px 'Space Mono',monospace"; c.fillStyle='#e2e8f0'; c.textAlign='center';
+  c.fillText(flipped?'−':'+',cx-6,cy-20);
+  c.fillText(flipped?'+':'−',cx+6,cy-20);
+  c.restore(); c.textAlign='left';
+}
+function drawDiodeJunction(c,x0,y0,w,h,u,I){
+  var midY=y0+h/2;
+  var boxW=w*0.6, boxX=x0+(w-boxW)/2, boxH=90, boxY=midY-boxH/2;
+  var depl=depletionFrac(u);
+  var gapW=10+depl*boxW*0.28;
+  var pW=(boxW-gapW)/2, nW=(boxW-gapW)/2;
+  // P region
+  c.fillStyle='rgba(255,138,61,0.14)'; c.fillRect(boxX,boxY,pW,boxH);
+  c.strokeStyle='#ff8a3d'; c.lineWidth=2; c.strokeRect(boxX,boxY,pW,boxH);
+  // N region
+  c.fillStyle='rgba(96,165,250,0.14)'; c.fillRect(boxX+pW+gapW,boxY,nW,boxH);
+  c.strokeStyle='#60a5fa'; c.strokeRect(boxX+pW+gapW,boxY,nW,boxH);
+  // depletion zone
+  c.fillStyle='rgba(255,255,255,0.03)'; c.fillRect(boxX+pW,boxY,gapW,boxH);
+  c.setLineDash([3,3]); c.strokeStyle='#4a5a78';
+  c.strokeRect(boxX+pW,boxY,gapW,boxH); c.setLineDash([]);
+  c.font="11px 'Space Mono',monospace"; c.fillStyle='#ff8a3d'; c.textAlign='center';
+  c.fillText('P', boxX+pW/2, boxY-10);
+  c.fillStyle='#60a5fa'; c.fillText('N', boxX+pW+gapW+nW/2, boxY-10);
+  c.fillStyle='#8a97ab'; c.font="9px 'Space Mono',monospace";
+  c.fillText(t('deplLabel'), boxX+pW+gapW/2, boxY+boxH+18);
+  // carriers
+  var fwd = u>=0.7;
+  var leak = u>=0 && u<0.7;
+  var speed = fwd ? Math.min(2.2, 0.6+I*0.05) : 0.25;
+  var tmNow=performance.now()/1000;
+  for(var i=0;i<6;i++){
+    var ph=(tmNow*speed + i/6)%1;
+    var hx, hy=boxY+18+((i*13)%(boxH-30));
+    if(u<0){
+      // reverse: holes pulled left (away), electrons pulled right (away)
+      hx = boxX+pW - 8 - ph*(pW*0.5);
+    } else if(fwd){
+      hx = boxX + ph*boxW; // cross all the way
+    } else {
+      hx = boxX+pW*0.3 + ph*(pW*0.5); // leak toward junction but not crossing much
+    }
+    c.fillStyle='#ff8a3d'; c.beginPath(); c.arc(hx,hy,3.2,0,Math.PI*2); c.fill();
+    var ex;
+    if(u<0){ ex = boxX+pW+gapW+8+ph*(nW*0.5); }
+    else if(fwd){ ex = boxX+boxW - ph*boxW; }
+    else { ex = boxX+pW+gapW+nW*0.5 - ph*(nW*0.5); }
+    c.fillStyle='#60a5fa'; c.beginPath(); c.arc(ex,hy+6,3.2,0,Math.PI*2); c.fill();
+  }
+  // battery + wires
+  var by=boxY+boxH+55;
+  drawBattery(c, x0+w*0.14, by, u<0);
+  c.strokeStyle='#2a3550'; c.lineWidth=2;
+  c.beginPath();
+  c.moveTo(x0+w*0.14, by-28); c.lineTo(x0+w*0.14, boxY-24); c.lineTo(boxX+pW/2, boxY-24); c.lineTo(boxX+pW/2, boxY);
+  c.moveTo(boxX+pW+gapW+nW/2, boxY); c.lineTo(boxX+pW+gapW+nW/2, boxY-24); c.lineTo(x0+w*0.14+40, boxY-24);
+  c.lineTo(x0+w*0.14+40, by-28);
+  c.stroke();
+  c.font="10px 'Space Mono',monospace"; c.fillStyle=u>=0.7?'#7fff6b':'#64748b';
+  c.fillText((u>=0?'+':'')+u.toFixed(1)+' V', x0+w*0.14, by+34);
+}
+function drawTransistorSchematic(c,x0,y0,w,h,ib,ic,icSat,state){
+  var cx=x0+w*0.42, cy=y0+h/2;
+  c.strokeStyle='#e2e8f0'; c.lineWidth=2.5;
+  // base line
+  c.beginPath(); c.moveTo(cx-55,cy); c.lineTo(cx-14,cy); c.stroke();
+  // vertical bar (base-emitter/base-collector junction bar)
+  c.beginPath(); c.moveTo(cx-14,cy-26); c.lineTo(cx-14,cy+26); c.stroke();
+  // collector lead (up-right)
+  c.beginPath(); c.moveTo(cx-14,cy-14); c.lineTo(cx+30,cy-45); c.stroke();
+  // emitter lead (down-right) with arrow (NPN: arrow out)
+  c.beginPath(); c.moveTo(cx-14,cy+14); c.lineTo(cx+30,cy+45); c.stroke();
+  drawArrow(c, cx-14,cy+14, cx+10,cy+32, '#e2e8f0');
+  c.font="11px 'Space Mono',monospace"; c.fillStyle='#64748b'; c.textAlign='left';
+  c.fillText('B',cx-60,cy+4); c.fillText('C',cx+30,cy-50); c.fillText('E',cx+30,cy+60);
+
+  // base resistor + Vbe source
+  c.strokeStyle='#2a3550';
+  c.beginPath(); c.moveTo(x0+30,cy); c.lineTo(cx-55,cy); c.stroke();
+  // zigzag resistor near base
+  var rz_x=x0+70;
+  c.strokeStyle='#ffb84d'; c.lineWidth=2;
+  c.beginPath(); c.moveTo(rz_x-18,cy);
+  for(var k=0;k<5;k++){ c.lineTo(rz_x-18+6*(k+1), cy+((k%2===0)?-7:7)); }
+  c.lineTo(rz_x+36,cy); c.stroke();
+  c.fillStyle='#ffb84d'; c.font="9px 'Space Mono',monospace"; c.textAlign='center'; c.fillText('Rb',rz_x+9,cy-14);
+
+  // collector resistor/LED up to Vcc
+  var topY=cy-100;
+  c.strokeStyle='#2a3550'; c.lineWidth=2;
+  c.beginPath(); c.moveTo(cx+30,cy-45); c.lineTo(cx+30,topY); c.stroke();
+  var ledY=topY+22;
+  var glow=Math.max(0,Math.min(1, icSat>0?ic/icSat:0));
+  c.beginPath(); c.arc(cx+30,ledY,13,0,Math.PI*2);
+  c.fillStyle='rgba(255,90,90,'+(0.15+0.75*glow)+')';
+  c.shadowColor='#ff5a5a'; c.shadowBlur=10*glow; c.fill(); c.shadowBlur=0;
+  c.strokeStyle='#ff8a8a'; c.lineWidth=1.5; c.stroke();
+  c.fillStyle='#8a97ab'; c.font="9px 'Space Mono',monospace"; c.textAlign='left'; c.fillText('LED',cx+48,ledY+4);
+  c.beginPath(); c.moveTo(x0+w*0.78,topY); c.lineTo(x0+w*0.78,cy); c.lineTo(cx+30,cy);c.stroke();
+  c.fillStyle='#7fff6b'; c.font="10px 'Space Mono',monospace"; c.fillText('Vcc=5V',x0+w*0.78+8,topY+4);
+
+  // emitter to ground
+  c.beginPath(); c.moveTo(cx+30,cy+45); c.lineTo(cx+30,cy+70); c.stroke();
+  c.beginPath(); c.moveTo(cx+14,cy+70); c.lineTo(cx+46,cy+70); c.moveTo(cx+19,cy+76); c.lineTo(cx+41,cy+76); c.moveTo(cx+24,cy+82); c.lineTo(cx+36,cy+82); c.stroke();
+
+  // animated dots: base lead (speed ~ ib), collector lead (speed ~ ic)
+  var tmNow=performance.now()/1000;
+  var bSpeed=Math.min(3,0.3+ib*0.02);
+  var cSpeed=Math.min(3,0.3+ic*0.5);
+  for(var i=0;i<4;i++){
+    var bph=(tmNow*bSpeed+i/4)%1;
+    var bx=x0+30+bph*((cx-55)-(x0+30));
+    c.fillStyle='rgba(0,212,255,0.8)'; c.beginPath(); c.arc(bx,cy,2.6,0,Math.PI*2); c.fill();
+    var cph=(tmNow*cSpeed+i/4)%1;
+    var cyy=topY+cph*((cy)-(topY));
+    c.fillStyle='rgba(127,255,107,0.8)'; c.beginPath(); c.arc(x0+w*0.78,cyy,2.6,0,Math.PI*2); c.fill();
+  }
+  c.font="11px 'Space Mono',monospace"; c.textAlign='left';
+  c.fillStyle='#64748b'; c.fillText('Vbe='+Vbe.toFixed(2)+'V', x0+20, cy+20);
+}
+function drawCurve(c,x0,y0,w,h){
+  c.clearRect(x0,y0,w,h);
+  c.strokeStyle='#1e2d45'; c.lineWidth=1;
+  c.beginPath(); c.moveTo(x0+30,y0+10); c.lineTo(x0+30,y0+h-20); c.lineTo(x0+w-10,y0+h-20); c.stroke();
+  var n=80, pts=[], xmin,xmax,ymaxAbs=1;
+  if(MODE==='diod'){
+    xmin=-5; xmax=5;
+    for(var i=0;i<=n;i++){ var xv=xmin+(xmax-xmin)*i/n; pts.push([xv,computeDiode(xv)]); }
+  } else {
+    xmin=0; xmax=1.2;
+    for(var i2=0;i2<=n;i2++){ var xv2=xmin+(xmax-xmin)*i2/n; pts.push([xv2,computeTransistor(xv2).Ic]); }
+  }
+  var ymax=Math.max.apply(null,pts.map(function(p){return p[1];}));
+  var ymin=Math.min.apply(null,pts.map(function(p){return p[1];}));
+  if(ymax<=0)ymax=1; if(ymin>0)ymin=0;
+  var px0=x0+30, px1=x0+w-10, py0=y0+h-20, py1=y0+10;
+  function X(xv){ return px0+(xv-xmin)/(xmax-xmin)*(px1-px0); }
+  function Y(yv){ return py0+(yv-ymin)/(ymax-ymin)*(py1-py0); }
+  c.strokeStyle='#00d4ff'; c.lineWidth=1.8; c.beginPath();
+  pts.forEach(function(p,i){ var xx=X(p[0]),yy=Y(p[1]); if(i===0)c.moveTo(xx,yy); else c.lineTo(xx,yy); });
+  c.stroke();
+  // zero line
+  c.strokeStyle='#334'; c.setLineDash([2,3]); c.beginPath(); c.moveTo(px0,Y(0)); c.lineTo(px1,Y(0)); c.stroke(); c.setLineDash([]);
+  // marker
+  var curX = MODE==='diod'?U:Vbe;
+  var curY = MODE==='diod'?computeDiode(U):computeTransistor(Vbe).Ic;
+  c.fillStyle='#7fff6b'; c.beginPath(); c.arc(X(curX),Y(curY),4.5,0,Math.PI*2); c.fill();
+  c.font="8.5px 'Space Mono',monospace"; c.fillStyle='#64748b'; c.textAlign='left';
+  c.fillText(MODE==='diod'?'U (V)':'Vbe (V)', px1-40, py0+14);
+  c.save(); c.translate(x0+10,py1+4); c.rotate(-Math.PI/2);
+  c.fillText(MODE==='diod'?'I (mA)':'Ic (mA)',0,0); c.restore();
+}
+function redrawAll(){
+  ctx.clearRect(0,0,cv.width,cv.height);
+  if(MODE==='diod'){
+    var I=computeDiode(U);
+    drawDiodeJunction(ctx,0,0,cv.width,cv.height,U,I);
+    document.getElementById('tt').innerHTML='U = '+U.toFixed(1)+' V&nbsp;&nbsp;I = '+I.toFixed(2)+' mA';
+    document.getElementById('rU').textContent=U.toFixed(1);
+    document.getElementById('rI').textContent=I.toFixed(2);
+    document.getElementById('rState').textContent=diodeState(U);
+    var dp=depletionFrac(U);
+    document.getElementById('rDepl').textContent=(dp*100).toFixed(0)+'%';
+  } else {
+    var r=computeTransistor(Vbe);
+    drawTransistorSchematic(ctx,0,0,cv.width,cv.height,r.Ib,r.Ic,r.IcSat,r.state);
+    document.getElementById('tt').innerHTML='Vbe = '+Vbe.toFixed(2)+' V&nbsp;&nbsp;Ic = '+r.Ic.toFixed(2)+' mA';
+    document.getElementById('rVbe').textContent=Vbe.toFixed(2);
+    document.getElementById('rIb').textContent=r.Ib.toFixed(1);
+    document.getElementById('rIc').textContent=r.Ic.toFixed(2);
+    document.getElementById('rState2').textContent=tranStateLabel(r.state);
+  }
+  drawCurve(cgc,0,0,240,160);
+}
+function buildTable(){
+  if(MODE==='diod'){
+    var rows='';
+    for(var i=0;i<8;i++){
+      var uv=-5+10*i/7;
+      rows+='<tr><td>'+uv.toFixed(1)+'</td><td>'+computeDiode(uv).toFixed(2)+'</td></tr>';
+    }
+    document.getElementById('ntbDiod').innerHTML=rows;
+  } else {
+    var rows2='';
+    for(var k=0;k<8;k++){
+      var vv=1.2*k/7;
+      var rr=computeTransistor(vv);
+      rows2+='<tr><td>'+vv.toFixed(2)+'</td><td>'+rr.Ib.toFixed(1)+'</td><td>'+rr.Ic.toFixed(2)+'</td></tr>';
+    }
+    document.getElementById('ntbTran').innerHTML=rows2;
+  }
+}
+
+function startSim(){
+  running=true; simT=0; labDone=false; prevTS=null;
+  document.getElementById('dot').classList.remove('off');
+  document.getElementById('startBtn').innerHTML='⏸ '+(window._T?window._T('btnRunning'):'ISHLAYAPTI...');
+  rafId=requestAnimationFrame(tick);
+}
+function stopSim(){ running=false; if(rafId){cancelAnimationFrame(rafId); rafId=null;} }
+function doReset(){
+  stopSim(); simT=0; labDone=false;
+  if(MODE==='diod'){ U=0; document.getElementById('sU').value=0; document.getElementById('dU').textContent='0.0 V'; }
+  else { Vbe=0; document.getElementById('sVbe').value=0; document.getElementById('dVbe').textContent='0.00 V'; }
+  document.getElementById('dot').classList.add('off');
+  document.getElementById('startBtn').innerHTML='▶ <span id="txtBtnStart">'+(window._T?window._T('btnStart'):'BOSHLASH')+'</span>';
+  buildTable(); redrawAll();
+}
+function tick(ts){
+  if(prevTS===null)prevTS=ts;
+  var dt=(ts-prevTS)/1000; prevTS=ts; if(dt>0.05)dt=0.05;
+  simT+=dt;
+  var frac=Math.min(1, simT/MAXT);
+  if(MODE==='diod'){
+    U=-5+10*frac;
+    document.getElementById('sU').value=U;
+    document.getElementById('dU').textContent=U.toFixed(1)+' V';
+  } else {
+    Vbe=1.2*frac;
+    document.getElementById('sVbe').value=Vbe;
+    document.getElementById('dVbe').textContent=Vbe.toFixed(2)+' V';
+  }
+  redrawAll();
+  if(simT>=MAXT){
+    stopSim(); labDone=true;
+    document.getElementById('dot').classList.add('off');
+    document.getElementById('startBtn').innerHTML='▶ <span id="txtBtnStart">'+(window._T?window._T('btnStart'):'BOSHLASH')+'</span>';
+    buildTable();
+    return;
+  }
+  rafId=requestAnimationFrame(tick);
+}
+
+// QR kod — Virtual Laboratoriya sayti
+var QR_TARGET_URL = "https://xosiyatvertuallab.github.io/virtual--lab/";
+function initQR(){
+  var box=document.getElementById('qrcodeCanvas');
+  if(!box)return;
+  if(typeof QRCode==='undefined'){ setTimeout(initQR,400); return; }
+  box.innerHTML='';
+  try{
+    new QRCode(box,{text:QR_TARGET_URL,width:170,height:170,colorDark:"#0a0e1a",colorLight:"#ffffff",correctLevel:QRCode.CorrectLevel.H});
+  }catch(e){
+    box.innerHTML='<a href="'+QR_TARGET_URL+'" target="_blank" style="color:#0a0e1a;font-family:monospace;font-size:11px;word-break:break-all;">'+QR_TARGET_URL+'</a>';
+  }
+}
+function hideEndScreen(){ document.getElementById('endScreen').classList.remove('show'); }
+
+// Boot (buildTable/redrawAll call t(), which is defined in the next script block —
+// _setLang('uz') on DOMContentLoaded triggers the first real draw)
+initQR();
+</script>
+<script>
+(function(){
+var _lt={
+"uz":{
+ badge:"LAB", hMain:"Diod & Tranzistor — ", hSpan1:"Yarimo'tkazgichlar", hDash:" — Virtual Laboratoriya", sub:"ELEKTRONIKA · YARIMO'TKAZGICHLAR",
+ left1:"Qurilma turi", modeDiod:"Diod", modeTran:"Tranzistor",
+ uLabel:"Kuchlanish (U)", vbeLabel:"Baza kuchlanishi (Vbe)",
+ formulas:"Formulalar", btnStart:"BOSHLASH", btnRunning:"ISHLAYAPTI...", btnReset:"QAYTA BOSHLASH", btnFinish:"ISHNI YAKUNLASH",
+ tableTitle:"Qiymatlar jadvali", thU:"U (V)", thI:"I (mA)", thVbe:"Vbe (V)", thIb:"Ib (µA)", thIc:"Ic (mA)",
+ results:"Natijalar", rU:"Kuchlanish U", rI:"Tok I", rState:"Holat", rDepl:"Kamayish qatlami",
+ rVbe:"Baza kuchlanishi", rIb:"Baza toki Ib", rIc:"Kollektor toki Ic", rState2:"Holat",
+ graphTitle:"OQIM–KUCHLANISH XARAKTERISTIKASI", deplLabel:"kamayish qatlami",
+ stRev:"Teskari — tok o'tmaydi", stBlocked:"Berk — tok yo'q", stCond:"O'tkazuvchan",
+ stCutoff:"Kesilish (Cutoff)", stActive:"Faol (Active)", stSat:"To'yinish (Saturation)",
+ startBadge:"LAB", startSub:"ELEKTRONIKA · YARIMO'TKAZGICHLAR", startH1:"Diod va Tranzistor — ", startH1Span:"Yarimo'tkazgichli Qurilmalar",
+ orderLabel:"BAJARISH TARTIBI",
+ ord1:"Qurilma turini tanlang: Diod yoki Tranzistor",
+ ord2:"Kuchlanishni (U yoki Vbe) sozlang",
+ ord3:"BOSHLASH tugmasini bosib, avtomatik kuchlanish tekshiruvini kuzating",
+ ord4:"Oqim-kuchlanish grafigi va qurilma holatini tahlil qiling",
+ startBtn:"▶ Laboratoriyani boshlash",
+ endTitle:"Laboratoriya tugadi!",
+ endResultTplD:"U = {u} V   |   I = {i} mA",
+ endResultTplT:"Vbe = {vbe} V   |   Ic = {ic} mA   |   {st}",
+ endCaption:"Ko'proq fizika simulyatsiyalarini ko'rish uchun QR kodni skanerlang", endRetry:"↺ Yana urinish",
+ finishNotDone:"Avval BOSHLASH tugmasini bosib, tekshiruvning to'liq yakunlanishini kuting."
+},
+"ru":{
+ badge:"ЛАБ", hMain:"Диод и Транзистор — ", hSpan1:"Полупроводники", hDash:" — Виртуальная Лаборатория", sub:"ЭЛЕКТРОНИКА · ПОЛУПРОВОДНИКИ",
+ left1:"Тип устройства", modeDiod:"Диод", modeTran:"Транзистор",
+ uLabel:"Напряжение (U)", vbeLabel:"Напряжение базы (Vbe)",
+ formulas:"Формулы", btnStart:"НАЧАТЬ", btnRunning:"ВЫПОЛНЯЕТСЯ...", btnReset:"НАЧАТЬ ЗАНОВО", btnFinish:"ЗАВЕРШИТЬ РАБОТУ",
+ tableTitle:"Таблица значений", thU:"U (В)", thI:"I (мА)", thVbe:"Vbe (В)", thIb:"Ib (мкА)", thIc:"Ic (мА)",
+ results:"Результаты", rU:"Напряжение U", rI:"Ток I", rState:"Состояние", rDepl:"Слой обеднения",
+ rVbe:"Напряжение базы", rIb:"Ток базы Ib", rIc:"Ток коллектора Ic", rState2:"Состояние",
+ graphTitle:"ВОЛЬТ-АМПЕРНАЯ ХАРАКТЕРИСТИКА", deplLabel:"слой обеднения",
+ stRev:"Обратное — тока нет", stBlocked:"Закрыт — тока нет", stCond:"Проводит",
+ stCutoff:"Отсечка (Cutoff)", stActive:"Активный (Active)", stSat:"Насыщение (Saturation)",
+ startBadge:"ЛАБ", startSub:"ЭЛЕКТРОНИКА · ПОЛУПРОВОДНИКИ", startH1:"Диод и Транзистор — ", startH1Span:"Полупроводниковые приборы",
+ orderLabel:"ПОРЯДОК ВЫПОЛНЕНИЯ",
+ ord1:"Выберите тип устройства: Диод или Транзистор",
+ ord2:"Настройте напряжение (U или Vbe)",
+ ord3:"Нажмите НАЧАТЬ и наблюдайте автоматическую развёртку напряжения",
+ ord4:"Проанализируйте вольт-амперную характеристику и состояние прибора",
+ startBtn:"▶ Начать лабораторную работу",
+ endTitle:"Лаборатория завершена!",
+ endResultTplD:"U = {u} В   |   I = {i} мА",
+ endResultTplT:"Vbe = {vbe} В   |   Ic = {ic} мА   |   {st}",
+ endCaption:"Отсканируйте QR-код, чтобы увидеть больше симуляций по физике", endRetry:"↺ Попробовать снова",
+ finishNotDone:"Сначала нажмите НАЧАТЬ и дождитесь полного завершения развёртки."
+},
+"en":{
+ badge:"LAB", hMain:"Diode & Transistor — ", hSpan1:"Semiconductors", hDash:" — Virtual Laboratory", sub:"ELECTRONICS · SEMICONDUCTORS",
+ left1:"Device type", modeDiod:"Diode", modeTran:"Transistor",
+ uLabel:"Voltage (U)", vbeLabel:"Base voltage (Vbe)",
+ formulas:"Formulas", btnStart:"START", btnRunning:"RUNNING...", btnReset:"RESET", btnFinish:"FINISH WORK",
+ tableTitle:"Values table", thU:"U (V)", thI:"I (mA)", thVbe:"Vbe (V)", thIb:"Ib (µA)", thIc:"Ic (mA)",
+ results:"Results", rU:"Voltage U", rI:"Current I", rState:"State", rDepl:"Depletion layer",
+ rVbe:"Base voltage", rIb:"Base current Ib", rIc:"Collector current Ic", rState2:"State",
+ graphTitle:"CURRENT–VOLTAGE CHARACTERISTIC", deplLabel:"depletion layer",
+ stRev:"Reverse — no current", stBlocked:"Blocked — no current", stCond:"Conducting",
+ stCutoff:"Cutoff", stActive:"Active", stSat:"Saturation",
+ startBadge:"LAB", startSub:"ELECTRONICS · SEMICONDUCTORS", startH1:"Diode and Transistor — ", startH1Span:"Semiconductor Devices",
+ orderLabel:"PROCEDURE",
+ ord1:"Choose the device type: Diode or Transistor",
+ ord2:"Set the voltage (U or Vbe)",
+ ord3:"Press START and watch the automatic voltage sweep",
+ ord4:"Analyze the current–voltage characteristic and device state",
+ startBtn:"▶ Start the lab",
+ endTitle:"Lab complete!",
+ endResultTplD:"U = {u} V   |   I = {i} mA",
+ endResultTplT:"Vbe = {vbe} V   |   Ic = {ic} mA   |   {st}",
+ endCaption:"Scan the QR code to see more physics simulations", endRetry:"↺ Try again",
+ finishNotDone:"Press START first and wait for the sweep to fully finish."
+}
+};
+var _lang='uz';
+window._T=function(key){return (_lt[_lang]&&_lt[_lang][key])||_lt.uz[key]||key;};
+window.t=function(key){return window._T(key);};
+function _setLang(l){
+  _lang=l;
+  ['uz','ru','en'].forEach(function(x){
+    var el=document.getElementById('_lb'+x);
+    if(!el)return;
+    el.className='lb-inject'+(x===l?' on':'');
+  });
+  var tt=_lt[l];
+  if(!tt)return;
+  var map={
+    txtBadge:tt.badge, txtHMain:tt.hMain, txtHSpan1:tt.hSpan1, txtHDash:tt.hDash, txtSub:tt.sub,
+    txtLeft1:tt.left1, txtLeft2d:tt.formulas==='Formulalar'?'Parametr':'Parametr',
+    txtModeDiod:tt.modeDiod, txtModeTran:tt.modeTran,
+    txtULabel:tt.uLabel, txtVbeLabel:tt.vbeLabel,
+    txtFormulas:tt.formulas, txtBtnReset:tt.btnReset, txtBtnFinish:tt.btnFinish,
+    txtTableTitle:tt.tableTitle, txtThU:tt.thU, txtThI:tt.thI, txtThVbe:tt.thVbe, txtThIb:tt.thIb, txtThIc:tt.thIc,
+    txtResults:tt.results, txtRU:tt.rU, txtRI:tt.rI, txtRState:tt.rState, txtRDepl:tt.rDepl,
+    txtRVbe:tt.rVbe, txtRIb:tt.rIb, txtRIc:tt.rIc, txtRState2:tt.rState2,
+    txtGraphTitle:tt.graphTitle,
+    txtStartBadge:tt.startBadge, txtStartSub:tt.startSub, txtStartH1:tt.startH1, txtStartH1Span:tt.startH1Span,
+    txtOrderLabel:tt.orderLabel, txtOrd1:tt.ord1, txtOrd2:tt.ord2, txtOrd3:tt.ord3, txtOrd4:tt.ord4,
+    txtStartBtn:tt.startBtn,
+    txtEndTitle:tt.endTitle, txtEndCaption:tt.endCaption, txtEndRetry:tt.endRetry
+  };
+  Object.keys(map).forEach(function(id){
+    var el=document.getElementById(id);
+    if(el&&map[id]!==undefined)el.textContent=map[id];
+  });
+  var sb=document.getElementById('txtBtnStart');
+  if(sb)sb.textContent=tt.btnStart;
+  var left2t=document.getElementById('txtLeft2t');
+  if(left2t)left2t.textContent=tt.formulas==='Formulalar'?'Parametr':'Parametr';
+  if(typeof redrawAll==='function'){ buildTable(); redrawAll(); }
+}
+window._changeLang=function(l){_setLang(l);};
+document.addEventListener('DOMContentLoaded',function(){_setLang('uz');});
+})();
+</script>
+</body>
+</html>
