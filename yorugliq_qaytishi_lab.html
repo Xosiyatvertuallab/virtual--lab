@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="uz"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Yorug'likning tarqoq va kuzgusimon qaytishi — Virtual Laboratoriya</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap');
+:root{--bg:#0a0e1a;--panel:#111827;--border:#1e2d45;--accent:#00d4ff;--accent3:#7fff6b;--text:#e2e8f0;--muted:#64748b;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;min-height:100vh;overflow-x:hidden;}
+header{padding:14px 28px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:14px;background:linear-gradient(90deg,#0a0e1a,#0d1528);}
+.badge{background:var(--accent);color:#000;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:3px 8px;letter-spacing:2px;border-radius:2px;}
+header h1{font-size:18px;font-weight:800;color:#fff;}
+header h1 span{color:var(--accent);}
+.sub{font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);margin-left:auto;}
+.layout{display:grid;grid-template-columns:300px 1fr 270px;height:calc(100vh - 53px);}
+.left,.right{background:var(--panel);padding:16px;overflow-y:auto;display:flex;flex-direction:column;gap:12px;}
+.left{border-right:1px solid var(--border);}.right{border-left:1px solid var(--border);}
+.stitle{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--accent);text-transform:uppercase;margin-bottom:2px;}
+.cg{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:8px;padding:12px;}
+.cg label{display:flex;justify-content:space-between;align-items:center;font-size:12px;margin-bottom:8px;gap:6px;}
+.vb{font-family:'Space Mono',monospace;font-size:12px;color:var(--accent);background:rgba(0,212,255,.1);padding:2px 8px;border-radius:4px;min-width:72px;text-align:center;}
+input[type=range]{width:100%;-webkit-appearance:none;height:5px;background:var(--border);border-radius:3px;outline:none;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;background:var(--accent);border-radius:50%;cursor:pointer;box-shadow:0 0 12px rgba(0,212,255,.8);}
+.fbox{background:rgba(0,212,255,.05);border:1px solid rgba(0,212,255,.2);border-radius:8px;padding:12px;}
+.fr{display:flex;gap:8px;margin-bottom:6px;font-family:'Space Mono',monospace;font-size:11px;}
+.fr:last-child{margin-bottom:0;}.fl{color:var(--muted);min-width:20px;}.fe{color:var(--accent3);}
+.btn{width:100%;padding:14px;border:none;border-radius:8px;font-family:'Syne',sans-serif;font-weight:700;font-size:15px;cursor:pointer;transition:all .2s;}
+#startBtn{background:linear-gradient(135deg,#00d4ff,#0099cc);color:#000;}
+#startBtn:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(0,212,255,.5);}
+#resetBtn{background:rgba(255,255,255,.07);color:var(--text);border:1px solid var(--border);margin-top:8px;font-size:13px;}
+.nt{width:100%;border-collapse:collapse;font-family:'Space Mono',monospace;font-size:10px;}
+.nt th{color:var(--accent);font-size:9px;letter-spacing:1px;border-bottom:1px solid var(--border);padding:5px 3px;text-align:left;}
+.nt td{padding:4px 3px;border-bottom:1px solid rgba(255,255,255,.04);}
+.center{position:relative;overflow:hidden;background:var(--bg);}
+#cv{position:absolute;top:0;left:0;width:100%;height:100%;}
+.tdisp{position:absolute;top:14px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.8);border:1px solid var(--border);padding:6px 20px;border-radius:20px;font-family:'Space Mono',monospace;font-size:13px;color:var(--accent);white-space:nowrap;z-index:10;pointer-events:none;}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--accent3);margin-right:6px;animation:bl 1s infinite;vertical-align:middle;}
+.dot.off{background:var(--muted);animation:none;}
+@keyframes bl{0%,100%{opacity:1}50%{opacity:.2}}
+.rc{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:8px;padding:12px;}
+.rc.hi{border-color:rgba(0,212,255,.3);background:rgba(0,212,255,.06);}
+.rl{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;}
+.rv{font-size:24px;font-weight:800;color:#fff;line-height:1.1;}
+.ru{font-family:'Space Mono',monospace;font-size:11px;color:var(--muted);margin-top:3px;}
+.gt{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:4px;letter-spacing:1px;}
+.gb{background:rgba(0,0,0,.35);border:1px solid var(--border);border-radius:8px;padding:8px;}
+.gb canvas{display:block;border-radius:4px;width:100%;}
+#startScreen{position:fixed;inset:0;z-index:9999;background:radial-gradient(circle at 50% 30%,#0d1830,#060910 70%);display:flex;align-items:center;justify-content:center;overflow-y:auto;}
+#startScreen .inner{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:16px;max-width:560px;padding:20px;text-align:center;}
+#startScreen .icon{width:100px;height:100px;border-radius:50%;background:radial-gradient(circle,rgba(0,212,255,.18) 0%,rgba(0,212,255,.02) 70%);border:2px solid rgba(0,212,255,.4);display:flex;align-items:center;justify-content:center;box-shadow:0 0 55px rgba(0,212,255,.3);animation:pulseF 2.5s ease-in-out infinite;font-size:44px;}
+@keyframes pulseF{0%,100%{box-shadow:0 0 55px rgba(0,212,255,.2)}50%{box-shadow:0 0 80px rgba(0,212,255,.5)}}
+@keyframes fadeOutF{0%{opacity:1}100%{opacity:0;transform:scale(1.04)}}
+#startScreen h1{font-size:22px;font-weight:800;color:#fff;}#startScreen h1 span{color:var(--accent);}
+.formula{font-size:11px;color:var(--muted);font-family:'Space Mono',monospace;}
+.order-box{background:rgba(0,212,255,.05);border:1px solid rgba(0,212,255,.15);border-radius:12px;padding:15px;width:100%;text-align:left;}
+.order-label{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--accent);margin-bottom:8px;}
+.order-item{display:flex;align-items:center;gap:8px;font-size:11px;color:#c5d3e8;margin-bottom:7px;}
+.order-item:last-child{margin-bottom:0;}
+.order-num{width:20px;height:20px;border-radius:50%;background:rgba(0,212,255,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--accent);flex-shrink:0;}
+.startlab-btn{background:linear-gradient(135deg,#00d4ff,#0099cc);color:#000;border:none;border-radius:12px;padding:15px 60px;font-size:15px;font-weight:800;font-family:'Syne',sans-serif;cursor:pointer;box-shadow:0 8px 30px rgba(0,212,255,.35);width:100%;}
+.lang-btns{display:flex;gap:4px;margin-left:auto;flex-shrink:0;}
+.lb{background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--muted);font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:5px 9px;border-radius:6px;cursor:pointer;user-select:none;}
+.lb.on{background:rgba(0,212,255,.12);border-color:var(--accent);color:var(--accent);}
+#endScreen{position:fixed;inset:0;z-index:9998;background:radial-gradient(circle at 50% 30%,#0d1830,#060910 70%);display:none;align-items:center;justify-content:center;overflow-y:auto;}
+#endScreen.show{display:flex;}
+#endScreen .inner{display:flex;flex-direction:column;align-items:center;gap:14px;max-width:480px;padding:24px;text-align:center;animation:fIn .4s ease forwards;}
+@keyframes fIn{0%{opacity:0;transform:scale(.96)}100%{opacity:1;transform:scale(1)}}
+.checkicon{width:80px;height:80px;border-radius:50%;border:2px solid rgba(127,255,107,.4);display:flex;align-items:center;justify-content:center;box-shadow:0 0 45px rgba(127,255,107,.25);font-size:38px;}
+#endScreen h2{font-size:20px;font-weight:800;color:#fff;}
+#txtEndResult{font-family:'Space Mono',monospace;font-size:12px;color:var(--accent3);line-height:1.6;}
+.qrbox{background:#fff;padding:14px;border-radius:14px;box-shadow:0 8px 30px rgba(0,212,255,.25);}
+.qrcap{font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1px;max-width:320px;}
+.retry-btn{background:rgba(255,255,255,.07);color:var(--text);border:1px solid var(--border);border-radius:10px;padding:11px 40px;font-size:13px;font-weight:700;font-family:'Syne',sans-serif;cursor:pointer;}
+
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);}
+.nt td,.nt th{white-space:nowrap}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+.sb{margin-top:6px;font-size:13px;background:rgba(255,255,255,.06);color:#e2e8f0;border:1px solid rgba(255,255,255,.15)}
+.sb.sel{box-shadow:0 0 0 2px #ffd23f;background:rgba(255,210,63,.12)}
+#recBtn{background:linear-gradient(135deg,#ffd23f,#e0a800);color:#000;margin-top:8px;font-size:13px}
+#finBtn{background:linear-gradient(135deg,#7fff6b,#3fbf4a);color:#000;margin-top:8px;font-size:13px}
+@media(max-width:900px){.layout{grid-template-columns:1fr;height:auto}.center{height:60vh}header{flex-wrap:wrap;padding:10px 14px}.sub{display:none}header h1{font-size:15px}}
+</style></head><body>
+<div id="startScreen"><div class="inner">
+ <div style="display:flex;align-items:center;gap:10px"><div class="badge" data-t="badge">LAB</div><div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:2px" data-t="sub"></div></div>
+ <div class="icon">🔦</div>
+ <h1><span data-t="startH1"></span><span data-t="startH1S"></span></h1>
+ <p class="formula">β = α · I ∝ cos θ</p>
+ <div class="order-box"><div class="order-label" data-t="orderLabel"></div>
+  <div class="order-item"><span class="order-num">1</span><span data-t="ord1"></span></div>
+  <div class="order-item"><span class="order-num">2</span><span data-t="ord2"></span></div>
+  <div class="order-item"><span class="order-num">3</span><span data-t="ord3"></span></div>
+  <div class="order-item"><span class="order-num">4</span><span data-t="ord4"></span></div></div>
+ <button class="startlab-btn" onclick="startLab()" data-t="startBtn"></button>
+</div></div>
+<div id="endScreen"><div class="inner"><div class="checkicon">✅</div><h2 data-t="endTitle"></h2><p id="txtEndResult"></p>
+ <div class="qrbox"><div id="qrcodeCanvas"></div></div><div class="qrcap" data-t="endCaption"></div>
+ <button class="retry-btn" onclick="hideEnd()" data-t="endRetry"></button></div></div>
+<header><div class="badge" data-t="badge">LAB</div>
+ <h1><span data-t="hMain"></span><span data-t="hSpan"></span><span data-t="hDash"></span></h1>
+ <div class="sub" data-t="sub"></div>
+ <div class="lang-btns"><div class="lb on" data-l="uz">🇺🇿 UZ</div><div class="lb" data-l="qq">QQ</div><div class="lb" data-l="ru">🇷🇺 RU</div><div class="lb" data-l="en">🇬🇧 EN</div></div></header>
+<div class="layout">
+ <div class="left">
+  <div class="stitle" data-t="left1"></div>
+  <div class="cg"><label><span data-t="lSf"></span></label>
+   <button class="btn sb sel" id="sb0">🪞 <span data-t="surf0"></span></button>
+   <button class="btn sb" id="sb1">🔩 <span data-t="surf1"></span></button>
+   <button class="btn sb" id="sb2">📄 <span data-t="surf2"></span></button></div>
+  <div class="cg"><label><span data-t="lAl"></span><span class="vb" id="dAl">40°</span></label><input type="range" id="sAl" min="10" max="80" step="1" value="40"></div>
+  <div class="cg"><label><span data-t="lTh"></span><span class="vb" id="dTh">40°</span></label><input type="range" id="sTh" min="-85" max="85" step="1" value="40"></div>
+  <div><div class="stitle" data-t="formulas"></div><div class="fbox">
+   <div class="fr"><span class="fl">β</span><span class="fe">= α (ayna / mirror)</span></div>
+   <div class="fr"><span class="fl">I</span><span class="fe">∝ cos θ (Lambert)</span></div></div></div>
+  <button class="btn" id="recBtn">● <span data-t="btnRec"></span></button>
+  <button class="btn" id="finBtn" disabled>✔ <span data-t="btnFin"></span></button>
+  <button class="btn" id="resetBtn" style="margin-top:8px">↺ <span data-t="btnReset"></span></button>
+  <div><div class="stitle" data-t="tblT"></div><div class="cg" style="padding:10px;overflow-x:auto"><table class="nt"><thead><tr><th>n</th><th></th><th>α</th><th>θ</th><th>I %</th></tr></thead><tbody id="ntb"></tbody></table></div></div>
+ </div>
+ <div class="center"><canvas id="cv"></canvas><div class="tdisp"><span class="dot"></span><span id="tt"></span></div></div>
+ <div class="right">
+  <div class="stitle" data-t="results"></div>
+  <div class="rc hi"><div class="rl" data-t="rI"></div><div class="rv" id="rI">0</div><div class="ru">%</div></div>
+  <div class="rc"><div class="rl" data-t="rA"></div><div class="rv" id="rA">0</div><div class="ru">°</div></div>
+  <div class="rc"><div class="rl" data-t="rTh"></div><div class="rv" id="rTh">0</div><div class="ru">°</div></div>
+  <div class="rc"><div class="rl" data-t="rM"></div><div class="rv" id="rM" style="font-size:15px">—</div></div>
+  <div><div class="gt" data-t="g1"></div><div class="gb"><canvas id="ig" width="230" height="140"></canvas></div></div>
+ </div>
+</div>
+<script>
+var P=[{d:.02,s:1.5},{d:.35,s:9},{d:.97,s:20}],EM=['🪞','🔩','📄'],sf=0,al=40,th=40,rec=[],LANG='uz',RAD=Math.PI/180;
+function $(i){return document.getElementById(i);}
+var cv=$('cv'),ctx=cv.getContext('2d'),gc=$('ig').getContext('2d');
+function rs(){cv.width=cv.offsetWidth;cv.height=cv.offsetHeight;}rs();addEventListener('resize',rs);
+function Iof(x){var p=P[sf];return Math.min(1,(1-p.d)*Math.exp(-Math.pow(x-al,2)/(2*p.s*p.s))+p.d*.9*Math.cos(x*RAD)*Math.cos(al*RAD));}
+function upd(){
+ $('dAl').textContent=al+'°';$('dTh').textContent=th+'°';
+ $('rI').textContent=(Iof(th)*100).toFixed(1);$('rA').textContent=al;$('rTh').textContent=th;
+ var d=P[sf].d;$('rM').textContent=T(d<.1?'sp':d>.7?'df':'mx');
+ $('tt').textContent=T('surf'+sf)+' · α = '+al+'°';
+ for(var i=0;i<3;i++)$('sb'+i).className='btn sb'+(i===sf?' sel':'');
+ $('finBtn').disabled=rec.length<4;}
+function table(){var tb=$('ntb');tb.innerHTML='';rec.forEach(function(r,i){var tr=document.createElement('tr');
+ tr.innerHTML='<td>'+(i+1)+'</td><td>'+EM[r.sf]+'</td><td>'+r.al+'</td><td>'+r.th+'</td><td>'+r.I.toFixed(1)+'</td>';tb.appendChild(tr);});}
+for(var q=0;q<3;q++)(function(k){$('sb'+k).onclick=function(){sf=k;upd();};})(q);
+$('sAl').oninput=function(){al=+this.value;upd();};
+$('sTh').oninput=function(){th=+this.value;upd();};
+$('recBtn').onclick=function(){rec.push({sf:sf,al:al,th:th,I:Math.max(0,Math.min(100,Iof(th)*100+(Math.random()-.5)*.6))});table();upd();};
+$('finBtn').onclick=showEnd;
+$('resetBtn').onclick=function(){rec=[];table();upd();};
+function draw(){
+ var W=cv.width,H=cv.height,ox=W/2,oy=H*.68,R=Math.min(W*.42,H*.58),p=P[sf],i,x;
+ ctx.fillStyle='#0a0e1a';ctx.fillRect(0,0,W,H);
+ ctx.strokeStyle='rgba(0,212,255,.05)';for(x=0;x<W;x+=40){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+ for(i=0;i<H;i+=40){ctx.beginPath();ctx.moveTo(0,i);ctx.lineTo(W,i);ctx.stroke();}
+ var x0=W*.06,x1=W*.94,amp=[0,1.4,3.2][sf],fq=[0,.9,.22][sf];
+ ctx.beginPath();ctx.moveTo(x0,oy+18);for(x=x0;x<=x1;x+=2)ctx.lineTo(x,oy+amp*Math.sin(x*fq)+amp*.6*Math.sin(x*fq*2.7+1));ctx.lineTo(x1,oy+18);ctx.closePath();
+ ctx.fillStyle=['rgba(159,216,255,.35)','#9aa5b4','#f1f5f9'][sf];ctx.fill();
+ ctx.strokeStyle=sf==0?'#fff':'rgba(120,130,150,.8)';ctx.lineWidth=sf==0?2.5:1;ctx.stroke();
+ ctx.setLineDash([5,4]);ctx.strokeStyle='rgba(148,163,184,.6)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(ox,oy);ctx.lineTo(ox,oy-R*1.1);ctx.stroke();ctx.setLineDash([]);
+ // reflected distribution
+ ctx.beginPath();ctx.moveTo(ox,oy);for(x=-89;x<=89;x++){var r=R*Iof(x);ctx.lineTo(ox+r*Math.sin(x*RAD),oy-r*Math.cos(x*RAD));}ctx.closePath();ctx.fillStyle='rgba(0,212,255,.10)';ctx.fill();
+ var xs=[];for(x=-88;x<=88;x+=2)xs.push(x);xs.push(al);
+ xs.forEach(function(a){var I=Iof(a),l=R*I;if(l<3)return;ctx.strokeStyle='rgba(0,212,255,'+(.15+.85*I)+')';ctx.lineWidth=a===al&&p.d<.9?3:1.5;ctx.beginPath();ctx.moveTo(ox,oy);ctx.lineTo(ox+l*Math.sin(a*RAD),oy-l*Math.cos(a*RAD));ctx.stroke();});
+ // incident ray
+ var sx=ox-R*Math.sin(al*RAD),sy=oy-R*Math.cos(al*RAD);
+ ctx.strokeStyle='#ffd23f';ctx.lineWidth=3;ctx.shadowBlur=10;ctx.shadowColor='#ffd23f';ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(ox,oy);ctx.stroke();ctx.shadowBlur=0;
+ var mx=(sx+ox)/2,my=(sy+oy)/2,ang=Math.atan2(oy-sy,ox-sx);ctx.fillStyle='#ffd23f';ctx.beginPath();ctx.moveTo(mx+9*Math.cos(ang),my+9*Math.sin(ang));ctx.lineTo(mx-6*Math.cos(ang)+6*Math.sin(ang),my-6*Math.sin(ang)-6*Math.cos(ang));ctx.lineTo(mx-6*Math.cos(ang)-6*Math.sin(ang),my-6*Math.sin(ang)+6*Math.cos(ang));ctx.fill();
+ ctx.font='24px sans-serif';ctx.textAlign='center';ctx.fillText('🔦',sx-10*Math.sin(al*RAD)-4,sy-10*Math.cos(al*RAD));
+ // observer
+ var ex=ox+(R+16)*Math.sin(th*RAD),ey=oy-(R+16)*Math.cos(th*RAD);
+ ctx.setLineDash([2,4]);ctx.strokeStyle='rgba(255,255,255,.4)';ctx.beginPath();ctx.moveTo(ox,oy);ctx.lineTo(ex,ey);ctx.stroke();ctx.setLineDash([]);
+ ctx.font='24px sans-serif';ctx.fillText('👁',ex,ey+4);
+ // angle arcs
+ ctx.lineWidth=1.5;ctx.strokeStyle='#ffd23f';ctx.beginPath();ctx.arc(ox,oy,42,-Math.PI/2-al*RAD,-Math.PI/2);ctx.stroke();
+ ctx.strokeStyle='#7fff6b';ctx.beginPath();ctx.arc(ox,oy,56,th>=0?-Math.PI/2:-Math.PI/2+th*RAD,th>=0?-Math.PI/2+th*RAD:-Math.PI/2);ctx.stroke();
+ ctx.font='bold 12px monospace';ctx.fillStyle='#ffd23f';ctx.fillText('α='+al+'°',ox-48-al*.2,oy-48);ctx.fillStyle='#7fff6b';ctx.fillText('θ='+th+'°',ox+62+Math.abs(th)*.2,oy-40);
+ ctx.fillStyle='#94a3b8';ctx.font='11px monospace';ctx.fillText('N',ox+8,oy-R*1.1);}
+function graph(){
+ var W=230,H=140,pl=30,pr=8,pt=10,pb=22,gw=W-pl-pr,gh=H-pt-pb;
+ function X(a){return pl+(a+90)/180*gw;}function Y(v){return pt+gh-v*gh;}
+ gc.fillStyle='#0a0e1a';gc.fillRect(0,0,W,H);gc.strokeStyle='rgba(255,255,255,.18)';gc.beginPath();gc.moveTo(pl,pt);gc.lineTo(pl,H-pb);gc.lineTo(W-pr,H-pb);gc.stroke();
+ gc.font='8px monospace';gc.fillStyle='#64748b';gc.textAlign='center';
+ for(var a=-90;a<=90;a+=45)gc.fillText(a,X(a),H-pb+10);gc.fillText('θ (°)',pl+gw/2,H-3);
+ gc.textAlign='right';gc.fillText('100',pl-3,pt+6);gc.fillText('0',pl-3,H-pb);
+ gc.strokeStyle='#00d4ff';gc.lineWidth=2;gc.beginPath();for(a=-90;a<=90;a++){var y=Y(Iof(a));if(a==-90)gc.moveTo(X(a),y);else gc.lineTo(X(a),y);}gc.stroke();
+ gc.strokeStyle='rgba(255,210,63,.5)';gc.setLineDash([3,3]);gc.beginPath();gc.moveTo(X(th),H-pb);gc.lineTo(X(th),Y(Iof(th)));gc.stroke();gc.setLineDash([]);
+ gc.fillStyle='#ffd23f';gc.beginPath();gc.arc(X(th),Y(Iof(th)),3.5,0,7);gc.fill();}
+function loop(){draw();graph();requestAnimationFrame(loop);}
+var QR_URL="https://xosiyatvertuallab.github.io/virtual--lab/";
+function initQR(){var b=$('qrcodeCanvas');if(!b||typeof QRCode==='undefined')return;b.innerHTML='';new QRCode(b,{text:QR_URL,width:170,height:170,colorDark:'#0a0e1a',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.H});}
+function showEnd(){var m=rec.filter(function(r){return r.sf===0;}),pp=rec.filter(function(r){return r.sf===2;}),h='';
+ if(m.length){var s=0;m.forEach(function(r){s+=Math.abs(r.th-r.al);});h+=T('surf0')+': ⟨|θ−α|⟩ = '+(s/m.length).toFixed(1)+'°<br>';}
+ if(pp.length){var a=pp.map(function(r){return r.I;});h+=T('surf2')+': ΔI = '+(Math.max.apply(0,a)-Math.min.apply(0,a)).toFixed(1)+' %<br>';}
+ $('txtEndResult').innerHTML=h+'<br>'+T('concl');$('endScreen').classList.add('show');}
+function hideEnd(){$('endScreen').classList.remove('show');}
+function startLab(){var s=$('startScreen');s.style.animation='fadeOutF .5s ease forwards';setTimeout(function(){s.style.display='none';},480);}
+var LT={
+uz:{badge:'LAB',sub:'FIZIKA · OPTIKA',hMain:'Yorug‘likning tarqoq va ',hSpan:'kuzgusimon qaytishi',hDash:' — Virtual Laboratoriya',
+ left1:'Tajriba shartlari',lSf:'Sirt turi',surf0:'Kuzgu',surf1:'Silliqlangan metall',surf2:'Qog‘oz',lAl:'Tushish burchagi (α)',lTh:'Kuzatuvchi burchagi (θ)',formulas:'Qonunlar',
+ btnRec:'O‘LCHASHNI YOZISH',btnFin:'NATIJANI KO‘RSATISH (≥4)',btnReset:'QAYTA BOSHLASH',tblT:'O‘lchashlar jadvali',results:'Natijalar',
+ rI:'Fotometr ko‘rsatishi I',rA:'Tushish burchagi α',rTh:'Kuzatish burchagi θ',rM:'Qaytish turi',sp:'Kuzgusimon',mx:'Aralash',df:'Tarqoq',g1:'I(θ) — qaytgan yorug‘lik intensivligi',
+ concl:'Kuzgusimon qaytishda yorug‘lik faqat θ = α yo‘nalishida qaytadi; tarqoq qaytishda esa barcha yo‘nalishlarda kuzatiladi.',
+ startH1:'Yorug‘likning tarqoq va kuzgusimon qaytishi — ',startH1S:'Virtual Laboratoriya',orderLabel:'BAJARISH TARTIBI',
+ ord1:'Sirtni (kuzgu, metall, qog‘oz) va nurning tushish burchagi α ni tanlang',
+ ord2:'Kuzatuvchi θ ni siljitib, fotometr ko‘rsatishi eng katta bo‘lgan yo‘nalishni toping',
+ ord3:'«O‘lchashni yozish» ni bosing. Kuzgu va qog‘oz uchun kamida 4 ta o‘lchash bajaring',
+ ord4:'Qaytish qonunini (β = α) tekshiring va kuzgu bilan qog‘ozdagi farqni tushuntiring',
+ startBtn:'▶ Laboratoriyani boshlash',endTitle:'Laboratoriya tugadi!',endCaption:'Ko‘proq fizika simulyatsiyalarini ko‘rish uchun QR kodni skanerlang',endRetry:'↺ Yana urinish'},
+qq:{badge:'LAB',sub:'FIZIKA · OPTIKA',hMain:'Jaqtılıqtıń tarqaq hám ',hSpan:'ayna tárizli qaytıwı',hDash:' — Virtual Laboratoriya',
+ left1:'Tájiriybe shárt-sharayatları',lSf:'Bet túri',surf0:'Ayna',surf1:'Jaltıratılǵan metall',surf2:'Qaǵaz',lAl:'Túsiw múyeshi (α)',lTh:'Baqlawshı múyeshi (θ)',formulas:'Nızamlar',
+ btnRec:'ÓLSHEWDI JAZIW',btnFin:'NÁTIYJENI KÓRSETIW (≥4)',btnReset:'QAYTA BASLAW',tblT:'Ólshewler kestesi',results:'Nátiyjeler',
+ rI:'Fotometr kórsetiwi I',rA:'Túsiw múyeshi α',rTh:'Baqlaw múyeshi θ',rM:'Qaytıw túri',sp:'Ayna tárizli',mx:'Aralas',df:'Tarqaq',g1:'I(θ) — qaytqan jaqtılıq intensivligi',
+ concl:'Ayna tárizli qaytıwda jaqtılıq tek θ = α baǵıtında qaytadı; tarqaq qaytıwda barlıq baǵıtlarda baqlanadı.',
+ startH1:'Jaqtılıqtıń tarqaq hám ayna tárizli qaytıwı — ',startH1S:'Virtual Laboratoriya',orderLabel:'ORINLAW TÁRTIBI',
+ ord1:'Betti (ayna, metall, qaǵaz) hám nurdıń túsiw múyeshi α dı saylań',
+ ord2:'Baqlawshı θ nı jılıstırıp, fotometr kórsetiwi eń úlken bolǵan baǵıttı tabıń',
+ ord3:'«Ólshewdi jazıw» dı basıń. Ayna hám qaǵaz ushın keminde 4 ólshew orınlań',
+ ord4:'Qaytıw nızamın (β = α) tekserip, ayna menen qaǵazdaǵı parıqtı túsindiriń',
+ startBtn:'▶ Laboratoriyanı baslaw',endTitle:'Laboratoriya juwmaqlandı!',endCaption:'Kóbirek fizika simulyaciyaların kóriw ushın QR kodtı skanerlań',endRetry:'↺ Qaytadan'},
+ru:{badge:'ЛАБ',sub:'ФИЗИКА · ОПТИКА',hMain:'Зеркальное и ',hSpan:'диффузное отражение света',hDash:' — Виртуальная Лаборатория',
+ left1:'Условия опыта',lSf:'Тип поверхности',surf0:'Зеркало',surf1:'Полированный металл',surf2:'Бумага',lAl:'Угол падения (α)',lTh:'Угол наблюдателя (θ)',formulas:'Законы',
+ btnRec:'ЗАПИСАТЬ ИЗМЕРЕНИЕ',btnFin:'ПОКАЗАТЬ РЕЗУЛЬТАТ (≥4)',btnReset:'НАЧАТЬ ЗАНОВО',tblT:'Таблица измерений',results:'Результаты',
+ rI:'Показание фотометра I',rA:'Угол падения α',rTh:'Угол наблюдения θ',rM:'Тип отражения',sp:'Зеркальное',mx:'Смешанное',df:'Диффузное',g1:'I(θ) — интенсивность отражённого света',
+ concl:'При зеркальном отражении свет идёт только в направлении θ = α, при диффузном — наблюдается во всех направлениях.',
+ startH1:'Зеркальное и диффузное отражение света — ',startH1S:'Виртуальная лаборатория',orderLabel:'ПОРЯДОК ВЫПОЛНЕНИЯ',
+ ord1:'Выберите поверхность (зеркало, металл, бумага) и угол падения луча α',
+ ord2:'Перемещая наблюдателя θ, найдите направление максимального показания фотометра',
+ ord3:'Нажмите «Записать измерение». Выполните не менее 4 измерений для зеркала и бумаги',
+ ord4:'Проверьте закон отражения (β = α) и объясните разницу между зеркалом и бумагой',
+ startBtn:'▶ Начать лабораторную',endTitle:'Лабораторная завершена!',endCaption:'Сканируйте QR-код, чтобы увидеть больше симуляций по физике',endRetry:'↺ Ещё раз'},
+en:{badge:'LAB',sub:'PHYSICS · OPTICS',hMain:'Specular and ',hSpan:'diffuse reflection of light',hDash:' — Virtual Laboratory',
+ left1:'Experiment settings',lSf:'Surface type',surf0:'Mirror',surf1:'Polished metal',surf2:'Paper',lAl:'Angle of incidence (α)',lTh:'Observer angle (θ)',formulas:'Laws',
+ btnRec:'RECORD MEASUREMENT',btnFin:'SHOW RESULT (≥4)',btnReset:'RESTART',tblT:'Measurement table',results:'Results',
+ rI:'Photometer reading I',rA:'Angle of incidence α',rTh:'Observation angle θ',rM:'Reflection type',sp:'Specular',mx:'Mixed',df:'Diffuse',g1:'I(θ) — reflected light intensity',
+ concl:'In specular reflection light leaves only at θ = α; in diffuse reflection it is seen in all directions.',
+ startH1:'Specular and diffuse reflection of light — ',startH1S:'Virtual Laboratory',orderLabel:'PROCEDURE',
+ ord1:'Choose the surface (mirror, metal, paper) and the angle of incidence α',
+ ord2:'Move the observer θ and find the direction of maximum photometer reading',
+ ord3:'Press “Record measurement”. Take at least 4 measurements for mirror and paper',
+ ord4:'Check the law of reflection (β = α) and explain the difference between mirror and paper',
+ startBtn:'▶ Start the lab',endTitle:'Lab complete!',endCaption:'Scan the QR code to see more physics simulations',endRetry:'↺ Try again'}};
+function T(k){return(LT[LANG]&&LT[LANG][k])||LT.uz[k]||k;}
+function setLang(l){LANG=l;document.documentElement.lang=l;document.querySelectorAll('.lb').forEach(function(b){b.className='lb'+(b.dataset.l===l?' on':'');});
+ document.querySelectorAll('[data-t]').forEach(function(e){var v=LT[l][e.dataset.t];if(v!==undefined)e.textContent=v;});upd();}
+document.querySelectorAll('.lb').forEach(function(b){b.onclick=function(){setLang(b.dataset.l);};});
+setLang('uz');initQR();table();requestAnimationFrame(loop);
+</script></body></html>
