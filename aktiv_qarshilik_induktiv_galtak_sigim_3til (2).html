@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>R, L, C — O'zgaruvchan Tok Zanjiri — Virtual Laboratoriya</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap');
+:root {
+  --bg: #0a0e1a; --panel: #111827; --border: #1e2d45;
+  --accent: #00d4ff; --accent3: #7fff6b; --text: #e2e8f0; --muted: #64748b;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--bg); color:var(--text); font-family:'Syne',sans-serif; min-height:100vh; overflow-x:hidden; }
+header { padding:14px 28px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:14px; background:linear-gradient(90deg,#0a0e1a,#0d1528); }
+.badge { background:var(--accent); color:#000; font-family:'Space Mono',monospace; font-size:10px; font-weight:700; padding:3px 8px; letter-spacing:2px; border-radius:2px; }
+header h1 { font-size:18px; font-weight:800; color:#fff; }
+header h1 span { color:var(--accent); }
+.sub { font-family:'Space Mono',monospace; font-size:10px; color:var(--muted); margin-left:auto; }
+.layout { display:grid; grid-template-columns:300px 1fr 270px; height:calc(100vh - 53px); }
+.left { background:var(--panel); border-right:1px solid var(--border); padding:16px; overflow-y:auto; display:flex; flex-direction:column; gap:12px; }
+.stitle { font-family:'Space Mono',monospace; font-size:9px; letter-spacing:3px; color:var(--accent); text-transform:uppercase; margin-bottom:2px; }
+.cg { background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:8px; padding:12px; }
+.cg label { display:flex; justify-content:space-between; align-items:center; font-size:12px; margin-bottom:8px; }
+.vb { font-family:'Space Mono',monospace; font-size:12px; color:var(--accent); background:rgba(0,212,255,0.1); padding:2px 8px; border-radius:4px; min-width:72px; text-align:center; }
+input[type=range] { width:100%; -webkit-appearance:none; height:5px; background:var(--border); border-radius:3px; outline:none; cursor:pointer; }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:20px; height:20px; background:var(--accent); border-radius:50%; cursor:pointer; box-shadow:0 0 12px rgba(0,212,255,0.8); }
+.rg { display:flex; gap:6px; flex-wrap:wrap; }
+.rb { background:rgba(255,255,255,0.05); border:1px solid var(--border); color:var(--muted); padding:7px 12px; border-radius:6px; font-size:11px; font-family:'Space Mono',monospace; cursor:pointer; transition:all 0.2s; user-select:none; flex:1 1 auto; text-align:center; }
+.rb.on { background:rgba(0,212,255,0.15); border-color:var(--accent); color:var(--accent); }
+.fbox { background:rgba(0,212,255,0.05); border:1px solid rgba(0,212,255,0.2); border-radius:8px; padding:12px; }
+.fr { display:flex; gap:8px; margin-bottom:6px; font-family:'Space Mono',monospace; font-size:11px; }
+.fr:last-child { margin-bottom:0; }
+.fl { color:var(--muted); min-width:32px; }
+.fe { color:var(--accent3); }
+.btn { width:100%; padding:14px; border:none; border-radius:8px; font-family:'Syne',sans-serif; font-weight:700; font-size:15px; cursor:pointer; transition:all 0.2s; }
+#startBtn { background:linear-gradient(135deg,#00d4ff,#0099cc); color:#000; }
+#startBtn:hover { transform:translateY(-1px); box-shadow:0 6px 24px rgba(0,212,255,0.5); }
+#resetBtn { background:rgba(255,255,255,0.07); color:var(--text); border:1px solid var(--border); margin-top:8px; font-size:13px; }
+#resetBtn:hover { background:rgba(255,255,255,0.13); }
+#finishBtn { background:rgba(127,255,107,0.12); color:var(--accent3); border:1px solid rgba(127,255,107,0.4); margin-top:8px; font-size:13px; }
+#finishBtn:hover { background:rgba(127,255,107,0.22); }
+.nt { width:100%; border-collapse:collapse; font-family:'Space Mono',monospace; font-size:10px; }
+.nt th { color:var(--accent); font-size:9px; letter-spacing:1px; border-bottom:1px solid var(--border); padding:5px 3px; text-align:left; }
+.nt td { padding:4px 3px; border-bottom:1px solid rgba(255,255,255,0.04); }
+.nt tr:last-child td { border-bottom:none; }
+.center { position:relative; overflow:hidden; background:var(--bg); }
+#cv { position:absolute; top:0; left:0; width:100%; height:100%; }
+.tdisp { position:absolute; top:14px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.8); border:1px solid var(--border); padding:6px 20px; border-radius:20px; font-family:'Space Mono',monospace; font-size:13px; color:var(--accent); backdrop-filter:blur(8px); white-space:nowrap; z-index:10; pointer-events:none; }
+.dot { display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--accent3); margin-right:6px; animation:bl 1s infinite; vertical-align:middle; }
+.dot.off { background:var(--muted); animation:none; }
+@keyframes bl { 0%,100%{opacity:1} 50%{opacity:0.2} }
+.right { background:var(--panel); border-left:1px solid var(--border); padding:16px; overflow-y:auto; display:flex; flex-direction:column; gap:12px; }
+.rc { background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:8px; padding:12px; }
+.rc.hi { border-color:rgba(0,212,255,0.3); background:rgba(0,212,255,0.06); }
+.rl { font-family:'Space Mono',monospace; font-size:9px; color:var(--muted); letter-spacing:2px; text-transform:uppercase; margin-bottom:4px; }
+.rv { font-size:26px; font-weight:800; color:#fff; line-height:1; }
+.ru { font-family:'Space Mono',monospace; font-size:11px; color:var(--muted); margin-top:3px; }
+.gt { font-family:'Space Mono',monospace; font-size:9px; color:var(--muted); margin-bottom:4px; letter-spacing:1px; }
+.gb { background:rgba(0,0,0,0.35); border:1px solid var(--border); border-radius:8px; padding:8px; }
+.gb canvas { display:block; border-radius:4px; }
+#startScreen{position:fixed;inset:0;z-index:9999;background:radial-gradient(circle at 50% 30%,#0d1830,#060910 70%);display:flex;align-items:center;justify-content:center;}
+#startScreen .inner{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:16px;max-width:560px;padding:20px;text-align:center;}
+#startScreen .icon{width:100px;height:100px;border-radius:50%;background:radial-gradient(circle,rgba(0,212,255,.18) 0%,rgba(0,212,255,.02) 70%);border:2px solid rgba(0,212,255,.4);display:flex;align-items:center;justify-content:center;box-shadow:0 0 55px rgba(0,212,255,.3);animation:pulseFall 2.5s ease-in-out infinite;}
+@keyframes pulseFall{0%,100%{box-shadow:0 0 55px rgba(0,212,255,.2)}50%{box-shadow:0 0 80px rgba(0,212,255,.5)}}
+@keyframes fadeOutFall{0%{opacity:1}100%{opacity:0;transform:scale(1.04)}}
+#startScreen h1{font-size:22px;font-weight:800;color:#fff;}
+#startScreen h1 span{color:var(--accent);}
+#startScreen p.formula{font-size:11px;color:var(--muted);margin-top:8px;font-family:'Space Mono',monospace;}
+#startScreen .order-box{background:rgba(0,212,255,.05);border:1px solid rgba(0,212,255,.15);border-radius:12px;padding:15px;width:100%;text-align:left;}
+#startScreen .order-label{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--accent);margin-bottom:8px;}
+#startScreen .order-item{display:flex;align-items:center;gap:8px;font-size:11px;color:#c5d3e8;margin-bottom:7px;}
+#startScreen .order-item:last-child{margin-bottom:0;}
+#startScreen .order-num{width:20px;height:20px;border-radius:50%;background:rgba(0,212,255,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--accent);flex-shrink:0;}
+#startScreen .startlab-btn{background:linear-gradient(135deg,#00d4ff,#0099cc);color:#000;border:none;border-radius:12px;padding:15px 60px;font-size:15px;font-weight:800;font-family:'Syne',sans-serif;cursor:pointer;box-shadow:0 8px 30px rgba(0,212,255,.35);width:100%;}
+.lang-btns-inject{display:flex;gap:4px;margin-left:auto;flex-shrink:0;}
+.lb-inject{background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--muted);font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:5px 9px;border-radius:6px;cursor:pointer;user-select:none;}
+.lb-inject.on{background:rgba(0,212,255,.12);border-color:var(--accent);color:var(--accent);}
+#endScreen{position:fixed;inset:0;z-index:9998;background:radial-gradient(circle at 50% 30%,#0d1830,#060910 70%);display:none;align-items:center;justify-content:center;opacity:0;transition:opacity .5s ease;}
+#endScreen.show{display:flex;opacity:1;}
+#endScreen .inner{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:14px;max-width:480px;padding:24px;text-align:center;}
+#endScreen .checkicon{width:80px;height:80px;border-radius:50%;background:radial-gradient(circle,rgba(127,255,107,.18) 0%,rgba(127,255,107,.02) 70%);border:2px solid rgba(127,255,107,.4);display:flex;align-items:center;justify-content:center;box-shadow:0 0 45px rgba(127,255,107,.25);font-size:38px;}
+#endScreen h2{font-size:20px;font-weight:800;color:#fff;}
+#endScreen p.res{font-family:'Space Mono',monospace;font-size:12px;color:var(--accent3);}
+#endScreen .qrbox{background:#fff;padding:14px;border-radius:14px;box-shadow:0 8px 30px rgba(0,212,255,.25);}
+#endScreen .qrcap{font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1px;max-width:320px;}
+#endScreen .retry-btn{background:rgba(255,255,255,.07);color:var(--text);border:1px solid var(--border);border-radius:10px;padding:11px 40px;font-size:13px;font-weight:700;font-family:'Syne',sans-serif;cursor:pointer;margin-top:4px;}
+#endScreen .retry-btn:hover{background:rgba(255,255,255,.13);}
+@keyframes fadeInEnd{0%{opacity:0;transform:scale(.96)}100%{opacity:1;transform:scale(1)}}
+#endScreen.show .inner{animation:fadeInEnd .4s ease forwards;}
+</style>
+</head>
+<body>
+<div id="startScreen">
+  <canvas id="bgCanvas" style="position:absolute;inset:0;width:100%;height:100%;opacity:.4;pointer-events:none"></canvas>
+  <div class="inner">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div class="badge" id="txtStartBadge" style="font-size:10px;padding:4px 14px;">LAB</div>
+      <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:2px;" id="txtStartSub">FIZIKA · ELEKTR TOK</div>
+    </div>
+    <div class="icon"><span style="font-size:44px;">⚡</span></div>
+    <h1><span id="txtStartH1">R, L, C — </span><span id="txtStartH1Span">O'zgaruvchan Tok Zanjiri</span></h1>
+    <p class="formula">Xl = ωL · Xc = 1/ωC · Z = √(R² + (Xl−Xc)²) · I₀ = U₀/Z</p>
+    <div class="order-box">
+      <div class="order-label" id="txtOrderLabel">BAJARISH TARTIBI</div>
+      <div class="order-item"><span class="order-num">1</span><span id="txtOrd1">Zanjir turini tanlang: faqat R, faqat L, faqat C yoki R+L+C</span></div>
+      <div class="order-item"><span class="order-num">2</span><span id="txtOrd2">Kuchlanish U₀, chastota f va R, L, C qiymatlarini sozlang</span></div>
+      <div class="order-item"><span class="order-num">3</span><span id="txtOrd3">BOSHLASH tugmasini bosing va tok bilan kuchlanish orasidagi fazani kuzating</span></div>
+      <div class="order-item"><span class="order-num">4</span><span id="txtOrd4">Xl, Xc, Z, φ, I₀ natijalarini va fazor diagrammasini tahlil qiling</span></div>
+    </div>
+    <button class="startlab-btn" onclick="startLab()" id="txtStartBtn">▶ Laboratoriyani boshlash</button>
+  </div>
+</div>
+<script>
+(function(){var c=document.getElementById('bgCanvas');if(!c)return;var x=c.getContext('2d');var pts=[];function rs(){c.width=window.innerWidth;c.height=window.innerHeight;}rs();window.addEventListener('resize',rs);for(var i=0;i<50;i++)pts.push({x:Math.random()*1600,y:Math.random()*900,r:Math.random()*1.5+.5,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,a:Math.random()});function fr(){x.clearRect(0,0,c.width,c.height);pts.forEach(function(p){p.x+=p.vx;p.y+=p.vy;p.a+=.005;if(p.x<0)p.x=c.width;if(p.x>c.width)p.x=0;if(p.y<0)p.y=c.height;if(p.y>c.height)p.y=0;x.fillStyle='rgba(0,212,255,'+(0.15+Math.sin(p.a)*0.12)+')';x.beginPath();x.arc(p.x%c.width,p.y%c.height,p.r,0,Math.PI*2);x.fill();});requestAnimationFrame(fr);}fr();})();
+function startLab(){var s=document.getElementById('startScreen');s.style.animation='fadeOutFall .5s ease forwards';setTimeout(function(){s.style.display='none';},480);}
+</script>
+<div id="endScreen">
+  <div class="inner">
+    <div class="checkicon">✅</div>
+    <h2 id="txtEndTitle">Laboratoriya tugadi!</h2>
+    <p class="res" id="txtEndResult"></p>
+    <div class="qrbox"><div id="qrcodeCanvas"></div></div>
+    <div class="qrcap" id="txtEndCaption">Ko'proq fizika simulyatsiyalarini ko'rish uchun QR kodni skanerlang</div>
+    <button class="retry-btn" onclick="hideEndScreen()" id="txtEndRetry">↺ Yana urinish</button>
+  </div>
+</div>
+<header>
+  <div class="badge" id="txtBadge">LAB</div>
+  <h1><span id="txtHMain">R, L, C — </span><span id="txtHSpan1">AC Zanjiri</span><span id="txtHDash"> — Virtual Laboratoriya</span></h1>
+  <div class="sub" id="txtSub">FIZIKA · ELEKTR TOK</div>
+  <div class="lang-btns-inject" id="_langbtns">
+    <div class="lb-inject on" id="_lbuz" onclick="window._changeLang('uz')">🇺🇿 UZ</div>
+    <div class="lb-inject" id="_lbru" onclick="window._changeLang('ru')">🇷🇺 RU</div>
+    <div class="lb-inject" id="_lben" onclick="window._changeLang('en')">🇬🇧 EN</div>
+  </div>
+</header>
+<div class="layout">
+  <div class="left">
+    <div class="stitle" id="txtLeft1">Zanjir turi</div>
+    <div class="cg">
+      <div class="rg" id="modeGroup">
+        <div class="rb on" data-mode="R"><span id="txtModeR">Faqat R</span></div>
+        <div class="rb" data-mode="L"><span id="txtModeL">Faqat L</span></div>
+        <div class="rb" data-mode="C"><span id="txtModeC">Faqat C</span></div>
+        <div class="rb" data-mode="RLC"><span id="txtModeRLC">R+L+C</span></div>
+      </div>
+    </div>
+    <div class="stitle" id="txtLeft2">Parametrlar</div>
+    <div class="cg">
+      <label><span id="txtU0Label">Kuchlanish amplitudasi (U₀)</span> <span class="vb" id="dU0">220 V</span></label>
+      <input type="range" id="sU0" min="50" max="300" step="5" value="220">
+    </div>
+    <div class="cg">
+      <label><span id="txtFLabel">Chastota (f)</span> <span class="vb" id="dF">50 Hz</span></label>
+      <input type="range" id="sF" min="20" max="100" step="5" value="50">
+    </div>
+    <div class="cg">
+      <label><span id="txtRLabel">Aktiv qarshilik (R)</span> <span class="vb" id="dR">100 Ω</span></label>
+      <input type="range" id="sR" min="5" max="300" step="5" value="100">
+    </div>
+    <div class="cg">
+      <label><span id="txtLLabel">Induktivlik (L)</span> <span class="vb" id="dL">200 mH</span></label>
+      <input type="range" id="sL" min="10" max="1000" step="10" value="200">
+    </div>
+    <div class="cg">
+      <label><span id="txtCLabel">Sig'im (C)</span> <span class="vb" id="dC">50 µF</span></label>
+      <input type="range" id="sC" min="1" max="100" step="1" value="50">
+    </div>
+    <div>
+      <div class="stitle" id="txtFormulas">Formulalar</div>
+      <div class="fbox">
+        <div class="fr"><span class="fl">Xl</span><span class="fe">= ωL = 2πfL</span></div>
+        <div class="fr"><span class="fl">Xc</span><span class="fe">= 1/(ωC) = 1/(2πfC)</span></div>
+        <div class="fr"><span class="fl">Z</span><span class="fe">= √(R² + (Xl−Xc)²)</span></div>
+        <div class="fr"><span class="fl">tanφ</span><span class="fe">= (Xl−Xc)/R</span></div>
+        <div class="fr"><span class="fl">I₀</span><span class="fe">= U₀/Z</span></div>
+      </div>
+    </div>
+    <button class="btn" id="startBtn">▶ <span id="txtBtnStart">BOSHLASH</span></button>
+    <button class="btn" id="resetBtn">↺ <span id="txtBtnReset">QAYTA BOSHLASH</span></button>
+    <button class="btn" id="finishBtn">✓ <span id="txtBtnFinish">ISHNI YAKUNLASH</span></button>
+    <div>
+      <div class="stitle" id="txtTableTitle">Bir davr davomidagi qiymatlar</div>
+      <div class="cg" style="padding:10px">
+        <table class="nt">
+          <thead><tr><th id="txtThTheta">θ</th><th id="txtThU">u (V)</th><th id="txtThI">i (A)</th></tr></thead>
+          <tbody id="ntb"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="center">
+    <canvas id="cv"></canvas>
+    <div class="tdisp"><span class="dot off" id="dot"></span><span id="tt">θ = 0°</span></div>
+  </div>
+  <div class="right">
+    <div class="stitle" id="txtResults">Natijalar</div>
+    <div class="rc hi"><div class="rl" id="txtXl">Induktiv qarshilik Xl</div><div class="rv" id="rXl">0.0</div><div class="ru">Ω</div></div>
+    <div class="rc"><div class="rl" id="txtXc">Sig'im qarshiligi Xc</div><div class="rv" id="rXc">0.0</div><div class="ru">Ω</div></div>
+    <div class="rc"><div class="rl" id="txtZ">Umumiy qarshilik Z</div><div class="rv" id="rZ">0.0</div><div class="ru">Ω</div></div>
+    <div class="rc"><div class="rl" id="txtPhi">Faza siljishi φ</div><div class="rv" id="rPhi">0.0</div><div class="ru">daraja</div></div>
+    <div class="rc"><div class="rl" id="txtI0">Tok amplitudasi I₀</div><div class="rv" id="rI0">0.00</div><div class="ru">A</div></div>
+    <div><div class="gt" id="txtWaveGraph">KUCHLANISH VA TOK — u(t), i(t)</div><div class="gb"><canvas id="vg" width="230" height="120"></canvas></div></div>
+    <div><div class="gt" id="txtPhasorGraph">FAZOR DIAGRAMMASI</div><div class="gb"><canvas id="hg" width="230" height="120"></canvas></div></div>
+  </div>
+</div>
+<script>
+var MODE='R';
+var U0=220, F=50, R=100, Lmh=200, Cuf=50;
+var simT=0, theta=0, running=false, rafId=null, prevTS=null, labDone=false;
+var animSpeed=2*Math.PI/2.5;
+var MAXT=9;
+
+var cv=document.getElementById('cv');
+var ctx=cv.getContext('2d');
+var vgc=document.getElementById('vg').getContext('2d');
+var hgc=document.getElementById('hg').getContext('2d');
+
+function resize(){ cv.width=cv.offsetWidth; cv.height=cv.offsetHeight; }
+resize();
+window.addEventListener('resize',function(){ resize(); if(!running) redrawAll(theta); });
+
+// Controls
+document.getElementById('sU0').oninput=function(){ U0=parseFloat(this.value); document.getElementById('dU0').textContent=U0+' V'; buildTable(); redrawAll(theta); };
+document.getElementById('sF').oninput=function(){ F=parseFloat(this.value); document.getElementById('dF').textContent=F+' Hz'; buildTable(); redrawAll(theta); };
+document.getElementById('sR').oninput=function(){ R=parseFloat(this.value); document.getElementById('dR').textContent=R+' Ω'; buildTable(); redrawAll(theta); };
+document.getElementById('sL').oninput=function(){ Lmh=parseFloat(this.value); document.getElementById('dL').textContent=Lmh+' mH'; buildTable(); redrawAll(theta); };
+document.getElementById('sC').oninput=function(){ Cuf=parseFloat(this.value); document.getElementById('dC').textContent=Cuf+' µF'; buildTable(); redrawAll(theta); };
+
+document.querySelectorAll('#modeGroup .rb').forEach(function(b){
+  b.addEventListener('click',function(){
+    document.querySelectorAll('#modeGroup .rb').forEach(function(x){x.classList.remove('on');});
+    this.classList.add('on');
+    MODE=this.getAttribute('data-mode');
+    buildTable(); redrawAll(theta);
+  });
+});
+
+document.getElementById('startBtn').addEventListener('click',function(){ if(!running) startSim(); });
+document.getElementById('resetBtn').addEventListener('click',function(){ doReset(); });
+document.getElementById('finishBtn').addEventListener('click',function(){
+  if(!labDone){
+    alert(window._T?window._T('finishNotDone'):"Avval simulyatsiyani ishga tushiring (BOSHLASH) va uning to'liq yakunlanishini kuting.");
+    return;
+  }
+  var info=computeCircuit();
+  showEndScreen(info.Z,info.phiDeg,info.I0);
+});
+
+function computeCircuit(){
+  var w=2*Math.PI*F;
+  var Lh=Lmh/1000, Cf=Cuf*1e-6;
+  var Xl=w*Lh, Xc=1/(w*Cf);
+  var Z,phiDeg;
+  if(MODE==='R'){ Z=R; phiDeg=0; }
+  else if(MODE==='L'){ Z=Xl; phiDeg=90; }
+  else if(MODE==='C'){ Z=Xc; phiDeg=-90; }
+  else { var diff=Xl-Xc; Z=Math.sqrt(R*R+diff*diff); phiDeg=Math.atan2(diff,R)*180/Math.PI; }
+  var I0=U0/Z;
+  return {w:w,Xl:Xl,Xc:Xc,Z:Z,phiDeg:phiDeg,I0:I0};
+}
+
+function buildTable(){
+  var info=computeCircuit();
+  var phiRad=info.phiDeg*Math.PI/180;
+  var rows='';
+  for(var k=0;k<8;k++){
+    var deg=k*45, rad=deg*Math.PI/180;
+    var u=U0*Math.sin(rad), i=info.I0*Math.sin(rad-phiRad);
+    rows+='<tr><td>'+deg+'°</td><td>'+u.toFixed(1)+'</td><td>'+i.toFixed(2)+'</td></tr>';
+  }
+  document.getElementById('ntb').innerHTML=rows;
+}
+
+function periPoint(s,x1,y1,x2,y2){
+  var wid=x2-x1, hei=y2-y1;
+  var top=wid, right=hei, bottom=wid;
+  var total=2*(wid+hei);
+  s=((s%total)+total)%total;
+  if(s<top) return {x:x1+s,y:y1};
+  s-=top;
+  if(s<right) return {x:x2,y:y1+s};
+  s-=right;
+  if(s<bottom) return {x:x2-s,y:y2};
+  s-=bottom;
+  return {x:x1,y:y2-s};
+}
+function drawArrow(c,x0,y0,x1,y1,color,label){
+  c.strokeStyle=color; c.fillStyle=color; c.lineWidth=2;
+  c.beginPath(); c.moveTo(x0,y0); c.lineTo(x1,y1); c.stroke();
+  var ang=Math.atan2(y1-y0,x1-x0), ah=7;
+  c.beginPath();
+  c.moveTo(x1,y1);
+  c.lineTo(x1-ah*Math.cos(ang-0.4),y1-ah*Math.sin(ang-0.4));
+  c.lineTo(x1-ah*Math.cos(ang+0.4),y1-ah*Math.sin(ang+0.4));
+  c.closePath(); c.fill();
+  c.font="10px 'Space Mono',monospace";
+  c.fillText(label,x1+4,y1-4);
+}
+function drawSourceSym(c,cx,cy){
+  c.save(); c.strokeStyle='#00d4ff'; c.lineWidth=2;
+  c.beginPath(); c.arc(cx,cy,16,0,Math.PI*2); c.stroke();
+  c.beginPath();
+  for(var a=-12;a<=12;a++){ var yy=cy+Math.sin(a/12*Math.PI*2)*6; if(a===-12)c.moveTo(cx+a,yy); else c.lineTo(cx+a,yy); }
+  c.stroke(); c.restore();
+}
+function drawResistorSym(c,cx,cy){
+  var w=50,amp=9,n=6,stepX=w/n;
+  c.save(); c.strokeStyle='#ffb84d'; c.lineWidth=2.5;
+  c.beginPath(); c.moveTo(cx-w/2,cy);
+  for(var k=0;k<n;k++){ var xx=cx-w/2+stepX*(k+1); var yy=cy+((k%2===0)?-amp:amp); c.lineTo(xx,yy); }
+  c.lineTo(cx+w/2,cy); c.stroke(); c.restore();
+  c.fillStyle='#ffb84d'; c.font="10px 'Space Mono',monospace"; c.textAlign='center'; c.fillText('R',cx,cy-22); c.textAlign='left';
+}
+function drawInductorSym(c,cx,cy){
+  var w=50,bumps=4,r=w/(bumps*2);
+  c.save(); c.strokeStyle='#c792ff'; c.lineWidth=2.5;
+  c.beginPath();
+  var startX=cx-w/2;
+  for(var i=0;i<bumps;i++){ var midX=startX+r*(2*i+1); c.moveTo(midX-r,cy); c.arc(midX,cy,r,Math.PI,0,false); }
+  c.stroke(); c.restore();
+  c.fillStyle='#c792ff'; c.font="10px 'Space Mono',monospace"; c.textAlign='center'; c.fillText('L',cx,cy-22); c.textAlign='left';
+}
+function drawCapacitorSym(c,cx,cy){
+  var gap=10,ph=20;
+  c.save(); c.strokeStyle='#ff6b9d'; c.lineWidth=3;
+  c.beginPath(); c.moveTo(cx-gap/2,cy-ph/2); c.lineTo(cx-gap/2,cy+ph/2); c.stroke();
+  c.beginPath(); c.moveTo(cx+gap/2,cy-ph/2); c.lineTo(cx+gap/2,cy+ph/2); c.stroke();
+  c.restore();
+  c.fillStyle='#ff6b9d'; c.font="10px 'Space Mono',monospace"; c.textAlign='center'; c.fillText('C',cx,cy-22); c.textAlign='left';
+}
+function drawAmmeterSym(c,cx,cy){
+  c.save(); c.strokeStyle='#94a3b8'; c.fillStyle='#0a0e1a'; c.lineWidth=2;
+  c.beginPath(); c.arc(cx,cy,13,0,Math.PI*2); c.fill(); c.stroke();
+  c.fillStyle='#e2e8f0'; c.font="bold 11px 'Space Mono',monospace"; c.textAlign='center'; c.textBaseline='middle';
+  c.fillText('A',cx,cy+1); c.restore(); c.textAlign='left'; c.textBaseline='alphabetic';
+}
+function drawCircuitSchematic(c,x0,y0,w,h,mode,iNorm){
+  var x1=x0+45, x2=x0+w-45, yTop=y0+34, yBot=y0+h-22;
+  c.strokeStyle='#2a3550'; c.lineWidth=2;
+  c.beginPath();
+  c.moveTo(x1,yTop); c.lineTo(x2,yTop); c.lineTo(x2,yBot); c.lineTo(x1,yBot); c.lineTo(x1,yTop);
+  c.stroke();
+  var cyMid=(yTop+yBot)/2;
+  drawSourceSym(c,x1,cyMid);
+  drawAmmeterSym(c,x2,cyMid);
+  var elems = mode==='RLC' ? ['R','L','C'] : [mode];
+  var n=elems.length;
+  elems.forEach(function(el,idx){
+    var frac=(idx+1)/(n+1);
+    var ex=x1+(x2-x1)*frac;
+    if(el==='R')drawResistorSym(c,ex,yTop);
+    else if(el==='L')drawInductorSym(c,ex,yTop);
+    else drawCapacitorSym(c,ex,yTop);
+  });
+  var totalLen=2*((x2-x1)+(yBot-yTop));
+  var N=10, ampPix=22*Math.max(-1,Math.min(1,iNorm));
+  for(var k=0;k<N;k++){
+    var base=k*totalLen/N;
+    var s=(base+ampPix+totalLen)%totalLen;
+    var pt=periPoint(s,x1,yTop,x2,yBot);
+    var rr=3+2*Math.abs(iNorm);
+    c.beginPath();
+    c.fillStyle='rgba(0,212,255,'+(0.5+0.5*Math.abs(iNorm))+')';
+    c.shadowColor='#00d4ff'; c.shadowBlur=8;
+    c.arc(pt.x,pt.y,rr,0,Math.PI*2); c.fill();
+    c.shadowBlur=0;
+  }
+}
+function drawWave(c,x0,y0,w,h,thetaRad,phiRad){
+  c.strokeStyle='#1e2d45'; c.lineWidth=1;
+  c.beginPath(); c.moveTo(x0,y0+h/2); c.lineTo(x0+w,y0+h/2); c.stroke();
+  c.beginPath(); c.strokeStyle='#00d4ff'; c.lineWidth=1.6;
+  for(var px=0;px<=w;px+=2){
+    var ph=thetaRad-((w-px)/w)*4*Math.PI;
+    var uy=y0+h/2-Math.sin(ph)*(h/2-10);
+    if(px===0)c.moveTo(x0+px,uy); else c.lineTo(x0+px,uy);
+  }
+  c.stroke();
+  c.beginPath(); c.strokeStyle='#7fff6b'; c.lineWidth=1.6;
+  for(var px2=0;px2<=w;px2+=2){
+    var ph2=thetaRad-((w-px2)/w)*4*Math.PI;
+    var iy=y0+h/2-Math.sin(ph2-phiRad)*(h/2-10);
+    if(px2===0)c.moveTo(x0+px2,iy); else c.lineTo(x0+px2,iy);
+  }
+  c.stroke();
+  c.font="9px 'Space Mono',monospace";
+  c.fillStyle='#00d4ff'; c.fillText('u(t)',x0+6,y0+12);
+  c.fillStyle='#7fff6b'; c.fillText('i(t)',x0+46,y0+12);
+}
+function drawPhasor(c,x0,y0,w,h,phiDeg){
+  var ox=x0+40, oy=y0+h/2;
+  c.strokeStyle='#1e2d45'; c.lineWidth=1;
+  c.beginPath(); c.moveTo(x0+10,oy); c.lineTo(x0+w-10,oy); c.stroke();
+  var phiRad=phiDeg*Math.PI/180;
+  drawArrow(c,ox,oy,ox+55,oy,'#00d4ff','U');
+  var ix=ox+45*Math.cos(phiRad), iy=oy+45*Math.sin(phiRad);
+  drawArrow(c,ox,oy,ix,iy,'#7fff6b','I');
+  c.font="9px 'Space Mono',monospace"; c.fillStyle='#64748b';
+  c.fillText('φ='+phiDeg.toFixed(1)+'°',ox+8,oy+(phiDeg>=0?18:-10));
+}
+function redrawAll(thetaRad){
+  var info=computeCircuit();
+  var phiRad=info.phiDeg*Math.PI/180;
+  var iNorm=Math.sin(thetaRad-phiRad);
+  ctx.clearRect(0,0,cv.width,cv.height);
+  var circH=cv.height*0.55;
+  drawCircuitSchematic(ctx,0,0,cv.width,circH,MODE,iNorm);
+  drawWave(ctx,10,circH+10,cv.width-20,cv.height-circH-20,thetaRad,phiRad);
+  var uInst=U0*Math.sin(thetaRad), iInst=info.I0*Math.sin(thetaRad-phiRad);
+  document.getElementById('tt').innerHTML='θ = '+(((thetaRad*180/Math.PI)%360+360)%360).toFixed(0)+'°&nbsp;&nbsp;u='+uInst.toFixed(1)+'V&nbsp;&nbsp;i='+iInst.toFixed(2)+'A';
+  vgc.clearRect(0,0,230,120); drawWave(vgc,0,0,230,120,thetaRad,phiRad);
+  hgc.clearRect(0,0,230,120); drawPhasor(hgc,0,0,230,120,info.phiDeg);
+  document.getElementById('rXl').textContent=info.Xl.toFixed(1);
+  document.getElementById('rXc').textContent=info.Xc.toFixed(1);
+  document.getElementById('rZ').textContent=info.Z.toFixed(1);
+  document.getElementById('rPhi').textContent=info.phiDeg.toFixed(1);
+  document.getElementById('rI0').textContent=info.I0.toFixed(2);
+  return info;
+}
+
+function startSim(){
+  doReset();
+  running=true;
+  document.getElementById('dot').classList.remove('off');
+  document.getElementById('startBtn').innerHTML='⏸ '+(window._T?window._T('btnRunning'):'ISHLAYAPTI...');
+  prevTS=null;
+  rafId=requestAnimationFrame(tick);
+}
+function stopSim(){ running=false; if(rafId){cancelAnimationFrame(rafId); rafId=null;} }
+function doReset(){
+  stopSim();
+  simT=0; theta=0; labDone=false;
+  document.getElementById('dot').classList.add('off');
+  document.getElementById('startBtn').innerHTML='▶ <span id="txtBtnStart">'+(window._T?window._T('btnStart'):'BOSHLASH')+'</span>';
+  redrawAll(0);
+}
+function tick(ts){
+  if(prevTS===null)prevTS=ts;
+  var dt=(ts-prevTS)/1000; prevTS=ts;
+  if(dt>0.05)dt=0.05;
+  simT+=dt; theta+=animSpeed*dt;
+  redrawAll(theta);
+  if(simT>=MAXT){
+    stopSim(); labDone=true;
+    document.getElementById('dot').classList.add('off');
+    document.getElementById('startBtn').innerHTML='▶ <span id="txtBtnStart">'+(window._T?window._T('btnStart'):'BOSHLASH')+'</span>';
+    return;
+  }
+  rafId=requestAnimationFrame(tick);
+}
+
+// QR kod — Virtual Laboratoriya sayti
+var QR_TARGET_URL = "https://xosiyatvertuallab.github.io/virtual--lab/";
+function initQR(){
+  var box=document.getElementById('qrcodeCanvas');
+  if(!box || typeof QRCode==='undefined')return;
+  box.innerHTML='';
+  new QRCode(box,{text:QR_TARGET_URL,width:170,height:170,colorDark:"#0a0e1a",colorLight:"#ffffff",correctLevel:QRCode.CorrectLevel.H});
+}
+function showEndScreen(z,phi,i0){
+  var res=(window._T?window._T('endResultTpl'):'Z = {z} Ω   |   φ = {phi}°   |   I₀ = {i0} A')
+    .replace('{z}',z.toFixed(1)).replace('{phi}',phi.toFixed(1)).replace('{i0}',i0.toFixed(2));
+  document.getElementById('txtEndResult').textContent=res;
+  document.getElementById('endScreen').classList.add('show');
+}
+function hideEndScreen(){ document.getElementById('endScreen').classList.remove('show'); }
+
+// Boot
+buildTable(); redrawAll(0); initQR();
+</script>
+<script>
+(function(){
+var _lt={
+"uz":{
+ badge:"LAB", hMain:"R, L, C — ", hSpan1:"AC Zanjiri", hDash:" — Virtual Laboratoriya", sub:"FIZIKA · ELEKTR TOK",
+ left1:"Zanjir turi", left2:"Parametrlar",
+ modeR:"Faqat R", modeL:"Faqat L", modeC:"Faqat C", modeRLC:"R+L+C",
+ u0Label:"Kuchlanish amplitudasi (U₀)", fLabel:"Chastota (f)", rLabel:"Aktiv qarshilik (R)", lLabel:"Induktivlik (L)", cLabel:"Sig'im (C)",
+ formulas:"Formulalar", btnStart:"BOSHLASH", btnRunning:"ISHLAYAPTI...", btnReset:"QAYTA BOSHLASH", btnFinish:"ISHNI YAKUNLASH",
+ tableTitle:"Bir davr davomidagi qiymatlar", thTheta:"θ", thU:"u (V)", thI:"i (A)",
+ results:"Natijalar", xl:"Induktiv qarshilik Xl", xc:"Sig'im qarshiligi Xc", z:"Umumiy qarshilik Z", phi:"Faza siljishi φ", i0:"Tok amplitudasi I₀",
+ waveGraph:"KUCHLANISH VA TOK — u(t), i(t)", phasorGraph:"FAZOR DIAGRAMMASI",
+ startBadge:"LAB", startSub:"FIZIKA · ELEKTR TOK", startH1:"R, L, C — ", startH1Span:"O'zgaruvchan Tok Zanjiri",
+ orderLabel:"BAJARISH TARTIBI",
+ ord1:"Zanjir turini tanlang: faqat R, faqat L, faqat C yoki R+L+C",
+ ord2:"Kuchlanish U₀, chastota f va R, L, C qiymatlarini sozlang",
+ ord3:"BOSHLASH tugmasini bosing va tok bilan kuchlanish orasidagi fazani kuzating",
+ ord4:"Xl, Xc, Z, φ, I₀ natijalarini va fazor diagrammasini tahlil qiling",
+ startBtn:"▶ Laboratoriyani boshlash",
+ endTitle:"Laboratoriya tugadi!", endResultTpl:"Z = {z} Ω   |   φ = {phi}°   |   I₀ = {i0} A",
+ endCaption:"Ko'proq fizika simulyatsiyalarini ko'rish uchun QR kodni skanerlang", endRetry:"↺ Yana urinish",
+ finishNotDone:"Avval simulyatsiyani ishga tushiring (BOSHLASH) va uning to'liq yakunlanishini kuting."
+},
+"ru":{
+ badge:"ЛАБ", hMain:"R, L, C — ", hSpan1:"Цепь переменного тока", hDash:" — Виртуальная Лаборатория", sub:"ФИЗИКА · ЭЛЕКТРОТОК",
+ left1:"Тип цепи", left2:"Параметры",
+ modeR:"Только R", modeL:"Только L", modeC:"Только C", modeRLC:"R+L+C",
+ u0Label:"Амплитуда напряжения (U₀)", fLabel:"Частота (f)", rLabel:"Активное сопротивление (R)", lLabel:"Индуктивность (L)", cLabel:"Ёмкость (C)",
+ formulas:"Формулы", btnStart:"НАЧАТЬ", btnRunning:"ВЫПОЛНЯЕТСЯ...", btnReset:"НАЧАТЬ ЗАНОВО", btnFinish:"ЗАВЕРШИТЬ РАБОТУ",
+ tableTitle:"Значения за один период", thTheta:"θ", thU:"u (В)", thI:"i (А)",
+ results:"Результаты", xl:"Индуктивное сопротивление Xl", xc:"Емкостное сопротивление Xc", z:"Полное сопротивление Z", phi:"Сдвиг фаз φ", i0:"Амплитуда тока I₀",
+ waveGraph:"НАПРЯЖЕНИЕ И ТОК — u(t), i(t)", phasorGraph:"ВЕКТОРНАЯ ДИАГРАММА",
+ startBadge:"ЛАБ", startSub:"ФИЗИКА · ЭЛЕКТРОТОК", startH1:"R, L, C — ", startH1Span:"Цепь переменного тока",
+ orderLabel:"ПОРЯДОК ВЫПОЛНЕНИЯ",
+ ord1:"Выберите тип цепи: только R, только L, только C или R+L+C",
+ ord2:"Настройте напряжение U₀, частоту f и значения R, L, C",
+ ord3:"Нажмите НАЧАТЬ и наблюдайте сдвиг фаз между током и напряжением",
+ ord4:"Проанализируйте результаты Xl, Xc, Z, φ, I₀ и векторную диаграмму",
+ startBtn:"▶ Начать лабораторную работу",
+ endTitle:"Лаборатория завершена!", endResultTpl:"Z = {z} Ом   |   φ = {phi}°   |   I₀ = {i0} А",
+ endCaption:"Отсканируйте QR-код, чтобы увидеть больше симуляций по физике", endRetry:"↺ Попробовать снова",
+ finishNotDone:"Сначала запустите симуляцию (НАЧАТЬ) и дождитесь её полного завершения."
+},
+"en":{
+ badge:"LAB", hMain:"R, L, C — ", hSpan1:"AC Circuit", hDash:" — Virtual Laboratory", sub:"PHYSICS · AC ELECTRICITY",
+ left1:"Circuit type", left2:"Parameters",
+ modeR:"R only", modeL:"L only", modeC:"C only", modeRLC:"R+L+C",
+ u0Label:"Voltage amplitude (U₀)", fLabel:"Frequency (f)", rLabel:"Active resistance (R)", lLabel:"Inductance (L)", cLabel:"Capacitance (C)",
+ formulas:"Formulas", btnStart:"START", btnRunning:"RUNNING...", btnReset:"RESET", btnFinish:"FINISH WORK",
+ tableTitle:"Values over one period", thTheta:"θ", thU:"u (V)", thI:"i (A)",
+ results:"Results", xl:"Inductive reactance Xl", xc:"Capacitive reactance Xc", z:"Total impedance Z", phi:"Phase shift φ", i0:"Current amplitude I₀",
+ waveGraph:"VOLTAGE & CURRENT — u(t), i(t)", phasorGraph:"PHASOR DIAGRAM",
+ startBadge:"LAB", startSub:"PHYSICS · AC ELECTRICITY", startH1:"R, L, C — ", startH1Span:"AC Circuit",
+ orderLabel:"PROCEDURE",
+ ord1:"Choose the circuit type: R only, L only, C only, or R+L+C",
+ ord2:"Set the voltage U₀, frequency f, and the R, L, C values",
+ ord3:"Press START and observe the phase shift between current and voltage",
+ ord4:"Analyze the Xl, Xc, Z, φ, I₀ results and the phasor diagram",
+ startBtn:"▶ Start the lab",
+ endTitle:"Lab complete!", endResultTpl:"Z = {z} Ω   |   φ = {phi}°   |   I₀ = {i0} A",
+ endCaption:"Scan the QR code to see more physics simulations", endRetry:"↺ Try again",
+ finishNotDone:"Run the simulation first (START) and wait for it to fully finish."
+}
+};
+var _lang='uz';
+window._T=function(key){return (_lt[_lang]&&_lt[_lang][key])||_lt.uz[key]||key;};
+function _setLang(l){
+  _lang=l;
+  ['uz','ru','en'].forEach(function(x){
+    var el=document.getElementById('_lb'+x);
+    if(!el)return;
+    el.className='lb-inject'+(x===l?' on':'');
+  });
+  var t=_lt[l];
+  if(!t)return;
+  var map={
+    txtBadge:t.badge, txtHMain:t.hMain, txtHSpan1:t.hSpan1, txtHDash:t.hDash, txtSub:t.sub,
+    txtLeft1:t.left1, txtLeft2:t.left2,
+    txtModeR:t.modeR, txtModeL:t.modeL, txtModeC:t.modeC, txtModeRLC:t.modeRLC,
+    txtU0Label:t.u0Label, txtFLabel:t.fLabel, txtRLabel:t.rLabel, txtLLabel:t.lLabel, txtCLabel:t.cLabel,
+    txtFormulas:t.formulas, txtBtnReset:t.btnReset, txtBtnFinish:t.btnFinish,
+    txtTableTitle:t.tableTitle, txtThTheta:t.thTheta, txtThU:t.thU, txtThI:t.thI,
+    txtResults:t.results, txtXl:t.xl, txtXc:t.xc, txtZ:t.z, txtPhi:t.phi, txtI0:t.i0,
+    txtWaveGraph:t.waveGraph, txtPhasorGraph:t.phasorGraph,
+    txtStartBadge:t.startBadge, txtStartSub:t.startSub, txtStartH1:t.startH1, txtStartH1Span:t.startH1Span,
+    txtOrderLabel:t.orderLabel, txtOrd1:t.ord1, txtOrd2:t.ord2, txtOrd3:t.ord3, txtOrd4:t.ord4,
+    txtStartBtn:t.startBtn,
+    txtEndTitle:t.endTitle, txtEndCaption:t.endCaption, txtEndRetry:t.endRetry
+  };
+  Object.keys(map).forEach(function(id){
+    var el=document.getElementById(id);
+    if(el&&map[id]!==undefined)el.textContent=map[id];
+  });
+  var sb=document.getElementById('txtBtnStart');
+  if(sb)sb.textContent=t.btnStart;
+}
+window._changeLang=function(l){_setLang(l);};
+document.addEventListener('DOMContentLoaded',function(){_setLang('uz');});
+})();
+</script>
+</body>
+</html>
