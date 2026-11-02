@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Faradey qonunlari</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap');
+:root{--bg:#07090f;--panel:#0e1420;--border:#1b2840;--accent:#a78bfa;--green:#6fff5c;--blue:#60a5fa;--yellow:#ffc947;--red:#f87171;--text:#dde6f5;--muted:#4a6080;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;height:100vh;overflow:hidden;display:flex;flex-direction:column;}
+header{display:flex;align-items:center;gap:10px;padding:8px 20px;border-bottom:1px solid var(--border);background:linear-gradient(90deg,#07090f,#0a0014,#07090f);flex-shrink:0;}
+.badge{background:var(--accent);color:#000;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:3px 9px;letter-spacing:2px;border-radius:2px;}
+.htitle{font-size:13px;font-weight:800;}.htitle span{color:var(--accent);}
+.hsub{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-left:auto;}
+.brand{display:flex;align-items:center;gap:6px;background:linear-gradient(135deg,rgba(167,139,250,.12),rgba(111,255,92,.08));border:1px solid rgba(167,139,250,.3);border-radius:20px;padding:4px 12px;margin-left:8px;flex-shrink:0;}
+.brand-txt{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;background:linear-gradient(90deg,#a78bfa,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;}
+/* TIL TUGMALARI */
+.lang-btns{display:flex;gap:4px;margin-left:10px;flex-shrink:0;}
+.lb{border:1px solid var(--border);background:rgba(255,255,255,.04);color:var(--muted);padding:4px 10px;border-radius:5px;font-family:'Space Mono',monospace;font-size:9px;cursor:pointer;transition:all .2s;}
+.lb.on{background:rgba(167,139,250,.15);border-color:var(--accent);color:var(--accent);font-weight:700;}
+.lb:hover{border-color:rgba(167,139,250,.4);}
+.statusbar{background:#0a0f1c;border-bottom:1px solid var(--border);padding:5px 20px;display:flex;align-items:center;gap:14px;font-family:'Space Mono',monospace;font-size:11px;flex-shrink:0;}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--accent);animation:bl 1.2s infinite;flex-shrink:0;}
+@keyframes bl{0%,100%{opacity:1}50%{opacity:.2}}
+#statusTxt{color:var(--accent);}
+.chips{display:flex;gap:6px;margin-left:auto;}
+.chip{background:rgba(167,139,250,.08);border:1px solid rgba(167,139,250,.2);border-radius:10px;padding:2px 9px;font-size:10px;color:var(--muted);}
+.chip span{color:var(--accent);}
+.body{display:grid;grid-template-columns:225px 1fr;flex:1;overflow:hidden;}
+.left{background:var(--panel);border-right:1px solid var(--border);overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:9px;}
+.stitle{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--accent);text-transform:uppercase;margin-bottom:3px;}
+.card{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:8px;padding:10px;}
+.card label{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:7px;}
+.vb{font-family:'Space Mono',monospace;font-size:11px;color:var(--accent);background:rgba(167,139,250,.12);padding:2px 7px;border-radius:3px;}
+input[type=range]{width:100%;-webkit-appearance:none;height:4px;background:var(--border);border-radius:2px;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;background:var(--accent);border-radius:50%;cursor:pointer;box-shadow:0 0 8px rgba(167,139,250,.7);}
+.type-row{display:flex;gap:5px;}
+.tb{flex:1;border:1px solid var(--border);background:rgba(255,255,255,.03);color:var(--muted);padding:7px 4px;border-radius:6px;font-size:9px;font-family:'Space Mono',monospace;cursor:pointer;text-align:center;transition:all .2s;}
+.tb.on{background:rgba(167,139,250,.12);border-color:var(--accent);color:var(--accent);}
+.fbox{background:rgba(167,139,250,.04);border:1px solid rgba(167,139,250,.15);border-radius:7px;padding:9px;}
+.frow{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:4px;}
+.frow span{color:var(--accent);}
+.res-box{background:rgba(167,139,250,.05);border:1px solid rgba(167,139,250,.2);border-radius:8px;padding:10px;}
+.res-row{display:flex;justify-content:space-between;margin-bottom:5px;font-family:'Space Mono',monospace;font-size:10px;}
+.res-row span:first-child{color:var(--muted);}
+.center{position:relative;overflow:hidden;background:#020408;}
+#simCanvas{display:block;width:100%;height:100%;}
+.instr-bar{position:absolute;bottom:0;left:0;right:0;background:rgba(2,4,8,.92);border-top:1px solid var(--border);padding:5px 18px;font-size:10px;color:var(--muted);text-align:center;}
+/* OVOZLI YO'RIQNOMA */
+.guidebar{display:flex;align-items:center;gap:14px;height:72px;padding:6px 20px;background:#0b1120;border-bottom:1px solid var(--border);flex-shrink:0;}
+.vg-ctl{display:flex;align-items:center;gap:5px;flex-shrink:0;}
+.vg-btn{border:1px solid var(--border);background:rgba(255,255,255,.04);color:var(--text);padding:7px 11px;border-radius:6px;font-family:'Space Mono',monospace;font-size:10px;cursor:pointer;white-space:nowrap;transition:all .2s;}
+.vg-btn:hover:not(:disabled){border-color:rgba(167,139,250,.5);}
+.vg-btn.main{background:rgba(167,139,250,.16);border-color:var(--accent);color:var(--accent);font-weight:700;min-width:108px;}
+.vg-btn:disabled{opacity:.3;cursor:default;}
+.vg-btn:focus-visible,.vg-set select:focus-visible,.vg-set input:focus-visible{outline:2px solid var(--yellow);outline-offset:2px;}
+.vg-mid{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:2px;}
+.vg-capline{display:flex;align-items:baseline;gap:10px;}
+.vg-cap{font-size:11px;font-weight:800;color:var(--accent);white-space:nowrap;}
+.vg-warn{font-family:'Space Mono',monospace;font-size:9px;color:var(--yellow);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.vg-txt{font-size:11px;line-height:1.4;color:#c5d3e8;max-height:46px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--border) transparent;}
+.vg-set{display:flex;flex-direction:column;gap:3px;flex-shrink:0;font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);}
+.vg-set label{display:flex;align-items:center;gap:5px;cursor:pointer;}
+.vg-set select{background:var(--panel);color:var(--text);border:1px solid var(--border);border-radius:4px;font-family:inherit;font-size:9px;padding:1px 3px;}
+.vg-set input[type=checkbox]{accent-color:var(--accent);}
+.hl{box-shadow:0 0 0 2px var(--yellow),0 0 16px rgba(255,201,71,.5);animation:hlp 1.3s ease-in-out infinite;}
+@keyframes hlp{50%{box-shadow:0 0 0 2px rgba(255,201,71,.45),0 0 6px rgba(255,201,71,.2);}}
+@media (prefers-reduced-motion:reduce){.hl{animation:none;}}
+</style>
+</head>
+<body>
+
+<!-- START SCREEN -->
+<div id="startScreen" style="position:fixed;inset:0;z-index:9999;background:radial-gradient(ellipse at 50% 40%,#0a0014 0%,#07090f 70%);display:flex;align-items:center;justify-content:center;">
+  <canvas id="bgCanvas" style="position:absolute;inset:0;width:100%;height:100%;opacity:.4;pointer-events:none"></canvas>
+  <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:16px;max-width:580px;padding:20px;text-align:center;">
+    <!-- Til tanlash -->
+    <div style="display:flex;gap:8px;">
+      <button onclick="setLangStart('uz')" id="slUZ" style="background:rgba(167,139,250,.2);border:1px solid #a78bfa;color:#a78bfa;padding:5px 16px;border-radius:6px;font-family:'Space Mono',monospace;font-size:10px;cursor:pointer;font-weight:700;">🇺🇿 UZ</button>
+      <button onclick="setLangStart('ru')" id="slRU" style="background:rgba(255,255,255,.04);border:1px solid var(--border,#1b2840);color:#4a6080;padding:5px 16px;border-radius:6px;font-family:'Space Mono',monospace;font-size:10px;cursor:pointer;">🇷🇺 RU</button>
+      <button onclick="setLangStart('en')" id="slEN" style="background:rgba(255,255,255,.04);border:1px solid var(--border,#1b2840);color:#4a6080;padding:5px 16px;border-radius:6px;font-family:'Space Mono',monospace;font-size:10px;cursor:pointer;">🇬🇧 EN</button>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;"><div style="background:#a78bfa;color:#000;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:4px 14px;letter-spacing:2px;border-radius:2px;">ELEKTR · LAB 06</div><div style="font-family:'Space Mono',monospace;font-size:10px;color:#4a6080;" id="sl_sub">ELEKTROLIZ · m = k·I·t</div></div>
+    <div style="width:100px;height:100px;border-radius:50%;background:radial-gradient(circle,rgba(167,139,250,.18),rgba(167,139,250,.02));border:2px solid rgba(167,139,250,.4);display:flex;align-items:center;justify-content:center;box-shadow:0 0 55px rgba(167,139,250,.3);animation:pT 2.5s ease-in-out infinite;"><span style="font-size:44px;">⚗️</span></div>
+    <h1 style="font-size:19px;font-weight:800;color:#fff;" id="sl_title">Transformator — <span style="color:#a78bfa;">k = U₁/U₂ = n₁/n₂</span></h1>
+    <p style="font-size:11px;color:#4a6080;font-family:'Space Mono',monospace;" id="sl_desc">U₂ = U₁·n₂/n₁ · I₂ = I₁·n₁/n₂ · η = P₂/P₁·100%</p>
+    <div style="background:rgba(167,139,250,.05);border:1px solid rgba(167,139,250,.15);border-radius:12px;padding:15px;width:100%;text-align:left;" id="sl_steps">
+      <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;color:#a78bfa;margin-bottom:8px;" id="sl_stepTitle">BAJARISH TARTIBI</div>
+      <div style="display:flex;flex-direction:column;gap:7px;" id="sl_stepList"></div>
+    </div>
+    <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:#c5d3e8;cursor:pointer;"><input type="checkbox" id="sl_voice" checked style="accent-color:#a78bfa;width:16px;height:16px;"><span id="sl_voiceLbl">🔊 Ovozli yo'riqnoma bilan boshlash</span></label>
+    <button onclick="startLab()" style="background:linear-gradient(135deg,#a78bfa,#7c3aed);color:#fff;border:none;border-radius:12px;padding:15px 60px;font-size:15px;font-weight:800;font-family:'Syne',sans-serif;cursor:pointer;box-shadow:0 8px 30px rgba(167,139,250,.35);width:100%;" id="sl_btn">▶ Laboratoriyani boshlash</button>
+    <div style="display:flex;align-items:center;gap:6px;opacity:.6;"><span>🔬</span><span style="font-family:'Space Mono',monospace;font-size:10px;font-weight:700;background:linear-gradient(90deg,#a78bfa,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;">Xosiyat Virtual Lab</span></div>
+  </div>
+</div>
+<style>@keyframes pT{0%,100%{box-shadow:0 0 55px rgba(167,139,250,.2)}50%{box-shadow:0 0 80px rgba(167,139,250,.5)}}@keyframes fadeOut{0%{opacity:1}100%{opacity:0;transform:scale(1.04)}}</style>
+
+<script>
+// ===== TARJIMALAR =====
+var T={
+  uz:{
+    sub:'ELEKTROLIZ · m = k·I·t',
+    title:'Faradey qonunlari — <span style="color:#a78bfa;">m = k·I·t</span>',
+    desc:'k = M/(z·F) · F = 96485 C/mol · m₁/m₂ = (M₁/z₁)/(M₂/z₂)',
+    stepTitle:'BAJARISH TARTIBI',
+    steps:['Rejimni tanlang: I qonun yoki II qonun','Modda (elektrolit) ni tanlang','I tok kuchi va t vaqtni belgilang','Q, k va m ni kuzating, qonunlarni tekshiring'],
+    btn:'▶ Laboratoriyani boshlash',startVoice:"🔊 Ovozli yo'riqnoma bilan boshlash",
+    stMode:'Rejim',mode1:'I qonun',mode2:'II qonun',stSub:'Modda (elektrolit)',stSubB:'2-elektrolit (ketma-ket)',stI:'Tok kuchi',stT:'Vaqt',
+    lI:'I (A)',lT:'t',min:'daq',run:'▶ Tajribani boshlash',resTitle:'Natijalar',an:'anod (+)',ka:'katod (−)',mass:'Massa m',eqT:'Ekvivalent M/z',
+    u:{g:'g',mg:'mg',C:'C'},
+    l:{Q:'Q = I·t (zaryad)',k:'k = M/(zF)',eq:'M/z (ekvivalent)',n:'n = Q/F (mol e⁻)',m:'m (massa)',ratio:'m_A/m_B',eqr:'(M/z)_A/(M/z)_B'},
+    fRows:['m = <span>k·I·t = k·Q</span> (I qonun)','k = <span>M/(z·F)</span> · F = 96485 C/mol','m₁/m₂ = <span>(M₁/z₁)/(M₂/z₂)</span> (II qonun)','n = <span>Q/F</span> — elektronlar miqdori (mol)','k ∝ <span>M/z</span> — kimyoviy ekvivalent'],
+    instrBar:'⚗️ Faradey qonunlari: m = k·I·t · k = M/(zF) · bir xil zaryadda m ∝ M/z'
+  },
+  ru:{
+    sub:'ЭЛЕКТРОЛИЗ · m = k·I·t',
+    title:'Законы Фарадея — <span style="color:#a78bfa;">m = k·I·t</span>',
+    desc:'k = M/(z·F) · F = 96485 Кл/моль · m₁/m₂ = (M₁/z₁)/(M₂/z₂)',
+    stepTitle:'ПОРЯДОК ВЫПОЛНЕНИЯ',
+    steps:['Выберите режим: I закон или II закон','Выберите вещество (электролит)','Задайте силу тока I и время t','Наблюдайте Q, k и m, проверьте законы'],
+    btn:'▶ Начать лабораторную работу',startVoice:'🔊 Начать с голосовым руководством',
+    stMode:'Режим',mode1:'I закон',mode2:'II закон',stSub:'Вещество (электролит)',stSubB:'2-й электролит (последовательно)',stI:'Сила тока',stT:'Время',
+    lI:'I (А)',lT:'t',min:'мин',run:'▶ Начать опыт',resTitle:'Результаты',an:'анод (+)',ka:'катод (−)',mass:'Масса m',eqT:'Эквивалент M/z',
+    u:{g:'г',mg:'мг',C:'Кл'},
+    l:{Q:'Q = I·t (заряд)',k:'k = M/(zF)',eq:'M/z (эквивалент)',n:'n = Q/F (моль e⁻)',m:'m (масса)',ratio:'m_A/m_B',eqr:'(M/z)_A/(M/z)_B'},
+    fRows:['m = <span>k·I·t = k·Q</span> (I закон)','k = <span>M/(z·F)</span> · F = 96485 Кл/моль','m₁/m₂ = <span>(M₁/z₁)/(M₂/z₂)</span> (II закон)','n = <span>Q/F</span> — количество электронов (моль)','k ∝ <span>M/z</span> — химический эквивалент'],
+    instrBar:'⚗️ Законы Фарадея: m = k·I·t · k = M/(zF) · при одинаковом заряде m ∝ M/z'
+  },
+  en:{
+    sub:'ELECTROLYSIS · m = k·I·t',
+    title:"Faraday's Laws — <span style=\"color:#a78bfa;\">m = k·I·t</span>",
+    desc:'k = M/(z·F) · F = 96485 C/mol · m₁/m₂ = (M₁/z₁)/(M₂/z₂)',
+    stepTitle:'PROCEDURE',
+    steps:['Choose the mode: 1st law or 2nd law','Select the substance (electrolyte)','Set the current I and time t','Observe Q, k and m, verify the laws'],
+    btn:'▶ Start Laboratory',startVoice:'🔊 Start with the voice guide',
+    stMode:'Mode',mode1:'1st law',mode2:'2nd law',stSub:'Substance (electrolyte)',stSubB:'2nd electrolyte (in series)',stI:'Current',stT:'Time',
+    lI:'I (A)',lT:'t',min:'min',run:'▶ Start experiment',resTitle:'Results',an:'anode (+)',ka:'cathode (−)',mass:'Mass m',eqT:'Equivalent M/z',
+    u:{g:'g',mg:'mg',C:'C'},
+    l:{Q:'Q = I·t (charge)',k:'k = M/(zF)',eq:'M/z (equivalent)',n:'n = Q/F (mol e⁻)',m:'m (mass)',ratio:'m_A/m_B',eqr:'(M/z)_A/(M/z)_B'},
+    fRows:['m = <span>k·I·t = k·Q</span> (1st law)','k = <span>M/(z·F)</span> · F = 96485 C/mol','m₁/m₂ = <span>(M₁/z₁)/(M₂/z₂)</span> (2nd law)','n = <span>Q/F</span> — moles of electrons','k ∝ <span>M/z</span> — chemical equivalent'],
+    instrBar:"⚗️ Faraday's laws: m = k·I·t · k = M/(zF) · for equal charge m ∝ M/z"
+  }
+};
+
+var lang='uz';
+function setLangStart(l){
+  lang=l;
+  ['uz','ru','en'].forEach(function(x){
+    var el=document.getElementById('sl'+x.toUpperCase());
+    el.style.background=x===l?'rgba(167,139,250,.2)':'rgba(255,255,255,.04)';
+    el.style.borderColor=x===l?'#a78bfa':'#1b2840';
+    el.style.color=x===l?'#a78bfa':'#4a6080';
+    el.style.fontWeight=x===l?'700':'400';
+  });
+  var t=T[l];
+  document.getElementById('sl_sub').textContent=t.sub;
+  document.getElementById('sl_title').innerHTML=t.title;
+  document.getElementById('sl_desc').textContent=t.desc;
+  document.getElementById('sl_stepTitle').textContent=t.stepTitle;
+  document.getElementById('sl_btn').textContent=t.btn;
+  document.getElementById('sl_voiceLbl').textContent=t.startVoice;
+  var sl=document.getElementById('sl_stepList');sl.innerHTML='';
+  t.steps.forEach(function(s,i){
+    sl.innerHTML+='<div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#c5d3e8;"><span style="width:20px;height:20px;border-radius:50%;background:rgba(167,139,250,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#a78bfa;flex-shrink:0;">'+(i+1)+'</span>'+s+'</div>';
+  });
+}
+setLangStart('uz');
+
+function startLab(){
+  var s=document.getElementById('startScreen');
+  ['uz','ru','en'].forEach(function(x){document.getElementById('lb'+x.toUpperCase()).className='lb'+(x===lang?' on':'');});
+  try{if(window.vgOnStart)vgOnStart(document.getElementById('sl_voice').checked);}catch(e){}
+  s.style.animation='fadeOut .5s ease forwards';
+  setTimeout(function(){s.style.display='none';applyLang();},480);
+}
+
+// Particles
+(function(){var c=document.getElementById('bgCanvas');var x=c.getContext('2d');var pts=[];function rs(){c.width=window.innerWidth;c.height=window.innerHeight;}rs();window.addEventListener('resize',rs);for(var i=0;i<55;i++)pts.push({x:Math.random()*1600,y:Math.random()*900,r:Math.random()*1.5+.5,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,a:Math.random()});function fr(){x.clearRect(0,0,c.width,c.height);pts.forEach(function(p){p.x+=p.vx;p.y+=p.vy;p.a+=.005;if(p.x<0)p.x=c.width;if(p.x>c.width)p.x=0;if(p.y<0)p.y=c.height;if(p.y>c.height)p.y=0;x.fillStyle='rgba(167,139,250,'+(0.15+Math.sin(p.a)*0.12)+')';x.beginPath();x.arc(p.x%c.width,p.y%c.height,p.r,0,Math.PI*2);x.fill();});requestAnimationFrame(fr);}fr();})();
+
+</script>
+
+<!-- MAIN UI -->
+<header>
+  <div class="badge">ELEKTR · LAB 06</div>
+  <h1 class="htitle" id="hdrTitle">Faradey qonunlari — <span>m = k·I·t</span></h1>
+  <div class="hsub" id="hdrSub">ELEKTR · FIZPRAKTIKUM · SDPI 2026</div>
+  <div class="lang-btns">
+    <div class="lb on" onclick="changeLang('uz')" id="lbUZ">🇺🇿 UZ</div>
+    <div class="lb" onclick="changeLang('ru')" id="lbRU">🇷🇺 RU</div>
+    <div class="lb" onclick="changeLang('en')" id="lbEN">🇬🇧 EN</div>
+  </div>
+  <div class="brand"><span>🔬</span><span class="brand-txt">Xosiyat Virtual Lab</span></div>
+</header>
+
+<div class="statusbar">
+  <div class="dot"></div>
+  <span id="statusTxt">m = k·I·t</span>
+  <div class="chips">
+    <div class="chip" id="chip1">k=<span id="cK">—</span> mg/C</div>
+    <div class="chip" id="chip2">Q=<span id="cQ">—</span></div>
+    <div class="chip" id="chip3">m=<span id="cM">—</span></div>
+  </div>
+</div>
+
+<!-- OVOZLI YO'RIQNOMA PANELI -->
+<div class="guidebar" id="guidebar" role="region" aria-label="Ovozli yo'riqnoma">
+  <div class="vg-ctl">
+    <button class="vg-btn" id="vgMute" aria-pressed="true">🔊</button>
+    <button class="vg-btn" id="vgPrev" aria-label="Oldingi qadam">◀</button>
+    <button class="vg-btn main" id="vgMain">▶ Boshlash</button>
+    <button class="vg-btn" id="vgNext">Keyingi ▶</button>
+  </div>
+  <div class="vg-mid">
+    <div class="vg-capline"><span class="vg-cap" id="vgCap"></span><span class="vg-warn" id="vgWarn"></span></div>
+    <div class="vg-txt" id="vgTxt" aria-live="polite"></div>
+  </div>
+  <div class="vg-set">
+    <label><span id="vgRateLbl">Tezlik</span><select id="vgRate"><option value="0.8">0.8×</option><option value="1" selected>1×</option><option value="1.2">1.2×</option></select></label>
+    <label><input type="checkbox" id="vgLive" checked><span id="vgLiveLbl"></span></label>
+    <label><input type="checkbox" id="vgAuto" checked><span id="vgAutoLbl"></span></label>
+  </div>
+</div>
+
+<div class="body">
+<div class="left">
+  <div class="stitle" id="stMode">Rejim</div>
+  <div class="card" id="cardMode"><div class="type-row"><div class="tb on" id="m1" onclick="setMode(1)">I qonun</div><div class="tb" id="m2" onclick="setMode(2)">II qonun</div></div></div>
+
+  <div class="stitle" id="stSub">Modda</div>
+  <div class="card" id="cardSub"><div class="type-row">
+    <div class="tb" id="sb0" onclick="setSub(0)">Ag</div><div class="tb on" id="sb1" onclick="setSub(1)">Cu</div><div class="tb" id="sb2" onclick="setSub(2)">Zn</div><div class="tb" id="sb3" onclick="setSub(3)">Ni</div>
+  </div></div>
+
+  <div class="stitle" id="stSubB" style="display:none">2-elektrolit</div>
+  <div class="card" id="cardSubB" style="display:none"><div class="type-row">
+    <div class="tb on" id="sbB0" onclick="setSubB(0)">Ag</div><div class="tb" id="sbB1" onclick="setSubB(1)">Cu</div><div class="tb" id="sbB2" onclick="setSubB(2)">Zn</div><div class="tb" id="sbB3" onclick="setSubB(3)">Ni</div>
+  </div></div>
+
+  <div class="stitle" id="stI">Tok kuchi</div>
+  <div class="card" id="cardI">
+    <label><span id="lIt">I (A)</span><span class="vb" id="dI">2.0 A</span></label>
+    <input type="range" id="sI" min="0.1" max="5" step="0.1" value="2" oninput="setI(this.value)">
+  </div>
+
+  <div class="stitle" id="stT">Vaqt</div>
+  <div class="card" id="cardT">
+    <label><span id="lTt">t</span><span class="vb" id="dT">20 daq</span></label>
+    <input type="range" id="sT" min="1" max="60" step="1" value="20" oninput="setT(this.value)">
+  </div>
+
+  <button class="vg-btn main" id="runBtn" style="width:100%" onclick="runExp()">▶ Tajribani boshlash</button>
+
+  <div class="res-box" id="resBox"></div>
+
+  <div class="fbox" id="fboxTr"></div>
+</div>
+
+<div class="center">
+  <canvas id="simCanvas"></canvas>
+  <div class="instr-bar" id="instrBar"></div>
+</div>
+</div>
+
+<div style="position:fixed;bottom:14px;right:18px;display:flex;align-items:center;gap:7px;background:rgba(7,9,15,.75);border:1px solid rgba(167,139,250,.2);border-radius:30px;padding:5px 16px;backdrop-filter:blur(10px);z-index:9999;pointer-events:none;">
+  <span>🔬</span><span style="font-family:'Space Mono',monospace;font-size:11px;font-weight:700;background:linear-gradient(90deg,#a78bfa,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;">Xosiyat Virtual Lab</span>
+</div>
+
+<script>
+var F=96485,mode=1,sA=1,sB=0,Iv=2,tm=20,prog=1,run=false,animT=0;
+var SUBS=[
+ {s:'Ag',M:107.87,z:1,salt:'AgNO₃',c:'#e5e9f0',liq:'rgba(170,200,235,.16)'},
+ {s:'Cu',M:63.55,z:2,salt:'CuSO₄',c:'#d9822b',liq:'rgba(40,120,220,.34)'},
+ {s:'Zn',M:65.38,z:2,salt:'ZnSO₄',c:'#9fb3c8',liq:'rgba(170,200,235,.16)'},
+ {s:'Ni',M:58.69,z:2,salt:'NiSO₄',c:'#a8c99a',liq:'rgba(60,180,110,.28)'}
+];
+var NM={uz:['Kumush','Mis','Rux','Nikel'],ru:['Серебро','Медь','Цинк','Никель'],en:['Silver','Copper','Zinc','Nickel']};
+var sc=document.getElementById('simCanvas'),ctx=sc.getContext('2d');
+function q(id){return document.getElementById(id);}
+function calc(s,I,t){var Q=I*t*60,k=s.M/(s.z*F);return{Q:Q,k:k,m:k*Q,eq:s.M/s.z};}
+function fm(x){var u=T[lang].u;return x<1?(x*1000).toFixed(1)+' '+u.mg:x.toFixed(3)+' '+u.g;}
+
+function setMode(m){mode=m;refresh();}
+function setSub(i){sA=i;refresh();}
+function setSubB(i){sB=i;refresh();}
+function setI(v){Iv=parseFloat(v);refresh();}
+function setT(v){tm=parseFloat(v);refresh();}
+function runExp(){prog=0;run=true;}
+
+function refresh(nl){
+  prog=1;run=false;
+  for(var i=0;i<4;i++){q('sb'+i).className='tb'+(i===sA?' on':'');q('sbB'+i).className='tb'+(i===sB?' on':'');}
+  q('m1').className='tb'+(mode===1?' on':'');q('m2').className='tb'+(mode===2?' on':'');
+  q('stSubB').style.display=q('cardSubB').style.display=(mode===2?'':'none');
+  q('sI').value=Iv;q('dI').textContent=Iv.toFixed(1)+' A';
+  q('sT').value=tm;q('dT').textContent=tm+' '+T[lang].min;
+  upd();
+  if(!nl&&window.vgLive)vgLive();
+}
+
+function upd(){
+  var t=T[lang],L=t.l,A=SUBS[sA],B=SUBS[sB],a=calc(A,Iv,tm),b=calc(B,Iv,tm);
+  var rows=[[L.Q,a.Q.toFixed(0)+' '+t.u.C,'var(--yellow)'],[L.k+' ('+A.s+')',(a.k*1000).toFixed(4)+' '+t.u.mg+'/'+t.u.C,'var(--accent)'],[L.eq+' ('+A.s+')',a.eq.toFixed(2)+' g/mol','var(--blue)'],[L.n,(a.Q/F).toFixed(4)+' mol','var(--muted)'],[L.m+' ('+A.s+')',fm(a.m),'var(--green)']];
+  if(mode===2){
+    rows.push([L.k+' ('+B.s+')',(b.k*1000).toFixed(4)+' '+t.u.mg+'/'+t.u.C,'var(--accent)'],[L.m+' ('+B.s+')',fm(b.m),'var(--green)'],[L.ratio,(a.m/b.m).toFixed(3),'var(--accent)'],[L.eqr,(a.eq/b.eq).toFixed(3),'var(--accent)']);
+  }
+  var h='<div class="stitle" id="sResTitle" style="margin-bottom:6px;">'+t.resTitle+'</div>';
+  rows.forEach(function(r){h+='<div class="res-row"><span>'+r[0]+'</span><span style="color:'+r[2]+'">'+r[1]+'</span></div>';});
+  q('resBox').innerHTML=h;
+  q('cK').textContent=(a.k*1000).toFixed(3);q('cQ').textContent=a.Q.toFixed(0);q('cM').textContent=fm(a.m);
+  q('statusTxt').textContent='Q='+a.Q.toFixed(0)+' '+t.u.C+' | k='+(a.k*1000).toFixed(4)+' '+t.u.mg+'/'+t.u.C+' | m('+A.s+')='+fm(a.m)+(mode===2?' | m('+B.s+')='+fm(b.m)+' | '+(a.m/b.m).toFixed(3):'');
+}
+
+function changeLang(l){
+  if(window.vgStop)vgStop();
+  lang=l;
+  ['uz','ru','en'].forEach(function(x){q('lb'+x.toUpperCase()).className='lb'+(x===l?' on':'');});
+  applyLang();
+}
+
+function applyLang(){
+  var t=T[lang];
+  q('hdrTitle').innerHTML=t.title;q('instrBar').textContent=t.instrBar;
+  ['stMode','stSub','stSubB','stI','stT'].forEach(function(id){q(id).textContent=t[id];});
+  q('m1').textContent=t.mode1;q('m2').textContent=t.mode2;
+  q('lIt').textContent=t.lI;q('lTt').textContent=t.lT;q('runBtn').textContent=t.run;
+  q('fboxTr').innerHTML=t.fRows.map(function(r){return '<div class="frow">'+r+'</div>';}).join('');
+  if(window.vgApplyLang)vgApplyLang();
+  refresh(true);
+}
+
+function resize(){sc.width=sc.offsetWidth;sc.height=sc.offsetHeight;}
+window.addEventListener('resize',resize);setTimeout(function(){resize();applyLang();},80);
+
+(function loop(){animT+=0.016;if(run){prog+=0.016/6;if(prog>=1){prog=1;run=false;}}draw();requestAnimationFrame(loop);})();
+
+// ===== CHIZISH =====
+function bpath(x0,x1,by,bh){ctx.beginPath();ctx.moveTo(x0,by);ctx.lineTo(x0,by+bh-12);ctx.quadraticCurveTo(x0,by+bh,x0+12,by+bh);ctx.lineTo(x1-12,by+bh);ctx.quadraticCurveTo(x1,by+bh,x1,by+bh-12);ctx.lineTo(x1,by);}
+function dot(x,y,r,col,ch,tc){ctx.fillStyle=col;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();ctx.fillStyle=tc;ctx.font='bold 10px monospace';ctx.textAlign='center';ctx.fillText(ch,x,y+3.5);}
+
+function cell(cx,by,bw,bh,s,r){
+  var t=T[lang],x0=cx-bw/2,x1=cx+bw/2,liq=by+bh*0.28,pb=by+bh*0.84,xa=x0+bw*0.2,xc=x1-bw*0.2;
+  var m=r.m*prog,d=m>0?1+13*Math.sqrt(Math.min(1,m/20)):0;
+  ctx.save();bpath(x0,x1,by,bh);ctx.lineTo(x0,by);ctx.clip();ctx.fillStyle=s.liq;ctx.fillRect(x0,liq,bw,bh);ctx.restore();
+  ctx.strokeStyle='rgba(200,215,240,.55)';ctx.lineWidth=2;bpath(x0,x1,by,bh);ctx.stroke();
+  ctx.fillStyle='#6b7a90';ctx.fillRect(xa-5,by-26,10,pb-by+26);ctx.fillRect(xc-5,by-26,10,pb-by+26);
+  if(d>0){ctx.fillStyle=s.c;ctx.fillRect(xc-5-d,liq,d,pb-liq);}
+  var sp=0.03+0.1*Iv/5,g0=xa+12,g1=xc-8-d,n=9;
+  for(var i=0;i<n;i++){
+    var u=(i/n+animT*sp)%1,y=liq+14+((i*47)%100)/100*(pb-liq-30);
+    dot(g0+(g1-g0)*u,y,6,s.c,'+','#000');
+    var u2=1-((i/n+0.5/n+animT*sp)%1),y2=liq+14+((i*61+23)%100)/100*(pb-liq-30);
+    dot(g0+(g1-g0)*u2,y2,5,'#4a6080','−','#fff');
+  }
+  ctx.textAlign='center';ctx.font='bold 12px Space Mono, monospace';
+  ctx.fillStyle='rgba(255,201,71,.9)';ctx.fillText(s.salt,cx,by+bh+18);
+  ctx.fillStyle='rgba(111,255,92,.9)';ctx.fillText('m = '+fm(m),cx,by+bh+36);
+  ctx.fillStyle='rgba(120,150,190,.9)';ctx.font='10px Space Mono, monospace';
+  ctx.fillText(t.an,xa,pb+14);ctx.fillText(t.ka,xc,pb+14);
+  return{xa:xa,xc:xc};
+}
+
+function axes(x,y,w,h,xl,yl){
+  ctx.strokeStyle='rgba(167,139,250,.4)';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x,y+h);ctx.lineTo(x+w,y+h);ctx.stroke();
+  ctx.fillStyle='rgba(120,150,190,.9)';ctx.font='11px Space Mono, monospace';ctx.textAlign='left';ctx.fillText(yl,x+6,y+4);
+  ctx.textAlign='right';ctx.fillText(xl,x+w,y+h+30);
+}
+
+function graph1(x,y,w,h,a){
+  var t=T[lang],Qm=Math.max(a.Q*1.5,200),ym=SUBS[0].M/(SUBS[0].z*F)*Qm;
+  axes(x,y,w,h,t.l.Q.split(' ')[0]+' ('+t.u.C+')','m');
+  var ord=[0,1,2,3].sort(function(i,j){return SUBS[j].M/SUBS[j].z-SUBS[i].M/SUBS[i].z;}),ly={},last=-99;
+  ord.forEach(function(i){var e=y+h-SUBS[i].M/(SUBS[i].z*F)*Qm/ym*h;e=Math.max(e,last+13);ly[i]=e;last=e;});
+  SUBS.forEach(function(s,i){
+    var k=s.M/(s.z*F),ey=y+h-k*Qm/ym*h,on=(i===sA);
+    ctx.strokeStyle=on?s.c:'rgba(120,150,190,.3)';ctx.lineWidth=on?3.5:1.2;
+    ctx.beginPath();ctx.moveTo(x,y+h);ctx.lineTo(x+w,ey);ctx.stroke();
+    ctx.fillStyle=on?s.c:'rgba(120,150,190,.6)';ctx.font=(on?'bold ':'')+'11px Space Mono, monospace';ctx.textAlign='left';ctx.fillText(s.s,x+w+6,ly[i]+4);
+  });
+  var px=x+a.Q*prog/Qm*w,py=y+h-a.m*prog/ym*h;
+  ctx.setLineDash([4,4]);ctx.strokeStyle='rgba(255,201,71,.6)';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(px,y+h);ctx.lineTo(px,py);ctx.lineTo(x,py);ctx.stroke();ctx.setLineDash([]);
+  ctx.fillStyle='#ffc947';ctx.beginPath();ctx.arc(px,py,6,0,Math.PI*2);ctx.fill();
+  ctx.font='bold 11px Space Mono, monospace';ctx.textAlign='center';ctx.fillStyle='#ffc947';
+  ctx.fillText((a.Q*prog).toFixed(0)+' '+t.u.C,px,y+h+16);
+  ctx.textAlign='right';ctx.fillText(fm(a.m*prog),x-8,py+4);
+}
+
+function pair(x,y,w,h,v1,v2,s1,s2,title,f){
+  ctx.fillStyle='rgba(167,139,250,.9)';ctx.font='bold 11px Space Mono, monospace';ctx.textAlign='left';ctx.fillText(title,x,y);
+  var mx=Math.max(v1,v2,1e-9),bw=Math.min(70,w*0.28),ph=h-34,yb=y+22+ph;
+  [[v1,s1,x+w*0.12],[v2,s2,x+w*0.55]].forEach(function(p){
+    var bh=p[0]/mx*ph;ctx.fillStyle=p[1].c;ctx.fillRect(p[2],yb-bh,bw,bh);
+    ctx.textAlign='center';ctx.fillStyle='#dde6f5';ctx.font='11px Space Mono, monospace';
+    ctx.fillText(f(p[0]),p[2]+bw/2,yb-bh-5);ctx.fillText(p[1].s,p[2]+bw/2,yb+14);
+  });
+  ctx.strokeStyle='rgba(167,139,250,.4)';ctx.beginPath();ctx.moveTo(x,yb);ctx.lineTo(x+w,yb);ctx.stroke();
+}
+
+function bars(x,y,w,h,a,b){
+  var t=T[lang],A=SUBS[sA],B=SUBS[sB];
+  pair(x,y,w,h*0.44,a.m*prog,b.m*prog,A,B,t.mass,fm);
+  pair(x,y+h*0.52,w,h*0.34,a.eq,b.eq,A,B,t.eqT+' (g/mol)',function(v){return v.toFixed(2);});
+  ctx.textAlign='left';ctx.font='bold 11px Space Mono, monospace';
+  ctx.fillStyle='#ffc947';ctx.fillText(t.l.ratio+' = '+(a.m/b.m).toFixed(3),x,y+h*0.93);
+  ctx.fillStyle='#6fff5c';ctx.fillText(t.l.eqr+' = '+(a.eq/b.eq).toFixed(3),x,y+h*0.99);
+}
+
+function draw(){
+  var W=sc.width,H=sc.height;if(!W||!H)return;
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#020408';ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle='rgba(167,139,250,.02)';ctx.lineWidth=1;
+  for(var xi=0;xi<W;xi+=50){ctx.beginPath();ctx.moveTo(xi,0);ctx.lineTo(xi,H);ctx.stroke();}
+  for(var yi=0;yi<H;yi+=50){ctx.beginPath();ctx.moveTo(0,yi);ctx.lineTo(W,yi);ctx.stroke();}
+  var A=SUBS[sA],B=SUBS[sB],a=calc(A,Iv,tm),b=calc(B,Iv,tm),two=(mode===2);
+  var bw=two?Math.min(190,W*0.19):Math.min(230,W*0.26),bh=Math.min(240,H*0.44),by=H*0.5-bh/2+40,t=T[lang];
+  var c1=cell(two?W*0.17:W*0.26,by,bw,bh,A,a),c2=null;
+  if(two)c2=cell(W*0.42,by,bw,bh,B,b);
+  var xl=c1.xa,xr=two?c2.xc:c1.xc,wy=by-80,bx=(xl+xr)/2;
+  ctx.strokeStyle='rgba(167,139,250,.6)';ctx.lineWidth=2.5;
+  ctx.beginPath();ctx.moveTo(xl,by-26);ctx.lineTo(xl,wy);ctx.lineTo(xr,wy);ctx.lineTo(xr,by-26);ctx.stroke();
+  if(two){ctx.strokeStyle='rgba(96,165,250,.6)';ctx.beginPath();ctx.moveTo(c1.xc,by-26);ctx.lineTo(c1.xc,by-48);ctx.lineTo(c2.xa,by-48);ctx.lineTo(c2.xa,by-26);ctx.stroke();}
+  ctx.fillStyle='#0e1420';rr(ctx,bx-115,wy-17,230,34,6);ctx.fill();
+  ctx.strokeStyle='rgba(167,139,250,.5)';ctx.lineWidth=1.5;rr(ctx,bx-115,wy-17,230,34,6);ctx.stroke();
+  ctx.strokeStyle='#ffc947';ctx.lineWidth=2.5;
+  ctx.beginPath();ctx.moveTo(bx-100,wy-9);ctx.lineTo(bx-100,wy+9);ctx.stroke();
+  ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(bx-93,wy-5);ctx.lineTo(bx-93,wy+5);ctx.stroke();
+  ctx.fillStyle='#dde6f5';ctx.font='bold 11px Space Mono, monospace';ctx.textAlign='left';
+  ctx.fillText('I='+Iv.toFixed(1)+' A · t='+(tm*prog).toFixed(1)+' '+t.min,bx-82,wy+4);
+  if(two)bars(W*0.58,H*0.17,W*0.36,H*0.7,a,b);
+  else graph1(W*0.55,H*0.2,W*0.34,H*0.5,a);
+}
+
+function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.lineTo(x+w-r,y);c.quadraticCurveTo(x+w,y,x+w,y+r);c.lineTo(x+w,y+h-r);c.quadraticCurveTo(x+w,y+h,x+w-r,y+h);c.lineTo(x+r,y+h);c.quadraticCurveTo(x,y+h,x,y+h-r);c.lineTo(x,y+r);c.quadraticCurveTo(x,y,x+r,y);c.closePath();}
+</script>
+
+<script>
+// ===== OVOZLI YO'RIQNOMA (brauzerning Web Speech API si) =====
+(function(){
+var synth=window.speechSynthesis,hasTTS=!!(synth&&window.SpeechSynthesisUtterance);
+var VG={on:true,live:true,auto:true,rate:1,step:-1,run:false,tok:0,timer:null,autoT:null,liveT:null,keep:[]};
+var LC={uz:'uz-UZ',ru:'ru-RU',en:'en-US'};
+function q(id){return document.getElementById(id);}
+
+function st(){var a=calc(SUBS[sA],Iv,tm),b=calc(SUBS[sB],Iv,tm);return{a:a,b:b,nA:NM[lang][sA],nB:NM[lang][sB],I:Iv,t:tm,r:a.m/b.m,re:a.eq/b.eq};}
+function num(x){var d=x>=100?0:(x>=10?1:2),s=x.toFixed(d);if(s.indexOf('.')>-1)s=s.replace(/0+$/,'').replace(/\.$/,'');
+  if(lang==='ru')s=s.replace('.',',');return s;}
+function Gm(x){return x<1?num(x*1000)+' '+G[lang].unit.mg:num(x)+' '+G[lang].unit.g;}
+function Cq(x){return num(x)+' '+G[lang].unit.C;}
+function Ia(x){return num(x)+' '+G[lang].unit.A;}
+
+var G={
+uz:{
+ ui:{title:"Ovozli yo'riqnoma",start:"▶ Boshlash",again:"↻ Takrorlash",stop:"■ To'xtatish",next:"Keyingi ▶",prevT:"Oldingi qadam",muteT:"Ovozni yoqish / o'chirish",rate:"Tezlik",live:"Natijalarni ovozda aytish",auto:"Ketma-ket (avto)",hint:"Yo'riqnomani boshlash uchun «Boshlash» tugmasini bosing.",noVoice:"⚠ Bu qurilmada o'zbekcha ovoz topilmadi — faqat matn ko'rsatiladi",noTTS:"⚠ Brauzer ovoz chiqarishni qo'llamaydi — faqat matn ko'rsatiladi"},
+ w:{one:"bir",two:"ikki",eq:"teng",mul:"ko'paytirilgan",div:"bo'lingan",eta:"eta",ohm:"om",pct:"foiz"},
+ unit:{g:"gramm",mg:"milligramm",C:"kulon",A:"amper"},
+ liveF:function(s){var o=s.nA+". Zaryad "+Cq(s.a.Q)+", ajralgan massa "+Gm(s.a.m)+".";if(mode===2)o+=" "+s.nB+": "+Gm(s.b.m)+". Massalar nisbati "+num(s.r)+".";return o;},
+ steps:[
+  {cap:"Kirish",say:function(){return "Assalomu alaykum! Bu laboratoriyada elektroliz va Faradey qonunlarini o'rganamiz. Elektrolit eritmasidan tok o'tganda, elektrodlarda modda ajraladi. Faradeyning birinchi qonuni: ajralgan modda massasi m elektr zaryadi Q ga to'g'ri proportsional, m = k·I·t. Ikkinchi qonun: bir xil zaryadda ajralgan massalar moddalarning kimyoviy ekvivalentlariga to'g'ri proportsional. "+(VG.auto?"":"Boshlash uchun «Keyingi» tugmasini bosing.");}},
+  {cap:"1-qadam: modda",say:"Birinchi qadam. Chap paneldagi tugmalar yordamida modda tanlang: kumush, mis, rux yoki nikel. Har bir moddaning elektrokimyoviy ekvivalenti k o'ziga xos."},
+  {cap:"2-qadam: tok va vaqt",say:"Ikkinchi qadam. Tok kuchi I va vaqt t ni belgilang. Zaryad Q tok kuchi bilan vaqtning ko'paytmasiga teng. «Tajribani boshlash» tugmasini bosib, katodda modda qatlami qanday o'sishini kuzatishingiz mumkin."},
+  {cap:"3-qadam: natijalar",say:function(){var s=st();return "Uchinchi qadam. Natijalar oynasida zaryad Q, elektrokimyoviy ekvivalent k va ajralgan massa m ni kuzating. Hozir "+s.nA+" tanlangan: zaryad "+Cq(s.a.Q)+", ajralgan massa "+Gm(s.a.m)+". k = M/(z·F), bunda F Faradey doimiysi, 96485 kulon bo'lingan mol.";}},
+  {cap:"4-qadam: I qonun",say:function(){var s=st();return "To'rtinchi qadam: birinchi qonunni tekshiramiz. "+s.nA+", tok kuchi "+Ia(s.I)+", vaqt "+s.t+" minut. Zaryad "+Cq(s.a.Q)+", ajralgan massa "+Gm(s.a.m)+".";}},
+  {cap:"4-qadam: tokni oshirish",say:function(){var s=st();return "Endi tok kuchini ikki barobar oshiramiz: "+Ia(s.I)+". Zaryad ham ikki barobar ortib "+Cq(s.a.Q)+" bo'ldi, ajralgan massa ham ikki barobar ortib "+Gm(s.a.m)+" bo'ldi. Demak, massa zaryadga to'g'ri proportsional.";}},
+  {cap:"5-qadam: II qonun",say:function(){var s=st();return "Faradeyning ikkinchi qonuni. Ikkita elektrolitni ketma-ket ulaymiz, shuning uchun ulardan bir xil zaryad o'tadi. Birinchisida "+s.nA+", ikkinchisida "+s.nB+". Ajralgan massalar: "+Gm(s.a.m)+" va "+Gm(s.b.m)+". Massalar nisbati "+num(s.r)+". Kimyoviy ekvivalentlar M/z nisbati ham "+num(s.re)+" ga teng. Demak, bir xil zaryadda ajralgan massalar kimyoviy ekvivalentlarga to'g'ri proportsional.";}},
+  {cap:"Xulosa",say:function(){return "Xulosa. Birinchi qonun: m = k·I·t, massa zaryadga to'g'ri proportsional. Ikkinchi qonun: k = M/(z·F), ya'ni elektrokimyoviy ekvivalent kimyoviy ekvivalentga to'g'ri proportsional. Endi tugmalar va slayderlar bilan o'zingiz tajriba o'tkazing."+(VG.live?" Qiymatlarni o'zgartirganingizda natijalarni ovozda aytib beraman.":"");}}
+ ]
+},
+ru:{
+ ui:{title:"Голосовое руководство",start:"▶ Начать",again:"↻ Повтор",stop:"■ Стоп",next:"Далее ▶",prevT:"Предыдущий шаг",muteT:"Звук вкл / выкл",rate:"Скорость",live:"Озвучивать результаты",auto:"Подряд (авто)",hint:"Нажмите «Начать», чтобы запустить голосовое руководство.",noVoice:"⚠ Русский голос на устройстве не найден — только текст",noTTS:"⚠ Браузер не поддерживает озвучивание — только текст"},
+ w:{one:"один",two:"два",eq:"равно",mul:"умножить на",div:"разделить на",eta:"эта",ohm:"ом",pct:"процентов"},
+ unit:{g:"грамм",mg:"миллиграмм",C:"кулон",A:"ампер"},
+ liveF:function(s){var o=s.nA+". Заряд "+Cq(s.a.Q)+", масса выделившегося вещества "+Gm(s.a.m)+".";if(mode===2)o+=" "+s.nB+": "+Gm(s.b.m)+". Отношение масс "+num(s.r)+".";return o;},
+ steps:[
+  {cap:"Введение",say:function(){return "Здравствуйте! В этой лабораторной работе мы изучим электролиз и законы Фарадея. Когда через раствор электролита идёт ток, на электродах выделяется вещество. Первый закон Фарадея: масса выделившегося вещества m прямо пропорциональна заряду Q, m = k·I·t. Второй закон: при одинаковом заряде массы выделившихся веществ прямо пропорциональны их химическим эквивалентам. "+(VG.auto?"":"Чтобы начать, нажмите кнопку «Далее».");}},
+  {cap:"Шаг 1: вещество",say:"Шаг первый. С помощью кнопок на левой панели выберите вещество: серебро, медь, цинк или никель. У каждого вещества свой электрохимический эквивалент k."},
+  {cap:"Шаг 2: ток и время",say:"Шаг второй. Установите силу тока I и время t. Заряд Q равен произведению силы тока на время. Нажмите «Начать опыт», чтобы увидеть, как растёт слой вещества на катоде."},
+  {cap:"Шаг 3: результаты",say:function(){var s=st();return "Шаг третий. В окне результатов наблюдайте заряд Q, электрохимический эквивалент k и массу m. Сейчас выбрано вещество: "+s.nA+". Заряд "+Cq(s.a.Q)+", масса "+Gm(s.a.m)+". k = M/(z·F), где F — постоянная Фарадея, 96485 кулон на моль.";}},
+  {cap:"Шаг 4: I закон",say:function(){var s=st();return "Шаг четвёртый: проверим первый закон. "+s.nA+", сила тока "+Ia(s.I)+", время "+s.t+" минут. Заряд "+Cq(s.a.Q)+", масса "+Gm(s.a.m)+".";}},
+  {cap:"Шаг 4: увеличим ток",say:function(){var s=st();return "Теперь увеличим силу тока вдвое: "+Ia(s.I)+". Заряд вырос вдвое до "+Cq(s.a.Q)+", и масса тоже выросла вдвое до "+Gm(s.a.m)+". Значит, масса прямо пропорциональна заряду.";}},
+  {cap:"Шаг 5: II закон",say:function(){var s=st();return "Второй закон Фарадея. Включим два электролита последовательно, поэтому через них проходит одинаковый заряд. В первом "+s.nA+", во втором "+s.nB+". Массы: "+Gm(s.a.m)+" и "+Gm(s.b.m)+". Отношение масс "+num(s.r)+". Отношение химических эквивалентов M/z тоже равно "+num(s.re)+". Значит, при одинаковом заряде массы прямо пропорциональны химическим эквивалентам.";}},
+  {cap:"Итог",say:function(){return "Итог. Первый закон: m = k·I·t, масса прямо пропорциональна заряду. Второй закон: k = M/(z·F), то есть электрохимический эквивалент пропорционален химическому эквиваленту. Теперь проведите опыты самостоятельно."+(VG.live?" Когда вы будете менять значения, я буду озвучивать результаты.":"");}}
+ ]
+},
+en:{
+ ui:{title:"Voice guide",start:"▶ Start",again:"↻ Replay",stop:"■ Stop",next:"Next ▶",prevT:"Previous step",muteT:"Sound on / off",rate:"Speed",live:"Read results aloud",auto:"Auto-advance",hint:"Press Start to begin the voice guide.",noVoice:"⚠ No English voice on this device — text only",noTTS:"⚠ This browser has no speech support — text only"},
+ w:{one:"one",two:"two",eq:"equals",mul:"times",div:"divided by",eta:"eta",ohm:"ohms",pct:"percent"},
+ unit:{g:"grams",mg:"milligrams",C:"coulombs",A:"amperes"},
+ liveF:function(s){var o=s.nA+". Charge "+Cq(s.a.Q)+", deposited mass "+Gm(s.a.m)+".";if(mode===2)o+=" "+s.nB+": "+Gm(s.b.m)+". Mass ratio "+num(s.r)+".";return o;},
+ steps:[
+  {cap:"Introduction",say:function(){return "Hello! In this lab we will study electrolysis and Faraday's laws. When current flows through an electrolyte solution, matter is deposited on the electrodes. Faraday's first law: the deposited mass m is directly proportional to the charge Q, m = k·I·t. The second law: for the same charge, the deposited masses are proportional to the chemical equivalents of the substances. "+(VG.auto?"":"Press Next to begin.");}},
+  {cap:"Step 1: substance",say:"Step one. Use the buttons on the left panel to choose a substance: silver, copper, zinc or nickel. Each substance has its own electrochemical equivalent k."},
+  {cap:"Step 2: current and time",say:"Step two. Set the current I and the time t. The charge Q equals current times time. Press Start experiment to watch the layer grow on the cathode."},
+  {cap:"Step 3: results",say:function(){var s=st();return "Step three. In the results panel, watch the charge Q, the electrochemical equivalent k and the mass m. Now "+s.nA+" is selected: the charge is "+Cq(s.a.Q)+" and the mass is "+Gm(s.a.m)+". k = M/(z·F), where F is the Faraday constant, 96485 coulombs per mole.";}},
+  {cap:"Step 4: first law",say:function(){var s=st();return "Step four: let's check the first law. "+s.nA+", current "+Ia(s.I)+", time "+s.t+" minutes. The charge is "+Cq(s.a.Q)+" and the deposited mass is "+Gm(s.a.m)+".";}},
+  {cap:"Step 4: double the current",say:function(){var s=st();return "Now we double the current: "+Ia(s.I)+". The charge doubled to "+Cq(s.a.Q)+" and the mass also doubled to "+Gm(s.a.m)+". So the mass is directly proportional to the charge.";}},
+  {cap:"Step 5: second law",say:function(){var s=st();return "Faraday's second law. We connect two electrolytes in series, so the same charge passes through both. The first is "+s.nA+" and the second is "+s.nB+". The deposited masses are "+Gm(s.a.m)+" and "+Gm(s.b.m)+". The mass ratio is "+num(s.r)+". The ratio of chemical equivalents M/z is also "+num(s.re)+". So for the same charge, the masses are proportional to the chemical equivalents.";}},
+  {cap:"Summary",say:function(){return "Summary. First law: m = k·I·t, the mass is proportional to the charge. Second law: k = M/(z·F), so the electrochemical equivalent is proportional to the chemical equivalent. Now experiment on your own."+(VG.live?" When you change a value, I will read out the results.":"");}}
+ ]
+}
+};
+
+function setSl(id,fn,v){q(id).value=v;fn(v);}
+function demo(sa,I,t){mode=1;sA=sa;Iv=I;tm=t;refresh(true);}
+var M=[
+ {hl:[],gap:1500},
+ {hl:['cardSub'],gap:6500},
+ {hl:['cardI','cardT'],gap:7000},
+ {hl:['resBox','fboxTr'],gap:3000,act:function(){mode=1;refresh(true);}},
+ {hl:['cardI','resBox'],gap:3000,act:function(){demo(1,1,20);}},
+ {hl:['cardI','resBox'],gap:3000,act:function(){demo(1,2,20);}},
+ {hl:['cardMode','resBox'],gap:3000,act:function(){mode=2;sA=0;sB=1;Iv=2;tm=20;refresh(true);}},
+ {hl:[],gap:0}
+];
+
+// ---- Ovoz ----
+function voices(){return hasTTS?(synth.getVoices()||[]):[];}
+function nl(s){return (s||'').toLowerCase().replace('_','-');}
+function pickVoice(){
+  var best=null,bs=-1;
+  voices().forEach(function(v){
+    var vl=nl(v.lang);if(vl.indexOf(lang)!==0)return;
+    var sc=0;if(vl===nl(LC[lang]))sc+=2;if(/natural|neural/i.test(v.name))sc+=2;if(/google/i.test(v.name))sc+=1;if(v.localService)sc+=1;
+    if(sc>bs){bs=sc;best=v;}
+  });
+  return best;
+}
+function canSpeak(){return hasTTS&&VG.on&&(voices().length===0||!!pickVoice());}
+// Belgilarni tilga mos so'zlarga aylantiradi (n₁ → "n bir", = → "teng" ...)
+function spk(s){var w=G[lang].w;
+  return s.replace(/₁/g,' '+w.one+' ').replace(/₂/g,' '+w.two+' ').replace(/η/g,w.eta).replace(/Ω/g,w.ohm)
+   .replace(/(\d)\.(\d)/g,lang==='uz'?'$1 butun $2':'$1.$2').replace(/%/g,' '+w.pct).replace(/·/g,' '+w.mul+' ').replace(/\//g,' '+w.div+' ').replace(/=/g,' '+w.eq+' ').replace(/\s+/g,' ').replace(/\s+([,.;:!?])/g,'$1').trim();}
+function chunk(t){var ss=t.replace(/([.!?])\s+/g,'$1\u0001').split('\u0001'),out=[],cur='';
+  ss.forEach(function(x){x=x.trim();if(!x)return;if(cur&&(cur+' '+x).length>170){out.push(cur);cur=x;}else cur=cur?cur+' '+x:x;});
+  if(cur)out.push(cur);return out;}
+function cancelSpeech(){VG.tok++;clearTimeout(VG.timer);if(hasTTS){try{synth.cancel();}catch(e){}}}
+function speak(text,done){
+  var busy=hasTTS&&(synth.speaking||synth.pending);
+  cancelSpeech();
+  var tok=VG.tok,over=false;
+  var fin=function(){if(over||tok!==VG.tok)return;over=true;if(done)done();};
+  if(!canSpeak()){VG.timer=setTimeout(fin,Math.max(2500,text.length*55));return;}
+  var begin=function(){
+    if(tok!==VG.tok)return;
+    var v=pickVoice(),parts=chunk(spk(text)),i=0;
+    var next=function(){
+      if(tok!==VG.tok)return;
+      if(i>=parts.length){fin();return;}
+      var p=parts[i++],ended=false,u;
+      try{u=new SpeechSynthesisUtterance(p);}catch(e){fin();return;}
+      if(v){u.voice=v;u.lang=v.lang;}else{u.lang=LC[lang];}
+      u.rate=VG.rate;
+      var nx=function(){if(ended||tok!==VG.tok)return;ended=true;clearTimeout(VG.timer);next();};
+      u.onend=nx;u.onerror=nx;
+      VG.keep=[u];
+      clearTimeout(VG.timer);
+      VG.timer=setTimeout(nx,Math.max(4000,p.length*130/VG.rate));
+      try{synth.speak(u);}catch(e){nx();}
+    };
+    next();
+  };
+  if(busy)setTimeout(begin,80);else begin();
+}
+
+// ---- Interfeys ----
+function warn(){var U=G[lang].ui,w='';
+  if(!hasTTS)w=U.noTTS;else if(voices().length&&!pickVoice())w=U.noVoice;
+  q('vgWarn').textContent=w;}
+function stepText(i){var s=G[lang].steps[i].say;return typeof s==='function'?s():s;}
+function buttons(){var U=G[lang].ui,last=G[lang].steps.length-1;
+  q('vgMain').textContent=VG.run?U.stop:(VG.step<0?U.start:U.again);
+  q('vgPrev').disabled=VG.step<=0;q('vgNext').disabled=VG.step>=last;
+  q('vgMute').textContent=VG.on?'🔊':'🔇';q('vgMute').setAttribute('aria-pressed',VG.on?'true':'false');}
+function render(){var g=G[lang],U=g.ui;
+  q('vgPrev').title=U.prevT;q('vgPrev').setAttribute('aria-label',U.prevT);
+  q('vgNext').textContent=U.next;q('vgMute').title=U.muteT;q('vgMute').setAttribute('aria-label',U.muteT);
+  q('vgRateLbl').textContent=U.rate;q('vgLiveLbl').textContent=U.live;q('vgAutoLbl').textContent=U.auto;
+  q('guidebar').setAttribute('aria-label',U.title);
+  if(VG.step<0){q('vgCap').textContent=U.title;q('vgTxt').textContent=U.hint;}
+  else{q('vgCap').textContent=g.steps[VG.step].cap;q('vgTxt').textContent=stepText(VG.step);}
+  q('vgTxt').scrollTop=0;warn();buttons();}
+function hl(ids){
+  Array.prototype.forEach.call(document.querySelectorAll('.hl'),function(e){e.classList.remove('hl');});
+  var calm=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  ids.forEach(function(id,i){var e=q(id);if(!e)return;e.classList.add('hl');if(i===0&&e.scrollIntoView)e.scrollIntoView({block:'nearest',behavior:calm?'auto':'smooth'});});
+}
+
+// ---- Yo'riqnoma ketma-ketligi ----
+function go(i){
+  var last=G[lang].steps.length-1;i=Math.max(0,Math.min(last,i));
+  clearTimeout(VG.autoT);clearTimeout(VG.liveT);
+  VG.step=i;VG.run=true;
+  if(M[i].act)M[i].act();
+  hl(M[i].hl);render();
+  speak(stepText(i),function(){
+    if(VG.auto&&i<last){VG.autoT=setTimeout(function(){if(VG.run)go(i+1);},M[i].gap);}
+    else{VG.run=false;buttons();}
+  });
+}
+function stop(){VG.run=false;clearTimeout(VG.autoT);clearTimeout(VG.liveT);cancelSpeech();buttons();}
+
+// Slayder o'zgarganda natijani aytib beradi (0.9 s to'xtagach)
+function live(){
+  if(!VG.live||VG.run||!canSpeak())return;
+  clearTimeout(VG.liveT);
+  VG.liveT=setTimeout(function(){if(VG.run||!canSpeak())return;speak(G[lang].liveF(st()),null);},900);
+}
+
+q('vgMain').addEventListener('click',function(){if(VG.run)stop();else go(VG.step<0?0:VG.step);});
+q('vgPrev').addEventListener('click',function(){go(VG.step-1);});
+q('vgNext').addEventListener('click',function(){go(VG.step+1);});
+q('vgMute').addEventListener('click',function(){VG.on=!VG.on;if(!VG.on)stop();buttons();warn();});
+q('vgRate').addEventListener('change',function(){VG.rate=parseFloat(this.value)||1;});
+q('vgLive').addEventListener('change',function(){VG.live=this.checked;if(!VG.live)clearTimeout(VG.liveT);});
+q('vgAuto').addEventListener('change',function(){VG.auto=this.checked;});
+if(hasTTS){synth.onvoiceschanged=warn;window.addEventListener('pagehide',function(){try{synth.cancel();}catch(e){}});}
+
+// Boshlash ekranidagi «Boshlash» bosilganda (foydalanuvchi bosishi ichida chaqiriladi — brauzer ovozga ruxsat beradi)
+window.vgOnStart=function(want){VG.on=want;if(want)go(0);else render();};
+window.vgApplyLang=render;
+window.vgStop=stop;
+window.vgLive=live;
+render();
+})();
+</script>
+</body>
+</html>
