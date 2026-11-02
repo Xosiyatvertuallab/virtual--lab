@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>β-nurlanish va masofa</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap');
+:root{--bg:#07090f;--panel:#0e1420;--border:#1b2840;--accent:#a78bfa;--green:#6fff5c;--blue:#60a5fa;--yellow:#ffc947;--red:#f87171;--text:#dde6f5;--muted:#4a6080;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;height:100vh;overflow:hidden;display:flex;flex-direction:column;}
+header{display:flex;align-items:center;gap:10px;padding:8px 20px;border-bottom:1px solid var(--border);background:linear-gradient(90deg,#07090f,#0a0014,#07090f);flex-shrink:0;}
+.badge{background:var(--accent);color:#000;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:3px 9px;letter-spacing:2px;border-radius:2px;}
+.htitle{font-size:13px;font-weight:800;}.htitle span{color:var(--accent);}
+.hsub{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-left:auto;}
+.brand{display:flex;align-items:center;gap:6px;background:linear-gradient(135deg,rgba(167,139,250,.12),rgba(111,255,92,.08));border:1px solid rgba(167,139,250,.3);border-radius:20px;padding:4px 12px;margin-left:8px;flex-shrink:0;}
+.brand-txt{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;background:linear-gradient(90deg,#a78bfa,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;}
+/* TIL TUGMALARI */
+.lang-btns{display:flex;gap:4px;margin-left:10px;flex-shrink:0;}
+.lb{border:1px solid var(--border);background:rgba(255,255,255,.04);color:var(--muted);padding:4px 10px;border-radius:5px;font-family:'Space Mono',monospace;font-size:9px;cursor:pointer;transition:all .2s;}
+.lb.on{background:rgba(167,139,250,.15);border-color:var(--accent);color:var(--accent);font-weight:700;}
+.lb:hover{border-color:rgba(167,139,250,.4);}
+.statusbar{background:#0a0f1c;border-bottom:1px solid var(--border);padding:5px 20px;display:flex;align-items:center;gap:14px;font-family:'Space Mono',monospace;font-size:11px;flex-shrink:0;}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--accent);animation:bl 1.2s infinite;flex-shrink:0;}
+@keyframes bl{0%,100%{opacity:1}50%{opacity:.2}}
+#statusTxt{color:var(--accent);}
+.chips{display:flex;gap:6px;margin-left:auto;}
+.chip{background:rgba(167,139,250,.08);border:1px solid rgba(167,139,250,.2);border-radius:10px;padding:2px 9px;font-size:10px;color:var(--muted);}
+.chip span{color:var(--accent);}
+.body{display:grid;grid-template-columns:225px 1fr;flex:1;overflow:hidden;}
+.left{background:var(--panel);border-right:1px solid var(--border);overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:9px;}
+.stitle{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--accent);text-transform:uppercase;margin-bottom:3px;}
+.card{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:8px;padding:10px;}
+.card label{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:7px;}
+.vb{font-family:'Space Mono',monospace;font-size:11px;color:var(--accent);background:rgba(167,139,250,.12);padding:2px 7px;border-radius:3px;}
+input[type=range]{width:100%;-webkit-appearance:none;height:4px;background:var(--border);border-radius:2px;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;background:var(--accent);border-radius:50%;cursor:pointer;box-shadow:0 0 8px rgba(167,139,250,.7);}
+.type-row{display:flex;gap:5px;}
+.tb{flex:1;border:1px solid var(--border);background:rgba(255,255,255,.03);color:var(--muted);padding:7px 4px;border-radius:6px;font-size:9px;font-family:'Space Mono',monospace;cursor:pointer;text-align:center;transition:all .2s;}
+.tb.on{background:rgba(167,139,250,.12);border-color:var(--accent);color:var(--accent);}
+.fbox{background:rgba(167,139,250,.04);border:1px solid rgba(167,139,250,.15);border-radius:7px;padding:9px;}
+.frow{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:4px;}
+.frow span{color:var(--accent);}
+.res-box{background:rgba(167,139,250,.05);border:1px solid rgba(167,139,250,.2);border-radius:8px;padding:10px;}
+.res-row{display:flex;justify-content:space-between;margin-bottom:5px;font-family:'Space Mono',monospace;font-size:10px;}
+.res-row span:first-child{color:var(--muted);}
+.center{position:relative;overflow:hidden;background:#020408;}
+#simCanvas{display:block;width:100%;height:100%;}
+.instr-bar{position:absolute;bottom:0;left:0;right:0;background:rgba(2,4,8,.92);border-top:1px solid var(--border);padding:5px 18px;font-size:10px;color:var(--muted);text-align:center;}
+/* OVOZLI YO'RIQNOMA */
+.guidebar{display:flex;align-items:center;gap:14px;height:72px;padding:6px 20px;background:#0b1120;border-bottom:1px solid var(--border);flex-shrink:0;}
+.vg-ctl{display:flex;align-items:center;gap:5px;flex-shrink:0;}
+.vg-btn{border:1px solid var(--border);background:rgba(255,255,255,.04);color:var(--text);padding:7px 11px;border-radius:6px;font-family:'Space Mono',monospace;font-size:10px;cursor:pointer;white-space:nowrap;transition:all .2s;}
+.vg-btn:hover:not(:disabled){border-color:rgba(167,139,250,.5);}
+.vg-btn.main{background:rgba(167,139,250,.16);border-color:var(--accent);color:var(--accent);font-weight:700;min-width:108px;}
+.vg-btn:disabled{opacity:.3;cursor:default;}
+.vg-btn:focus-visible,.vg-set select:focus-visible,.vg-set input:focus-visible{outline:2px solid var(--yellow);outline-offset:2px;}
+.vg-mid{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:2px;}
+.vg-capline{display:flex;align-items:baseline;gap:10px;}
+.vg-cap{font-size:11px;font-weight:800;color:var(--accent);white-space:nowrap;}
+.vg-warn{font-family:'Space Mono',monospace;font-size:9px;color:var(--yellow);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.vg-txt{font-size:11px;line-height:1.4;color:#c5d3e8;max-height:46px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--border) transparent;}
+.vg-set{display:flex;flex-direction:column;gap:3px;flex-shrink:0;font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);}
+.vg-set label{display:flex;align-items:center;gap:5px;cursor:pointer;}
+.vg-set select{background:var(--panel);color:var(--text);border:1px solid var(--border);border-radius:4px;font-family:inherit;font-size:9px;padding:1px 3px;}
+.vg-set input[type=checkbox]{accent-color:var(--accent);}
+.hl{box-shadow:0 0 0 2px var(--yellow),0 0 16px rgba(255,201,71,.5);animation:hlp 1.3s ease-in-out infinite;}
+@keyframes hlp{50%{box-shadow:0 0 0 2px rgba(255,201,71,.45),0 0 6px rgba(255,201,71,.2);}}
+@media (prefers-reduced-motion:reduce){.hl{animation:none;}}
+</style>
+</head>
+<body>
+
+<!-- START SCREEN -->
+<div id="startScreen" style="position:fixed;inset:0;z-index:9999;background:radial-gradient(ellipse at 50% 40%,#0a0014 0%,#07090f 70%);display:flex;align-items:center;justify-content:center;">
+  <canvas id="bgCanvas" style="position:absolute;inset:0;width:100%;height:100%;opacity:.4;pointer-events:none"></canvas>
+  <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:16px;max-width:580px;padding:20px;text-align:center;">
+    <!-- Til tanlash -->
+    <div style="display:flex;gap:8px;">
+      <button onclick="setLangStart('uz')" id="slUZ" style="background:rgba(167,139,250,.2);border:1px solid #a78bfa;color:#a78bfa;padding:5px 16px;border-radius:6px;font-family:'Space Mono',monospace;font-size:10px;cursor:pointer;font-weight:700;">🇺🇿 UZ</button>
+      <button onclick="setLangStart('ru')" id="slRU" style="background:rgba(255,255,255,.04);border:1px solid var(--border,#1b2840);color:#4a6080;padding:5px 16px;border-radius:6px;font-family:'Space Mono',monospace;font-size:10px;cursor:pointer;">🇷🇺 RU</button>
+      <button onclick="setLangStart('en')" id="slEN" style="background:rgba(255,255,255,.04);border:1px solid var(--border,#1b2840);color:#4a6080;padding:5px 16px;border-radius:6px;font-family:'Space Mono',monospace;font-size:10px;cursor:pointer;">🇬🇧 EN</button>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;"><div style="background:#a78bfa;color:#000;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:4px 14px;letter-spacing:2px;border-radius:2px;">YADRO · LAB 01</div><div style="font-family:'Space Mono',monospace;font-size:10px;color:#4a6080;" id="sl_sub">RADIOAKTIVLIK · n ∝ 1/r²</div></div>
+    <div style="width:100px;height:100px;border-radius:50%;background:radial-gradient(circle,rgba(167,139,250,.18),rgba(167,139,250,.02));border:2px solid rgba(167,139,250,.4);display:flex;align-items:center;justify-content:center;box-shadow:0 0 55px rgba(167,139,250,.3);animation:pT 2.5s ease-in-out infinite;"><span style="font-size:44px;">☢️</span></div>
+    <h1 style="font-size:19px;font-weight:800;color:#fff;" id="sl_title">Transformator — <span style="color:#a78bfa;">k = U₁/U₂ = n₁/n₂</span></h1>
+    <p style="font-size:11px;color:#4a6080;font-family:'Space Mono',monospace;" id="sl_desc">U₂ = U₁·n₂/n₁ · I₂ = I₁·n₁/n₂ · η = P₂/P₁·100%</p>
+    <div style="background:rgba(167,139,250,.05);border:1px solid rgba(167,139,250,.15);border-radius:12px;padding:15px;width:100%;text-align:left;" id="sl_steps">
+      <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;color:#a78bfa;margin-bottom:8px;" id="sl_stepTitle">BAJARISH TARTIBI</div>
+      <div style="display:flex;flex-direction:column;gap:7px;" id="sl_stepList"></div>
+    </div>
+    <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:#c5d3e8;cursor:pointer;"><input type="checkbox" id="sl_voice" checked style="accent-color:#a78bfa;width:16px;height:16px;"><span id="sl_voiceLbl">🔊 Ovozli yo'riqnoma bilan boshlash</span></label>
+    <button onclick="startLab()" style="background:linear-gradient(135deg,#a78bfa,#7c3aed);color:#fff;border:none;border-radius:12px;padding:15px 60px;font-size:15px;font-weight:800;font-family:'Syne',sans-serif;cursor:pointer;box-shadow:0 8px 30px rgba(167,139,250,.35);width:100%;" id="sl_btn">▶ Laboratoriyani boshlash</button>
+    <div style="display:flex;align-items:center;gap:6px;opacity:.6;"><span>🔬</span><span style="font-family:'Space Mono',monospace;font-size:10px;font-weight:700;background:linear-gradient(90deg,#a78bfa,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;">Xosiyat Virtual Lab</span></div>
+  </div>
+</div>
+<style>@keyframes pT{0%,100%{box-shadow:0 0 55px rgba(167,139,250,.2)}50%{box-shadow:0 0 80px rgba(167,139,250,.5)}}@keyframes fadeOut{0%{opacity:1}100%{opacity:0;transform:scale(1.04)}}</style>
+
+<script>
+// ===== TARJIMALAR =====
+var T={
+  uz:{
+    sub:"RADIOAKTIVLIK · n ∝ 1/r²",
+    title:'β-nurlanish intensivligi va masofa — <span style="color:#a78bfa;">n ∝ 1/r²</span>',
+    desc:'n = A·ε·S/(4πr²)·e^(−μr) + n_fon · tekshirish: n_sof·r² = const',
+    stepTitle:'BAJARISH TARTIBI',
+    steps:["Radioaktiv manba (β-emitter) ni tanlang","Faollik, o'lchash vaqti va masofani belgilang","Avval fonni, so'ng manba bilan sanoqni o'lchang","n_sof·r² ni hisoblab, n ∝ 1/r² ni tekshiring"],
+    btn:'▶ Laboratoriyani boshlash',startVoice:"🔊 Ovozli yo'riqnoma bilan boshlash",
+    stSrc:"Manba (β-emitter)",stA:'Faollik',stR:'Masofa',stT:"O'lchash vaqti",stAir:'Havoda yutilish',
+    lA:'A (kBk)',lR:'r (sm)',lT:'t (s)',airOn:'Yoqilgan',airOff:"O'chirilgan",
+    btnBg:"Fonni o'lchash",btnMeas:"▶ O'lchash",btnClr:'Tozalash',resTitle:'Natijalar',tblTitle:"O'lchashlar jadvali",
+    th:['r, sm','N','n, imp/s','n_sof','n_sof·r²'],
+    s:'s',cm:'sm',cps:'imp/s',source:'manba',removed:'(manba olib tashlangan — fon)',
+    l:{N:'N (sanoq)',n:'n = N/t',bg:'n_fon',net:'n_sof = n − n_fon',nr2:'n_sof·r²',avg:'⟨n_sof·r²⟩',dev:'Chetlanish',ok:'✔ n ∝ 1/r² tasdiqlandi',bad:'✖ Chetlanish katta (yutilish/fon)',need:"Kamida 3 ta o'lchash qiling",nobg:"Avval fonni o'lchang"},
+    graphL:'n_sof (imp/s) — r (sm)',graphR:'n_sof — 1/r² (sm⁻²)',ideal:'ideal 1/r²',fit:'tajriba',
+    fRows:['n = <span>A·ε·S/(4πr²)</span> (nuqtaviy manba)','Havoda: <span>·e^(−μr)</span> (yutilish)','n_sof = <span>n − n_fon</span>','Tekshirish: <span>n_sof·r² = const</span>','Xato: <span>σ = √N / t</span>'],
+    instrBar:'☢️ β-nurlanish: n ∝ 1/r² · masofa 2 marta ortsa, sanoq tezligi ~4 marta kamayadi · havoda yutilish chetlanish beradi'
+  },
+  ru:{
+    sub:'РАДИОАКТИВНОСТЬ · n ∝ 1/r²',
+    title:'β-излучение: интенсивность и расстояние — <span style="color:#a78bfa;">n ∝ 1/r²</span>',
+    desc:'n = A·ε·S/(4πr²)·e^(−μr) + n_фон · проверка: n_чист·r² = const',
+    stepTitle:'ПОРЯДОК ВЫПОЛНЕНИЯ',
+    steps:['Выберите радиоактивный источник (β-излучатель)','Задайте активность, время измерения и расстояние','Сначала измерьте фон, затем счёт от источника','Вычислите n_чист·r² и проверьте n ∝ 1/r²'],
+    btn:'▶ Начать лабораторную работу',startVoice:'🔊 Начать с голосовым руководством',
+    stSrc:'Источник (β-излучатель)',stA:'Активность',stR:'Расстояние',stT:'Время измерения',stAir:'Поглощение в воздухе',
+    lA:'A (кБк)',lR:'r (см)',lT:'t (с)',airOn:'Включено',airOff:'Выключено',
+    btnBg:'Измерить фон',btnMeas:'▶ Измерить',btnClr:'Очистить',resTitle:'Результаты',tblTitle:'Таблица измерений',
+    th:['r, см','N','n, имп/с','n_чист','n_чист·r²'],
+    s:'с',cm:'см',cps:'имп/с',source:'источник',removed:'(источник убран — фон)',
+    l:{N:'N (отсчёты)',n:'n = N/t',bg:'n_фон',net:'n_чист = n − n_фон',nr2:'n_чист·r²',avg:'⟨n_чист·r²⟩',dev:'Отклонение',ok:'✔ n ∝ 1/r² подтверждено',bad:'✖ Большое отклонение (поглощение/фон)',need:'Сделайте минимум 3 измерения',nobg:'Сначала измерьте фон'},
+    graphL:'n_чист (имп/с) — r (см)',graphR:'n_чист — 1/r² (см⁻²)',ideal:'идеал 1/r²',fit:'опыт',
+    fRows:['n = <span>A·ε·S/(4πr²)</span> (точечный источник)','В воздухе: <span>·e^(−μr)</span> (поглощение)','n_чист = <span>n − n_фон</span>','Проверка: <span>n_чист·r² = const</span>','Погрешность: <span>σ = √N / t</span>'],
+    instrBar:'☢️ β-излучение: n ∝ 1/r² · при удвоении расстояния скорость счёта падает в ~4 раза · поглощение в воздухе даёт отклонение'
+  },
+  en:{
+    sub:'RADIOACTIVITY · n ∝ 1/r²',
+    title:'β-radiation: intensity vs distance — <span style="color:#a78bfa;">n ∝ 1/r²</span>',
+    desc:'n = A·ε·S/(4πr²)·e^(−μr) + n_bg · check: n_net·r² = const',
+    stepTitle:'PROCEDURE',
+    steps:['Select a radioactive source (β-emitter)','Set the activity, counting time and distance','Measure the background first, then the source','Compute n_net·r² and check n ∝ 1/r²'],
+    btn:'▶ Start Laboratory',startVoice:'🔊 Start with the voice guide',
+    stSrc:'Source (β-emitter)',stA:'Activity',stR:'Distance',stT:'Counting time',stAir:'Absorption in air',
+    lA:'A (kBq)',lR:'r (cm)',lT:'t (s)',airOn:'On',airOff:'Off',
+    btnBg:'Measure background',btnMeas:'▶ Measure',btnClr:'Clear',resTitle:'Results',tblTitle:'Measurement table',
+    th:['r, cm','N','n, cps','n_net','n_net·r²'],
+    s:'s',cm:'cm',cps:'cps',source:'source',removed:'(source removed — background)',
+    l:{N:'N (counts)',n:'n = N/t',bg:'n_bg',net:'n_net = n − n_bg',nr2:'n_net·r²',avg:'⟨n_net·r²⟩',dev:'Deviation',ok:'✔ n ∝ 1/r² confirmed',bad:'✖ Large deviation (absorption/background)',need:'Take at least 3 measurements',nobg:'Measure the background first'},
+    graphL:'n_net (cps) — r (cm)',graphR:'n_net — 1/r² (cm⁻²)',ideal:'ideal 1/r²',fit:'experiment',
+    fRows:['n = <span>A·ε·S/(4πr²)</span> (point source)','In air: <span>·e^(−μr)</span> (absorption)','n_net = <span>n − n_bg</span>','Check: <span>n_net·r² = const</span>','Error: <span>σ = √N / t</span>'],
+    instrBar:'☢️ β-radiation: n ∝ 1/r² · doubling the distance cuts the count rate ~4× · absorption in air causes deviation'
+  }
+};
+
+var lang='uz';
+function setLangStart(l){
+  lang=l;
+  ['uz','ru','en'].forEach(function(x){
+    var el=document.getElementById('sl'+x.toUpperCase());
+    el.style.background=x===l?'rgba(167,139,250,.2)':'rgba(255,255,255,.04)';
+    el.style.borderColor=x===l?'#a78bfa':'#1b2840';
+    el.style.color=x===l?'#a78bfa':'#4a6080';
+    el.style.fontWeight=x===l?'700':'400';
+  });
+  var t=T[l];
+  document.getElementById('sl_sub').textContent=t.sub;
+  document.getElementById('sl_title').innerHTML=t.title;
+  document.getElementById('sl_desc').textContent=t.desc;
+  document.getElementById('sl_stepTitle').textContent=t.stepTitle;
+  document.getElementById('sl_btn').textContent=t.btn;
+  document.getElementById('sl_voiceLbl').textContent=t.startVoice;
+  var sl=document.getElementById('sl_stepList');sl.innerHTML='';
+  t.steps.forEach(function(s,i){
+    sl.innerHTML+='<div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#c5d3e8;"><span style="width:20px;height:20px;border-radius:50%;background:rgba(167,139,250,.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#a78bfa;flex-shrink:0;">'+(i+1)+'</span>'+s+'</div>';
+  });
+}
+setLangStart('uz');
+
+function startLab(){
+  var s=document.getElementById('startScreen');
+  ['uz','ru','en'].forEach(function(x){document.getElementById('lb'+x.toUpperCase()).className='lb'+(x===lang?' on':'');});
+  try{if(window.vgOnStart)vgOnStart(document.getElementById('sl_voice').checked);}catch(e){}
+  s.style.animation='fadeOut .5s ease forwards';
+  setTimeout(function(){s.style.display='none';applyLang();},480);
+}
+
+// Particles
+(function(){var c=document.getElementById('bgCanvas');var x=c.getContext('2d');var pts=[];function rs(){c.width=window.innerWidth;c.height=window.innerHeight;}rs();window.addEventListener('resize',rs);for(var i=0;i<55;i++)pts.push({x:Math.random()*1600,y:Math.random()*900,r:Math.random()*1.5+.5,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,a:Math.random()});function fr(){x.clearRect(0,0,c.width,c.height);pts.forEach(function(p){p.x+=p.vx;p.y+=p.vy;p.a+=.005;if(p.x<0)p.x=c.width;if(p.x>c.width)p.x=0;if(p.y<0)p.y=c.height;if(p.y>c.height)p.y=0;x.fillStyle='rgba(167,139,250,'+(0.15+Math.sin(p.a)*0.12)+')';x.beginPath();x.arc(p.x%c.width,p.y%c.height,p.r,0,Math.PI*2);x.fill();});requestAnimationFrame(fr);}fr();})();
+
+</script>
+
+<!-- MAIN UI -->
+<header>
+  <div class="badge">YADRO · LAB 01</div>
+  <h1 class="htitle" id="hdrTitle">β-nurlanish: intensivlik va masofa — <span>n ∝ 1/r²</span></h1>
+  <div class="hsub" id="hdrSub">ELEKTR · FIZPRAKTIKUM · SDPI 2026</div>
+  <div class="lang-btns">
+    <div class="lb on" onclick="changeLang('uz')" id="lbUZ">🇺🇿 UZ</div>
+    <div class="lb" onclick="changeLang('ru')" id="lbRU">🇷🇺 RU</div>
+    <div class="lb" onclick="changeLang('en')" id="lbEN">🇬🇧 EN</div>
+  </div>
+  <div class="brand"><span>🔬</span><span class="brand-txt">Xosiyat Virtual Lab</span></div>
+</header>
+
+<div class="statusbar">
+  <div class="dot"></div>
+  <span id="statusTxt">n ∝ 1/r²</span>
+  <div class="chips">
+    <div class="chip" id="chip1">n=<span id="cK">—</span> imp/s</div>
+    <div class="chip" id="chip2">r=<span id="cQ">—</span> sm</div>
+    <div class="chip" id="chip3">n·r²=<span id="cM">—</span></div>
+  </div>
+</div>
+
+<!-- OVOZLI YO'RIQNOMA PANELI -->
+<div class="guidebar" id="guidebar" role="region" aria-label="Ovozli yo'riqnoma">
+  <div class="vg-ctl">
+    <button class="vg-btn" id="vgMute" aria-pressed="true">🔊</button>
+    <button class="vg-btn" id="vgPrev" aria-label="Oldingi qadam">◀</button>
+    <button class="vg-btn main" id="vgMain">▶ Boshlash</button>
+    <button class="vg-btn" id="vgNext">Keyingi ▶</button>
+  </div>
+  <div class="vg-mid">
+    <div class="vg-capline"><span class="vg-cap" id="vgCap"></span><span class="vg-warn" id="vgWarn"></span></div>
+    <div class="vg-txt" id="vgTxt" aria-live="polite"></div>
+  </div>
+  <div class="vg-set">
+    <label><span id="vgRateLbl">Tezlik</span><select id="vgRate"><option value="0.8">0.8×</option><option value="1" selected>1×</option><option value="1.2">1.2×</option></select></label>
+    <label><input type="checkbox" id="vgLive" checked><span id="vgLiveLbl"></span></label>
+    <label><input type="checkbox" id="vgAuto" checked><span id="vgAutoLbl"></span></label>
+  </div>
+</div>
+
+<div class="body">
+<div class="left">
+  <div class="stitle" id="stSrc">Manba</div>
+  <div class="card" id="cardSrc"><div class="type-row">
+    <div class="tb on" id="so0" onclick="setSrc(0)">Sr-90</div><div class="tb" id="so1" onclick="setSrc(1)">Tl-204</div><div class="tb" id="so2" onclick="setSrc(2)">C-14</div>
+  </div></div>
+
+  <div class="stitle" id="stA">Faollik</div>
+  <div class="card" id="cardA"><label><span id="lAt">A (kBk)</span><span class="vb" id="dA">10 kBk</span></label>
+    <input type="range" id="sA" min="1" max="50" step="1" value="10" oninput="setA(this.value)"></div>
+
+  <div class="stitle" id="stR">Masofa</div>
+  <div class="card" id="cardR"><label><span id="lRt">r (sm)</span><span class="vb" id="dR">10 sm</span></label>
+    <input type="range" id="sR" min="2" max="60" step="1" value="10" oninput="setR(this.value)"></div>
+
+  <div class="stitle" id="stT">Vaqt</div>
+  <div class="card" id="cardT"><label><span id="lTt">t (s)</span><span class="vb" id="dT">30 s</span></label>
+    <input type="range" id="sT" min="5" max="120" step="5" value="30" oninput="setT(this.value)"></div>
+
+  <div class="stitle" id="stAir">Havoda yutilish</div>
+  <div class="card" id="cardAir"><div class="type-row"><div class="tb on" id="ai1" onclick="setAir(true)">Yoqilgan</div><div class="tb" id="ai0" onclick="setAir(false)">O'chirilgan</div></div></div>
+
+  <div id="btnRow" style="display:flex;flex-direction:column;gap:6px;">
+    <button class="vg-btn" id="bgBtn" style="width:100%" onclick="startMeas('bg')">Fonni o'lchash</button>
+    <button class="vg-btn main" id="measBtn" style="width:100%" onclick="startMeas('src')">▶ O'lchash</button>
+    <button class="vg-btn" id="clrBtn" style="width:100%" onclick="clearAll()">Tozalash</button>
+  </div>
+
+  <div class="res-box" id="resBox"></div>
+  <div class="res-box" id="tblBox"></div>
+  <div class="fbox" id="fboxTr"></div>
+</div>
+
+<div class="center">
+  <canvas id="simCanvas"></canvas>
+  <div class="instr-bar" id="instrBar"></div>
+</div>
+</div>
+
+<div style="position:fixed;bottom:14px;right:18px;display:flex;align-items:center;gap:7px;background:rgba(7,9,15,.75);border:1px solid rgba(167,139,250,.2);border-radius:30px;padding:5px 16px;backdrop-filter:blur(10px);z-index:9999;pointer-events:none;">
+  <span>🔬</span><span style="font-family:'Space Mono',monospace;font-size:11px;font-weight:700;background:linear-gradient(90deg,#a78bfa,#6fff5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;">Xosiyat Virtual Lab</span>
+</div>
+
+<script>
+var SRC=[{s:'Sr-90/Y-90',E:2.28},{s:'Tl-204',E:0.763},{s:'C-14',E:0.156}];
+var EPS=0.9,SW=2,NBG=0.5,src=0,Aq=10,rr=10,tm=30,air=true,bg=null,rows=[],meas=null,parts=[],flash=0,animT=0;
+var sc=document.getElementById('simCanvas'),ctx=sc.getContext('2d');
+function q(id){return document.getElementById(id);}
+function mu(s){return 17*Math.pow(s.E,-1.14)*0.001205;}
+function K(){return Aq*1000*EPS*SW/(4*Math.PI);}
+function sigRate(r){return K()/(r*r)*(air?Math.exp(-mu(SRC[src])*r):1);}
+function pois(l){
+  if(l>30){var u=1-Math.random(),v=Math.random();return Math.max(0,Math.round(l+Math.sqrt(l)*Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v)));}
+  var L=Math.exp(-l),k=0,p=1;do{k++;p*=Math.random();}while(p>L);return k-1;
+}
+function startMeas(kind,instant){
+  if(meas)return;
+  var rate=kind==='bg'?NBG:sigRate(rr)+NBG;
+  meas={kind:kind,N:pois(rate*tm),p:0,r:rr,t:tm};
+  if(instant)finishMeas();
+}
+function finishMeas(){
+  var m=meas;meas=null;
+  if(m.kind==='bg')bg=m.N/m.t;
+  else{rows.push({r:m.r,N:m.N,t:m.t,n:m.N/m.t,net:m.N/m.t-(bg||0)});if(rows.length>12)rows.shift();}
+  upd();
+}
+function clearAll(){rows=[];bg=null;meas=null;upd();}
+function setSrc(i){src=i;rows=[];bg=null;refresh();}
+function setA(v){Aq=parseFloat(v);rows=[];bg=null;refresh();}
+function setAir(b){air=b;rows=[];bg=null;refresh();}
+function setR(v){rr=parseFloat(v);refresh();}
+function setT(v){tm=parseFloat(v);refresh();}
+
+function analysis(){
+  var v=rows.filter(function(x){return x.net>0;}).map(function(x){return x.net*x.r*x.r;});
+  if(rows.length<3||v.length<3)return null;
+  var m=v.reduce(function(a,b){return a+b;},0)/v.length;
+  var sd=Math.sqrt(v.reduce(function(a,b){return a+(b-m)*(b-m);},0)/(v.length-1));
+  return{avg:m,dev:sd/m};
+}
+
+function refresh(nl){
+  meas=null;
+  for(var i=0;i<3;i++)q('so'+i).className='tb'+(i===src?' on':'');
+  q('ai1').className='tb'+(air?' on':'');q('ai0').className='tb'+(air?'':' on');
+  var t=T[lang];
+  q('sA').value=Aq;q('dA').textContent=Aq+' '+t.lA.split('(')[1].replace(')','');
+  q('sR').value=rr;q('dR').textContent=rr+' '+t.cm;
+  q('sT').value=tm;q('dT').textContent=tm+' '+t.s;
+  upd();
+  if(!nl&&window.vgLive)vgLive();
+}
+
+function upd(){
+  var t=T[lang],L=t.l,last=rows[rows.length-1],an=analysis(),f2=function(x){return x.toFixed(2);};
+  var R=[[L.N,last?last.N:'—','var(--yellow)'],[L.n,last?f2(last.n)+' '+t.cps:'—','var(--accent)'],[L.bg,bg===null?'—':f2(bg)+' '+t.cps,'var(--muted)'],[L.net,last?f2(last.net)+' '+t.cps:'—','var(--green)'],[L.nr2,last?last.net*last.r*last.r>=0?(last.net*last.r*last.r).toFixed(1):'—':'—','var(--blue)']];
+  if(an){R.push([L.avg,an.avg.toFixed(1),'var(--blue)'],[L.dev,(an.dev*100).toFixed(1)+' %',an.dev<0.12?'var(--green)':'var(--red)']);}
+  var h='<div class="stitle" style="margin-bottom:6px;">'+t.resTitle+'</div>';
+  R.forEach(function(r){h+='<div class="res-row"><span>'+r[0]+'</span><span style="color:'+r[2]+'">'+r[1]+'</span></div>';});
+  var vd=an?(an.dev<0.12?[L.ok,'var(--green)']:[L.bad,'var(--red)']):(bg===null?[L.nobg,'var(--yellow)']:[L.need,'var(--muted)']);
+  h+='<div style="margin-top:6px;font-size:10px;color:'+vd[1]+';font-family:Space Mono,monospace;">'+vd[0]+'</div>';
+  q('resBox').innerHTML=h;
+  var tb='<div class="stitle" style="margin-bottom:5px;">'+t.tblTitle+'</div><table style="width:100%;border-collapse:collapse;font-family:Space Mono,monospace;font-size:9px;"><tr>'+t.th.map(function(x){return '<th style="color:var(--accent);text-align:right;padding:1px 2px;font-weight:700;">'+x+'</th>';}).join('')+'</tr>';
+  rows.forEach(function(p){tb+='<tr style="color:var(--text)">'+[p.r,p.N,p.n.toFixed(2),p.net.toFixed(2),(p.net*p.r*p.r).toFixed(0)].map(function(x){return '<td style="text-align:right;padding:1px 2px;">'+x+'</td>';}).join('')+'</tr>';});
+  q('tblBox').innerHTML=tb+'</table>';
+  q('cK').textContent=last?f2(last.net):'—';q('cQ').textContent=rr;q('cM').textContent=last?(last.net*last.r*last.r).toFixed(0):'—';
+  q('statusTxt').textContent='r='+rr+' '+t.cm+' | '+SRC[src].s+' | A='+Aq+' | n_fon='+(bg===null?'—':f2(bg))+(last?' | n_sof='+f2(last.net)+' '+t.cps:'');
+}
+
+function changeLang(l){
+  if(window.vgStop)vgStop();
+  lang=l;
+  ['uz','ru','en'].forEach(function(x){q('lb'+x.toUpperCase()).className='lb'+(x===l?' on':'');});
+  applyLang();
+}
+function applyLang(){
+  var t=T[lang];
+  q('hdrTitle').innerHTML=t.title;q('instrBar').textContent=t.instrBar;
+  ['stSrc','stA','stR','stT','stAir'].forEach(function(id){q(id).textContent=t[id];});
+  q('lAt').textContent=t.lA;q('lRt').textContent=t.lR;q('lTt').textContent=t.lT;
+  q('ai1').textContent=t.airOn;q('ai0').textContent=t.airOff;
+  q('bgBtn').textContent=t.btnBg;q('measBtn').textContent=t.btnMeas;q('clrBtn').textContent=t.btnClr;
+  q('fboxTr').innerHTML=t.fRows.map(function(r){return '<div class="frow">'+r+'</div>';}).join('');
+  if(window.vgApplyLang)vgApplyLang();
+  refresh(true);
+}
+function resize(){sc.width=sc.offsetWidth;sc.height=sc.offsetHeight;}
+window.addEventListener('resize',resize);setTimeout(function(){resize();applyLang();},80);
+(function loop(){animT+=0.016;if(meas){meas.p+=0.016/3;if(meas.p>=1)finishMeas();}draw();requestAnimationFrame(loop);})();
+
+// ===== CHIZISH =====
+function rr_(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.lineTo(x+w-r,y);c.quadraticCurveTo(x+w,y,x+w,y+r);c.lineTo(x+w,y+h-r);c.quadraticCurveTo(x+w,y+h,x+w-r,y+h);c.lineTo(x+r,y+h);c.quadraticCurveTo(x,y+h,x,y+h-r);c.lineTo(x,y+r);c.quadraticCurveTo(x,y,x+r,y);c.closePath();}
+function axes(x,y,w,h,xl,yl){
+  ctx.strokeStyle='rgba(167,139,250,.4)';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x,y+h);ctx.lineTo(x+w,y+h);ctx.stroke();
+  ctx.fillStyle='rgba(120,150,190,.9)';ctx.font='10px Space Mono, monospace';ctx.textAlign='left';ctx.fillText(yl,x,y-8);
+  ctx.textAlign='right';ctx.fillText(xl,x+w,y+h+28);
+}
+function dash(f){ctx.setLineDash(f?[5,4]:[]);}
+function point(px,py,p){
+  var e=Math.sqrt(p.N)/p.t;ctx.strokeStyle='rgba(255,201,71,.7)';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(px,py-e*p.ys);ctx.lineTo(px,py+e*p.ys);ctx.stroke();
+  ctx.fillStyle='#ffc947';ctx.beginPath();ctx.arc(px,py,4.5,0,Math.PI*2);ctx.fill();
+}
+function gl(x,y,w,h){
+  var t=T[lang],pts=rows.filter(function(p){return p.net>0;}),k=K();
+  var ym=pts.length?Math.max.apply(null,pts.map(function(p){return p.net+Math.sqrt(p.N)/p.t;}))*1.25:k/25;
+  axes(x,y,w,h,'r ('+t.cm+')',t.graphL);
+  ctx.fillStyle='rgba(120,150,190,.8)';ctx.textAlign='center';[0,30,60].forEach(function(v){ctx.fillText(v,x+v/60*w,y+h+14);});
+  ctx.textAlign='right';ctx.fillText(ym.toFixed(1),x-5,y+8);
+  dash(true);ctx.strokeStyle='rgba(167,139,250,.8)';ctx.lineWidth=2;ctx.beginPath();var st=false;
+  for(var r=2;r<=60;r+=.5){var v=k/(r*r);if(v>ym){continue;}var px=x+r/60*w,py=y+h-v/ym*h;if(!st){ctx.moveTo(px,py);st=true;}else ctx.lineTo(px,py);}
+  ctx.stroke();dash(false);
+  pts.forEach(function(p){p.ys=h/ym;point(x+p.r/60*w,y+h-p.net/ym*h,p);});
+  ctx.fillStyle='rgba(167,139,250,.9)';ctx.textAlign='left';ctx.fillText('- - '+t.ideal,x+12,y+14);
+}
+function gr(x,y,w,h){
+  var t=T[lang],pts=rows.filter(function(p){return p.net>0;}),k=K();
+  var xm=pts.length?Math.max.apply(null,pts.map(function(p){return 1/(p.r*p.r);}))*1.2:0.04;
+  var ym=Math.max(k*xm,pts.length?Math.max.apply(null,pts.map(function(p){return p.net;})):0)*1.05;
+  axes(x,y,w,h,'1/r² (cm⁻²)',t.graphR);
+  ctx.fillStyle='rgba(120,150,190,.8)';ctx.textAlign='center';ctx.fillText(xm.toFixed(3),x+w,y+h+14);ctx.fillText('0',x,y+h+14);
+  ctx.textAlign='right';ctx.fillText(ym.toFixed(1),x-5,y+8);
+  dash(true);ctx.strokeStyle='rgba(167,139,250,.8)';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x,y+h);ctx.lineTo(x+w,y+h-k*xm/ym*h);ctx.stroke();dash(false);
+  if(pts.length>=2){
+    var sxy=0,sxx=0;pts.forEach(function(p){var xx=1/(p.r*p.r);sxy+=xx*p.net;sxx+=xx*xx;});var s=sxy/sxx;
+    ctx.strokeStyle='#6fff5c';ctx.lineWidth=2.5;ctx.beginPath();ctx.moveTo(x,y+h);ctx.lineTo(x+w,y+h-s*xm/ym*h);ctx.stroke();
+  }
+  pts.forEach(function(p){p.ys=h/ym;point(x+1/(p.r*p.r)/xm*w,y+h-p.net/ym*h,p);});
+  ctx.textAlign='left';ctx.fillStyle='rgba(167,139,250,.9)';ctx.fillText('- - '+t.ideal,x+12,y+14);ctx.fillStyle='#6fff5c';ctx.fillText('—— '+t.fit,x+12,y+28);
+}
+
+function scene(W,H){
+  var t=T[lang],x0=W*0.1,x1=W*0.92,y=H*0.3,sp=(x1-x0)/62,xd=x0+rr*sp,bgm=meas&&meas.kind==='bg';
+  ctx.fillStyle='#10192b';ctx.fillRect(x0-40,y+34,x1-x0+60,8);
+  ctx.strokeStyle='rgba(120,150,190,.6)';ctx.lineWidth=1;ctx.fillStyle='rgba(120,150,190,.8)';ctx.font='9px Space Mono, monospace';ctx.textAlign='center';
+  for(var c=0;c<=60;c+=5){var xx=x0+c*sp;ctx.beginPath();ctx.moveTo(xx,y+42);ctx.lineTo(xx,y+49);ctx.stroke();ctx.fillText(c,xx,y+60);}
+  ctx.textAlign='left';ctx.fillText(t.cm,x1+8,y+60);
+  // particles
+  if(!bgm){var ns=0.5+Aq/50*1.6;for(var k=0;k<ns;k++){if(Math.random()<Math.min(1,ns-k)&&parts.length<500){
+    var a=(Math.random()<0.4?Math.atan2((Math.random()-.5)*50,xd-x0):(Math.random()-.5)*1.0);
+    parts.push({x:x0,y:y,vx:7*Math.cos(a),vy:7*Math.sin(a),d:0,life:air?-Math.log(Math.random()+1e-9)/mu(SRC[src])*sp:5000});}}}
+  parts=parts.filter(function(p){
+    var nx=p.x+p.vx,ny=p.y+p.vy;
+    if(p.x<xd&&nx>=xd){var yy=p.y+p.vy*(xd-p.x)/p.vx;if(Math.abs(yy-y)<26){flash=1;return false;}}
+    p.x=nx;p.y=ny;p.d+=7;
+    return p.d<p.life&&p.x<x1+20&&Math.abs(p.y-y)<90;
+  });
+  ctx.fillStyle='rgba(96,205,255,.85)';parts.forEach(function(p){ctx.beginPath();ctx.arc(p.x,p.y,2,0,Math.PI*2);ctx.fill();});
+  // source housing
+  ctx.globalAlpha=bgm?0.25:1;
+  ctx.fillStyle='#2a3345';ctx.fillRect(x0-28,y-24,28,58);ctx.fillStyle='#07090f';ctx.fillRect(x0-6,y-6,6,12);
+  ctx.fillStyle='#6fff5c';ctx.beginPath();ctx.arc(x0-8,y,4,0,Math.PI*2);ctx.fill();
+  ctx.globalAlpha=1;ctx.fillStyle='rgba(111,255,92,.9)';ctx.font='bold 10px Space Mono, monospace';ctx.textAlign='center';
+  ctx.fillText(SRC[src].s,x0-14,y-32);
+  if(bgm){ctx.fillStyle='#ffc947';ctx.fillText(t.removed,x0+80,y+80);}
+  // GM counter tube
+  ctx.fillStyle='#1c2740';rr_(ctx,xd,y-34,46,68,8);ctx.fill();ctx.strokeStyle='rgba(167,139,250,.6)';ctx.lineWidth=2;rr_(ctx,xd,y-34,46,68,8);ctx.stroke();
+  flash*=0.88;ctx.strokeStyle='rgba(255,201,71,'+(0.5+flash*0.5)+')';ctx.lineWidth=3;ctx.shadowColor='#ffc947';ctx.shadowBlur=flash*18;
+  ctx.beginPath();ctx.moveTo(xd,y-24);ctx.lineTo(xd,y+24);ctx.stroke();ctx.shadowBlur=0;
+  ctx.fillStyle='#dde6f5';ctx.font='bold 10px Space Mono, monospace';ctx.fillText('GM',xd+23,y+4);
+  // r arrow
+  var ay=y-52;ctx.strokeStyle='rgba(255,201,71,.8)';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(x0,ay);ctx.lineTo(xd,ay);ctx.moveTo(x0,ay-5);ctx.lineTo(x0,ay+5);ctx.moveTo(xd,ay-5);ctx.lineTo(xd,ay+5);ctx.stroke();
+  ctx.fillStyle='#ffc947';ctx.font='bold 12px Space Mono, monospace';ctx.fillText('r = '+rr+' '+t.cm,(x0+xd)/2,ay-7);
+  // counter
+  var cx=x1-150,cy=10,cur=meas?Math.floor(meas.N*meas.p):(rows.length?rows[rows.length-1].N:0);
+  ctx.strokeStyle='rgba(167,139,250,.5)';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(xd+23,y-34);ctx.lineTo(xd+23,y-70<cy+60?cy+60:y-70);ctx.lineTo(Math.min(cx+75,Math.max(xd+23,cx)),cy+60);ctx.stroke();
+  ctx.fillStyle='#0e1420';rr_(ctx,cx,cy,150,58,8);ctx.fill();ctx.strokeStyle='rgba(167,139,250,.5)';rr_(ctx,cx,cy,150,58,8);ctx.stroke();
+  ctx.fillStyle='#6fff5c';ctx.font='bold 24px Space Mono, monospace';ctx.textAlign='right';ctx.fillText('N='+cur,cx+140,cy+32);
+  ctx.fillStyle='rgba(120,150,190,.9)';ctx.font='10px Space Mono, monospace';ctx.textAlign='left';
+  ctx.fillText('t = '+((meas?meas.p:0)*tm).toFixed(0)+' / '+tm+' '+t.s,cx+10,cy+50);
+}
+
+function draw(){
+  var W=sc.width,H=sc.height;if(!W||!H)return;
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#020408';ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle='rgba(167,139,250,.02)';ctx.lineWidth=1;
+  for(var xi=0;xi<W;xi+=50){ctx.beginPath();ctx.moveTo(xi,0);ctx.lineTo(xi,H);ctx.stroke();}
+  for(var yi=0;yi<H;yi+=50){ctx.beginPath();ctx.moveTo(0,yi);ctx.lineTo(W,yi);ctx.stroke();}
+  scene(W,H);
+  gl(W*0.08,H*0.58,W*0.37,H*0.27);
+  gr(W*0.58,H*0.58,W*0.36,H*0.27);
+}
+</script>
+
+<script>
+// ===== OVOZLI YO'RIQNOMA (brauzerning Web Speech API si) =====
+(function(){
+var synth=window.speechSynthesis,hasTTS=!!(synth&&window.SpeechSynthesisUtterance);
+var VG={on:true,live:true,auto:true,rate:1,step:-1,run:false,tok:0,timer:null,autoT:null,liveT:null,keep:[]};
+var LC={uz:'uz-UZ',ru:'ru-RU',en:'en-US'};
+function q(id){return document.getElementById(id);}
+
+function st(){return{last:rows[rows.length-1],prev:rows[rows.length-2],first:rows[0],bg:bg,an:analysis(),r:rr,A:Aq,t:tm};}
+function num(x){var d=x>=100?0:(x>=10?1:2),s=x.toFixed(d);if(s.indexOf('.')>-1)s=s.replace(/0+$/,'').replace(/\.$/,'');
+  if(lang==='ru')s=s.replace('.',',');return s;}
+function Cp(x){return num(x)+' '+G[lang].unit.cps;}
+function Cm(x){return num(x)+' '+G[lang].unit.cm;}
+function nodata(){return {uz:"Bu qadam uchun avvalgi qadamlarni bajaring.",ru:"Сначала выполните предыдущие шаги.",en:"Please complete the previous steps first."}[lang];}
+
+var G={
+uz:{
+ ui:{title:"Ovozli yo'riqnoma",start:"▶ Boshlash",again:"↻ Takrorlash",stop:"■ To'xtatish",next:"Keyingi ▶",prevT:"Oldingi qadam",muteT:"Ovozni yoqish / o'chirish",rate:"Tezlik",live:"Natijalarni ovozda aytish",auto:"Ketma-ket (avto)",hint:"Yo'riqnomani boshlash uchun «Boshlash» tugmasini bosing.",noVoice:"⚠ Bu qurilmada o'zbekcha ovoz topilmadi — faqat matn ko'rsatiladi",noTTS:"⚠ Brauzer ovoz chiqarishni qo'llamaydi — faqat matn ko'rsatiladi"},
+ w:{one:"bir",two:"ikki",eq:"teng",mul:"ko'paytirilgan",div:"bo'lingan",eta:"eta",ohm:"om",pct:"foiz"},
+ unit:{cm:"santimetr",s:"sekund",cps:"impuls sekundiga"},
+ liveF:function(s){var o="Masofa "+Cm(s.r)+", faollik "+num(s.A)+" kilobekkerel.";if(s.last)o+=" Oxirgi o'lchash: sof tezlik "+Cp(s.last.net)+".";return o;},
+ steps:[
+  {cap:"Kirish",say:function(){return "Assalomu alaykum! Bu laboratoriyada beta nurlanish intensivligining manbagacha bo'lgan masofaga bog'liqligini tekshiramiz. Beta nurlanish — atom yadrosidan chiqadigan tez elektronlar oqimi. Nuqtaviy manba hamma yo'nalishda bir tekis nurlanadi, shuning uchun sanoq tezligi masofa kvadratiga teskari proportsional bo'lishi kerak. Biroq havoda beta zarralar qisman yutiladi. "+(VG.auto?"":"Boshlash uchun «Keyingi» tugmasini bosing.");}},
+  {cap:"1-qadam: manba",say:"Birinchi qadam. Radioaktiv manbani tanlang: stronsiy-90, talliy-204 yoki uglerod-14. Ularning maksimal energiyasi har xil, shuning uchun havoda yutilishi ham har xil. Eng energiyali beta zarralar stronsiy-90 da."},
+  {cap:"2-qadam: sozlamalar",say:"Ikkinchi qadam. Manba faolligi A, o'lchash vaqti t va manbadan Geyger-Myuller schyotchigigacha bo'lgan masofa r ni belgilang. Vaqt qancha uzun bo'lsa, statistik xato shuncha kichik bo'ladi."},
+  {cap:"3-qadam: fon",say:function(){var s=st();return s.bg===null?nodata():"Uchinchi qadam: fonni o'lchaymiz. Manba olib tashlanadi va schyotchik faqat tabiiy fonni sanaydi. Fon tezligi "+Cp(s.bg)+". Bu qiymat keyingi barcha o'lchashlardan ayriladi.";}},
+  {cap:"4-qadam: 5 sm",say:function(){var s=st();return s.last?"To'rtinchi qadam. Masofa "+Cm(s.last.r)+". Sanoq N "+s.last.N+", ya'ni sekundiga "+Cp(s.last.n)+". Fonni ayirgach sof tezlik "+Cp(s.last.net)+".":nodata();}},
+  {cap:"4-qadam: 10 sm",say:function(){var s=st();return s.prev?"Masofani ikki barobar oshirib, "+Cm(s.last.r)+" qilamiz. Sof tezlik "+Cp(s.last.net)+". U oldingisidan taxminan "+num(s.prev.net/s.last.net)+" marta kam. Nazariyaga ko'ra to'rt marta kamayishi kerak.":nodata();}},
+  {cap:"4-qadam: 20 sm",say:function(){var s=st();return (s.first&&s.last!==s.first)?"Masofa "+Cm(s.last.r)+". Sof tezlik "+Cp(s.last.net)+". Besh santimetrdagi qiymatdan "+num(s.first.net/s.last.net)+" marta kam. Masofa to'rt barobar ortgani uchun o'n olti marta kamayishi kerak.":nodata();}},
+  {cap:"5-qadam: tahlil",say:function(){var s=st();return s.an?"Endi sof tezlik bilan masofa kvadratining ko'paytmasini hisoblaymiz. Jadvalda bu ko'paytma deyarli o'zgarmaydi: o'rtacha qiymat "+num(s.an.avg)+", chetlanish "+num(s.an.dev*100)+" foiz. O'ng grafikda nuqtalar teskari masofa kvadratiga nisbatan to'g'ri chiziq hosil qiladi. Demak, intensivlik masofa kvadratiga teskari proportsional.":nodata();}},
+  {cap:"Xulosa",say:function(){return "Xulosa. Nuqtaviy beta manba uchun sanoq tezligi masofa kvadratiga teskari proportsional. Katta masofalarda havoda yutilish va fon chetlanish beradi, ayniqsa kam energiyali uglerod-14 da. Endi manba, masofa va yutilishni o'zgartirib, o'zingiz o'lchang."+(VG.live?" Qiymatlarni o'zgartirganingizda holatni ovozda aytib beraman.":"");}}
+ ]
+},
+ru:{
+ ui:{title:"Голосовое руководство",start:"▶ Начать",again:"↻ Повтор",stop:"■ Стоп",next:"Далее ▶",prevT:"Предыдущий шаг",muteT:"Звук вкл / выкл",rate:"Скорость",live:"Озвучивать результаты",auto:"Подряд (авто)",hint:"Нажмите «Начать», чтобы запустить голосовое руководство.",noVoice:"⚠ Русский голос на устройстве не найден — только текст",noTTS:"⚠ Браузер не поддерживает озвучивание — только текст"},
+ w:{one:"один",two:"два",eq:"равно",mul:"умножить на",div:"разделить на",eta:"эта",ohm:"ом",pct:"процентов"},
+ unit:{cm:"сантиметров",s:"секунд",cps:"импульсов в секунду"},
+ liveF:function(s){var o="Расстояние "+Cm(s.r)+", активность "+num(s.A)+" килобеккерелей.";if(s.last)o+=" Последнее измерение: чистая скорость счёта "+Cp(s.last.net)+".";return o;},
+ steps:[
+  {cap:"Введение",say:function(){return "Здравствуйте! В этой работе мы проверим, как интенсивность бета-излучения зависит от расстояния до источника. Бета-излучение — это поток быстрых электронов из атомных ядер. Точечный источник излучает равномерно во все стороны, поэтому скорость счёта должна быть обратно пропорциональна квадрату расстояния. Но в воздухе бета-частицы частично поглощаются. "+(VG.auto?"":"Чтобы начать, нажмите «Далее».");}},
+  {cap:"Шаг 1: источник",say:"Шаг первый. Выберите радиоактивный источник: стронций-90, таллий-204 или углерод-14. У них разная максимальная энергия, поэтому и поглощение в воздухе разное. Самые энергичные бета-частицы у стронция-90."},
+  {cap:"Шаг 2: настройки",say:"Шаг второй. Задайте активность источника A, время измерения t и расстояние r от источника до счётчика Гейгера-Мюллера. Чем дольше время, тем меньше статистическая ошибка."},
+  {cap:"Шаг 3: фон",say:function(){var s=st();return s.bg===null?nodata():"Шаг третий: измеряем фон. Источник убран, и счётчик считает только естественный фон. Скорость фона "+Cp(s.bg)+". Это значение вычитается из всех последующих измерений.";}},
+  {cap:"Шаг 4: 5 см",say:function(){var s=st();return s.last?"Шаг четвёртый. Расстояние "+Cm(s.last.r)+". Число отсчётов N равно "+s.last.N+", то есть "+Cp(s.last.n)+". После вычитания фона чистая скорость "+Cp(s.last.net)+".":nodata();}},
+  {cap:"Шаг 4: 10 см",say:function(){var s=st();return s.prev?"Увеличиваем расстояние вдвое: "+Cm(s.last.r)+". Чистая скорость "+Cp(s.last.net)+". Это примерно в "+num(s.prev.net/s.last.net)+" раза меньше предыдущей. По теории она должна уменьшиться в четыре раза.":nodata();}},
+  {cap:"Шаг 4: 20 см",say:function(){var s=st();return (s.first&&s.last!==s.first)?"Расстояние "+Cm(s.last.r)+". Чистая скорость "+Cp(s.last.net)+". Это в "+num(s.first.net/s.last.net)+" раза меньше, чем на пяти сантиметрах. Расстояние выросло в четыре раза, значит, скорость должна упасть в шестнадцать раз.":nodata();}},
+  {cap:"Шаг 5: анализ",say:function(){var s=st();return s.an?"Теперь вычислим произведение чистой скорости на квадрат расстояния. В таблице оно почти не меняется: среднее значение "+num(s.an.avg)+", отклонение "+num(s.an.dev*100)+" процентов. На правом графике точки ложатся на прямую в зависимости от обратного квадрата расстояния. Значит, интенсивность обратно пропорциональна квадрату расстояния.":nodata();}},
+  {cap:"Итог",say:function(){return "Итог. Для точечного бета-источника скорость счёта обратно пропорциональна квадрату расстояния. На больших расстояниях поглощение в воздухе и фон дают отклонение, особенно у низкоэнергетического углерода-14. Теперь меняйте источник, расстояние и поглощение и измеряйте самостоятельно."+(VG.live?" Когда вы будете менять значения, я буду озвучивать состояние.":"");}}
+ ]
+},
+en:{
+ ui:{title:"Voice guide",start:"▶ Start",again:"↻ Replay",stop:"■ Stop",next:"Next ▶",prevT:"Previous step",muteT:"Sound on / off",rate:"Speed",live:"Read results aloud",auto:"Auto-advance",hint:"Press Start to begin the voice guide.",noVoice:"⚠ No English voice on this device — text only",noTTS:"⚠ This browser has no speech support — text only"},
+ w:{one:"one",two:"two",eq:"equals",mul:"times",div:"divided by",eta:"eta",ohm:"ohms",pct:"percent"},
+ unit:{cm:"centimeters",s:"seconds",cps:"counts per second"},
+ liveF:function(s){var o="Distance "+Cm(s.r)+", activity "+num(s.A)+" kilobecquerels.";if(s.last)o+=" Last measurement: net count rate "+Cp(s.last.net)+".";return o;},
+ steps:[
+  {cap:"Introduction",say:function(){return "Hello! In this lab we will check how the intensity of beta radiation depends on the distance from the source. Beta radiation is a stream of fast electrons from atomic nuclei. A point source emits equally in all directions, so the count rate should be inversely proportional to the square of the distance. However, beta particles are partly absorbed in air. "+(VG.auto?"":"Press Next to begin.");}},
+  {cap:"Step 1: source",say:"Step one. Choose a radioactive source: strontium ninety, thallium two zero four, or carbon fourteen. Their maximum energies differ, so their absorption in air differs too. Strontium ninety has the most energetic beta particles."},
+  {cap:"Step 2: settings",say:"Step two. Set the source activity A, the counting time t, and the distance r from the source to the Geiger-Müller counter. The longer the time, the smaller the statistical error."},
+  {cap:"Step 3: background",say:function(){var s=st();return s.bg===null?nodata():"Step three: measure the background. The source is removed and the counter records only natural background. The background rate is "+Cp(s.bg)+". This value is subtracted from all later measurements.";}},
+  {cap:"Step 4: 5 cm",say:function(){var s=st();return s.last?"Step four. The distance is "+Cm(s.last.r)+". The count N is "+s.last.N+", which is "+Cp(s.last.n)+". After subtracting the background, the net rate is "+Cp(s.last.net)+".":nodata();}},
+  {cap:"Step 4: 10 cm",say:function(){var s=st();return s.prev?"We double the distance to "+Cm(s.last.r)+". The net rate is "+Cp(s.last.net)+". That is about "+num(s.prev.net/s.last.net)+" times smaller than before. Theory predicts a factor of four.":nodata();}},
+  {cap:"Step 4: 20 cm",say:function(){var s=st();return (s.first&&s.last!==s.first)?"The distance is "+Cm(s.last.r)+". The net rate is "+Cp(s.last.net)+". That is "+num(s.first.net/s.last.net)+" times smaller than at five centimeters. The distance grew four times, so the rate should fall sixteen times.":nodata();}},
+  {cap:"Step 5: analysis",say:function(){var s=st();return s.an?"Now we compute the net rate times the distance squared. In the table this product is almost constant: the average is "+num(s.an.avg)+", with a deviation of "+num(s.an.dev*100)+" percent. On the right graph the points lie on a straight line against the inverse distance squared. So the intensity is inversely proportional to the square of the distance.":nodata();}},
+  {cap:"Summary",say:function(){return "Summary. For a point beta source the count rate is inversely proportional to the distance squared. At larger distances, absorption in air and background cause deviations, especially for low-energy carbon fourteen. Now change the source, distance and absorption, and measure on your own."+(VG.live?" When you change a value, I will read out the state.":"");}}
+ ]
+}
+};
+
+function demo(r){rr=r;refresh(true);startMeas('src',true);}
+var M=[
+ {hl:[],gap:1500},
+ {hl:['cardSrc'],gap:6500},
+ {hl:['cardA','cardR','cardT'],gap:6500},
+ {hl:['btnRow'],gap:3000,act:function(){src=0;Aq=10;tm=30;rr=10;air=true;rows=[];bg=null;refresh(true);startMeas('bg',true);}},
+ {hl:['tblBox','resBox'],gap:3000,act:function(){demo(5);}},
+ {hl:['tblBox','resBox'],gap:3000,act:function(){demo(10);}},
+ {hl:['tblBox','resBox'],gap:3000,act:function(){demo(20);}},
+ {hl:['resBox','tblBox'],gap:3000},
+ {hl:[],gap:0}
+];
+
+// ---- Ovoz ----
+function voices(){return hasTTS?(synth.getVoices()||[]):[];}
+function nl(s){return (s||'').toLowerCase().replace('_','-');}
+function pickVoice(){
+  var best=null,bs=-1;
+  voices().forEach(function(v){
+    var vl=nl(v.lang);if(vl.indexOf(lang)!==0)return;
+    var sc=0;if(vl===nl(LC[lang]))sc+=2;if(/natural|neural/i.test(v.name))sc+=2;if(/google/i.test(v.name))sc+=1;if(v.localService)sc+=1;
+    if(sc>bs){bs=sc;best=v;}
+  });
+  return best;
+}
+function canSpeak(){return hasTTS&&VG.on&&(voices().length===0||!!pickVoice());}
+// Belgilarni tilga mos so'zlarga aylantiradi (n₁ → "n bir", = → "teng" ...)
+function spk(s){var w=G[lang].w;
+  return s.replace(/₁/g,' '+w.one+' ').replace(/₂/g,' '+w.two+' ').replace(/η/g,w.eta).replace(/Ω/g,w.ohm)
+   .replace(/(\d)\.(\d)/g,lang==='uz'?'$1 butun $2':'$1.$2').replace(/%/g,' '+w.pct).replace(/·/g,' '+w.mul+' ').replace(/\//g,' '+w.div+' ').replace(/=/g,' '+w.eq+' ').replace(/\s+/g,' ').replace(/\s+([,.;:!?])/g,'$1').trim();}
+function chunk(t){var ss=t.replace(/([.!?])\s+/g,'$1\u0001').split('\u0001'),out=[],cur='';
+  ss.forEach(function(x){x=x.trim();if(!x)return;if(cur&&(cur+' '+x).length>170){out.push(cur);cur=x;}else cur=cur?cur+' '+x:x;});
+  if(cur)out.push(cur);return out;}
+function cancelSpeech(){VG.tok++;clearTimeout(VG.timer);if(hasTTS){try{synth.cancel();}catch(e){}}}
+function speak(text,done){
+  var busy=hasTTS&&(synth.speaking||synth.pending);
+  cancelSpeech();
+  var tok=VG.tok,over=false;
+  var fin=function(){if(over||tok!==VG.tok)return;over=true;if(done)done();};
+  if(!canSpeak()){VG.timer=setTimeout(fin,Math.max(2500,text.length*55));return;}
+  var begin=function(){
+    if(tok!==VG.tok)return;
+    var v=pickVoice(),parts=chunk(spk(text)),i=0;
+    var next=function(){
+      if(tok!==VG.tok)return;
+      if(i>=parts.length){fin();return;}
+      var p=parts[i++],ended=false,u;
+      try{u=new SpeechSynthesisUtterance(p);}catch(e){fin();return;}
+      if(v){u.voice=v;u.lang=v.lang;}else{u.lang=LC[lang];}
+      u.rate=VG.rate;
+      var nx=function(){if(ended||tok!==VG.tok)return;ended=true;clearTimeout(VG.timer);next();};
+      u.onend=nx;u.onerror=nx;
+      VG.keep=[u];
+      clearTimeout(VG.timer);
+      VG.timer=setTimeout(nx,Math.max(4000,p.length*130/VG.rate));
+      try{synth.speak(u);}catch(e){nx();}
+    };
+    next();
+  };
+  if(busy)setTimeout(begin,80);else begin();
+}
+
+// ---- Interfeys ----
+function warn(){var U=G[lang].ui,w='';
+  if(!hasTTS)w=U.noTTS;else if(voices().length&&!pickVoice())w=U.noVoice;
+  q('vgWarn').textContent=w;}
+function stepText(i){var s=G[lang].steps[i].say;return typeof s==='function'?s():s;}
+function buttons(){var U=G[lang].ui,last=G[lang].steps.length-1;
+  q('vgMain').textContent=VG.run?U.stop:(VG.step<0?U.start:U.again);
+  q('vgPrev').disabled=VG.step<=0;q('vgNext').disabled=VG.step>=last;
+  q('vgMute').textContent=VG.on?'🔊':'🔇';q('vgMute').setAttribute('aria-pressed',VG.on?'true':'false');}
+function render(){var g=G[lang],U=g.ui;
+  q('vgPrev').title=U.prevT;q('vgPrev').setAttribute('aria-label',U.prevT);
+  q('vgNext').textContent=U.next;q('vgMute').title=U.muteT;q('vgMute').setAttribute('aria-label',U.muteT);
+  q('vgRateLbl').textContent=U.rate;q('vgLiveLbl').textContent=U.live;q('vgAutoLbl').textContent=U.auto;
+  q('guidebar').setAttribute('aria-label',U.title);
+  if(VG.step<0){q('vgCap').textContent=U.title;q('vgTxt').textContent=U.hint;}
+  else{q('vgCap').textContent=g.steps[VG.step].cap;q('vgTxt').textContent=stepText(VG.step);}
+  q('vgTxt').scrollTop=0;warn();buttons();}
+function hl(ids){
+  Array.prototype.forEach.call(document.querySelectorAll('.hl'),function(e){e.classList.remove('hl');});
+  var calm=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  ids.forEach(function(id,i){var e=q(id);if(!e)return;e.classList.add('hl');if(i===0&&e.scrollIntoView)e.scrollIntoView({block:'nearest',behavior:calm?'auto':'smooth'});});
+}
+
+// ---- Yo'riqnoma ketma-ketligi ----
+function go(i){
+  var last=G[lang].steps.length-1;i=Math.max(0,Math.min(last,i));
+  clearTimeout(VG.autoT);clearTimeout(VG.liveT);
+  VG.step=i;VG.run=true;
+  if(M[i].act)M[i].act();
+  hl(M[i].hl);render();
+  speak(stepText(i),function(){
+    if(VG.auto&&i<last){VG.autoT=setTimeout(function(){if(VG.run)go(i+1);},M[i].gap);}
+    else{VG.run=false;buttons();}
+  });
+}
+function stop(){VG.run=false;clearTimeout(VG.autoT);clearTimeout(VG.liveT);cancelSpeech();buttons();}
+
+// Slayder o'zgarganda natijani aytib beradi (0.9 s to'xtagach)
+function live(){
+  if(!VG.live||VG.run||!canSpeak())return;
+  clearTimeout(VG.liveT);
+  VG.liveT=setTimeout(function(){if(VG.run||!canSpeak())return;speak(G[lang].liveF(st()),null);},900);
+}
+
+q('vgMain').addEventListener('click',function(){if(VG.run)stop();else go(VG.step<0?0:VG.step);});
+q('vgPrev').addEventListener('click',function(){go(VG.step-1);});
+q('vgNext').addEventListener('click',function(){go(VG.step+1);});
+q('vgMute').addEventListener('click',function(){VG.on=!VG.on;if(!VG.on)stop();buttons();warn();});
+q('vgRate').addEventListener('change',function(){VG.rate=parseFloat(this.value)||1;});
+q('vgLive').addEventListener('change',function(){VG.live=this.checked;if(!VG.live)clearTimeout(VG.liveT);});
+q('vgAuto').addEventListener('change',function(){VG.auto=this.checked;});
+if(hasTTS){synth.onvoiceschanged=warn;window.addEventListener('pagehide',function(){try{synth.cancel();}catch(e){}});}
+
+// Boshlash ekranidagi «Boshlash» bosilganda (foydalanuvchi bosishi ichida chaqiriladi — brauzer ovozga ruxsat beradi)
+window.vgOnStart=function(want){VG.on=want;if(want)go(0);else render();};
+window.vgApplyLang=render;
+window.vgStop=stop;
+window.vgLive=live;
+render();
+})();
+</script>
+</body>
+</html>
