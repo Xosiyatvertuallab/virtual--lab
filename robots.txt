@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://xosiyatvertuallab.github.io/virtual--lab/sitemap.xml
